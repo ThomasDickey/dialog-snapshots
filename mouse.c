@@ -1,5 +1,5 @@
 /*
- * $Id: mouse.c,v 1.10 2002/06/22 12:05:13 tom Exp $
+ * $Id: mouse.c,v 1.11 2003/03/08 16:41:49 tom Exp $
  *
  * mouse.c - mouse support for dialog
  *
@@ -77,8 +77,9 @@ mouse_mkregion(int y, int x, int height, int width, int code)
 {
     mseRegion *butPtr;
 
-    if ((butPtr = find_region_by_code(code)) == 0
-	&& (butPtr = malloc(sizeof(mseRegion))) != 0) {
+    if ((butPtr = find_region_by_code(code)) == 0) {
+	butPtr = malloc(sizeof(mseRegion));
+	assert_ptr(butPtr, "mouse_mkregion");
 	butPtr->next = regionList;
 	regionList = butPtr;
     }

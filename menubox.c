@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.46 2003/01/30 21:05:24 tom Exp $
+ *  $Id: menubox.c,v 1.47 2003/03/08 16:40:50 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -100,6 +100,8 @@ input_menu_edit(WINDOW *win, char **items, int choice)
     int y = dialog_vars.input_menu ? choice * INPUT_ROWS : choice - 1;
 
     result = malloc(dialog_vars.max_input);
+    assert_ptr(result, "input_menu_edit");
+
     dialog_vars.max_input = dialog_vars.max_input;
 
     /* original item is used to initialize the input string. */
