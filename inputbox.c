@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.32 2002/06/22 12:20:32 tom Exp $
+ *  $Id: inputbox.c,v 1.33 2003/01/30 21:04:15 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -151,5 +151,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     del_window(dialog);
     mouse_free_regions();
+    free(prompt);
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.7 2002/06/15 00:24:45 tom Exp $
+ * $Id: inputstr.c,v 1.8 2003/01/25 00:13:21 tobrit Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -84,8 +84,9 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
 		    string[i] = string[i - 1];
 		string[*offset] = key;
 		*offset += 1;
-	    } else
-		(void) flash();	/* Alarm user about overflow */
+	    } else {
+		(void) beep();
+	    }
 	    break;
 	}
 	edit = 0;

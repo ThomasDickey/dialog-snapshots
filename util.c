@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.87 2002/08/13 22:43:11 tom Exp $
+ *  $Id: util.c,v 1.91 2003/01/31 01:40:14 tom Exp $
  *
  *  util.c
  *
@@ -69,8 +69,6 @@ bool use_colors = USE_COLORS;
    Note that 'use_shadow' implies 'use_colors' */
 bool use_shadow = USE_SHADOW;
 #endif
-
-const char *dialog_result;
 
 /*
  * Attribute values, default is for mono display
@@ -202,14 +200,6 @@ dialog_clear(void)
 
 #define isprivate(s) ((s) != 0 && strstr(s, "\033[?") != 0)
 
-#ifdef NCURSES_VERSION
-static int
-my_putc(int ch)
-{
-    return fputc(ch, my_output);
-}
-#endif
-
 #define TTY_DEVICE "/dev/tty"
 
 static int
@@ -258,6 +248,7 @@ init_dialog(void)
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
 		(void) dup2(fileno(stdin), 0);
 	}
+	free(device);
     }
 
     /*
@@ -278,6 +269,7 @@ init_dialog(void)
 	if (newterm(NULL, my_output, stdin) == 0) {
 	    exiterr("cannot initialize curses");
 	}
+	free(device);
     } else {
 	my_output = stdout;
 	(void) initscr();
@@ -286,11 +278,12 @@ init_dialog(void)
     /*
      * Cancel xterm's alternate-screen mode.
      */
-    if (key_mouse != 0		/* xterm and kindred */
+    if ((my_output != stdout || isatty(fileno(my_output)))
+	&& key_mouse != 0	/* xterm and kindred */
 	&& isprivate(enter_ca_mode)
 	&& isprivate(exit_ca_mode)) {
-	(void) tputs(exit_ca_mode, 0, my_putc);
-	(void) tputs(clear_screen, 0, my_putc);
+	(void) putp(exit_ca_mode);
+	(void) putp(clear_screen);
     }
 #endif
     (void) keypad(stdscr, TRUE);
@@ -476,37 +469,37 @@ dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
  * *prompt is reached.
  */
 static const char *
-print_line(WINDOW *win, chtype *attr, const char *prompt, int rm, int *x)
+print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x)
 {
-    int cur_x = 2;
-    const char *wrap_ptr = prompt;	/* of the text (e.g. bold, reverse, */
-    const char *p = prompt + 1;	/* different colors) - default is   */
-    int i = 0;			/* normal text.                             */
+    int cur_x = lm;
+    const char *wrap_ptr = prompt;
+    const char *test_ptr = prompt;
+    int i = 0;
     int hidden = 0;
 
     *x = 1;
 
     /*
-     * Set *p to the end of the line or the right margin (rm), whichever is
+     * Set *test_ptr to the end of the line or the right margin (rm), whichever is
      * less, and set *wrap_ptr to the end of the last word in the line.
      */
-    while (*p != '\n' && *p != '\0' && cur_x < (rm + hidden)) {
-	if (*p == ' ' && *(p - 1) != ' ') {
-	    wrap_ptr = p;
+    while (*test_ptr != '\n' && *test_ptr != '\0' && cur_x < (rm + hidden)) {
+	if (*test_ptr == ' ' && test_ptr != prompt && *(test_ptr - 1) != ' ') {
+	    wrap_ptr = test_ptr;
 	    *x = cur_x;
-	} else if (isOurEscape(p)) {
+	} else if (isOurEscape(test_ptr)) {
 	    hidden += 3;
 	}
-	p++;
+	test_ptr++;
 	cur_x++;
     }
 
     /*
      * If the line doesn't reach the right margin in the middle of a word, then
-     * we don't have to wrap it at a the end of the previous word.
+     * we don't have to wrap it at the end of the previous word.
      */
-    if (*p == '\n' || *p == ' ' || *p == '\0') {
-	while (&wrap_ptr[++i] < p) {
+    if (*test_ptr == '\n' || *test_ptr == ' ' || *test_ptr == '\0') {
+	while (&wrap_ptr[++i] < test_ptr) {
 	    ;
 	}
 	while (wrap_ptr[i - 1] == ' ') {
@@ -521,7 +514,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int rm, int *x)
      */
     else if (*x == 1 && cur_x == rm) {
 	*x = rm;
-	wrap_ptr = p;
+	wrap_ptr = test_ptr;
     }
 
     /*
@@ -537,12 +530,12 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int rm, int *x)
 	*x = rm;
 
     /* Find the start of the next line and return a pointer to it */
-    p = wrap_ptr;
-    while (*p == ' ')
-	p++;
-    if (*p == '\n')
-	p++;
-    return (p);
+    test_ptr = wrap_ptr;
+    while (*test_ptr == ' ')
+	test_ptr++;
+    if (*test_ptr == '\n')
+	test_ptr++;
+    return (test_ptr);
 }
 
 static void
@@ -553,16 +546,16 @@ justify_text(WINDOW *win,
 	     int *high, int *wide)
 {
     chtype attr = A_NORMAL;
-    int x = 2;
+    int x = (2 * MARGIN);
     int y = 1;
     int max_x = 2;
-    int lm = 2;			/* left margin */
+    int lm = (2 * MARGIN);	/* left margin */
     int rm = limit_x;		/* right margin */
     int bm = limit_y;		/* bottom margin */
 
     if (win) {
-	rm -= 4;
-	bm -= 2;
+	rm -= (2 * MARGIN);
+	bm -= (2 * MARGIN);
     }
     if (prompt == 0)
 	prompt = "";
@@ -583,7 +576,7 @@ justify_text(WINDOW *win,
 	    (void) wmove(win, y, lm);
 
 	if (*prompt)
-	    prompt = print_line(win, &attr, prompt, rm, &x);
+	    prompt = print_line(win, &attr, prompt, lm, rm, &x);
 	if (*prompt) {
 	    ++y;
 	    if (win != 0)
@@ -1308,4 +1301,27 @@ dlg_set_focus(WINDOW *parent, WINDOW *win)
 	(void) wnoutrefresh(win);
 	(void) doupdate();
     }
+}
+
+/*
+ * Most of the time we can copy into a fixed buffer.  This handles the other
+ * cases, e.g., checklist.c
+ */
+void
+dlg_add_result(char *string)
+{
+    unsigned have = strlen(dialog_vars.input_result);
+    unsigned want = strlen(string) + have;
+
+    if (want >= MAX_LEN) {
+	if (dialog_vars.input_length == 0) {
+	    dialog_vars.input_length = want * 2;
+	    dialog_vars.input_result = malloc(dialog_vars.input_length);
+	} else if (want >= dialog_vars.input_length) {
+	    dialog_vars.input_length = want * 2;
+	    dialog_vars.input_result = realloc(dialog_vars.input_result,
+					       dialog_vars.input_length);
+	}
+    }
+    strcat(dialog_vars.input_result, string);
 }

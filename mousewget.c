@@ -1,5 +1,5 @@
 /*
- * $Id: mousewget.c,v 1.11 2002/06/22 12:07:28 tom Exp $
+ * $Id: mousewget.c,v 1.12 2003/01/24 21:50:45 tobrit Exp $
  *
  * mousewget.c - mouse_wgetch support for dialog
  *
@@ -27,7 +27,7 @@ mouse_wgetch(WINDOW *win)
 {
     int key;
 
-#if defined(NCURSES_MOUSE_VERSION)
+#if USE_MOUSE
 
     do {
 

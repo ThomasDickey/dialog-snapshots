@@ -1,8 +1,47 @@
--- $Id: CHANGES,v 1.60 2002/08/13 23:51:09 tom Exp $
+-- $Id: CHANGES,v 1.63 2003/01/31 01:46:00 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/01/30
+	+ corrected print_line(), which subtracted the margin twice from the
+	  right-limit, making a string wrap unnecessarily (Debian #168823).
+	+ correct initial limit-check for arrows in checklist.c, which used
+	  the wrong variable, showing the bottom arrow when it should not
+	  (Debian #168823).
+	+ modify driver to always call show_result(), to simplify updates.
+	+ fix several memory leaks, important if dialog is run with a large
+	  number of widgets (report by albert.veli@telia.com forwarded by
+	  Santiago Vila <sanvila@unex.es>).
+	+ check if the screen output is actually to the terminal before trying
+	  to suppress xterm's alternate screen mode (see 2000/01/18) (report by
+	  David Oliveira <davidoliveira@develop.prozone.ws>).
+	+ use dialog_vars.input_result consistently to return the text which is
+	  printed after a widget completes.  In many cases, dialog now
+	  allocates enough space to hold the text, rather than use a fixed
+	  buffer.  The checklist widget was writing directly to the output to
+	  avoid limits of the fixed buffer.
+	+ modify dialog.c to also write dialog_vars.input_result if the
+	  Help-button was pressed (request by Amon Ott <ott@compuniverse.de>).
+	+ add hu.po (Arpad Biro <biro_arpad@yahoo.com>).
+	+ update fr.po, pt.po, pt_BR.po to add strings for "Help" button (patch
+	  by Frederic L W Meunier).
+	+ fix off-by-one error in menu.c, checklist.c (reported by 
+	  Tomasz Wasiak <tjwasiak@komputom.com.pl> 2002/9/15 and others:
+	  Andrew Gaul <andrew@gaul.org> 2002/11/12,
+	  Tobias C Rittweiler 2002/11/19,
+	  Arpad Biro <biro_arpad@yahoo.com> 2003/1/21).
+	+ updated configure script, improving checks for ncurses in various
+	  locations, updated NLS script to match lynx.  Added --with-curses-dir
+	  option.
+	> Tobias C Rittweiler:
+	+ make ifdef in mousewget.c consistent with usage in dialog.h
+	+ use beep() rather than flash() in dlg_edit_string(), for consistency
+	  with the other functions.
+	+ change order of buttons so extra button falls between Ok/Cancel.
+	+ fix so "dialog --print-maxsize" exits from curses.
+	+ add --inputmenu option.
 
 2002/08/14
 	+ modify checklist.c and menubox.c to treat the extra button like the
@@ -34,8 +73,12 @@ to it:
 	  --item-help are specified before assuming that selecting the help
 	  button should cause the "HELP {item-help}" message to be printed
 	  (reported by Marcel Ritter <Marcel.Ritter@rrze.uni-erlangen.de>).
-	+ modify init_dialog() to work around HP's broken tty driver (report
-	  by John Mudd <John.Mudd@ImageSoft.Fiserv.com>).
+	+ modify init_dialog() to work around HP's broken tty driver (report by
+	  John Mudd <John.Mudd@ImageSoft.Fiserv.com>).  Specifically, the
+	  problem is that when opening /dev/tty directly (to support the
+	  --stdout option), the terminal does not change to raw mode.  The
+	  workaround opens /dev/tty only as needed; the --stdout option does
+	  not work on HPUX but otherwise dialog works.
 	+ updated el.po (patch by kromJx <kromJx@crosswinds.net>).
 
 2002/05/19

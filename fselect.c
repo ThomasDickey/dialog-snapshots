@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.32 2002/06/22 12:09:10 tom Exp $
+ * $Id: fselect.c,v 1.33 2003/01/30 20:59:49 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -106,7 +106,7 @@ data_of(LIST * list)
 }
 
 static void
-free_list(LIST * list)
+free_list(LIST * list, int reinit)
 {
     int n;
 
@@ -116,7 +116,8 @@ free_list(LIST * list)
 	free(list->data);
 	list->data = 0;
     }
-    init_list(list, list->par, list->win, list->mousex);
+    if (reinit)
+	init_list(list, list->par, list->win, list->mousex);
 }
 
 static void
@@ -343,8 +344,8 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
     strcpy(current, input);
 
     /* refill the lists */
-    free_list(d_list);
-    free_list(f_list);
+    free_list(d_list, TRUE);
+    free_list(f_list, TRUE);
     strcpy(path, current);
     if ((leaf = strrchr(path, '/')) != 0) {
 	*++leaf = 0;
@@ -651,7 +652,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     del_window(dialog);
     mouse_free_regions();
-    free_list(&d_list);
-    free_list(&f_list);
+    free_list(&d_list, FALSE);
+    free_list(&f_list, FALSE);
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.27 2002/06/22 12:23:08 tom Exp $
+ * $Id: calendar.c,v 1.28 2003/01/30 21:05:04 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -569,5 +569,6 @@ dialog_calendar(const char *title,
     sprintf(dialog_vars.input_result, "%02d/%02d/%0d\n",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
     mouse_free_regions();
+    free(prompt);
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.29 2001/08/11 18:42:32 tom Exp $
+ *  $Id: tailbox.c,v 1.30 2003/01/30 22:10:41 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -291,5 +291,6 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     } else {
 	while (handle_my_getc(&(obj->obj), dlg_getc(dialog), &result)) ;
     }
+    mouse_free_regions();
     return result;
 }

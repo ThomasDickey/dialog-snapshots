@@ -1,0 +1,56 @@
+# Dialog
+# Copyright 2001, # Thomas Dickey
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Dialog\n"
+"POT-Creation-Date: 2001-05-27 11:42-0400\n"
+"PO-Revision-Date: 2003-01-21 16:31GMT+1\n"
+"Last-Translator: Arpad Biro <biro_arpad@yahoo.com>\n"
+"Language-Team: Hungarian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 0.9.5\n"
+
+#: buttons.c:255
+msgid "OK"
+msgstr "OK"
+
+#: buttons.c:263
+msgid "Cancel"
+msgstr "Mégsem"
+
+#: buttons.c:271
+msgid "Help"
+msgstr "Súgó"
+
+#: buttons.c:283
+msgid "EXIT"
+msgstr "KILÉP"
+
+#: buttons.c:339
+msgid "Yes"
+msgstr "Igen"
+
+#: buttons.c:340
+msgid "No"
+msgstr "Nem"
+
+#: calendar.c:261
+msgid "Month"
+msgstr "Hónap"
+
+#: calendar.c:280
+msgid "Year"
+msgstr "Év"
+
+#: fselect.c:344
+msgid "Directories"
+msgstr "Könyvtárak"
+
+#: fselect.c:345
+msgid "Files"
+msgstr "Fájlok"
+

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.93 2002/08/13 20:41:55 tom Exp $
+ *  $Id: dialog.h,v 1.95 2003/01/29 01:40:07 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -262,6 +262,7 @@ typedef struct {
     bool dlg_clear_screen;
     bool extra_button;
     bool help_button;
+    bool input_menu;
     bool item_help;
     bool nocancel;
     bool nocollapse;
@@ -278,7 +279,8 @@ typedef struct {
     char *help_label;
     char *ok_label;
     char *title;
-    char input_result[MAX_LEN + 1];
+    char *input_result;
+    unsigned input_length;	/* nonzero if allocated */
     int aspect_ratio;
     int begin_x;
     int begin_y;
@@ -408,6 +410,7 @@ extern void killall_bg(int *retval);
 
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
+extern void dlg_add_result(char *string);
 extern void dlg_exit(int code) GCC_NORETURN;
 extern void dlg_item_help(char *txt);
 extern void dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);
