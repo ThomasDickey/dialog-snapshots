@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.129 2004/12/22 23:35:40 tom Exp $
+ * $Id: dialog.c,v 1.130 2005/01/16 16:53:48 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -308,7 +308,7 @@ string_to_argv(char *blob)
 	if (!pass) {
 	    if (count) {
 		result = calloc(count + 1, sizeof(char *));
-		assert_ptr(result, "unescape_argv");
+		assert_ptr(result, "string_to_argv");
 	    } else {
 		break;		/* no tokens found */
 	    }
@@ -343,6 +343,9 @@ count_argv(char **argv)
  * Also, if we see a "--file", expand it into the parameter list by reading the
  * text from the given file and stripping quotes, treating whitespace outside
  * quotes as a parameter delimiter.
+ *
+ * Finally, if we see a "--args", dump the current list of arguments to the
+ * standard error.  This is used for debugging complex --file combinations.
  */
 static void
 unescape_argv(int *argcp, char ***argvp)
@@ -362,6 +365,15 @@ unescape_argv(int *argcp, char ***argvp)
 	if (!strcmp((*argvp)[j], "--")) {
 	    changed = TRUE;
 	    escaped = TRUE;
+	    *argcp -= 1;
+	    for (k = j; k <= *argcp; k++)
+		(*argvp)[k] = (*argvp)[k + 1];
+	} else if (!strcmp((*argvp)[j], "--args")) {
+	    fprintf(stderr, "Showing arguments at arg%d\n", j);
+	    for (k = 0; k < *argcp; ++k) {
+		fprintf(stderr, " arg%d:%s\n", k, (*argvp)[k]);
+	    }
+	    changed = TRUE;
 	    *argcp -= 1;
 	    for (k = j; k <= *argcp; k++)
 		(*argvp)[k] = (*argvp)[k + 1];

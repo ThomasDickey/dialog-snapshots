@@ -1,4 +1,19 @@
-.\" $Id: dialog.1,v 1.81 2004/12/20 00:42:18 tom Exp $
+.\" $Id: dialog.1,v 1.82 2005/01/16 16:59:41 tom Exp $
+.\" Copyright 2005  Thomas E. Dickey
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License
+.\" as published by the Free Software Foundation; either version 2
+.\" of the License, or (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; if not, write to the Free Software
+.\" Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 .de EX
 .ne 8
 .IP
@@ -12,7 +27,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2004/12/20 00:42:18 $"
+.TH DIALOG 1 "" "$Date: 2005/01/16 16:59:41 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -81,6 +96,12 @@ i.e., the next token on the command-line is not treated as an option.
 .RS
 .B dialog --title -- --Not an option
 .RE
+.PP
+The "\fB--args\fP" option tells \fBdialog\fP to list the command-line
+parameters to the standard error.
+This is useful when debugging complex scripts using
+the "\fB--\fP" and "\fB--file\fP",
+since the command-line may be rewritten as these are expanded.
 .PP
 The "\fB--file\fP" option tells \fBdialog\fP to read parameters from
 the file named as its value.

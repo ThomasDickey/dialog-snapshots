@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.121 2004/12/23 01:33:49 tom Exp $
+-- $Id: CHANGES,v 1.122 2005/01/16 16:54:22 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/01/16
+	+ add --args option to help with debugging scripts.
+	+ adapted some new po files from Debian package for whiptail:  ar.po,
+	  bg.po, gl.po, hi.po, hr.po, mg.po, mk.po, ro.po, sq.po and zh_TW.po
+	+ update da.po (Morten Brix Pedersen).
+	+ add configure check for Intel 8.0 compiler, to set appropriate
+	  warning options.
+	+ update config.guess, config.sub
 
 2004/12/22
 	+ correct a typo in 2004/12/19 changes which caused width of multibyte
