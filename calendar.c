@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.30 2003/07/12 17:46:20 tom Exp $
+ * $Id: calendar.c,v 1.31 2003/07/26 11:11:06 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -384,6 +384,8 @@ dialog_calendar(const char *title,
     STATES state = 0;
     const char **buttons = dlg_ok_labels();
     char *prompt = strclone(subtitle);
+
+    dlg_does_output();
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);

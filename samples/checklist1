@@ -1,8 +1,11 @@
 #! /bin/sh
+# $Id: checklist1,v 1.2 2003/08/15 19:40:37 tom Exp $
 : ${DIALOG=dialog}
+
 : ${DIALOG_OK=0}
 : ${DIALOG_CANCEL=1}
 : ${DIALOG_ESC=255}
+
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 

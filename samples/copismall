@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: copismall,v 1.3 2001/01/15 22:15:24 tom Exp $
+# $Id: copismall,v 1.5 2003/08/15 19:34:18 tom Exp $
 #
 #  ComeOn Point Installer! v0.9a.small (small version for cdialog v0.9a)
 #  - installa il point in modo visuale e auto-detecting. Versione light.
@@ -27,7 +27,7 @@
 # demo of cdialog. ComeOn Linux! follows the GNU philosophy.
 # Send peacefully a mail to demarco_p@abramo.it for more info.
 
-DIALOG=${DIALOG=dialog}
+: ${DIALOG=dialog}
 
 #COMEONDIR=/usr/lib/ComeOn
 #POINTDIR=$COMEONDIR/point
@@ -49,12 +49,10 @@ FUNCSDIR=$POINTDIR/copifuncs
 
 #POINTVER="v1.1"		# ComeOn Point version
 
-reset
-
 if [ $LOGNAME != root ]
 then
   $DIALOG --backtitle "$TITLE" --title "Error!" --beep --msgbox "Questo programma per funzionare correttamente deve essere avviato dall'amministratore di sistema (root)." 0 0
-  reset;exit
+  exit
 fi
 
 
@@ -63,7 +61,7 @@ auto-detect all'installazione del point.
 Premi <Enter> per iniziare o <Esc> per uscire. " 0 0
 
 if [ $? = 1 -o $? = 255 ]; then
- reset;exit
+ exit
 fi
 
 
@@ -78,7 +76,7 @@ find_incompatible_packages
 if [ "$PKG_TO_REMOVE" ]
 then
   $DIALOG --backtitle "$TITLE" --beep --title "Problem detected" --msgbox "Attenzione, prima di poter continuare bisogna avviare pkgtool e rimuovere i seguenti packages: $PKG_TO_REMOVE." 0 0
-  reset;exit
+  exit
 fi
 
 ###############################################################################
@@ -98,7 +96,7 @@ then
   $DIALOG --backtitle "$TITLE" --beep --title "Problem detected" --msgbox "`cat $tmp_dialog`" 0 0
 
   rm $tmp_dialog
-  reset;exit
+  exit
 fi
 
 ###############################################################################
@@ -296,4 +294,3 @@ $DIALOG --backtitle "$TITLE" \
 --msgbox "trn (il newsreader, per leggere/scrivere gli echomail) ed elm (il mailreader, per leggere/scrivere i netmail) sono gia' stati configurati per l'user $POST_USER." 0 0
 
 popd >/dev/null
-reset

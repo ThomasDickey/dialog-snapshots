@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.35 2003/07/20 18:14:59 tom Exp $
+ *  $Id: inputbox.c,v 1.37 2003/07/31 00:28:37 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -42,6 +42,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();
+
+    dlg_does_output();
 
     tab_correct_str(prompt);
     if (init != NULL) {
@@ -102,6 +104,17 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	if (!first)
 	    key = mouse_wgetch(dialog, &fkey);
 
+	/*
+	 * Handle mouse clicks first, since we want to know if this is a button,
+	 * or something that dlg_edit_string() should handle.
+	 */
+	if (fkey
+	    && key >= M_EVENT
+	    && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+	    result = code;
+	    continue;
+	}
+
 	if (state == sTEXT) {	/* Input box selected */
 	    edit = dlg_edit_string(input, &chr_offset, key, fkey, first);
 
@@ -113,14 +126,15 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    }
 	}
 
-	if ((code = dlg_char_to_button(key, buttons)) >= 0) {
-	    del_window(dialog);
-	    result = code;
-	    continue;
-	}
-
 	/* handle non-functionkeys */
 	if (!fkey) {
+
+	    if ((code = dlg_char_to_button(key, buttons)) >= 0) {
+		del_window(dialog);
+		result = code;
+		continue;
+	    }
+
 	    switch (key) {
 	    case ESC:
 		result = DLG_EXIT_ESC;
@@ -159,10 +173,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		break;
 	    default:
-		if (key >= M_EVENT
-		    && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-		    result = code;
-		}
 		break;
 	    }
 	}

@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.35 2003/07/12 18:40:12 tom Exp $
+ * $Id: fselect.c,v 1.36 2003/07/26 11:11:06 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -424,6 +424,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     int min_wide = MIN_WIDE;
     int min_items = height ? 0 : 4;
     LIST d_list, f_list;
+
+    dlg_does_output();
 
     auto_size(title, (char *) 0, &height, &width, 6, 25);
     height += MIN_HIGH + min_items;

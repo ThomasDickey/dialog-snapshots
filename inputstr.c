@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.15 2003/07/20 19:10:07 tom Exp $
+ * $Id: inputstr.c,v 1.23 2003/08/18 23:56:57 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -22,99 +22,243 @@
 
 #include "dialog.h"
 
+typedef struct _cache {
+    struct _cache *next;
+#ifdef HAVE_WGET_WCH
+    struct _cache *cache_at;	/* unique: associate caches by CACHE */
+    const char *string_at;	/* unique: associate caches by char* */
+#endif
+    unsigned s_len;		/* strlen(string) - we add 1 for EOS */
+    unsigned i_len;		/* length(list) - we add 1 for EOS */
+    char *string;		/* a copy of the last-processed string */
+    int *list;			/* indices into the string */
+} CACHE;
+
+#ifdef HAVE_WGET_WCH
+static CACHE *cache_list;
+
+static void
+make_cache(CACHE * cache, const char *string)
+{
+    CACHE *p;
+
+    p = (CACHE *) calloc(1, sizeof(CACHE));
+    assert_ptr(p, "load_cache");
+    p->next = cache_list;
+    cache_list = p;
+
+    p->cache_at = cache;
+    p->string_at = string;
+
+    *cache = *p;
+}
+
+static void
+load_cache(CACHE * cache, const char *string)
+{
+    CACHE *p;
+
+    for (p = cache_list; p != 0; p = p->next) {
+	if (p->cache_at == cache
+	    && p->string_at == string) {
+	    *cache = *p;
+	    return;
+	}
+    }
+    make_cache(cache, string);
+}
+
+static void
+save_cache(CACHE * cache, const char *string)
+{
+    CACHE *p;
+
+    for (p = cache_list; p != 0; p = p->next) {
+	if (p->cache_at == cache
+	    && p->string_at == string) {
+	    CACHE *q = p->next;
+	    *p = *cache;
+	    p->next = q;
+	    return;
+	}
+    }
+}
+#else
+#define load_cache(cache, string)	/* nothing */
+#define save_cache(cache, string)	/* nothing */
+#endif
+
+/*
+ * If the given string has not changed, we do not need to update the index.
+ * If we need to update the index, allocate enough memory for it.
+ */
+static bool
+same_cache2(CACHE * cache, const char *string, unsigned i_len)
+{
+    unsigned need;
+    unsigned s_len = strlen(string);
+
+    if (cache->s_len != 0
+	&& cache->s_len >= s_len
+	&& cache->list != 0
+	&& cache->string != 0
+	&& memcmp(cache->string, string, s_len) == 0) {
+	return TRUE;
+    }
+
+    need = sizeof(int *) * (i_len + 1);
+    if (cache->list == 0) {
+	cache->list = malloc(need);
+    } else if (cache->i_len < i_len) {
+	cache->list = realloc(cache->list, need);
+    }
+    cache->i_len = i_len;
+
+    if (cache->s_len >= s_len && cache->string != 0) {
+	strcpy(cache->string, string);
+    } else {
+	if (cache->string != 0)
+	    free(cache->string);
+	cache->string = strclone(string);
+    }
+    cache->s_len = s_len;
+
+    return FALSE;
+}
+
+#ifdef HAVE_WGET_WCH
+/*
+ * Like same_cache2(), but we are only concerned about caching a copy of the
+ * string and its associated length.
+ */
+static bool
+same_cache1(CACHE * cache, const char *string, unsigned i_len)
+{
+    unsigned s_len = strlen(string);
+
+    if (cache->s_len == s_len
+	&& cache->string != 0
+	&& memcmp(cache->string, string, s_len) == 0) {
+	return TRUE;
+    }
+
+    if (cache->s_len >= s_len && cache->string != 0) {
+	strcpy(cache->string, string);
+    } else {
+	if (cache->string != 0)
+	    free(cache->string);
+	cache->string = strclone(string);
+    }
+    cache->s_len = s_len;
+    cache->i_len = i_len;
+
+    return FALSE;
+}
+#endif
+
 /*
  * Counts the number of bytes that make up complete wide-characters, up to byte
  * 'len'.
  */
 #ifdef HAVE_WGET_WCH
 static int
-count_wcbytes(char *string, size_t len)
+dlg_count_wcbytes(const char *string, size_t len)
 {
-    int part = 0;
-    int result = 0;
+    static CACHE cache;
 
-    while (len != 0) {
-	const char *src = string;
-	mbstate_t state;
-	int save = string[len];
+    load_cache(&cache, string);
+    if (!same_cache1(&cache, string, len)) {
+	while (len != 0) {
+	    int part = 0;
+	    int result = 0;
+	    const char *src = cache.string;
+	    mbstate_t state;
+	    int save = cache.string[len];
 
-	string[len] = '\0';
-	memset(&state, 0, sizeof(state));
-	result = mbsrtowcs((wchar_t *) 0, &src, len, &state);
-	string[len] = save;
-	if (result >= 0) {
-	    break;
+	    cache.string[len] = '\0';
+	    memset(&state, 0, sizeof(state));
+	    result = mbsrtowcs((wchar_t *) 0, &src, len, &state);
+	    cache.string[len] = save;
+	    if (result >= 0) {
+		break;
+	    }
+	    ++part;
+	    --len;
 	}
-	++part;
-	--len;
+	cache.i_len = len;
     }
-    return len;
+    save_cache(&cache, string);
+    return cache.i_len;
 }
 #else
-#define count_wcbytes(string,len) len
+#define dlg_count_wcbytes(string,len) len
 #endif
 
 /*
- * Counts the number of wide-characters in the string, up to byte 'len'.
+ * Counts the number of wide-characters in the string.
  */
-#ifdef HAVE_WGET_WCH
-static int
-count_wchars(char *string, size_t len)
+int
+dlg_count_wchars(const char *string)
 {
-    const char *src = string;
-    mbstate_t state;
-    int part = count_wcbytes(string, len);
-    int save = string[part];
-    int result;
-    wchar_t *temp = calloc(sizeof(wchar_t), len + 1);
+#ifdef HAVE_WGET_WCH
+    static CACHE cache;
+    size_t len = strlen(string);
 
-    string[part] = '\0';
-    memset(&state, 0, sizeof(state));
-    result = mbsrtowcs(temp, &src, part, &state);
-    string[part] = save;
-    len = wcslen(temp);
-    free(temp);
+    load_cache(&cache, string);
+    if (!same_cache1(&cache, string, len)) {
+	const char *src = cache.string;
+	mbstate_t state;
+	int part = dlg_count_wcbytes(cache.string, len);
+	int save = cache.string[part];
+	int result;
+	wchar_t *temp = calloc(sizeof(wchar_t), len + 1);
 
-    return len;
-}
+	cache.string[part] = '\0';
+	memset(&state, 0, sizeof(state));
+	result = mbsrtowcs(temp, &src, part, &state);
+	cache.string[part] = save;
+	cache.i_len = wcslen(temp);
+	free(temp);
+    }
+
+    save_cache(&cache, string);
+    return cache.i_len;
 #else
-#define count_wchars(string,len) len
+    return strlen(string);
 #endif
+}
 
 /*
  * Build an index of the wide-characters in the string, so we can easily tell
  * which byte-offset begins a given wide-character.
  */
-static int *
-index_wchars(char *string)
+const int *
+dlg_index_wchars(const char *string)
 {
-    static int *list;
-    static unsigned have;
-    unsigned len = count_wchars(string, strlen(string));
+    static CACHE cache;
+    unsigned len = dlg_count_wchars(string);
     unsigned inx;
 
-    if (list == 0) {
-	have = 80;
-	list = malloc(sizeof(int *) * have);
-    }
-    if ((len + 2) > have) {
-	have = (2 * len) + 3;
-	list = realloc(list, sizeof(int *) * have);
-    }
-    list[0] = 0;
-    for (inx = 1; inx <= len; ++inx) {
+    load_cache(&cache, string);
+    if (!same_cache2(&cache, string, len)) {
+	const char *current = string;
+
+	cache.list[0] = 0;
+	for (inx = 1; inx <= len; ++inx) {
 #ifdef HAVE_WGET_WCH
-	mbstate_t state;
-	int width;
-	memset(&state, 0, sizeof(state));
-	width = mbrlen(string, strlen(string), &state);
-	string += width;
-	list[inx] = list[inx - 1] + width;
+	    mbstate_t state;
+	    int width;
+	    memset(&state, 0, sizeof(state));
+	    width = mbrlen(current, strlen(current), &state);
+	    current += width;
+	    cache.list[inx] = cache.list[inx - 1] + width;
 #else
-	list[inx] = inx;
+	    cache.list[inx] = inx;
 #endif
+	}
     }
-    return list;
+    save_cache(&cache, string);
+    return cache.list;
 }
 
 /*
@@ -122,7 +266,7 @@ index_wchars(char *string)
  * array index.
  */
 static int
-find_index(int *list, int limit, int to_find)
+dlg_find_index(const int *list, int limit, int to_find)
 {
     int result;
     for (result = 0; result <= limit; ++result) {
@@ -137,61 +281,88 @@ find_index(int *list, int limit, int to_find)
 /*
  * Build a list of the display-columns for the given string's characters.
  */
-static int *
-index_columns(char *string)
+const int *
+dlg_index_columns(const char *string)
 {
-    static int *list;
-    static unsigned have;
-    size_t num_bytes = strlen(string);
-    unsigned len = count_wchars(string, num_bytes);
+    static CACHE cache;
+    unsigned len = dlg_count_wchars(string);
     unsigned inx;
 
-    if (list == 0) {
-	have = 80;
-	list = malloc(sizeof(int *) * have);
-    }
-    if ((len + 2) > have) {
-	have = (2 * len) + 3;
-	list = realloc(list, sizeof(int *) * have);
-    }
-    list[0] = 0;
+    load_cache(&cache, string);
+    if (!same_cache2(&cache, string, len)) {
+	cache.list[0] = 0;
 #ifdef HAVE_WGET_WCH
-    {
-	int *inx_wchars = index_wchars(string);
-	mbstate_t state;
+	{
+	    size_t num_bytes = strlen(string);
+	    const int *inx_wchars = dlg_index_wchars(string);
+	    mbstate_t state;
 
-	for (inx = 0; inx < len; ++inx) {
-	    wchar_t temp;
-	    int check;
-	    int result;
+	    for (inx = 0; inx < len; ++inx) {
+		wchar_t temp;
+		int check;
+		int result;
 
-	    memset(&state, 0, sizeof(state));
-	    check = mbrtowc(&temp, string + inx_wchars[inx], num_bytes -
-			    inx_wchars[inx], &state);
-	    if (check <= 0)
-		result = 1;
-	    else
-		result = wcwidth(temp);
-	    if (result < 0) {
-		cchar_t temp2;
-		setcchar(&temp2, &temp, 0, 0, 0);
-		result = wcslen(wunctrl(&temp2));
+		memset(&state, 0, sizeof(state));
+		check = mbrtowc(&temp, string + inx_wchars[inx], num_bytes -
+				inx_wchars[inx], &state);
+		if (check <= 0)
+		    result = 1;
+		else
+		    result = wcwidth(temp);
+		if (result < 0) {
+		    cchar_t temp2;
+		    setcchar(&temp2, &temp, 0, 0, 0);
+		    result = wcslen(wunctrl(&temp2));
+		}
+		cache.list[inx + 1] = result;
+		if (inx > 0)
+		    cache.list[inx + 1] += cache.list[inx];
 	    }
-	    list[inx + 1] = result;
-	    if (inx > 0)
-		list[inx + 1] += list[inx];
 	}
-    }
 #else
-    for (inx = 0; inx < len; ++inx) {
-	list[inx + 1] = (isprint(string[inx])
-			 ? 1
-			 : strlen(unctrl(string[inx])));
-	if (inx > 0)
-	    list[inx + 1] += list[inx];
-    }
+	for (inx = 0; inx < len; ++inx) {
+	    cache.list[inx + 1] = (isprint(string[inx])
+				   ? 1
+				   : strlen(unctrl(string[inx])));
+	    if (inx > 0)
+		cache.list[inx + 1] += cache.list[inx];
+	}
 #endif
-    return list;
+    }
+    save_cache(&cache, string);
+    return cache.list;
+}
+
+/*
+ * Returns the number of columns used for a string.  That happens to be the
+ * end-value of the cols[] array.
+ */
+int
+dlg_count_columns(const char *string)
+{
+    int result = 0;
+    int limit = dlg_count_wchars(string);
+    if (limit > 0) {
+	const int *cols = dlg_index_columns(string);
+	result = cols[limit];
+    }
+    return strlen(string);
+}
+
+/*
+ * Given a column limit, count the number of wide characters that can fit
+ * into that limit.  The offset is used to skip over a leading character
+ * that was already written.
+ */
+int
+dlg_limit_columns(const char *string, int limit, int offset)
+{
+    const int *cols = dlg_index_columns(string);
+    int result = dlg_count_wchars(string);
+
+    while (result > 0 && (cols[result] - cols[offset]) > limit)
+	--result;
+    return result;
 }
 
 /*
@@ -203,9 +374,9 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 {
     int i;
     int len = strlen(string);
-    int limit = count_wchars(string, strlen(string));
-    int *indx = index_wchars(string);
-    int offset = find_index(indx, limit, *chr_offset);
+    int limit = dlg_count_wchars(string);
+    const int *indx = dlg_index_wchars(string);
+    int offset = dlg_find_index(indx, limit, *chr_offset);
     int max_len = MAX_LEN;
     bool edit = TRUE;
 
@@ -317,16 +488,16 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 }
 
 static void
-compute_edit_offset(char *string,
+compute_edit_offset(const char *string,
 		    int chr_offset,
 		    int x_last,
 		    int *p_dpy_column,
 		    int *p_scroll_amt)
 {
-    int *cols = index_columns(string);
-    int *indx = index_wchars(string);
-    int limit = count_wchars(string, strlen(string));
-    int offset = find_index(indx, limit, chr_offset);
+    const int *cols = dlg_index_columns(string);
+    const int *indx = dlg_index_wchars(string);
+    int limit = dlg_count_wchars(string);
+    int offset = dlg_find_index(indx, limit, chr_offset);
     int offset2;
     int dpy_column;
     int n;
@@ -367,7 +538,7 @@ dlg_edit_offset(char *string, int chr_offset, int x_last)
  */
 void
 dlg_show_string(WINDOW *win,
-		char *string,	/* string to display (may be multibyte) */
+		const char *string,	/* string to display (may be multibyte) */
 		int chr_offset,	/* character (not bytes) offset */
 		chtype attr,	/* window-attributes */
 		int y_base,	/* beginning row on screen */
@@ -376,15 +547,17 @@ dlg_show_string(WINDOW *win,
 		bool hidden,	/* if true, do not echo */
 		bool force)	/* if true, force repaint */
 {
+    x_last = MIN(x_last + x_base, getmaxx(win)) - x_base;
+
     if (hidden) {
 	if (force) {
 	    (void) wmove(win, y_base, x_base);
 	    wrefresh(win);
 	}
     } else {
-	int *cols = index_columns(string);
-	int *indx = index_wchars(string);
-	int limit = count_wchars(string, strlen(string));
+	const int *cols = dlg_index_columns(string);
+	const int *indx = dlg_index_wchars(string);
+	int limit = dlg_count_wchars(string);
 
 	int i, j, k;
 	int input_x;

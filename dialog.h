@@ -1,9 +1,10 @@
 /*
- *  $Id: dialog.h,v 1.101 2003/07/20 19:25:19 tom Exp $
+ *  $Id: dialog.h,v 1.114 2003/08/18 23:41:28 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and:    Thomas Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -110,6 +111,7 @@
 #define TAB 9
 
 #define MARGIN 1
+#define GUTTER 2
 
 #define MAX_LEN 2048
 #define BUF_SIZE (10*1024)
@@ -252,47 +254,50 @@ extern DIALOG_STATE dialog_state;
  * Global variables, which dialog resets before each widget
  */
 typedef struct {
-    FILE *output;
-    bool beep_after_signal;
-    bool beep_signal;
-    bool begin_set;
-    bool cant_kill;
-    bool colors;
-    bool cr_wrap;
-    bool dlg_clear_screen;
-    bool extra_button;
-    bool help_button;
+    FILE *output;		/* option "--output-fd fd" */
+    bool beep_after_signal;	/* option "--beep-after" */
+    bool beep_signal;		/* option "--beep" */
+    bool begin_set;		/* option "--begin y x" was used */
+    bool cant_kill;		/* option "--no-kill" */
+    bool colors;		/* option "--colors" */
+    bool cr_wrap;		/* option "--cr-wrap" */
+    bool dlg_clear_screen;	/* option "--clear" */
+    bool extra_button;		/* option "--extra-button" */
+    bool help_button;		/* option "--help-button" */
     bool input_menu;
-    bool item_help;
-    bool nocancel;
-    bool nocollapse;
-    bool print_siz;
-    bool separate_output;
-    bool size_err;
-    bool tab_correct;
-    bool trim_whitespace;
-    char *backtitle;
-    char *cancel_label;
-    char *default_item;
-    char *exit_label;
-    char *extra_label;
-    char *help_label;
-    char *ok_label;
-    char *title;
+    bool item_help;		/* option "--item-help" */
+    bool nocancel;		/* option "--no-cancel" */
+    bool nocollapse;		/* option "--no-collapse" */
+    bool print_siz;		/* option "--print-size" */
+    bool separate_output;	/* option "--separate-output" */
+    bool size_err;		/* option "--size-err" */
+    bool tab_correct;		/* option "--tab-correct" */
+    bool trim_whitespace;	/* option "--trim" */
+    char *backtitle;		/* option "--backtitle backtitle" */
+    char *cancel_label;		/* option "--cancel-label string" */
+    char *default_item;		/* option "--default-item string" */
+    char *exit_label;		/* option "--exit-label string" */
+    char *extra_label;		/* option "--extra-label string" */
+    char *help_label;		/* option "--help-label string" */
     char *input_result;
-    unsigned input_length;	/* nonzero if allocated */
-    int aspect_ratio;
-    int begin_x;
-    int begin_y;
-    int max_input;
-    int sleep_secs;
-    int tab_len;
-    int timeout_secs;	/* nonzero if we force timeout/exit */
+    char *ok_label;		/* option "--ok-label string" */
+    char *separate_str;		/* option "--separate-widget string" */
+    char *title;		/* option "--title title" */
+    int aspect_ratio;		/* option "--aspect ratio" */
+    int begin_x;		/* option "--begin y x" (second value) */
+    int begin_y;		/* option "--begin y x" (first value) */
+    int max_input;		/* option "--max-input size" */
+    int output_count;		/* # of widgets that may have done output */
+    int sleep_secs;		/* option "--sleep secs" */
+    int tab_len;		/* option "--tab-len n" */
+    int timeout_secs;		/* option "--timeout secs" */
+    unsigned input_length;	/* nonzero if input_result is allocated */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
 #define CHECKBOX_TAGS           (dialog_vars.item_help ? 4 : 3)
 #define MENUBOX_TAGS            (dialog_vars.item_help ? 3 : 2)
+#define FORMBOX_TAGS            (dialog_vars.item_help ? 9 : 8)
 
 extern DIALOG_VARS dialog_vars;
 
@@ -329,7 +334,7 @@ void end_dialog (void);
 void init_dialog (void);
 void put_backtitle(void);
 
-void auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
+void auto_size(const char * title, const char *prompt, int *height, int *width, int boxlines, int mincols);
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
 void exiterr(const char *, ...)
@@ -349,8 +354,8 @@ int box_y_ordinate(int height);
 void del_window(WINDOW *win);
 void draw_title(WINDOW *win, const char *title);
 void draw_bottom_box(WINDOW *win);
-WINDOW * new_window (int y, int x, int height, int width);
-WINDOW * sub_window (WINDOW *win, int y, int x, int height, int width);
+WINDOW * new_window (int height, int width, int y, int x);
+WINDOW * sub_window (WINDOW *win, int height, int width, int y, int x);
 
 #ifdef HAVE_COLOR
 void color_setup (void);
@@ -375,10 +380,10 @@ int dialog_inputbox (const char *title, const char *cprompt, int height,
 int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width, int bg_task);
-void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
 int dialog_fselect (const char *title, const char *path, int height, int width);
 int dialog_calendar (const char *title, const char *subtitle, int height, int width, int day, int month, int year);
 int dialog_timebox (const char *title, const char *subtitle, int height, int width, int hour, int minute, int second);
+int dialog_form(const char *title, const char *cprompt, int height, int width, int form_height, int item_no, char **items);
 
 /* arrows.c */
 void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
@@ -401,8 +406,13 @@ extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int
 
 /* inputstr.c */
 extern bool dlg_edit_string(char *string, int *offset, int key, int fkey, bool force);
+extern const int * dlg_index_columns(const char *string);
+extern const int * dlg_index_wchars(const char *string);
+extern int dlg_count_columns(const char *string);
+extern int dlg_count_wchars(const char *string);
 extern int dlg_edit_offset(char *string, int offset, int x_last);
-extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
+extern int dlg_limit_columns(const char *string, int limit, int offset);
+extern void dlg_show_string(WINDOW *win, const char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
 /* ui_getc.c */
 extern int dlg_getc(WINDOW *win, int *fkey);
@@ -414,6 +424,7 @@ extern void killall_bg(int *retval);
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
 extern void dlg_add_result(char *string);
+extern void dlg_does_output(void);
 extern void dlg_exit(int code) GCC_NORETURN;
 extern void dlg_item_help(char *txt);
 extern void dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);

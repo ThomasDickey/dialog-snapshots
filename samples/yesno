@@ -1,5 +1,6 @@
 #!/bin/sh
-DIALOG=${DIALOG=dialog}
+# $Id: yesno,v 1.3 2003/08/15 19:40:37 tom Exp $
+: ${DIALOG=dialog}
 
 $DIALOG --title "YES/NO BOX" --clear \
         --yesno "Hi, this is a yes/no dialog box. You can use this to ask \
