@@ -162,6 +162,7 @@
  * Global variables
  */
 typedef struct {
+	FILE *output;
 	bool beep_after_signal;
 	bool beep_signal;
 	bool begin_set;
@@ -204,7 +205,7 @@ extern pid_t tailbg_pids[MAX_TAILBG], tailbg_lastpid, tailbg_nokill_pids[MAX_TAI
 /*
  * Function prototypes
  */
-#ifdef NCURSES_VERSION
+#ifdef HAVE_RC_FILE
 extern void create_rc (const char *filename);
 extern int parse_rc (void);
 #endif
@@ -270,6 +271,7 @@ int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
+int dialog_fselect (const char *title, const char *path, int height, int width);
 
 /* arrows.c */
 void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
@@ -289,6 +291,7 @@ extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, 
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
 extern int dlg_getc(WINDOW *win);
+extern void dlg_trim_string(char *src);
 
 /*
  * The following stuff is needed for mouse support

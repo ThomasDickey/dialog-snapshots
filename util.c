@@ -25,6 +25,7 @@
 #endif
 
 FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
+static FILE *my_output;		/* prefer to stdout, to support --stdout */
 
 #ifdef HAVE_COLOR
 /* use colors by default? */
@@ -137,7 +138,8 @@ put_backtitle(void)
 }
 
 /*
- * Set window to attribute 'attr'
+ * Set window to attribute 'attr'.  There are more efficient ways to do this,
+ * but will not work on older/buggy ncurses versions.
  */
 void
 attr_clear(WINDOW *win, int height, int width, chtype attr)
@@ -159,7 +161,7 @@ attr_clear(WINDOW *win, int height, int width, chtype attr)
 static int
 my_putc(int ch)
 {
-    return putchar(ch);
+    return fputc(ch, my_output);
 }
 #endif
 
@@ -169,14 +171,14 @@ my_putc(int ch)
 void
 init_dialog(void)
 {
+    int fd1, fd2;
+    const char *device = "/dev/tty";
     char *name;
 
     mouse_open();
 #ifdef HAVE_RC_FILE
-#ifdef NCURSES_VERSION
     if (parse_rc() == -1)	/* Read the configuration file */
 	exiterr("");
-#endif
 #endif
 
     /* 
@@ -186,8 +188,6 @@ init_dialog(void)
      */
     pipe_fp = stdin;
     if (!isatty(fileno(stdin))) {
-	int fd1, fd2;
-	const char *device = "/dev/tty";
 	if ((fd1 = open(device, O_RDONLY)) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    pipe_fp = fdopen(fd2, "r");
@@ -196,7 +196,20 @@ init_dialog(void)
 		dup2(fileno(stdin), 0);
 	}
     }
-    initscr();			/* Init curses */
+
+    /*
+     * Try to open the output directly to /dev/tty so we can support the
+     * command-line option "--stdout".  Otherwise it will get lost in the
+     * normal output to the screen.
+     */
+    if ((fd1 = open(device, O_WRONLY)) >= 0
+	&& (my_output = fdopen(fd1, "w")) != 0) {
+	if (newterm(NULL, my_output, stdin) == 0) {
+	    exiterr("cannot initialize curses");
+	}
+    } else {
+	initscr();
+    }
 #ifdef NCURSES_VERSION
     /*
      * Cancel xterm's alternate-screen mode.
@@ -275,30 +288,18 @@ void
 print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 {
     int first = 1, cur_x, cur_y;
-    char tempstr[MAX_LEN + 1], *word, *tempptr1, *tempptr2;
+    char tempstr[MAX_LEN + 1], *word, *tempptr1;
 
     strcpy(tempstr, prompt);
-    if ((strstr(tempstr, "\\n") != NULL) ||
-	(strchr(tempstr, '\n') != NULL)) {
+    if (strchr(tempstr, '\n') != NULL) {
 	/* Prompt contains "\n" or '\n' */
 	word = tempstr;
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
 	wmove(win, cur_y, x);
-	while (1) {
-	    tempptr1 = strchr(word, '\n');
-	    tempptr2 = strstr(word, "\\n");
-	    if (tempptr2 != NULL
-		&& (tempptr1 == NULL || (tempptr1 - word > tempptr2 - word))) {
-		*(tempptr1 = tempptr2) = 0;
-		tempptr1 += 2;
-	    } else if (tempptr1 != NULL) {
-		*tempptr1++ = 0;
-	    } else {
-		break;
-	    }
-
+	while ((tempptr1 = strchr(word, '\n')) != NULL) {
+	    *tempptr1++ = 0;
 	    waddstr(win, word);
 	    word = tempptr1;
 	    wmove(win, ++cur_y, x);
@@ -349,14 +350,13 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
 {
     int count = 0;
     int len = title ? strlen(title) : 0;
-    int street;
     int i;
     int first;
     int nc = 4;
     int numlines = 3;
     int cur_x;
     int text_width;
-    char *cr1, *cr2, *ptr = prompt, *str, *word;
+    char *cr2, *ptr = prompt, *str, *word;
 
     if ((*height == -1) || (*width == -1)) {
 	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
@@ -365,42 +365,19 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
     if ((*height != 0) && (*width != 0))
 	return prompt;
 
-    cr1 = strstr(ptr, "\\n");
-    cr2 = strchr(ptr, '\n');
-
-    while ((cr1 != NULL) || (cr2 != NULL)) {	/* how many ("\n" or '\n') prompt contains? */
-
-	if (cr1 == NULL)
-	    street = 2;
-	else if (cr2 == NULL)
-	    street = 1;
-	else if (cr1 < cr2)
-	    street = 1;
-	else
-	    street = 2;
-
-	if (street == 1) {
-	    if ((cr1 - ptr) > len)
-		len = cr1 - ptr;
-	    ptr = cr1 + 2;
-	} else {
-	    if ((cr2 - ptr) > len)
-		len = cr2 - ptr;
-	    ptr = cr2 + 1;
-	}
-
-	cr1 = strstr(ptr, "\\n");
-	cr2 = strchr(ptr, '\n');
-
+    while ((cr2 = strchr(ptr, '\n')) != NULL) {
+	if ((cr2 - ptr) > len)
+	    len = cr2 - ptr;
+	ptr = cr2 + 1;
 	count++;
     }
 
     if ((int) strlen(ptr) > len)
 	len = strlen(ptr);
 
-    /* now 'count' has the number of lines of text and 'len' the max lenght */
+    /* now 'count' has the number of lines of text and 'len' the max length */
 
-    if (count > 0) {		/* there are any '\n' or "\\n" */
+    if (count > 0) {		/* there are any '\n' */
 	*height = count + numlines + boxlines + (dialog_vars.cr_wrap ? 2 : 0);
 	*width = MAX((len + nc), mincols);
 	return prompt;
@@ -535,6 +512,7 @@ draw_box(WINDOW *win, int y, int x, int height, int width,
     chtype boxchar, chtype borderchar)
 {
     int i, j;
+    chtype save = getattrs(win);
 
     wattrset(win, 0);
     for (i = 0; i < height; i++) {
@@ -559,6 +537,7 @@ draw_box(WINDOW *win, int y, int x, int height, int width,
 	    else
 		waddch(win, boxchar | ' ');
     }
+    wattrset(win, save);
 }
 
 #ifdef HAVE_COLOR
@@ -757,7 +736,7 @@ void
 print_size(int height, int width)
 {
     if (dialog_vars.print_siz)
-	fprintf(stderr, "Size: %d, %d\n", height, width);
+	fprintf(dialog_vars.output, "Size: %d, %d\n", height, width);
 }
 
 void
@@ -937,4 +916,34 @@ dlg_getc(WINDOW *win)
 	    return ch;
 	}
     }
+}
+
+/*
+ * Change embedded "\n" substring to '\n' character, tabs to spaces and
+ * repeated spaces to a single space.  Leading/trailing blanks are discarded.
+ */
+void
+dlg_trim_string(char *base)
+{
+    char *dst = base;
+    char *src = dst;
+    int ch, ch0 = ' ';
+
+    while ((ch = *src++) != 0) {
+	if (ch == '\\' && *src == 'n') {
+	    ch = '\n';
+	    src++;
+	    base = dst + 1;	/* don't trim this one... */
+	}
+	if (ch == '\t')
+	    ch = ' ';
+	if (ch != ' ' || ch0 != ' ')
+	    *dst++ = ch;
+	ch0 = (ch == '\n') ? ' ' : ch;
+    }
+    if (ch0 == ' ') {
+	while (dst - 1 >= base && isspace(dst[-1]))
+	    *--dst = 0;
+    }
+    *dst = 0;
 }

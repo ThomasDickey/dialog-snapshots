@@ -3,6 +3,19 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/7/29
+	+ add fselect dialog (compatible with xdialog).
+	+ add --enable-lxdialog configure option.
+	+ use new configure macro CF_ARG_MSG_ENABLE to show progress with
+	  enable/disable switches.
+
+2000/7/2
+	+ implement --stdout and --stderr options as in Xdialog.
+	+ move logic that translates "\\n" into '\n' into main program to
+	  simplify logic that formats text.
+	+ make ifdef's for rc-file not specific to ncurses.
+	+ correct logic making percent parameter of gauge optional.
+
 2000/6/29
 	+ add alternate test-script for gauge, adapted from Xdialog.
 	+ modify guage to make optional a percentage which was read at the

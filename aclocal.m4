@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
-dnl -- T.Dickey <dickey@clark.net>
-dnl $Id: aclocal.m4,v 1.8 2000/06/29 10:30:06 tom Exp $
+dnl -- T.E.Dickey <dickey@herndon4.his.com>
+dnl $Id: aclocal.m4,v 1.10 2000/07/29 19:34:39 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -458,6 +458,26 @@ dnl Allow user to enable a normally-off option.
 AC_DEFUN([CF_ARG_ENABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],no)])dnl
 dnl ---------------------------------------------------------------------------
+dnl Verbose form of AC_ARG_ENABLE:
+dnl
+dnl Parameters:
+dnl $1 = message
+dnl $2 = option name
+dnl $3 = help-string
+dnl $4 = action to perform if option is enabled
+dnl $5 = action if perform if option is disabled
+dnl $6 = default option value (either 'yes' or 'no')
+AC_DEFUN([CF_ARG_MSG_ENABLE],[
+AC_MSG_CHECKING($1)
+AC_ARG_ENABLE($2,[$3],,enableval=ifelse($6,,no,$6))
+AC_MSG_RESULT($enableval)
+if test "$enableval" != no ; then
+ifelse($4,,[	:],$4)
+else
+ifelse($5,,[	:],$5)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
 dnl
@@ -592,10 +612,17 @@ if test ".$ac_cv_func_initscr" != .yes ; then
 	cf_term_lib=""
 	cf_curs_lib=""
 
+	if test ".$cf_cv_ncurses_version" != .no
+	then
+		cf_check_list="ncurses curses cursesX"
+	else
+		cf_check_list="cursesX curses ncurses"
+	fi
+
 	# Check for library containing tgoto.  Do this before curses library
 	# because it may be needed to link the test-case for initscr.
 	AC_CHECK_FUNC(tgoto,[cf_term_lib=predefined],[
-		for cf_term_lib in termcap termlib unknown
+		for cf_term_lib in $cf_check_list termcap termlib unknown
 		do
 			AC_CHECK_LIB($cf_term_lib,tgoto,[break])
 		done
@@ -603,7 +630,7 @@ if test ".$ac_cv_func_initscr" != .yes ; then
 
 	# Check for library containing initscr
 	test "$cf_term_lib" != predefined && test "$cf_term_lib" != unknown && LIBS="-l$cf_term_lib $cf_save_LIBS"
-	for cf_curs_lib in cursesX curses ncurses xcurses jcurses unknown
+	for cf_curs_lib in $cf_check_list xcurses jcurses unknown
 	do
 		AC_CHECK_LIB($cf_curs_lib,initscr,[break])
 	done
@@ -1281,7 +1308,7 @@ dnl $1=uppercase($2)
 AC_DEFUN([CF_UPPER],
 [
 changequote(,)dnl
-$1=`echo $2 | tr '[a-z]' '[A-Z]'`
+$1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
 changequote([,])dnl
 ])dnl
 dnl ---------------------------------------------------------------------------

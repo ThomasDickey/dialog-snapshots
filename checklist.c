@@ -386,12 +386,12 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {
 		    if (separate_output) {
-			fprintf(stderr, "%s\n", items[LLEN(i)]);
+			fprintf(dialog_vars.output, "%s\n", items[LLEN(i)]);
 		    } else {
-			fprintf(stderr, "\"%s\" ", items[LLEN(i)]);
+			fprintf(dialog_vars.output, "\"%s\" ", items[LLEN(i)]);
 		    }
 		} else {
-		    fprintf(stderr, "%s", items[LLEN(i)]);
+		    fprintf(dialog_vars.output, "%s", items[LLEN(i)]);
 		}
 	    }
 	}

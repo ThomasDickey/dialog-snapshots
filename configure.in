@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.8 2000/04/24 00:40:46 tom Exp $
+dnl $Id: configure.in,v 1.10 2000/07/27 23:49:56 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -71,30 +71,45 @@ AC_ARG_WITH(ncurses,
 ])
 
 EXTRAOBJS=""
+cf_all_widgets=yes
 # For cdialog version 0.9a, libgpm can't be used because it doesn't
 # implement the wtimeout() function of ncurses.
 dnl CF_ARG_ENABLE(gpm,
 dnl 	[  --enable-gpm            include gpm support],
 dnl 	[EXTRAOBJS="$EXTRAOBJS mouse.o"
 dnl 	 AC_DEFINE(HAVE_LIBGPM)])
-CF_ARG_ENABLE(rc-file,
+
+CF_ARG_MSG_ENABLE([if you want config-file support],
+	rc-file,
 	[  --enable-rc-file        include config-file support],
 	[EXTRAOBJS="$EXTRAOBJS rc.o"
-	 AC_DEFINE(HAVE_RC_FILE)])
-CF_ARG_DISABLE(gauge,
-	[  --disable-gauge         do not include the gauge dialog],,
+	 AC_DEFINE(HAVE_RC_FILE)],,$cf_all_widgets)
+
+CF_ARG_MSG_ENABLE([if you want lxdialog-style dialogs],
+	lxdialog,
+	[  --enable-lxdialog       include lxdialog-style dialogs],
+	[EXTRAOBJS="$EXTRAOBJS fselect.o"
+	 AC_DEFINE(HAVE_FSELECT)],,$cf_all_widgets)
+
+CF_ARG_MSG_ENABLE([if you want the gauge dialog],
+	gauge,
+	[  --disable-gauge         do not include the gauge dialog],
 	[EXTRAOBJS="$EXTRAOBJS guage.o"
-	 AC_DEFINE(HAVE_GAUGE)])
-CF_ARG_DISABLE(tailbox,
-	[  --disable-tailbox       do not include the tailbox dialog],,
+	 AC_DEFINE(HAVE_GAUGE)],,$cf_all_widgets)
+
+CF_ARG_MSG_ENABLE([if you want the tailbox dialog],
+	tailbox,
+	[  --disable-tailbox       do not include the tailbox dialog],
 	[EXTRAOBJS="$EXTRAOBJS tailbox.o"
-	 AC_DEFINE(HAVE_TAILBOX)])
+	 AC_DEFINE(HAVE_TAILBOX)],,$cf_all_widgets)
+
 AC_SUBST(EXTRAOBJS)
 
 dnl
 dnl Checks for header files.
 dnl
 AC_HEADER_STDC
+AC_HEADER_DIRENT
 AC_CHECK_HEADERS(unistd.h)
 
 dnl

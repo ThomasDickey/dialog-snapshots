@@ -31,11 +31,7 @@ read_data(char *buffer, FILE * fp)
     if (feof(fp)) {
 	result = 0;
     } else if ((result = fgets(buffer, MY_LEN, fp)) != 0) {
-	unsigned len = strlen(result);
-	while (len != 0
-	    && isspace(result[len - 1])) {
-	    result[--len] = 0;
-	}
+	dlg_trim_string(result);
     }
     return result;
 }
