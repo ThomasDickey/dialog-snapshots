@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.25 2000/02/22 01:06:14 tom Exp $
+ * $Id: dialog.c,v 1.26 2000/02/22 11:16:12 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -56,6 +56,7 @@ typedef enum {
     ,o_cr_wrap
     ,o_create_rc
     ,o_defaultno
+    ,o_default_item
     ,o_fullbutton
     ,o_gauge
     ,o_help
@@ -114,6 +115,7 @@ static Options options[] = {
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, "" },
     { "defaultno",	o_defaultno,		1, "" },
+    { "default-item",	o_default_item,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> <percent>" },
@@ -664,6 +666,9 @@ main(int argc, char *argv[])
 		break;
 	    case o_defaultno:
 		defaultno = TRUE;
+		break;
+	    case o_default_item:
+		dialog_vars.default_item = optionString(argv, &offset);
 		break;
 	    case o_no_shadow:
 		use_shadow = FALSE;

@@ -43,7 +43,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     int x, y, box_y, box_x, box_width;
     int show_buttons = TRUE, first = TRUE, offset = 0;
     int input_x = 0, key = 0, button = -1;
-    unsigned char *input = dialog_input_result;
+    char *input = (char *)dialog_input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();

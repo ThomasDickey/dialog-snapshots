@@ -48,7 +48,7 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
     wattrset(win, selected
 	? button_label_active_attr
 	: button_label_inactive_attr);
-    waddstr(win, label + 1);
+    wprintw(win, "%s", label + 1);
     wattrset(win, selected ? button_active_attr : button_inactive_attr);
     waddstr(win, ">");
     wmove(win, y, x + temp + 1);

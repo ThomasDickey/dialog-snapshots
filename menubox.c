@@ -42,10 +42,10 @@ print_item(WINDOW *win, const char *tag, const char *item,
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
     waddch(win, tag[0]);
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    waddstr(win, tag + 1);
+    wprintw(win, "%s", tag + 1);
     wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    waddstr(win, item);
+    wprintw(win, "%s", item);
 }
 
 /*
@@ -56,7 +56,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     int menu_height, int item_no, char **items)
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
-    int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, min_width;
+    int key = 0;
+    int button = 0;
+    int choice = dlg_default_item(items, 2);
+    int scrollamt = 0;
+    int max_choice, min_width;
     int found;
     WINDOW *dialog, *menu;
     char *prompt = strclone(cprompt);
@@ -113,9 +117,16 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     tag_x = (menu_width - tag_x - item_x - 2) / 2;
     item_x = tag_x + item_x + 2;
 
+    if (choice - scrollamt >= max_choice) {
+	scrollamt = choice - (max_choice - 1);
+	choice = max_choice - 1;
+    }
+
     /* Print the menu */
     for (i = 0; i < max_choice; i++)
-	print_item(menu, items[LLEN(i)], items[LLEN(i) + 1], i, i == choice);
+	print_item(menu,
+	    items[LLEN(i + scrollamt)],
+	    items[LLEN(i + scrollamt) + 1], i, i == choice);
     wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
