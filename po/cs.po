@@ -1,0 +1,32 @@
+# From: Martin Povolny <martin@solnet.cz>
+
+msgid ""
+msgstr ""
+
+msgid "EXIT"
+msgstr "Konec"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Storno"
+
+msgid "Yes"
+msgstr "Ano"
+
+msgid "No"
+msgstr "Ne"
+
+msgid "Year"
+msgstr "Rok"
+
+msgid "Month"
+msgstr "Mìsíc"
+
+msgid "Directories"
+msgstr "Adresáøe"
+
+msgid "Files"
+msgstr "Soubory"
+

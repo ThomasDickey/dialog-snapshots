@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.69 2001/04/28 20:55:24 tom Exp $
+ *  $Id: util.c,v 1.70 2001/05/27 14:43:53 tom Exp $
  *
  *  util.c
  *
@@ -439,6 +439,8 @@ justify_text(WINDOW *win,
 	rm -= 4;
 	bm -= 2;
     }
+    if (prompt == 0)
+	prompt = "";
 
     while (y <= bm && *prompt) {
 	x = lm;
@@ -493,7 +495,7 @@ print_autowrap(WINDOW *win, const char *prompt, int height, int width)
  * as necessary.
  */
 static void
-auto_size_preformated(char *prompt, int *height, int *width)
+auto_size_preformatted(char *prompt, int *height, int *width)
 {
     int high, wide;
     float car;			/* Calculated Aspect Ratio */
@@ -519,7 +521,7 @@ auto_size_preformated(char *prompt, int *height, int *width)
     }
 
     /*
-     * If the aspect ratio is to small after decreasing the width, then
+     * If the aspect ratio is too small after decreasing the width, then
      * incrementally increase the width until the aspect ratio is equal to or
      * greater than the specified aspect ratio.
      */
@@ -575,7 +577,7 @@ real_auto_size(const char *title,
 	    wide = MAX(wide, tmp);
 	    justify_text((WINDOW *) 0, prompt, high, wide, height, width);
 	} else {
-	    auto_size_preformated(prompt, height, width);
+	    auto_size_preformatted(prompt, height, width);
 	}
     } else {
 	wide = SCOLS - x;

@@ -1,8 +1,11 @@
 arrows.c
 buttons.c
+calendar.c
 checklist.c
 colors.h
 dialog.c
+dialog.h
+fselect.c
 guage.c
 inputbox.c
 inputstr.c
@@ -13,5 +16,6 @@ msgbox.c
 rc.c
 tailbox.c
 textbox.c
+timebox.c
 util.c
 yesno.c

@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.19 2001/04/24 19:01:32 tom Exp $
+dnl $Id: aclocal.m4,v 1.20 2001/05/26 14:32:42 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -651,8 +651,8 @@ cf_cv_ncurses_header=curses.h
 for cf_header in \
 	curses.h \
 	ncurses.h \
-	ncurses/ncurses.h \
-	ncurses/curses.h
+	ncurses/curses.h \
+	ncurses/ncurses.h
 do
 AC_TRY_COMPILE([#include <${cf_header}>],
 	[initscr(); tgoto("?", 0,0)],
@@ -1212,12 +1212,14 @@ dnl ---------------------------------------------------------------------------
 dnl Look for the SVr4 curses clone 'ncurses' in the standard places, adjusting
 dnl the CPPFLAGS variable so we can include its header.
 dnl
-dnl The header files may be installed as either curses.h, or ncurses.h
-dnl (obsolete).  If not installed for overwrite, the curses.h file would be
-dnl in an ncurses subdirectory (e.g., /usr/include/ncurses), but someone may
-dnl have installed overwriting the vendor's curses.  Only very old versions
-dnl (pre-1.9.2d, the first autoconf'd version) of ncurses don't define
-dnl either __NCURSES_H or NCURSES_VERSION in the header.
+dnl The header files may be installed as either curses.h, or ncurses.h (would
+dnl be obsolete, except that some packagers prefer this name to distinguish it
+dnl from a "native" curses implementation).  If not installed for overwrite,
+dnl the curses.h file would be in an ncurses subdirectory (e.g.,
+dnl /usr/include/ncurses), but someone may have installed overwriting the
+dnl vendor's curses.  Only very old versions (pre-1.9.2d, the first autoconf'd
+dnl version) of ncurses don't define either __NCURSES_H or NCURSES_VERSION in
+dnl the header.
 dnl
 dnl If the installer has set $CFLAGS or $CPPFLAGS so that the ncurses header
 dnl is already in the include-path, don't even bother with this, since we cannot
@@ -1227,10 +1229,10 @@ AC_DEFUN([CF_NCURSES_CPPFLAGS],
 [
 AC_CACHE_CHECK(for ncurses header in include-path, cf_cv_ncurses_h,[
 	for cf_header in \
+		curses.h \
 		ncurses.h \
-		ncurses/ncurses.h \
 		ncurses/curses.h \
-		curses.h
+		ncurses/ncurses.h
 	do
 	AC_TRY_COMPILE([#include <$cf_header>],[
 #ifdef NCURSES_VERSION
@@ -1406,6 +1408,7 @@ EOF
 		rm -f conftest.out
 	fi
 ])])
+test "$cf_cv_ncurses_version" = no || AC_DEFINE(NCURSES)
 ])
 dnl ---------------------------------------------------------------------------
 dnl Check if we use the messages included with this program

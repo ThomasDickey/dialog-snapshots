@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.57 2001/04/24 19:37:53 Vincent.Stemen Exp $
+ * $Id: dialog.c,v 1.59 2001/05/27 15:50:44 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -30,8 +30,10 @@ typedef int (jumperFn) (JUMPARGS);
 
 typedef enum {
     o_unknown = 0
+    ,o_allow_close
     ,o_and_widget
     ,o_aspect
+    ,o_auto_placement
     ,o_backtitle
     ,o_beep
     ,o_beep_after
@@ -43,15 +45,20 @@ typedef enum {
     ,o_create_rc
     ,o_default_item
     ,o_defaultno
+    ,o_fixed_font
     ,o_fselect
     ,o_fullbutton
     ,o_gauge
     ,o_help
+    ,o_icon
     ,o_infobox
     ,o_inputbox
     ,o_item_help
+    ,o_keep_colors
     ,o_menu
     ,o_msgbox
+    ,o_no_close
+    ,o_no_cr_wrap
     ,o_no_kill
     ,o_no_shadow
     ,o_nocancel
@@ -61,11 +68,13 @@ typedef enum {
     ,o_print_size
     ,o_print_version
     ,o_radiolist
+    ,o_screen_center
     ,o_separate_output
     ,o_separate_widget
     ,o_shadow
     ,o_size_err
     ,o_sleep
+    ,o_smooth
     ,o_stderr
     ,o_stdout
     ,o_tab_correct
@@ -75,6 +84,8 @@ typedef enum {
     ,o_textbox
     ,o_timebox
     ,o_title
+    ,o_under_mouse
+    ,o_wmclass
     ,o_yesno
 } eOptions;
 
@@ -95,8 +106,10 @@ static const char *program = "dialog";
 static const char *and_widget = "--and-widget";
 /* *INDENT-OFF* */
 static Options options[] = {
+    { "allow-close",	o_allow_close,		1, NULL },
     { "and-widget",	o_and_widget,		4, NULL },
     { "aspect",		o_aspect,		1, "<ratio>" },
+    { "auto-placement", o_auto_placement,	1, NULL },
     { "backtitle",	o_backtitle,		1, "<backtitle>" },
     { "beep",		o_beep,			1, "" },
     { "beep-after",	o_beep_after,		1, "" },
@@ -109,17 +122,22 @@ static Options options[] = {
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
     { "fb",		o_fullbutton,		1, NULL },
+    { "fixed-font",	o_fixed_font,		1, NULL },
     { "fselect",	o_fselect,		2, "<text> <directory> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
+    { "icon",		o_icon,			1, NULL },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
     { "item-help",	o_item_help,		1, "" },
+    { "keep-colors",	o_keep_colors,		1, NULL },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
     { "no-cancel",	o_nocancel,		1, "" },
+    { "no-close",	o_no_close,		1, NULL },
+    { "no-cr-wrap",	o_no_cr_wrap,		1, NULL },
     { "no-kill",	o_no_kill,		1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
@@ -129,11 +147,13 @@ static Options options[] = {
     { "print-size",	o_print_size,		1, "" },
     { "print-version",	o_print_version,	5, "" },
     { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
+    { "screen-center",	o_screen_center,	1, NULL },
     { "separate-output",o_separate_output,	1, "" },
     { "separate-widget",o_separate_widget,	1, "<str>" },
     { "shadow",		o_shadow,		1, "" },
     { "size-err",	o_size_err,		1, "" },
     { "sleep",		o_sleep,		1, "<secs>" },
+    { "smooth",		o_smooth,		1, NULL },
     { "stderr",		o_stderr,		1, "" },
     { "stdout",		o_stdout,		1, "" },
     { "tab-correct",	o_tab_correct,		1, "" },
@@ -143,7 +163,9 @@ static Options options[] = {
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "title",		o_title,		1, "<title>" },
+    { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
+    { "wmclass",	o_wmclass,		1, NULL },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
 };
 /* *INDENT-ON* */
@@ -821,9 +843,11 @@ main(int argc, char *argv[])
 	}
 
 	for (j = 1; j < argc; j++) {
-	    if (strcmp(argv[j - 1], "--backtitle") != 0 &&
-		strcmp(argv[j - 1], "--title") != 0)
+	    if (strncmp(argv[j - 1], "--", 2) == 0 &&
+		strcmp(argv[j - 1], "--backtitle") != 0 &&
+		strcmp(argv[j - 1], "--title") != 0) {
 		dlg_trim_string(argv[j]);
+	    }
 	}
 
 	if (argv[offset] == NULL) {

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.10 2001/04/24 19:19:35 tom Exp $
+ * $Id: calendar.c,v 1.11 2001/05/26 15:22:08 Martin.Povolny Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -127,6 +127,18 @@ next_or_previous(int key, int two_d)
 static int
 draw_day(BOX * data, struct tm *current)
 {
+#ifdef ENABLE_NLS
+    char *of_week[] =
+    {
+	nl_langinfo(ABDAY_1),
+	nl_langinfo(ABDAY_2),
+	nl_langinfo(ABDAY_3),
+	nl_langinfo(ABDAY_4),
+	nl_langinfo(ABDAY_5),
+	nl_langinfo(ABDAY_6),
+	nl_langinfo(ABDAY_7)
+    };
+#else
     static const char *of_week[] =
     {
 	"Sunday",
@@ -137,6 +149,7 @@ draw_day(BOX * data, struct tm *current)
 	"Friday",
 	"Saturday"
     };
+#endif
     int cell_wide = 4;
     int y, x, this_x = 0;
     int save_y = 0, save_x = 0;
@@ -207,6 +220,23 @@ draw_day(BOX * data, struct tm *current)
 static int
 draw_month(BOX * data, struct tm *current)
 {
+#ifdef ENABLE_NLS
+    char *months[] =
+    {
+	nl_langinfo(MON_1),
+	nl_langinfo(MON_2),
+	nl_langinfo(MON_3),
+	nl_langinfo(MON_4),
+	nl_langinfo(MON_5),
+	nl_langinfo(MON_6),
+	nl_langinfo(MON_7),
+	nl_langinfo(MON_8),
+	nl_langinfo(MON_9),
+	nl_langinfo(MON_10),
+	nl_langinfo(MON_11),
+	nl_langinfo(MON_12)
+    };
+#else
     static const char *months[] =
     {
 	"January",
@@ -222,12 +252,13 @@ draw_month(BOX * data, struct tm *current)
 	"November",
 	"December"
     };
+#endif
     int month;
 
     month = current->tm_mon + 1;
 
     wattrset(data->parent, dialog_attr);
-    (void) mvwprintw(data->parent, data->y - 2, data->x - 1, "Month");
+    (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Month"));
     draw_box(data->parent,
 	     data->y - 1, data->x - 1,
 	     data->height + 2, data->width + 2,
@@ -246,7 +277,7 @@ draw_year(BOX * data, struct tm *current)
     int year = current->tm_year + 1900;
 
     wattrset(data->parent, dialog_attr);
-    (void) mvwprintw(data->parent, data->y - 2, data->x - 1, "Year");
+    (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Year"));
     draw_box(data->parent,
 	     data->y - 1, data->x - 1,
 	     data->height + 2, data->width + 2,
