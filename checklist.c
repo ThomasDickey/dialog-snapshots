@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.71 2004/03/13 15:50:04 joerg Exp $
+ *  $Id: checklist.c,v 1.72 2004/03/17 01:10:50 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -439,7 +439,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 				    box_x + check_x + 5,
 				    box_y,
 				    box_y + list_height + 1);
-		} else if (scrollamt + i < max_choice) {
+		} else {
 		    /* De-highlight current item */
 		    print_item(list,
 			       ItemData(scrollamt + choice),
@@ -452,8 +452,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    (void) wnoutrefresh(list);
 		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh(dialog);
-		} else {
-		    beep();
 		}
 	    }
 	    continue;		/* wait for another key press */

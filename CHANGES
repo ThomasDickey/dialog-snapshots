@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.91 2004/03/15 00:08:38 tom Exp $
+-- $Id: CHANGES,v 1.92 2004/03/17 02:11:42 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/03/16
+	+ modify quoting of results to use single-quote rather than double
+	  quote, and ensure that results containing a quote or backslash
+	  character are escaped (report by Florent Rougon)
+	+ remove an incorrect comparison from checklist which made cursor
+	  stick on the last line, from 2004/03/01 changes.
 
 2004/03/14
 	+ add a dependency to install library if "--with-libtool" is used.
