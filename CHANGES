@@ -3,6 +3,27 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/05/27
+	+ updated dialog.pot
+	+ modify fselect.c to work with autosize, i.e., given height and width
+	  zero (report by Martin Povolny).
+	+ add a null-pointer check in justify_text(), needed by fselect.c
+	+ add several more options which dialog can safely ignore, from
+	  Xdialog 2.0.2
+	+ refinements for configure macros checking for $CPPFLAGS, from lynx.
+	+ update config.guess, config.sub to match autoconf 2.50
+	> Martin Povolny <martin@solnet.cz>:
+	+ add cs.po
+	+ use nl_langinfo() to customize names for day-of-week, and month
+
+2001/05/11
+	> Vincent Stemen <dialog@AdvancedResearch.org>:
+          Fixed dialog.c to not pass menu items through dlg_trim_string().
+          Stripping extra spaces out of the menu items broke some of my
+          scripts by altering the string that it compared to know which menu
+          item was selected.  There should be no need to do justification on
+          the menu items, which are always one line, anyway.
+
 2001/04/29
 	> Vincent Stemen <dialog@AdvancedResearch.org>:
 	+ rewrote the text justification code to be able to have preformatted

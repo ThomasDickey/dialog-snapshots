@@ -48,6 +48,7 @@
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
+#include <langinfo.h>
 #define _(s) gettext(s)
 #else
 #undef _

@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.19 2001/04/10 20:04:51 tom Exp $
+ * $Id: fselect.c,v 1.21 2001/05/27 14:43:55 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -41,6 +41,12 @@
 #  include <ndir.h>
 # endif
 #endif
+
+#define EXT_WIDE 1
+#define HDR_HIGH 1
+#define BTN_HIGH (1 + 2 * MARGIN)	/* Ok/Cancel, also input-box */
+#define MIN_HIGH (HDR_HIGH - MARGIN + (BTN_HIGH * 2) + 4 * MARGIN)
+#define MIN_WIDE (2 * MAX(strlen(d_label), strlen(f_label)) + 6 * MARGIN + 2 * EXT_WIDE)
 
 typedef struct {
     WINDOW *par;		/* parent window */
@@ -335,9 +341,16 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     char current[MAX_LEN + 1];
     WINDOW *dialog, *w_text, *w_dir, *w_file;
     const char **buttons = dlg_ok_labels();
+    char *d_label = _("Directories");
+    char *f_label = _("Files");
+    int min_wide = MIN_WIDE;
+    int min_items = height ? 0 : 4;
     LIST d_list, f_list;
 
     auto_size(title, (char *) 0, &height, &width, 6, 25);
+    height += MIN_HIGH + min_items;
+    if (width < min_wide)
+	width = min_wide;
     print_size(height, width);
     ctl_size(height, width);
 
@@ -353,8 +366,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     /* Draw the input field box */
     tbox_height = 1;
-    tbox_width = width - 6;
-    tbox_y = height - 4;
+    tbox_width = width - (4 * MARGIN + 2);
+    tbox_y = height - (BTN_HIGH * 2) + MARGIN;
     tbox_x = (width - tbox_width) / 2;
 
     w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
@@ -362,13 +375,14 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	return -1;
 
     (void) keypad(w_text, TRUE);
-    draw_box(dialog, tbox_y - 1, tbox_x - 1, 3, tbox_width + 2,
+    draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
+	     (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
 	     border_attr, dialog_attr);
 
     /* Draw the directory listing box */
-    dbox_height = height - 10;
-    dbox_width = width / 2 - 4;
-    dbox_y = 3;
+    dbox_height = height - MIN_HIGH;
+    dbox_width = (width - (6 * MARGIN + 2 * EXT_WIDE)) / 2;
+    dbox_y = (2 * MARGIN + 1);
     dbox_x = tbox_x;
 
     w_dir = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
@@ -376,8 +390,10 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	return -1;
 
     (void) keypad(w_dir, TRUE);
-    (void) mvwprintw(dialog, dbox_y - 2, dbox_x - 1, "Directories");
-    draw_box(dialog, dbox_y - 1, dbox_x - 1, dbox_height + 2, dbox_width + 2,
+    (void) mvwprintw(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
+    draw_box(dialog,
+	     dbox_y - MARGIN, dbox_x - MARGIN,
+	     dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
 	     border_attr, dialog_attr);
     init_list(&d_list, dialog, w_dir);
 
@@ -385,15 +401,17 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     fbox_height = dbox_height;
     fbox_width = dbox_width;
     fbox_y = dbox_y;
-    fbox_x = tbox_x + dbox_width + 2;
+    fbox_x = tbox_x + dbox_width + (2 * MARGIN);
 
     w_file = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
     if (w_file == 0)
 	return -1;
 
     (void) keypad(w_file, TRUE);
-    (void) mvwprintw(dialog, fbox_y - 2, fbox_x - 1, "Files");
-    draw_box(dialog, fbox_y - 1, fbox_x - 1, fbox_height + 2, fbox_width + 2,
+    (void) mvwprintw(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
+    draw_box(dialog,
+	     fbox_y - MARGIN, fbox_x - MARGIN,
+	     fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
 	     border_attr, dialog_attr);
     init_list(&f_list, dialog, w_file);
 
