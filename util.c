@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.137 2004/09/19 17:55:07 tom Exp $
+ *  $Id: util.c,v 1.138 2004/11/18 00:26:55 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -650,9 +650,9 @@ justify_text(WINDOW *win,
 {
     chtype attr = A_NORMAL;
     int x = (2 * MARGIN);
-    int y = 1;
+    int y = MARGIN;
     int max_x = 2;
-    int lm = (2 * MARGIN);	/* left margin */
+    int lm = (2 * MARGIN);	/* left margin (box-border plus a space) */
     int rm = limit_x;		/* right margin */
     int bm = limit_y;		/* bottom margin */
     int last_y = 0, last_x = 0;
