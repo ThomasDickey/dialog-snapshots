@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.23 2001/10/15 00:23:37 tom Exp $
+ *  $Id: buttons.c,v 1.24 2001/12/02 22:22:46 tom Exp $
  *
  *  buttons.c
  *
@@ -247,6 +247,22 @@ dlg_char_to_button(int ch, const char **labels)
     return -1;
 }
 
+static const char *
+my_ok_label(void)
+{
+    return (dialog_vars.ok_label != NULL)
+	? dialog_vars.ok_label
+	: _("OK");
+}
+
+static const char *
+my_cancel_label(void)
+{
+    return (dialog_vars.cancel_label != NULL)
+	? dialog_vars.cancel_label
+	: _("Cancel");
+}
+
 /*
  * These functions return a list of button labels.
  */
@@ -267,7 +283,7 @@ dlg_ok_label(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = _("OK");
+    labels[n++] = my_ok_label();
     labels[n] = 0;
     return labels;
 }
@@ -278,9 +294,9 @@ dlg_ok_labels(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = _("OK");
+    labels[n++] = my_ok_label();
     if (!dialog_vars.nocancel)
-	labels[n++] = _("Cancel");
+	labels[n++] = my_cancel_label();
     labels[n] = 0;
     return labels;
 }

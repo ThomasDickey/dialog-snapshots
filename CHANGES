@@ -3,6 +3,20 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/12/02
+	+ add --ok-label and --cancel-label options (request by Kyle Sallee
+	  <cromwell@kublai.com> independent of Xdialog). 
+	+ correct usage message for --fselect option (reported by Patrick J
+	  Volkerding).
+	+ add samples/debian.rc, for comparison with slackware.rc
+	+ corrected samples/slackware.rc, which was just the compiled-in
+	  default values (patch by Patrick J Volkerding).
+	+ modify search rule for rc-file to add a global rc file /etc/dialogrc
+	  (patch by Patrick J Volkerding <volkerdi@slackware.com>).
+	+ updated pt_BR.po with modified entries for fselect.c (Frederic L W
+	  Meunier).
+	+ add pl.po (Swiergot <swiergot@l02.ids.czest.pl>).
+
 2001/11/11
 	+ modify command-line parsing to allow a "--" argument to act as an
 	  escape, so the next argument is not recognized as an option if it

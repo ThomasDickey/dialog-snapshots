@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.12 2001/08/09 00:15:19 tom Exp $
+ *  $Id: rc.c,v 1.14 2001/12/02 21:03:06 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -39,6 +39,7 @@ static const color_names_st color_names[] =
     {"WHITE", COLOR_WHITE},
 };				/* color names */
 
+#define GLOBALRC "/etc/dialogrc"
 #define DIALOGRC ".dialogrc"
 
 /* Types of values */
@@ -500,26 +501,35 @@ parse_rc(void)
      *  b) if the file in (a) can't be found, use the file $HOME/.dialogrc
      *     as the configuration file.
      *
-     *  c) if the file in (b) can't be found, use compiled in defaults.
+     *  c) if the file in (b) can't be found, try using the GLOBALRC file.
+     *     Usually this will be /etc/dialogrc.
+     *
+     *  d) if the file in (c) can't be found, use compiled in defaults.
      *
      */
 
+    /* try step (a) */
     if ((tempptr = getenv("DIALOGRC")) != NULL)
 	rc_file = fopen(tempptr, "rt");
 
     if (tempptr == NULL || rc_file == NULL) {	/* step (a) failed? */
 	/* try step (b) */
-	if ((tempptr = getenv("HOME")) == NULL)
-	    return 0;		/* step (b) failed, use default values */
-
-	if (tempptr[0] == '\0' || lastch(tempptr) == '/')
-	    sprintf(str, "%s%s", tempptr, DIALOGRC);
-	else
-	    sprintf(str, "%s/%s", tempptr, DIALOGRC);
-
-	if ((rc_file = fopen(str, "rt")) == NULL)
-	    return 0;		/* step (b) failed, use default values */
+	if ((tempptr = getenv("HOME")) != NULL) {
+	    if (tempptr[0] == '\0' || lastch(tempptr) == '/')
+		sprintf(str, "%s%s", tempptr, DIALOGRC);
+	    else
+		sprintf(str, "%s/%s", tempptr, DIALOGRC);
+	    rc_file = fopen(str, "rt");
+	}
     }
+
+    if (tempptr == NULL || rc_file == NULL) {	/* step (b) failed? */
+	/* try step (c) */
+	sprintf(str, "%s", GLOBALRC);
+	if ((rc_file = fopen(str, "rt")) == NULL)
+	    return 0;		/* step (c) failed, use default values */
+    }
+
     /* Scan each line and set variables */
     while (fgets(str, MAX_LEN, rc_file) != NULL) {
 	if (lastch(str) != '\n') {
