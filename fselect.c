@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.37 2003/08/20 19:46:51 tom Exp $
+ * $Id: fselect.c,v 1.39 2003/08/24 20:45:44 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  AUTHOR: Thomas Dickey <dickey@herndon4.his.com>
+ *  AUTHOR: Thomas Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -534,28 +534,12 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    }
 	}
 
-	if (!first) {
+	if (first) {
+	    (void) wrefresh(dialog);
+	} else {
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
 	    key = mouse_wgetch(dialog, &fkey);
-	} else {
-	    (void) wrefresh(dialog);
-	}
-
-	if (state == sTEXT) {	/* Input box selected */
-	    edit = dlg_edit_string(input, &offset, key, fkey, first);
-
-	    if (edit) {
-		dlg_show_string(w_text, input, offset, inputbox_attr,
-				0, 0, tbox_width, 0, first);
-		first = FALSE;
-		continue;
-	    }
-	}
-
-	if ((code = dlg_char_to_button(key, buttons)) >= 0) {
-	    result = code;
-	    break;
 	}
 
 	if (!fkey) {
@@ -579,8 +563,6 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		break;
 	    default:
 		fkey = FALSE;
-		(void) ungetch(key);
-		state = sTEXT;
 		break;
 	    }
 	}
@@ -590,28 +572,28 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    case M_EVENT + KEY_PREVIOUS:
 		state = sDIRS;
 		scroll_list(-1, which_list());
-		break;
+		continue;
 	    case M_EVENT + KEY_NEXT:
 		state = sDIRS;
 		scroll_list(1, which_list());
-		break;
+		continue;
 	    case M_EVENT + KEY_PPAGE:
 		state = sFILES;
 		scroll_list(-1, which_list());
-		break;
+		continue;
 	    case M_EVENT + KEY_NPAGE:
 		state = sFILES;
 		scroll_list(1, which_list());
-		break;
+		continue;
 	    case KEY_PPAGE:
 		scroll_list(-1, which_list());
-		break;
+		continue;
 	    case KEY_NPAGE:
 		scroll_list(1, which_list());
-		break;
+		continue;
 	    case KEY_UP:
 		if (change_list(-1, which_list()))
-		    break;
+		    continue;
 		/* FALLTHRU */
 	    case KEY_LEFT:
 	    case KEY_BTAB:
@@ -619,17 +601,17 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		do {
 		    state = dlg_prev_ok_buttonindex(state, sDIRS);
 		} while (!usable_state(state, &d_list, &f_list));
-		break;
+		continue;
 	    case KEY_DOWN:
 		if (change_list(1, which_list()))
-		    break;
+		    continue;
 		/* FALLTHRU */
 	    case KEY_RIGHT:
 		show_buttons = TRUE;
 		do {
 		    state = dlg_next_ok_buttonindex(state, sDIRS);
 		} while (!usable_state(state, &d_list, &f_list));
-		break;
+		continue;
 	    case KEY_SELECT:
 		completed = 0;
 		if (state == sFILES) {
@@ -644,34 +626,51 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		    offset = strlen(input);
 		    dlg_show_string(w_text, input, offset, inputbox_attr,
 				    0, 0, tbox_width, 0, first);
-		    break;
+		    continue;
 		} else if (state < sTEXT) {
 		    (void) beep();
-		    break;
+		    continue;
 		}
 		/* FALLTHRU */
 	    case KEY_ENTER:
 		result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
-		break;
+		continue;
 	    default:
 		if (key >= M_EVENT + MOUSE_T) {
 		    state = sTEXT;
+		    continue;
 		} else if (key >= M_EVENT + MOUSE_F) {
 		    state = sFILES;
 		    f_list.choice = (key - (M_EVENT + MOUSE_F)) + f_list.offset;
 		    display_list(&f_list);
+		    continue;
 		} else if (key >= M_EVENT + MOUSE_D) {
 		    state = sDIRS;
 		    d_list.choice = (key - (M_EVENT + MOUSE_D)) + d_list.offset;
 		    display_list(&d_list);
+		    continue;
 		} else if (key >= M_EVENT
 			   && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
 		    result = code;
-		} else {
-		    (void) beep();
+		    continue;
 		}
 		break;
 	    }
+	}
+
+	if (state < 0) {	/* Input box selected if we're editing */
+	    edit = dlg_edit_string(input, &offset, key, fkey, first);
+
+	    if (edit) {
+		dlg_show_string(w_text, input, offset, inputbox_attr,
+				0, 0, tbox_width, 0, first);
+		first = FALSE;
+		state = sTEXT;
+	    }
+	} else if (state >= 0 &&
+		   (code = dlg_char_to_button(key, buttons)) >= 0) {
+	    result = code;
+	    break;
 	}
     }
 

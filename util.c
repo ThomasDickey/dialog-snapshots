@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.100 2003/08/20 19:00:45 tom Exp $
+ *  $Id: util.c,v 1.106 2003/08/31 00:50:27 tom Exp $
  *
  *  util.c
  *
@@ -73,85 +73,63 @@ bool use_colors = USE_COLORS;
 bool use_shadow = USE_SHADOW;
 #endif
 
-/*
- * Attribute values, default is for mono display
- */
-chtype attributes[] =
-{
-    A_NORMAL,			/* screen_attr */
-    A_NORMAL,			/* shadow_attr */
-    A_REVERSE,			/* dialog_attr */
-    A_REVERSE,			/* title_attr */
-    A_REVERSE,			/* border_attr */
-    A_BOLD,			/* button_active_attr */
-    A_DIM,			/* button_inactive_attr */
-    A_UNDERLINE,		/* button_key_active_attr */
-    A_UNDERLINE,		/* button_key_inactive_attr */
-    A_NORMAL,			/* button_label_active_attr */
-    A_NORMAL,			/* button_label_inactive_attr */
-    A_REVERSE,			/* inputbox_attr */
-    A_REVERSE,			/* inputbox_border_attr */
-    A_REVERSE,			/* searchbox_attr */
-    A_REVERSE,			/* searchbox_title_attr */
-    A_REVERSE,			/* searchbox_border_attr */
-    A_REVERSE,			/* position_indicator_attr */
-    A_REVERSE,			/* menubox_attr */
-    A_REVERSE,			/* menubox_border_attr */
-    A_REVERSE,			/* item_attr */
-    A_NORMAL,			/* item_selected_attr */
-    A_REVERSE,			/* tag_attr */
-    A_REVERSE,			/* tag_selected_attr */
-    A_NORMAL,			/* tag_key_attr */
-    A_BOLD,			/* tag_key_selected_attr */
-    A_REVERSE,			/* check_attr */
-    A_REVERSE,			/* check_selected_attr */
-    A_REVERSE,			/* uarrow_attr */
-    A_REVERSE,			/* darrow_attr */
-    A_NORMAL			/* itemhelp_attr */
-};
+#define concat(a,b) a##b
+
+#ifdef HAVE_RC_FILE
+#define RC_DATA(name,comment) , #name "_color", comment " color"
+#else
+#define RC_DATA(name,comment)	/*nothing */
+#endif
 
 #ifdef HAVE_COLOR
-#include "colors.h"
+#include <colors.h>
+#define COLOR_DATA(upr) , concat(upr,_FG), concat(upr,_BG), concat(upr,_HL)
+#else
+#define COLOR_DATA(upr)		/*nothing */
+#endif
+
+#define DATA(atr,upr,lwr,cmt) { atr COLOR_DATA(upr) RC_DATA(lwr,cmt) }
 
 /*
- * Table of color values
+ * Table of color and attribute values, default is for mono display.
  */
-#define concat(a,b) a##b
-#define DATA(name) { concat(name,_FG), concat(name,_BG), concat(name,_HL) }
-int color_table[][3] =
+/* *INDENT-OFF* */
+DIALOG_COLORS color_table[] =
 {
-    DATA(SCREEN),
-    DATA(SHADOW),
-    DATA(DIALOG),
-    DATA(TITLE),
-    DATA(BORDER),
-    DATA(BUTTON_ACTIVE),
-    DATA(BUTTON_INACTIVE),
-    DATA(BUTTON_KEY_ACTIVE),
-    DATA(BUTTON_KEY_INACTIVE),
-    DATA(BUTTON_LABEL_ACTIVE),
-    DATA(BUTTON_LABEL_INACTIVE),
-    DATA(INPUTBOX),
-    DATA(INPUTBOX_BORDER),
-    DATA(SEARCHBOX),
-    DATA(SEARCHBOX_TITLE),
-    DATA(SEARCHBOX_BORDER),
-    DATA(POSITION_INDICATOR),
-    DATA(MENUBOX),
-    DATA(MENUBOX_BORDER),
-    DATA(ITEM),
-    DATA(ITEM_SELECTED),
-    DATA(TAG),
-    DATA(TAG_SELECTED),
-    DATA(TAG_KEY),
-    DATA(TAG_KEY_SELECTED),
-    DATA(CHECK),
-    DATA(CHECK_SELECTED),
-    DATA(UARROW),
-    DATA(DARROW),
-    DATA(ITEMHELP),
-};				/* color_table */
-#endif
+    DATA(A_NORMAL,	SCREEN,			screen, "Screen"),
+    DATA(A_NORMAL,	SHADOW,			shadow, "Shadow"),
+    DATA(A_REVERSE,	DIALOG,			dialog, "Dialog box"),
+    DATA(A_REVERSE,	TITLE,			title, "Dialog box title"),
+    DATA(A_REVERSE,	BORDER,			border, "Dialog box border"),
+    DATA(A_BOLD,	BUTTON_ACTIVE,		button_active, "Active button"),
+    DATA(A_DIM,		BUTTON_INACTIVE,	button_inactive, "Inactive button"),
+    DATA(A_UNDERLINE,	BUTTON_KEY_ACTIVE,	button_key_active, "Active button key"),
+    DATA(A_UNDERLINE,	BUTTON_KEY_INACTIVE,	button_key_inactive, "Inactive button key"),
+    DATA(A_NORMAL,	BUTTON_LABEL_ACTIVE,	button_label_active, "Active button label"),
+    DATA(A_NORMAL,	BUTTON_LABEL_INACTIVE,	button_label_inactive, "Inactive button label"),
+    DATA(A_REVERSE,	INPUTBOX,		inputbox, "Input box"),
+    DATA(A_REVERSE,	INPUTBOX_BORDER,	inputbox_border, "Input box border"),
+    DATA(A_REVERSE,	SEARCHBOX,		searchbox, "Search box"),
+    DATA(A_REVERSE,	SEARCHBOX_TITLE,	searchbox_title, "Search box title"),
+    DATA(A_REVERSE,	SEARCHBOX_BORDER,	searchbox_border, "Search box border"),
+    DATA(A_REVERSE,	POSITION_INDICATOR,	position_indicator, "File position indicator"),
+    DATA(A_REVERSE,	MENUBOX,		menubox, "Menu box"),
+    DATA(A_REVERSE,	MENUBOX_BORDER,		menubox_border, "Menu box border"),
+    DATA(A_REVERSE,	ITEM,			item, "Item"),
+    DATA(A_NORMAL,	ITEM_SELECTED,		item_selected, "Selected item"),
+    DATA(A_REVERSE,	TAG,			tag, "Tag"),
+    DATA(A_REVERSE,	TAG_SELECTED,		tag_selected, "Selected tag"),
+    DATA(A_NORMAL,	TAG_KEY,		tag_key, "Tag key"),
+    DATA(A_BOLD,	TAG_KEY_SELECTED,	tag_key_selected, "Selected tag key"),
+    DATA(A_REVERSE,	CHECK,			check, "Check box"),
+    DATA(A_REVERSE,	CHECK_SELECTED,		check_selected, "Selected check box"),
+    DATA(A_REVERSE,	UARROW,			uarrow, "Up arrow"),
+    DATA(A_REVERSE,	DARROW,			darrow, "Down arrow"),
+    DATA(A_NORMAL,	ITEMHELP,		itemhelp, "Item help-text"),
+    DATA(A_BOLD,	FORM_ACTIVE_TEXT,	form_active_text, "Active form text"),
+    DATA(A_REVERSE,	FORM_TEXT,		form_text, "Form text"),
+};
+/* *INDENT-ON* */
 
 /*
  * Display background title if it exists ...
@@ -267,12 +245,12 @@ init_dialog(void)
      * this to work properly:
      *
      * a) some getty implementations (and possibly broken tty drivers, e.g., on
-     *	  HPUX 10 and 11) cause stdin to act as if it is still in cooked mode
-     *	  even though results from ioctl's state that it is successfully
-     *	  altered to raw mode.  Broken is the proper term.
+     *    HPUX 10 and 11) cause stdin to act as if it is still in cooked mode
+     *    even though results from ioctl's state that it is successfully
+     *    altered to raw mode.  Broken is the proper term.
      *
      * b) the user may not have permissions on the device, e.g., if one su's
-     *	  from the login user to another non-privileged user.
+     *    from the login user to another non-privileged user.
      *
      * If stdout is a tty, none of this need apply, so we use initscr.
      */
@@ -345,21 +323,27 @@ static int defined_colors = 0;
 void
 color_setup(void)
 {
-    int i;
+    unsigned i;
 
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
 
-	for (i = 0; i < ATTRIBUTE_COUNT; i++) {
+	for (i = 0; i < sizeof(color_table) / sizeof(color_table[0]); i++) {
 
 	    /* Initialize color pairs */
-	    (void) init_pair(i + 1, color_table[i][0], color_table[i][1]);
+	    (void) init_pair(i + 1, color_table[i].fg, color_table[i].bg);
 
 	    /* Setup color attributes */
-	    attributes[i] = C_ATTR(color_table[i][2], i + 1);
+	    color_table[i].atr = C_ATTR(color_table[i].hilite, i + 1);
 	}
 	defined_colors = i + 1;
     }
+}
+
+int
+dlg_color_count(void)
+{
+    return sizeof(color_table) / sizeof(color_table[0]);
 }
 
 /*
@@ -567,7 +551,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
      * is just being called for sizing the window.
      */
     if (win) {
-	dlg_print_text(win, prompt, (wrap_ptr - prompt), attr);
+	dlg_print_text(win, prompt, (wrap_ptr - prompt - hidden), attr);
     }
 
     /* *x tells the calling function how long the line was */
@@ -841,7 +825,20 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 /* End of auto_sizefile() */
 
 /*
- * Draw a rectangular box with line drawing characters
+ * Draw a rectangular box with line drawing characters.
+ *
+ * borderchar is used to color the upper/left edges.
+ *
+ * boxchar is used to color the right/lower edges.  It also is fill-color used
+ * for the box contents.
+ *
+ * Normally, if you are drawing a scrollable box, use menubox_border_attr for
+ * boxchar, and menubox_attr for borderchar since the scroll-arrows are drawn
+ * with menubox_attr at the top, and menubox_border_attr at the bottom.  That
+ * also (given the default color choices) produces a recessed effect.
+ *
+ * If you want a raised effect (and are not going to use the scroll-arrows),
+ * reverse this choice.
  */
 void
 draw_box(WINDOW *win, int y, int x, int height, int width,
@@ -884,17 +881,19 @@ draw_box(WINDOW *win, int y, int x, int height, int width,
 void
 draw_shadow(WINDOW *win, int y, int x, int height, int width)
 {
-    int i;
+    int i, j;
 
     if (has_colors()) {		/* Whether terminal supports color? */
 	wattrset(win, shadow_attr);
-	(void) wmove(win, y + height, x + 2);
-	for (i = 0; i < width; i++)
-	    (void) waddch(win, CharOf(winch(win)));
-	for (i = y + 1; i < y + height + 1; i++) {
+	for (i = y + height; i < y + height + SHADOW_ROWS; ++i) {
+	    (void) wmove(win, i, x + SHADOW_COLS);
+	    for (j = 0; j < width; ++j)
+		(void) waddch(win, CharOf(winch(win)));
+	}
+	for (i = y + SHADOW_ROWS; i < y + height + SHADOW_ROWS; i++) {
 	    (void) wmove(win, i, x + width);
-	    (void) waddch(win, CharOf(winch(win)));
-	    (void) waddch(win, CharOf(winch(win)));
+	    for (j = 0; j < SHADOW_COLS; ++j)
+		(void) waddch(win, CharOf(winch(win)));
 	}
 	(void) wnoutrefresh(win);
     }

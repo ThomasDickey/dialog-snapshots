@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.54 2003/08/10 21:51:04 tom Exp $
-.TH DIALOG 1 "" "$Date: 2003/08/10 21:51:04 $"
+.\" $Id: dialog.1,v 1.56 2003/08/27 22:12:11 tom Exp $
+.TH DIALOG 1 "" "$Date: 2003/08/27 22:12:11 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -52,8 +52,11 @@ e.g., Cancel or No.
 .
 .\" ************************************************************************
 .SH OPTIONS
-.TP
-\fBCommon Options\fP
+All options begin with "\fB\-\-\fP".
+A "\fB\-\-\fP" by itself is used as an escape,
+i.e., the next token on the command-line is not treated as an option.
+.
+.SS \fBCommon Options\fP
 .
 .IP "\fB\-\-aspect \fIratio"
 This gives you some control over the box dimensions when using auto
@@ -140,6 +143,7 @@ Show an extra button, between "Ok" and "Cancel" buttons.
 .
 .IP "\fB\-\-extra-label \fIstring"
 Override the label used for "Extra" buttons.
+Note: for inputmenu widgets, this defaults to "Rename".
 .
 .IP "\fB\-\-help"
 Prints the help message to standard error.
@@ -272,8 +276,7 @@ trim literal newlines and repeated blanks from message text.
 Same as "\fB\-\-print-version\fP".
 .
 .\" ************************************************************************
-.TP
-\fBBox Options\fP
+.SS Box Options
 All dialog boxes have at least three parameters:
 .TP 5
 \fItext\fP

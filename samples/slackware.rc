@@ -1,4 +1,4 @@
-# $Id: slackware.rc,v 1.2 2001/12/02 21:19:05 Patrick.J.Volkerding Exp $
+# $Id: slackware.rc,v 1.5 2003/08/31 00:50:10 tom Exp $
 # Run-time configuration file for dialog, matches Slackware color scheme.
 #
 # Types of values:
@@ -58,6 +58,7 @@ inputbox_border_color = (CYAN,CYAN,ON)
 searchbox_color = (YELLOW,WHITE,ON)
 
 # Search box title color
+# FIXME
 searchbox_title_color = (WHITE,WHITE,ON)
 
 # Search box border color
@@ -104,3 +105,9 @@ darrow_color = (GREEN,CYAN,ON)
 
 # Item help-text color
 itemhelp_color = (WHITE,BLACK,OFF)
+
+# Active form text color
+form_active_text_color = (BLUE,WHITE,OFF)
+
+# Form text color
+form_text_color = (CYAN,BLUE,ON)

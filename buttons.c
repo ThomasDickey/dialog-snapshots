@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.33 2003/07/25 01:09:46 tom Exp $
+ *  $Id: buttons.c,v 1.34 2003/08/24 17:51:32 tom Exp $
  *
  *  buttons.c
  *
@@ -43,7 +43,10 @@ center_label(char *buffer, int longest, const char *label)
 static void
 print_button(WINDOW *win, const char *label, int y, int x, int selected)
 {
-    int i, temp;
+    int i, j;
+    int state = 0;
+    const int *indx = dlg_index_wchars(label);
+    int limit = dlg_count_wchars(label);
     chtype key_attr = (selected
 		       ? button_key_active_attr
 		       : button_key_inactive_attr);
@@ -56,25 +59,32 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 	     ? button_active_attr
 	     : button_inactive_attr);
     (void) waddstr(win, "<");
-    temp = strspn(label, " ");
-    label += temp;
     wattrset(win, label_attr);
-    for (i = 0; i < temp; i++)
-	(void) waddch(win, ' ');
-    for (i = 0; label[i] != '\0'; i++) {
-	if (isupper(UCH(label[i]))) {
-	    wattrset(win, key_attr);
-	    key_attr = label_attr;	/* only the first is highlighted */
-	} else {
+    for (i = 0; i < limit; ++i) {
+	int first = indx[i];
+	int last = indx[i + 1];
+	int width = last - first;
+
+	switch (state) {
+	case 0:
+	    if (width == 1 && isupper(UCH(label[first]))) {
+		wattrset(win, key_attr);
+		state = 1;
+	    }
+	    break;
+	case 1:
 	    wattrset(win, label_attr);
+	    state = 2;
+	    break;
 	}
-	(void) waddch(win, CharOf(label[i]));
+	for (j = first; j < last; ++j)
+	    (void) waddch(win, CharOf(label[j]));
     }
     wattrset(win, selected
 	     ? button_active_attr
 	     : button_inactive_attr);
     (void) waddstr(win, ">");
-    (void) wmove(win, y, x + temp + 1);
+    (void) wmove(win, y, x + strspn(label, " ") + 1);
 }
 
 static int

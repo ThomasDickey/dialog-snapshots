@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.115 2003/08/20 19:32:17 tom Exp $
+ *  $Id: dialog.h,v 1.120 2003/08/30 16:22:00 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -112,6 +112,8 @@
 
 #define MARGIN 1
 #define GUTTER 2
+#define SHADOW_ROWS 1
+#define SHADOW_COLS 2
 
 #define MAX_LEN 2048
 #define BUF_SIZE (10*1024)
@@ -122,7 +124,6 @@
 #undef  MAX
 #define MAX(x,y) ((x) > (y) ? (x) : (y))
 
-#define MAX_TAILBG 9
 #define DEFAULT_SEPARATE_STR "\t"
 #define DEFAULT_ASPECT_RATIO 9
 /* how many spaces is a tab long (default)? */
@@ -190,40 +191,44 @@
 /*
  * Attribute names
  */
-#define screen_attr                   attributes[0]
-#define shadow_attr                   attributes[1]
-#define dialog_attr                   attributes[2]
-#define title_attr                    attributes[3]
-#define border_attr                   attributes[4]
-#define button_active_attr            attributes[5]
-#define button_inactive_attr          attributes[6]
-#define button_key_active_attr        attributes[7]
-#define button_key_inactive_attr      attributes[8]
-#define button_label_active_attr      attributes[9]
-#define button_label_inactive_attr    attributes[10]
-#define inputbox_attr                 attributes[11]
-#define inputbox_border_attr          attributes[12]
-#define searchbox_attr                attributes[13]
-#define searchbox_title_attr          attributes[14]
-#define searchbox_border_attr         attributes[15]
-#define position_indicator_attr       attributes[16]
-#define menubox_attr                  attributes[17]
-#define menubox_border_attr           attributes[18]
-#define item_attr                     attributes[19]
-#define item_selected_attr            attributes[20]
-#define tag_attr                      attributes[21]
-#define tag_selected_attr             attributes[22]
-#define tag_key_attr                  attributes[23]
-#define tag_key_selected_attr         attributes[24]
-#define check_attr                    attributes[25]
-#define check_selected_attr           attributes[26]
-#define uarrow_attr                   attributes[27]
-#define darrow_attr                   attributes[28]
-#define itemhelp_attr                 attributes[29]
+#define DIALOG_ATR(n)                 color_table[n].atr
 
-/* number of attributes */
-#define ATTRIBUTE_COUNT               30
+#define screen_attr                   DIALOG_ATR(0)
+#define shadow_attr                   DIALOG_ATR(1)
+#define dialog_attr                   DIALOG_ATR(2)
+#define title_attr                    DIALOG_ATR(3)
+#define border_attr                   DIALOG_ATR(4)
+#define button_active_attr            DIALOG_ATR(5)
+#define button_inactive_attr          DIALOG_ATR(6)
+#define button_key_active_attr        DIALOG_ATR(7)
+#define button_key_inactive_attr      DIALOG_ATR(8)
+#define button_label_active_attr      DIALOG_ATR(9)
+#define button_label_inactive_attr    DIALOG_ATR(10)
+#define inputbox_attr                 DIALOG_ATR(11)
+#define inputbox_border_attr          DIALOG_ATR(12)
+#define searchbox_attr                DIALOG_ATR(13)
+#define searchbox_title_attr          DIALOG_ATR(14)
+#define searchbox_border_attr         DIALOG_ATR(15)
+#define position_indicator_attr       DIALOG_ATR(16)
+#define menubox_attr                  DIALOG_ATR(17)
+#define menubox_border_attr           DIALOG_ATR(18)
+#define item_attr                     DIALOG_ATR(19)
+#define item_selected_attr            DIALOG_ATR(20)
+#define tag_attr                      DIALOG_ATR(21)
+#define tag_selected_attr             DIALOG_ATR(22)
+#define tag_key_attr                  DIALOG_ATR(23)
+#define tag_key_selected_attr         DIALOG_ATR(24)
+#define check_attr                    DIALOG_ATR(25)
+#define check_selected_attr           DIALOG_ATR(26)
+#define uarrow_attr                   DIALOG_ATR(27)
+#define darrow_attr                   DIALOG_ATR(28)
+#define itemhelp_attr                 DIALOG_ATR(29)
+#define form_active_text_attr         DIALOG_ATR(30)
+#define form_text_attr                DIALOG_ATR(31)
 
+/*
+ * Callbacks are used to implement the "background" tailbox.
+ */
 typedef struct _dlg_callback {
     struct _dlg_callback *next;
     FILE *input;
@@ -315,8 +320,25 @@ extern bool use_shadow;
 
 #define assert_ptr(ptr,msg) if ((ptr) == 0) exiterr("cannot allocate memory in " msg)
 
+/*
+ * Table for attribute- and color-values.
+ */
+typedef struct {
+    chtype atr;
+#ifdef HAVE_COLOR
+    int fg;
+    int bg;
+    int hilite;
+#endif
+#ifdef HAVE_RC_FILE
+    char *name;
+    char *comment;
+#endif
+} DIALOG_COLORS;
+
+extern DIALOG_COLORS color_table[];
+
 extern FILE *pipe_fp;
-extern chtype attributes[];
 extern int defaultno;
 extern int screen_initialized;
 
@@ -358,6 +380,7 @@ WINDOW * new_window (int height, int width, int y, int x);
 WINDOW * sub_window (WINDOW *win, int height, int width, int y, int x);
 
 #ifdef HAVE_COLOR
+int dlg_color_count (void);
 void color_setup (void);
 void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif

@@ -1,9 +1,10 @@
 /*
- *  $Id: msgbox.c,v 1.24 2003/08/20 19:52:24 tom Exp $
+ *  $Id: msgbox.c,v 1.25 2003/08/30 14:32:41 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
