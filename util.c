@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.56 2000/12/13 01:53:17 tom Exp $
+ *  $Id: util.c,v 1.58 2000/12/14 01:48:02 tom Exp $
  *
  *  util.c
  *
@@ -23,9 +23,19 @@
 #include "dialog.h"
 
 #include <stdarg.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef NCURSES_VERSION
 #include <term.h>
+#endif
+
+#ifndef S_IRUSR
+#define S_IRUSR 0400
+#endif
+
+#ifndef S_IWUSR
+#define S_IWUSR 0200
 #endif
 
 /* globals */
@@ -53,7 +63,7 @@ bool use_shadow = USE_SHADOW;
 
 const char *dialog_result;
 
-/* 
+/*
  * Attribute values, default is for mono display
  */
 chtype attributes[] =
@@ -221,7 +231,7 @@ init_dialog(void)
 	exiterr("init_dialog: parse_rc");
 #endif
 
-    /* 
+    /*
      * Some widgets (such as gauge) may read from the standard input.
      * That would get in the way of curses' normal reading stdin for getch.
      * If we're not reading from a tty, see if we can open /dev/tty.
@@ -651,9 +661,9 @@ wrefresh_lock(WINDOW *win)
 
 /* If a tailboxbg was wrefreshed, wrefresh again the principal (normal) widget.
  *
- * The important thing here was to put cursor in the principal widget, 
- * but with touchwin(win) the principal widget is also rewritten. This 
- * is needed if a tailboxbg has overwritten this widget. 
+ * The important thing here was to put cursor in the principal widget,
+ * but with touchwin(win) the principal widget is also rewritten. This
+ * is needed if a tailboxbg has overwritten this widget.
  */
 void
 ctl_idlemsg(WINDOW *win)
@@ -708,12 +718,35 @@ exist_lock(char *filename)
     return 0;
 }
 
+#define LOCK_TIMEOUT 10		/* timeout for locking, in seconds */
+
 void
 create_lock(char *filename)
 {
-    int fd;
-    while ((fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600)) == -1)
-	close(fd);
+    int fd, i;
+
+    i = 0;
+    while ((fd = open(filename,
+		      O_WRONLY | O_CREAT | O_EXCL,
+		      S_IRUSR | S_IWUSR)) == -1) {
+	napms(1000);
+	if (++i == LOCK_TIMEOUT) {
+	    /* can't use exiterr here, since it attempts to use a lock
+	     * which could cause an endless loop of lock attempts :(
+	     */
+	    if (screen_initialized)
+		endwin();
+
+	    fprintf(stderr, "Unable to create lock");
+
+	    if (!is_tailbg)
+		killall_bg();
+
+	    exit(-1);
+	}
+    }
+
+    close(fd);
 }
 
 void
