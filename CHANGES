@@ -1,8 +1,27 @@
--- $Id: CHANGES,v 1.58 2002/05/19 19:35:12 tom Exp $
+-- $Id: CHANGES,v 1.59 2002/06/22 10:26:40 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2002/06/22
+	+ improve mouse handling, e.g., for up/down scrolling in calendar,
+	  checklist, etc.
+	+ adapted patch by Tobias C Rittweiler <tobrit@freebits.de> to add
+	  --extra-button and --extra-label options.
+	+ correct displayed cursor position in inputbox when returning to the
+	  input area after traversing the buttons with tabs, etc.
+	+ add left/right arrows for traversal in calendar and timebox dialogs.
+	+ implement two new functions dlg_next_ok_buttonindex() and
+	  dlg_prev_ok_buttonindex(), using these to hide details about the
+	  traversal over buttons in several widgets.
+	+ modify checkbox.c and menubox.c to verify if both --help-button and
+	  --item-help are specified before assuming that selecting the help
+	  button should cause the "HELP {item-help}" message to be printed
+	  (reported by Marcel Ritter <Marcel.Ritter@rrze.uni-erlangen.de>).
+	+ modify init_dialog() to work around HP's broken tty driver (report
+	  by John Mudd <John.Mudd@ImageSoft.Fiserv.com>).
+	+ updated el.po (patch by kromJx <kromJx@crosswinds.net>).
 
 2002/05/19
 	+ add --no-collapse option to allow one to retain tabs and repeated
@@ -15,7 +34,7 @@ to it:
 	+ bump package version to 0.9b (with patch-date, as usual).
 	+ add --exit-label option (request by Roberto Simoni
 	  <rs@menhir-informatica.com>).
-	+ updated de.pl to correct translation for "Cancel" (from Michael
+	+ updated de.po to correct translation for "Cancel" (from Michael
 	  Piefel <piefel@debian.org> fixes Debian #146402). 
 	+ use definitions from autoconf macro AC_HEADER_TIME to ensure that
 	  time() is properly prototyped.

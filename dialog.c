@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.81 2002/05/19 19:33:22 tom Exp $
+ * $Id: dialog.c,v 1.82 2002/06/15 00:38:13 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -42,11 +42,13 @@ typedef enum {
     ,o_cancel_label
     ,o_checklist
     ,o_clear
-    ,o_create_rc
     ,o_cr_wrap
+    ,o_create_rc
     ,o_default_item
     ,o_defaultno
     ,o_exit_label
+    ,o_extra_button
+    ,o_extra_label
     ,o_fixed_font
     ,o_fselect
     ,o_fullbutton
@@ -63,13 +65,13 @@ typedef enum {
     ,o_max_input
     ,o_menu
     ,o_msgbox
-    ,o_nocancel
     ,o_no_close
     ,o_no_collapse
     ,o_no_cr_wrap
-    ,o_noitem
     ,o_no_kill
     ,o_no_shadow
+    ,o_nocancel
+    ,o_noitem
     ,o_ok_label
     ,o_passwordbox
     ,o_print_maxsize
@@ -136,6 +138,8 @@ static const Options options[] = {
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
     { "exit-label",	o_exit_label,		1, "<str>" },
+    { "extra-button",	o_extra_button,		1, "" },
+    { "extra-label",	o_extra_label,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
     { "fselect",	o_fselect,		2, "<filepath> <directory> <height> <width>" },
@@ -845,6 +849,9 @@ main(int argc, char *argv[])
 	    case o_help_button:
 		dialog_vars.help_button = TRUE;
 		break;
+	    case o_extra_button:
+		dialog_vars.extra_button = TRUE;
+		break;
 	    case o_ignore:
 		ignore_unknown = TRUE;
 		break;
@@ -900,6 +907,9 @@ main(int argc, char *argv[])
 		break;
 	    case o_cancel_label:
 		dialog_vars.cancel_label = optionString(argv, &offset);
+		break;
+	    case o_extra_label:
+		dialog_vars.extra_label = optionString(argv, &offset);
 		break;
 	    case o_exit_label:
 		dialog_vars.exit_label = optionString(argv, &offset);

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.18 2001/07/31 18:05:00 tom Exp $
+ *  $Id: guage.c,v 1.20 2002/06/22 16:23:43 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -44,7 +44,7 @@ decode_percent(char *buffer)
     char *tmp = 0;
     long value = strtol(buffer, &tmp, 10);
 
-    if (tmp != 0 && (*tmp == 0 || isspace(*tmp)) && value >= 0) {
+    if (tmp != 0 && (*tmp == 0 || isspace(UCH(*tmp))) && value >= 0) {
 	return TRUE;
     }
     return FALSE;
@@ -133,5 +133,5 @@ dialog_gauge(const char *title, const char *prompt, int height,
     } while (1);
 
     del_window(dialog);
-    return (0);
+    return (DLG_EXIT_OK);
 }

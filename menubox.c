@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.34 2002/03/10 01:33:07 tom Exp $
+ *  $Id: menubox.c,v 1.39 2002/06/20 23:12:00 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -63,6 +63,27 @@ print_item(WINDOW *win,
     }
 }
 
+static int
+handle_button(int code, char **items, int choice)
+{
+    switch (code) {
+    case DLG_EXIT_OK:
+	sprintf(dialog_vars.input_result, "%.*s",
+		MAX_LEN - 1,
+		ItemName(choice));
+	break;
+    case DLG_EXIT_HELP:
+	if (USE_ITEM_HELP(ItemHelp(choice))) {
+	    sprintf(dialog_vars.input_result, "HELP %.*s",
+		    MAX_LEN - 6,
+		    ItemHelp(choice));
+	    code = DLG_EXIT_OK;
+	}
+	break;
+    }
+    return code;
+}
+
 /*
  * Display a menu for choosing among a number of options
  */
@@ -71,9 +92,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    int menu_height, int item_no, char **items)
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
+    int code;
     int key = 0;
     int button = 0;
     int choice = dlg_default_item(items, MENUBOX_TAGS);
+    int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
     int max_choice, min_width;
     int found;
@@ -159,9 +182,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     (void) wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(box_y, box_x, menu_height + 2, menu_width + 2,
-		      item_no, item_x,	/* the threshold */
-		      1 /* dirty mode */ );
+    mouse_mkbigregion(box_y + 1, box_x, menu_height + 2, menu_width + 2,
+		      KEY_MAX, 1, 1, 1 /* by lines */ );
 
     dlg_draw_arrows(dialog, scrollamt,
 		    scrollamt + max_choice < item_no,
@@ -173,8 +195,26 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (key != ESC) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	key = mouse_wgetch(dialog);
+
+	if (key >= (M_EVENT + KEY_MAX)) {
+	    getyx(dialog, cur_y, cur_x);
+	    /* De-highlight current item */
+	    print_item(menu,
+		       ItemData(scrollamt + choice),
+		       choice, FALSE);
+	    /* Highlight new item */
+	    choice = (key - (M_EVENT + KEY_MAX));
+	    print_item(menu,
+		       ItemData(scrollamt + choice),
+		       choice, TRUE);
+	    (void) wnoutrefresh(menu);
+	    (void) wmove(dialog, cur_y, cur_x);
+	    wrefresh(dialog);
+	    continue;
+	}
+
 	/* Check if key pressed matches first character of any
 	   item tag in menu */
 	for (i = 0; i < max_choice; i++)
@@ -228,6 +268,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    case KEY_END:
 		i = item_no - 1 - scrollamt;
 		break;
+	    case M_EVENT + KEY_PPAGE:
 	    case KEY_PPAGE:
 		if (choice)
 		    i = 0;
@@ -236,6 +277,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		else
 		    continue;
 		break;
+	    case M_EVENT + KEY_NPAGE:
 	    case KEY_NPAGE:
 		i = MIN(choice + max_choice, item_no - scrollamt - 1);
 		break;
@@ -331,16 +373,9 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	}
 
 	switch (key) {
-	case M_EVENT + 'O':
-	    del_window(dialog);
-	    return scrollamt + choice;
-	case M_EVENT + 'C':
-	    del_window(dialog);
-	    return -2;
-	case M_EVENT + 'o':	/* mouse enter... */
-	case M_EVENT + 'c':	/* use the code for toggling */
-	    button = (key == M_EVENT + 'o');
-	    /* FALLTHRU */
+	case ESC:
+	    result = DLG_EXIT_ESC;
+	    break;
 	case ' ':
 	case KEY_BTAB:
 	case KEY_LEFT:
@@ -354,24 +389,20 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    break;
 	case '\n':
 	    del_window(dialog);
-	    switch (dlg_ok_buttoncode(button)) {
-	    case DLG_EXIT_OK:
-		sprintf(dialog_vars.input_result, "%.*s",
-			MAX_LEN - 1,
-			ItemName(scrollamt + choice));
-		return DLG_EXIT_OK;
-	    case DLG_EXIT_CANCEL:
-		return DLG_EXIT_CANCEL;
-	    default:
-		/* help */
-		sprintf(dialog_vars.input_result, "HELP %.*s",
-			MAX_LEN - 6,
-			ItemHelp(scrollamt + choice));
-		return DLG_EXIT_OK;
+	    result = handle_button(dlg_ok_buttoncode(button),
+				   items,
+				   scrollamt + choice);
+	    break;
+	default:
+	    if (key >= M_EVENT
+		&& (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		result = handle_button(code, items, scrollamt + choice);
 	    }
+	    break;
 	}
     }
 
+    mouse_free_regions();
     del_window(dialog);
-    return DLG_EXIT_ESC;	/* ESC pressed */
+    return result;
 }

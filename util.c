@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.82 2002/05/19 19:32:16 tom Exp $
+ *  $Id: util.c,v 1.86 2002/06/22 16:23:32 tom Exp $
  *
  *  util.c
  *
@@ -208,17 +208,19 @@ my_putc(int ch)
 }
 #endif
 
+#define TTY_DEVICE "/dev/tty"
+
 static int
 open_terminal(char **result, int mode)
 {
-    const char *device = "/dev/tty";
+    const char *device = TTY_DEVICE;
     if (!isatty(fileno(stderr))
 	|| (device = ttyname(fileno(stderr))) == 0) {
 	if (!isatty(fileno(stdout))
 	    || (device = ttyname(fileno(stdout))) == 0) {
 	    if (!isatty(fileno(stdin))
 		|| (device = ttyname(fileno(stdin))) == 0) {
-		device = "/dev/tty";
+		device = TTY_DEVICE;
 	    }
 	}
     }
@@ -260,8 +262,16 @@ init_dialog(void)
      * Try to open the output directly to /dev/tty so we can support the
      * command-line option "--stdout".  Otherwise it will get lost in the
      * normal output to the screen.
+     *
+     * Actually we only do this if stdout is redirected, to work around HP's
+     * broken implementation of the tty driver (tested on HPUX 10 and 11). 
+     * Opening /dev/tty at this point causes stdin to remain in cooked mode,
+     * even though results from ioctl's state that it is successfully altered
+     * to raw mode.  So "--stdout" is unusable on that platform, as is the
+     * newterm() function.
      */
-    if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
+    if (!isatty(fileno(stdout))
+	&& (fd1 = open_terminal(&device, O_WRONLY)) >= 0
 	&& (my_output = fdopen(fd1, "w")) != 0) {
 	if (newterm(NULL, my_output, stdin) == 0) {
 	    exiterr("cannot initialize curses");
@@ -740,10 +750,12 @@ dlg_exit(int code)
 	int code;
 	const char *name;
     } table[] = {
-	{ DLG_EXIT_ESC,	   "DIALOG_ESC" },
-	{ DLG_EXIT_ERROR,  "DIALOG_ERROR" },
-	{ DLG_EXIT_OK,	   "DIALOG_OK" },
 	{ DLG_EXIT_CANCEL, "DIALOG_CANCEL" },
+	{ DLG_EXIT_ERROR,  "DIALOG_ERROR" },
+	{ DLG_EXIT_ESC,	   "DIALOG_ESC" },
+	{ DLG_EXIT_EXTRA,  "DIALOG_EXTRA" },
+	{ DLG_EXIT_HELP,   "DIALOG_HELP" },
+	{ DLG_EXIT_OK,	   "DIALOG_OK" },
     };
     /* *INDENT-ON* */
 
@@ -1031,7 +1043,7 @@ dlg_default_item(char **items, int llen)
 void
 dlg_item_help(char *txt)
 {
-    if (dialog_vars.item_help && txt) {
+    if (USE_ITEM_HELP(txt)) {
 	wattrset(stdscr, itemhelp_attr);
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
@@ -1042,13 +1054,13 @@ dlg_item_help(char *txt)
 
 #ifndef HAVE_STRCASECMP
 int
-dlg_strcmp(char *a, char *b)
+dlg_strcmp(const char *a, const char *b)
 {
     int ac, bc, cmp;
 
     for (;;) {
-	ac = *a++ & 0xff;
-	bc = *b++ & 0xff;
+	ac = UCH(*a++);
+	bc = UCH(*b++);
 	if (isalpha(ac) && islower(ac))
 	    ac = _toupper(ac);
 	if (isalpha(bc) && islower(bc))

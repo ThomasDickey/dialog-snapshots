@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.10 2002/05/19 17:58:53 diego.alvarez Exp $
+ * $Id: timebox.c,v 1.13 2002/06/17 22:09:20 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -34,8 +34,6 @@ typedef enum {
     sHR = -3
     ,sMN = -2
     ,sSC = -1
-    ,sOK = 0
-    ,sCANCEL = 1
 } STATES;
 
 struct _box;
@@ -128,40 +126,6 @@ init_object(BOX * data,
 
 #define DrawObject(data) draw_cell(data)
 
-static STATES
-next_object(STATES now)
-{
-    STATES result;
-
-    switch (now) {
-    default:
-	result = sCANCEL;
-	break;
-    case sCANCEL:
-	result = sHR;
-	break;
-    case sHR:
-	result = sMN;
-	break;
-    case sMN:
-	result = sSC;
-	break;
-    case sSC:
-	result = sOK;
-	break;
-    }
-    return result;
-}
-
-static STATES
-prev_object(STATES now)
-{
-    STATES result = now;
-    while (next_object(result) != now)
-	result = next_object(result);
-    return result;
-}
-
 /*
  * Display a dialog box for entering a date
  */
@@ -175,12 +139,12 @@ dialog_timebox(const char *title,
 	       int second)
 {
     BOX hr_box, mn_box, sc_box;
-    int key = 0, key2, button = sOK;
-    int result = -2;
+    int key = 0, key2, button = DLG_EXIT_OK;
+    int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = sOK;
+    STATES state = DLG_EXIT_OK;
     const char **buttons = dlg_ok_labels();
     char *prompt = strclone(subtitle);
 
@@ -250,12 +214,12 @@ dialog_timebox(const char *title,
 	|| DrawObject(&sc_box) < 0)
 	return -1;
 
-    while (result == -2) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sHR ? &hr_box
 		    : (state == sMN ? &mn_box :
 		       (state == sSC ? &sc_box : 0)));
 
-	button = (state == sCANCEL) ? 1 : 0;
+	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
@@ -288,11 +252,13 @@ dialog_timebox(const char *title,
 	    case '\n':
 		result = button;
 		break;
+	    case KEY_LEFT:
 	    case KEY_BTAB:
-		state = prev_object(state);
+		state = dlg_prev_ok_buttonindex(state, sHR);
 		break;
+	    case KEY_RIGHT:
 	    case TAB:
-		state = next_object(state);
+		state = dlg_next_ok_buttonindex(state, sHR);
 		break;
 	    default:
 		if (obj != 0) {

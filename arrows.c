@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.4 2001/07/27 22:15:10 tom Exp $
+ *  $Id: arrows.c,v 1.5 2002/06/15 14:16:12 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -23,8 +23,12 @@
 #include "dialog.h"
 
 void
-dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int
-		top, int bottom)
+dlg_draw_arrows(WINDOW *dialog,
+		int top_arrow,
+		int bottom_arrow,
+		int x,
+		int top,
+		int bottom)
 {
     int cur_x, cur_y;
 
@@ -39,6 +43,8 @@ dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int
 	wattrset(dialog, menubox_attr);
 	(void) whline(dialog, ACS_HLINE, 4);
     }
+    mouse_mkbutton(top, x - 1, 6, KEY_PPAGE);
+
     (void) wmove(dialog, bottom, x);
     if (bottom_arrow) {
 	wattrset(dialog, darrow_attr);
@@ -48,6 +54,8 @@ dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int
 	wattrset(dialog, menubox_border_attr);
 	(void) whline(dialog, ACS_HLINE, 4);
     }
+    mouse_mkbutton(bottom, x - 1, 6, KEY_NPAGE);
+
     (void) wmove(dialog, cur_y, cur_x);
     wrefresh(dialog);
 }

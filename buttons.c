@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.26 2002/05/19 17:43:23 tom Exp $
+ *  $Id: buttons.c,v 1.29 2002/06/15 11:10:52 tom Exp $
  *
  *  buttons.c
  *
@@ -272,6 +272,14 @@ my_exit_label(void)
 }
 
 static const char *
+my_extra_label(void)
+{
+    return (dialog_vars.extra_label != NULL)
+	? dialog_vars.extra_label
+	: _("Extra");
+}
+
+static const char *
 my_help_label(void)
 {
     return (dialog_vars.help_label != NULL)
@@ -313,6 +321,8 @@ dlg_ok_labels(void)
     labels[n++] = my_ok_label();
     if (!dialog_vars.nocancel)
 	labels[n++] = my_cancel_label();
+    if (dialog_vars.extra_button)
+	labels[n++] = my_extra_label();
     if (dialog_vars.help_button)
 	labels[n++] = my_help_label();
     labels[n] = 0;
@@ -332,8 +342,42 @@ dlg_ok_buttoncode(int button)
 	result = DLG_EXIT_OK;
     } else if (!dialog_vars.nocancel && (button == n++)) {
 	result = DLG_EXIT_CANCEL;
-    } else if (button == n) {
+    } else if (dialog_vars.extra_button && (button == n++)) {
+	result = DLG_EXIT_EXTRA;
+    } else if (dialog_vars.help_button && (button == n)) {
 	result = DLG_EXIT_HELP;
+    }
+    return result;
+}
+
+/*
+ * Given that we're using dlg_ok_labels() to list buttons, find the next index
+ * in the list of buttons.  The 'extra' parameter if negative provides a way to
+ * enumerate extra active areas on the widget.
+ */
+int
+dlg_next_ok_buttonindex(int current, int extra)
+{
+    int result = current + 1;
+
+    if (current >= 0
+	&& dlg_ok_buttoncode(result) < 0)
+	result = extra;
+    return result;
+}
+
+/*
+ * Similarly, find the previous button index.
+ */
+int
+dlg_prev_ok_buttonindex(int current, int extra)
+{
+    int result = current - 1;
+
+    if (result < extra) {
+	for (result = 0; dlg_ok_buttoncode(result + 1) >= 0; ++result) {
+	    ;
+	}
     }
     return result;
 }

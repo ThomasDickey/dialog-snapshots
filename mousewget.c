@@ -1,9 +1,9 @@
 /*
- * $Id: mousewget.c,v 1.7 2001/07/27 21:39:34 tom Exp $
+ * $Id: mousewget.c,v 1.11 2002/06/22 12:07:28 tom Exp $
  *
- * mousewget.c - mouse_wgetch support for cdialog 0.9a+
+ * mousewget.c - mouse_wgetch support for dialog
  *
- * Copyright 1995   demarco_p@abramo.it (Pasquale De Marco)
+ * Copyright 2000-2001,2002   Thomas Dickey
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -22,21 +22,12 @@
 
 #include "dialog.h"
 
-#ifdef HAVE_LIBGPM
-#include <gpm.h>
-#endif
-
-#include <unistd.h>		/* select() for mouse_wgetch() */
-#include <sys/time.h>		/* timeval  for mouse_wgetch() */
-
 int
 mouse_wgetch(WINDOW *win)
 {
     int key;
 
 #if defined(NCURSES_MOUSE_VERSION)
-    /* before calling this you have to put (only the first time)
-       a "wtimeout(dialog, WTIMEOUT_VAL);" */
 
     do {
 
@@ -45,9 +36,31 @@ mouse_wgetch(WINDOW *win)
 	    MEVENT event;
 	    mseRegion *p;
 
-	    if (getmouse(&event) != ERR
-		&& (p = mouse_region(event.y, event.x)) != 0) {
-		key = M_EVENT + p->code;
+	    if (getmouse(&event) != ERR) {
+		if ((p = mouse_region(event.y, event.x)) != 0) {
+		    key = M_EVENT + p->code;
+		} else if ((p = mouse_bigregion(event.y, event.x)) != 0) {
+		    int x = event.x - p->x;
+		    int y = event.y - p->y;
+		    int row = (p->X - p->x) / p->step_x;
+
+		    key = -(p->code);
+		    switch (p->mode) {
+		    case 1:	/* index by lines */
+			key += y;
+			break;
+		    case 2:	/* index by columns */
+			key += (x / p->step_x);
+			break;
+		    default:
+		    case 3:	/* index by cells */
+			key += (x / p->step_x) + (y * row);
+			break;
+		    }
+		} else {
+		    (void) beep();
+		    key = ERR;
+		}
 	    } else {
 		(void) beep();
 		key = ERR;
@@ -56,54 +69,7 @@ mouse_wgetch(WINDOW *win)
 
     } while (key == ERR);
 
-#elif defined(HAVE_LIBGPM)
-
-    fd_set selSet;
-    int flag, result;
-    int fd = STDIN_FILENO;
-    static Gpm_Event ev;
-
-    key = 0;
-
-    if (!gpm_flag || gpm_fd <= -1)
-	return dlg_getc(win);
-    if (gpm_morekeys)
-	return (*gpm_handler) (&ev, gpm_data);
-
-    gpm_hflag = 0;
-
-    while (1) {
-
-	if (gpm_visiblepointer)
-	    GPM_DRAWPOINTER(&ev);
-
-	do {
-	    FD_ZERO(&selSet);
-	    FD_SET(fd, &selSet);
-	    FD_SET(gpm_fd, &selSet);
-	    gpm_timeout.tv_usec = WTIMEOUT_VAL * 10000;
-	    gpm_timeout.tv_sec = 0;
-	    flag = select(5, &selSet, (fd_set *) 0, (fd_set *) 0, &gpm_timeout);
-	    /* fprintf(stderr, "X"); */
-	} while (!flag);
-
-	if (FD_ISSET(fd, &selSet))
-	    return dlg_getc(win);
-
-	if (flag == -1)
-	    continue;
-
-	if (Gpm_GetEvent(&ev) && gpm_handler
-	    && (result = (*gpm_handler) (&ev, gpm_data))) {
-	    gpm_hflag = 1;
-	    return result;
-	}
-    }
-
 #else
-
-    /* before calling this you have to put (only the first time)
-       a "wtimeout(dialog, WTIMEOUT_VAL);" */
 
     do {
 	key = dlg_getc(win);

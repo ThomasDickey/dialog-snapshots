@@ -1,9 +1,10 @@
 /*
- *  $Id: yesno.c,v 1.23 2002/05/19 17:58:53 diego.alvarez Exp $
+ *  $Id: yesno.c,v 1.24 2002/06/22 12:13:08 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -30,6 +31,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 {
     int x, y, key = 0, key2, button = dft_no;
     WINDOW *dialog = 0;
+    int result = DLG_EXIT_UNKNOWN;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_yes_labels();
 
@@ -69,11 +71,11 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 
-    while (key != ESC) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	key = mouse_wgetch(dialog);
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    del_window(dialog);
-	    return key2;
+	    result = key2;
+	    continue;
 	}
 	switch (key) {
 	case KEY_BTAB:
@@ -91,9 +93,10 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    /* FALLTHRU */
 	case ' ':
 	case '\n':
-	    del_window(dialog);
-	    return button;
+	    result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
+	    break;
 	case ESC:
+	    result = DLG_EXIT_ESC;
 	    break;
 #ifdef KEY_RESIZE
 	case KEY_RESIZE:
@@ -106,5 +109,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     }
 
     del_window(dialog);
-    return DLG_EXIT_ESC;	/* ESC pressed */
+    mouse_free_regions();
+    return result;
 }
