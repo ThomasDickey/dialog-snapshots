@@ -18,6 +18,12 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#else
+#define RETSIGTYPE void
+#endif
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -58,7 +64,7 @@
 #define WTIMEOUT_VAL        10
 
 
-#ifndef HAVE_NCURSES
+#ifndef NCURSES_VERSION
 #ifndef ACS_ULCORNER
 #define ACS_ULCORNER '+'
 #endif
@@ -130,7 +136,7 @@
 /*
  * Global variables
  */
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 extern bool use_colors;
 extern bool use_shadow;
 #endif
@@ -151,7 +157,7 @@ extern pid_t tailbg_pids[MAX_TAILBG], tailbg_lastpid, tailbg_nokill_pids[MAX_TAI
 /*
  * Function prototypes
  */
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
 extern void create_rc (const char *filename);
 extern int parse_rc (void);
 #endif
@@ -184,7 +190,7 @@ void print_size(int height, int width);
 void ctl_size(int height, int width);
 void tab_correct_str(char *prompt);
 void calc_listh(int *height, int *list_height, int item_no);
-int calc_listw(int item_no, const char * const * items, int group);
+int calc_listw(int item_no, char **items, int group);
 char *strclone(const char *cprompt);
 int box_x_ordinate(int width);
 int box_y_ordinate(int height);
@@ -192,29 +198,28 @@ void draw_title(WINDOW *win, const char *title);
 void draw_bottom_box(WINDOW *win);
 WINDOW * new_window (int y, int x, int height, int width);
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 void color_setup (void);
-#endif
-void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x);
-void print_button (WINDOW * win, const char *label, int y, int x, int selected);
-void draw_box (WINDOW * win, int y, int x, int height, int width, chtype box,
-		chtype border);
-#ifdef HAVE_NCURSES
 void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif
 
-int dialog_yesno (const char *title, const char *cprompt, int height, int width);
+void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x);
+void print_button (WINDOW * win, const char *label, int y, int x, int selected);
+void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
+		chtype borderchar);
+
+int dialog_yesno (const char *title, const char *cprompt, int height, int width, int defaultno);
 int dialog_msgbox (const char *title, const char *cprompt, int height,
-		int width, int pause);
+		int width, int pauseopt);
 int dialog_textbox (const char *title, const char *file, int height, int width);
 int dialog_menu (const char *title, const char *cprompt, int height, int width,
-		int menu_height, int item_no, const char * const * items);
+		int menu_height, int item_no, char **items);
 int dialog_checklist (const char *title, const char *cprompt, int height,
 		int width, int list_height, int item_no,
-		const char * const * items, int flag, int separate_output);
+		char ** items, int flag, int separate_output);
 extern unsigned char dialog_input_result[];
 int dialog_inputbox (const char *title, const char *cprompt, int height,
-		int width, const char *init);
+		int width, const char *init, const int password);
 int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width);

@@ -1,0 +1,98 @@
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+AC_INIT(dialog.h)
+AC_CONFIG_HEADER(config.h:config.hin)
+
+dnl
+dnl Checks for programs.
+dnl
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_GCC_TRADITIONAL
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+AC_C_CONST
+
+CF_DISABLE_ECHO
+
+AC_ARG_WITH(warnings,
+[  --with-warnings         turn on gcc warnings, for debugging ],[
+	CF_GCC_ATTRIBUTES
+	CF_GCC_WARNINGS
+])
+
+dnl
+dnl Checks for libraries.
+dnl
+CF_MATH_LIB
+
+AC_MSG_CHECKING(if you want to link with dbmalloc for testing)
+AC_ARG_WITH(dbmalloc,
+	[  --with-dbmalloc         test: use Conor Cahill's dbmalloc library],
+	[with_dbmalloc=$withval],
+	[with_dbmalloc=no])
+AC_MSG_RESULT($with_dbmalloc)
+if test $with_dbmalloc = yes ; then
+	AC_CHECK_LIB(dbmalloc,debug_malloc)
+fi
+
+AC_MSG_CHECKING(if you want to link with dmalloc for testing)
+AC_ARG_WITH(dmalloc,
+	[  --with-dmalloc          test: use Gray Watson's dmalloc library],
+	[with_dmalloc=$withval],
+	[with_dmalloc=no])
+AC_MSG_RESULT($with_dmalloc)
+if test $with_dmalloc = yes ; then
+	AC_CHECK_LIB(dmalloc,dmalloc_debug)
+fi
+
+AC_ARG_WITH(ncurses,
+	[  --with-ncurses          compile/link with ncurses library],
+	[
+	CF_NCURSES_CPPFLAGS
+	CF_NCURSES_LIBS
+	],[
+	CF_CURSES_LIBS
+])
+
+EXTRAOBJS=""
+# For cdialog version 0.9a, libgpm can't be used because it doesn't
+# implement the wtimeout() function of ncurses.
+dnl CF_ARG_ENABLE(gpm,
+dnl 	[  --enable-gpm            include gpm support],
+dnl 	[EXTRAOBJS="$EXTRAOBJS mouse.o"
+dnl 	 AC_DEFINE(HAVE_LIBGPM)])
+CF_ARG_ENABLE(rc-file,
+	[  --enable-rc-file        include config-file support],
+	[EXTRAOBJS="$EXTRAOBJS rc.o"
+	 AC_DEFINE(HAVE_RC_FILE)])
+CF_ARG_DISABLE(gauge,
+	[  --disable-gauge         do not include the gauge dialog],,
+	[EXTRAOBJS="$EXTRAOBJS guage.o"
+	 AC_DEFINE(HAVE_GAUGE)])
+CF_ARG_DISABLE(tailbox,
+	[  --disable-tailbox       do not include the tailbox dialog],,
+	[EXTRAOBJS="$EXTRAOBJS tailbox.o"
+	 AC_DEFINE(HAVE_TAILBOX)])
+AC_SUBST(EXTRAOBJS)
+
+dnl
+dnl Checks for header files.
+dnl
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h)
+
+dnl
+dnl Checks for library functions.
+dnl
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(\
+strcasecmp \
+)
+
+AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
+AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
+
+AC_OUTPUT(makefile,,,sort)

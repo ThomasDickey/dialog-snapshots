@@ -1,5 +1,7 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
+trap "rm -f $tempfile" 0 1 2 5 15
 
 $DIALOG --backtitle "Red Hat Software Linux" \
 	--title "CHECKLIST BOX" \
@@ -16,12 +18,11 @@ Press SPACE to toggle an option on/off. \n\n\
         "Orange" "Yeah, that's juicy." off \
         "Cat"    "No, never put a dog and a cat together!" oN \
         "Fish"   "Cats like fish." On \
-        "Lemon"  "You know how it tastes." on 2> /tmp/checklist.tmp.$$
+        "Lemon"  "You know how it tastes." on 2> $tempfile
 
 retval=$?
 
-choice=`cat /tmp/checklist.tmp.$$`
-rm -f /tmp/checklist.tmp.$$
+choice=`cat $tempfile`
 sleep 3
 case $retval in
   0)

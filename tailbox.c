@@ -32,7 +32,7 @@ static FILE *fd;
 
 int can_quit = 0;
 
-void signal_tailbg(int sig) { /* __sighandler_t */
+static RETSIGTYPE signal_tailbg(int sig) { /* __sighandler_t */
   if (sig == 15) can_quit=1;
 }
 
@@ -271,11 +271,11 @@ static void print_line(WINDOW *win, int row, int width)
   char *line;
 
   line = get_line();
-  line += MIN(strlen(line),hscroll);    /* Scroll horizontally */
+  line += MIN((int)strlen(line),hscroll);    /* Scroll horizontally */
   wmove(win, row, 0);    /* move cursor to correct line */
   waddch(win,' ');
-#ifdef HAVE_NCURSES
-  waddnstr(win, line, MIN(strlen(line),width-2));
+#ifdef NCURSES_VERSION
+  waddnstr(win, line, MIN((int)strlen(line),width-2));
 #else
   line[MIN(strlen(line),width-2)] = '\0';
   waddstr(win, line);

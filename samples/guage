@@ -1,5 +1,5 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
 
 (echo "10" ; sleep 2 ; 
 

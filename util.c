@@ -20,7 +20,7 @@
 
 #include "dialog.h"
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 /* use colors by default? */
 bool use_colors = USE_COLORS;
 /* shadow dialog boxes by default?
@@ -66,7 +66,7 @@ chtype attributes[] =
     A_REVERSE			/* darrow_attr */
 };
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 #include "colors.h"
 
 /*
@@ -120,7 +120,7 @@ void put_backtitle(void)
     wattrset(stdscr, screen_attr);
     wmove(stdscr, 0, 1);
     waddstr(stdscr,backtitle);
-    for(i=0; i<COLS-strlen(backtitle); i++)
+    for(i=0; i<COLS-(int)strlen(backtitle); i++)
       waddch(stdscr, ' ');
     wmove(stdscr, 1, 1);
     for(i=0; i<COLS-2; i++)
@@ -155,7 +155,7 @@ init_dialog (void)
 {
     mouse_open ();
 #ifdef HAVE_RC_FILE
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
     if (parse_rc () == -1)	/* Read the configuration file */
 	exiterr("");
 #endif
@@ -167,7 +167,7 @@ init_dialog (void)
     noecho ();
     screen_initialized = 1;
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
     if (use_colors || use_shadow)	/* Set up colors */
 	color_setup ();
 #endif
@@ -176,7 +176,7 @@ init_dialog (void)
     attr_clear (stdscr, LINES, COLS, screen_attr);
 }
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 /*
  * Setup for color display
  */
@@ -257,7 +257,7 @@ void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
     }
     waddstr(win, word);
   }
-  else if (strlen(tempstr) <= width-x*2) {     /* If prompt is short */
+  else if ((int)strlen(tempstr) <= width-x*2) {     /* If prompt is short */
     cur_y=y;
     if (cr_wrap) cur_y++;
     wmove(win, cur_y, (width - strlen(tempstr)) / 2);
@@ -271,7 +271,7 @@ void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
     while ((word = strtok(first ? tempstr : NULL, " ")) != NULL) {
       if (first)    /* First iteration */
         first = 0;
-      if (cur_x+strlen(word) > width-x) {    /* wrap around to next line */
+      if (cur_x+(int)strlen(word) > width-x) {    /* wrap around to next line */
         cur_y++;
         cur_x = x;
       }
@@ -295,8 +295,15 @@ void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
  */
 static char *
 real_auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols) {
-  int count = 0, len = title ? strlen(title) : 0, street, i, first, nc = 4, nl = 3,
-      cur_x, text_width;
+  int count = 0;
+  int len = title ? strlen(title) : 0;
+  int street;
+  int i;
+  int first;
+  int nc = 4;
+  int numlines = 3;
+  int cur_x;
+  int text_width;
   char *cr1, *cr2, *ptr = prompt, *str, *word;
 
   if ((*height == -1) || (*width == -1)) {
@@ -336,13 +343,13 @@ real_auto_size(const char * title, char *prompt, int *height, int *width, int bo
     count++;
   }
 
-  if (strlen(ptr) > len)
+  if ((int)strlen(ptr) > len)
     len=strlen(ptr);
 
   /* now 'count' has the number of lines of text and 'len' the max lenght */
 
   if (count > 0) {  /* there are any '\n' or "\\n" */
-    *height=count+nl+boxlines+(cr_wrap ? 2 : 0);
+    *height=count+numlines+boxlines+(cr_wrap ? 2 : 0);
     *width=MAX((len+nc), mincols);
     return prompt;
   } else {          /* all chars in only a line */
@@ -361,11 +368,12 @@ real_auto_size(const char * title, char *prompt, int *height, int *width, int bo
 
       count=0;
       strcpy(ptr, prompt);
-      while (((word=strtok(first ? ptr : NULL, " ")) != NULL) && (strlen(word) <= text_width)) {
+      while (((word=strtok(first ? ptr : NULL, " ")) != NULL)
+       && ((int)strlen(word) <= text_width)) {
         if (first)
           first = 0;
 
-        if ((cur_x+strlen(word)) > text_width) {
+        if ((cur_x+(int)strlen(word)) > text_width) {
           count++;
           cur_x=0;
           str[i++]='\n';
@@ -379,15 +387,14 @@ real_auto_size(const char * title, char *prompt, int *height, int *width, int bo
       }
 
       if (word == NULL) break;
-      if (strlen(word) > text_width)
+      if ((int)strlen(word) > text_width)
         text_width = strlen(word); /* strlen(word) is surely > (mincols-nc) */
       else
         break;
     }
     str[i]=0;
 
-    *height=count+nl+boxlines+(cr_wrap ? 2 : 0);
- /* *height=(strlen(prompt)/text_width)+nl+boxlines */
+    *height=count+numlines+boxlines+(cr_wrap ? 2 : 0);
 
     return str;
   }
@@ -416,8 +423,9 @@ auto_size(const char * title, char *prompt, int *height, int *width, int boxline
  *    height=MIN(SLINES, num.lines in fd+n);
  *    width=MIN(SCOLS, MAX(longer line+n, mincols));
  */
-void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols) {
-  int count = 0, len = title ? strlen(title) : 0, nc = 4, nl = 2;
+void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols)
+{
+  int count = 0, len = title ? strlen(title) : 0, nc = 4, numlines = 2;
   long offset;
   char ch;
   FILE *fd;
@@ -451,7 +459,7 @@ void auto_sizefile(const char * title, const char *file, int *height, int *width
 
   /* now 'count' has the number of lines of fd and 'len' the max lenght */
 
-  *height=MIN(SLINES, count+nl+boxlines);
+  *height=MIN(SLINES, count+numlines+boxlines);
   *width=MIN(SCOLS, MAX((len+nc), mincols));
   /* here width and height can be maximized if > SCOLS|SLINES because
      textbox-like widgets don't put all <file> on the screen.
@@ -495,7 +503,7 @@ print_button (WINDOW * win, const char *label, int y, int x, int selected)
  */
 void
 draw_box (WINDOW * win, int y, int x, int height, int width,
-	  chtype box, chtype border)
+	  chtype boxchar, chtype borderchar)
 {
     int i, j;
 
@@ -504,27 +512,27 @@ draw_box (WINDOW * win, int y, int x, int height, int width,
 	wmove (win, y + i, x);
 	for (j = 0; j < width; j++)
 	    if (!i && !j)
-		waddch (win, border | ACS_ULCORNER);
+		waddch (win, borderchar | ACS_ULCORNER);
 	    else if (i == height - 1 && !j)
-		waddch (win, border | ACS_LLCORNER);
+		waddch (win, borderchar | ACS_LLCORNER);
 	    else if (!i && j == width - 1)
-		waddch (win, box | ACS_URCORNER);
+		waddch (win, boxchar | ACS_URCORNER);
 	    else if (i == height - 1 && j == width - 1)
-		waddch (win, box | ACS_LRCORNER);
+		waddch (win, boxchar | ACS_LRCORNER);
 	    else if (!i)
-		waddch (win, border | ACS_HLINE);
+		waddch (win, borderchar | ACS_HLINE);
 	    else if (i == height - 1)
-		waddch (win, box | ACS_HLINE);
+		waddch (win, boxchar | ACS_HLINE);
 	    else if (!j)
-		waddch (win, border | ACS_VLINE);
+		waddch (win, borderchar | ACS_VLINE);
 	    else if (j == width - 1)
-		waddch (win, box | ACS_VLINE);
+		waddch (win, boxchar | ACS_VLINE);
 	    else
-		waddch (win, box | ' ');
+		waddch (win, boxchar | ' ');
     }
 }
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
 /*
  * Draw shadows along the right and bottom edge to give a more 3D look
  * to the boxes
@@ -647,7 +655,7 @@ void killall_bg(void) {
     kill(tailbg_pids[i], 15);
 }
 
-int is_nokill(int pid) { /* private func for quitall_bg() */
+static int is_nokill(int pid) { /* private func for quitall_bg() */
   int i;
   for (i = 0; i < tailbg_nokill_lastpid; i++)
     if (tailbg_nokill_pids[i] == pid) return 1;
@@ -724,7 +732,7 @@ void calc_listh(int *height, int *list_height, int item_no) {
     (*height)+=(*list_height);
 }
 
-int calc_listw(int item_no, const char * const * items, int group) {
+int calc_listw(int item_no, char **items, int group) {
     int n, i, len1=0, len2=0;
     for (i=0; i<(item_no*group); i+=group) {
       if ((n=strlen(items[i])) > len1) len1=n;
@@ -800,12 +808,16 @@ WINDOW * new_window (int height, int width, int y, int x)
 {
     WINDOW *win;
 
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
     if (use_shadow)
 	draw_shadow (stdscr, y, x, height, width);
 #endif
-    if ((win = newwin (height, width, y, x)) == 0)
-	exiterr("\nCan't make new window.\n");
+    if ((win = newwin (height, width, y, x)) == 0) {
+	char buffer[BUFSIZ];
+	sprintf(buffer, "Can't make new window at (%d,%d), size (%d,%d).\n",
+		y, x, height, width);
+	exiterr(buffer);
+    }
 
     keypad (win, TRUE);
     return win;

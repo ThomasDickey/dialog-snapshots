@@ -1,5 +1,5 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
 
 $DIALOG --title "INFO BOX" \
         --infobox "Hi, this is an information box. It is

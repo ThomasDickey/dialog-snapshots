@@ -1,0 +1,74 @@
+# template makefile for DIALOG
+#
+SHELL		= /bin/sh
+
+VERSION		= `cat VERSION`
+
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+
+srcdir		= @srcdir@
+
+DESTDIR		=
+includedir	= $(DESTDIR)@includedir@
+bindir		= $(DESTDIR)@bindir@
+libdir		= $(DESTDIR)@libdir@
+mandir		= $(DESTDIR)@mandir@
+
+CFLAGS		= @CFLAGS@
+CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DVERSION=\"$(VERSION)\"
+EXTRA_CFLAGS	= @EXTRA_CFLAGS@
+CC		= @CC@
+LDFLAGS		= @LDFLAGS@
+LIBS		= @LIBS@
+RANLIB		= @RANLIB@
+
+RM		= rm -f
+
+INSTALL		= @INSTALL@
+INSTALL_PROGRAM	= @INSTALL_PROGRAM@
+INSTALL_DATA	= @INSTALL_DATA@
+
+#
+# Standard .c to .o compile line.
+#
+.c.o:
+@RULE_CC@
+	@ECHO_CC@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
+
+EXTRAOBJS = @EXTRAOBJS@
+OBJS = $(EXTRAOBJS) \
+	checklist.o \
+	inputbox.o \
+	menubox.o \
+	mousewget.o \
+	msgbox.o \
+	textbox.o \
+	util.o \
+	yesno.o
+
+SRCS = $(OBJS:.o=.c)
+
+all: libdialog.a dialog
+
+$(OBJS) : $(srcdir)/dialog.h config.h
+
+libdialog.a: $(OBJS)
+	ar crv libdialog.a $(OBJS)
+	$(RANLIB) $@
+
+dialog: $(OBJS) dialog.o
+	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
+
+clean:
+	rm -f core *.o *~ dialog libdialog.a
+
+distclean : clean
+	rm -f makefile config.h config.cache config.log config.status
+
+install: dialog
+	$(INSTALL_PROGRAM) -s dialog $(bindir)
+	$(INSTALL_DATA) dialog.1 $(mandir)
+
+$(includedir) \
+$(mandir) : ; $(srcdir)/mkdirs.sh $@

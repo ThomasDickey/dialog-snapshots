@@ -20,7 +20,7 @@
 
 #include "dialog.h"
 
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
 #include "colors.h"
 /*
  * For matching color names with color values

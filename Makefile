@@ -27,7 +27,7 @@ OPTIM = -O2 -Wall -Wstrict-prototypes -fomit-frame-pointer -pipe
 #----------------------------------------------------------------------------
 # do not edit below this line
 
-CFLAGS = $(OPTIM) -DLOCALE -DVERSION=\"0.9a\"
+CFLAGS = $(OPTIM) -DHAVE_SETLOCALE -DVERSION=\"0.9a\"
 LDFLAGS = -L .
 LDLIBS = -ldialog -lm
 
@@ -40,7 +40,6 @@ CFLAGS+=-DHAVE_LIBGPM
 OBJS+=mouse.o
 endif
 ifeq ($(HAVE_NCURSES), true)
-CFLAGS+=-DHAVE_NCURSES -I/usr/include/ncurses
 LDLIBS+=-lncurses
 endif
 ifeq ($(HAVE_RC_FILE), true)
