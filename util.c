@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.91 2003/01/31 01:40:14 tom Exp $
+ *  $Id: util.c,v 1.92 2003/03/02 17:30:13 tom Exp $
  *
  *  util.c
  *
@@ -1317,6 +1317,7 @@ dlg_add_result(char *string)
 	if (dialog_vars.input_length == 0) {
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = malloc(dialog_vars.input_length);
+	    dialog_vars.input_result[0] = 0;
 	} else if (want >= dialog_vars.input_length) {
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = realloc(dialog_vars.input_result,

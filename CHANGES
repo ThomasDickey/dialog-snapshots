@@ -1,8 +1,11 @@
--- $Id: CHANGES,v 1.63 2003/01/31 01:46:00 tom Exp $
+-- $Id: CHANGES,v 1.64 2003/03/02 17:34:17 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/03/02
+	+ correct an uninitialized value in dlg_add_result() (Debian #182683).
 
 2003/01/30
 	+ corrected print_line(), which subtracted the margin twice from the
