@@ -1,68 +1,68 @@
 # Dialog
-# Copyright 2001, # Thomas Dickey
-# Morten Brix Pedersen <morten@wtf.dk>, 2001-2005.
+# Copyright 2003,2004 # Thomas Dickey
+# Kevin Patrick Scannell <scannell@SLU.EDU>, 2005.
 msgid ""
 msgstr ""
-"Project-Id-Version: Dialog\n"
+"Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2004-12-19 20:14-0500\n"
-"PO-Revision-Date: 2005-01-07 21:02+0200\n"
-"Last-Translator: Morten Brix Pedersen <morten@wtf.dk>\n"
-"Language-Team: Danish <dansk@klid.dk>\n"
+"PO-Revision-Date: 2005-02-07 11:57-0500\n"
+"Last-Translator: Kevin Patrick Scannell <scannell@SLU.EDU>\n"
+"Language-Team: Irish <ga@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:359
 msgid "Yes"
-msgstr "Ja"
+msgstr "T�"
 
 #: buttons.c:367
 msgid "No"
-msgstr "Nej"
+msgstr "N�l"
 
 #: buttons.c:375
 msgid "OK"
-msgstr "O.K."
+msgstr "OK"
 
 #: buttons.c:383
 msgid "Cancel"
-msgstr "Anullér"
+msgstr "Cealaigh"
 
 #: buttons.c:391
 msgid "EXIT"
-msgstr "AFSLUT"
+msgstr "SCOIR"
 
 #: buttons.c:399
 msgid "Extra"
-msgstr "Ekstra"
+msgstr "Breise"
 
 #: buttons.c:407
 msgid "Help"
-msgstr "Hjælp"
+msgstr "Cabhair"
 
 #. Headline "Month"
 #: calendar.c:299
 msgid "Month"
-msgstr "Måned"
+msgstr "M�"
 
 #. Headline "Year"
 #: calendar.c:319
 msgid "Year"
-msgstr "År"
+msgstr "Bliain"
 
 #: dialog.c:672
 msgid "Rename"
-msgstr "Omdøb"
+msgstr "Athainmnigh"
 
 #: fselect.c:426
 msgid "Directories"
-msgstr "Mapper"
+msgstr "Comhadlanna"
 
 #: fselect.c:427
 msgid "Files"
-msgstr "Filer"
+msgstr "Comhaid"
 
 #: textbox.c:437
 msgid "Search"
-msgstr "Søg"
+msgstr "Cuardaigh"

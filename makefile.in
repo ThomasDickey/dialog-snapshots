@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.40 2005/02/07 00:50:22 tom Exp $
+# $Id: makefile.in,v 1.41 2005/03/06 16:54:14 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -123,6 +123,7 @@ uninstall ::
 
 clean	::
 	@- $(RM) -r autom4te.cache
+	- $(RM) *.*cov *.da *.bb *.bbg
 	- $(LIBTOOL_CLEAN) $(RM) *$o $(ALL)
 	- $(RM) headers.sed
 	- $(RM) core *~ tags TAGS
