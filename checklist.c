@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.60 2003/08/18 23:57:36 tom Exp $
+ *  $Id: checklist.c,v 1.61 2003/08/20 19:46:51 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -271,6 +271,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    fkey = TRUE;
 	    switch (key) {
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		break;
 	    case '-':

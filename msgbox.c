@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.23 2003/07/12 00:22:54 tom Exp $
+ *  $Id: msgbox.c,v 1.24 2003/08/20 19:52:24 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -100,8 +100,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	    } else {
 		switch (key) {
 		case ESC:
-		case '\n':
 		case ' ':
+		case '\n':
+		case '\r':
 		    done = TRUE;
 		    break;
 		}

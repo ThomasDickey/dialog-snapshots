@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.37 2003/07/31 00:28:37 tom Exp $
+ *  $Id: inputbox.c,v 1.38 2003/08/20 19:46:51 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -145,6 +145,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		break;
 	    case ' ':
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		fkey = TRUE;
 		break;

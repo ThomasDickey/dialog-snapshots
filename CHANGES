@@ -1,8 +1,20 @@
--- $Id: CHANGES,v 1.69 2003/08/19 00:01:33 tom Exp $
+-- $Id: CHANGES,v 1.72 2003/08/20 22:06:29 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/08/20
+	+ correct an indexing error when deleting from the end of a line using
+	  KEY_DC; it happened to work on Linux because malloc() clears memory
+	  like calloc().
+	+ add '\r' to case statement where '\n' is translated to KEY_ENTER to
+	  work around defect in NetBSD curses.
+	+ modify configure check for getparyx(), etc., which are implemented
+	  by NetBSD curses as functions rather than macros.
+	+ correct configure check for term.h, which may be <ncursesw/term.h>
+	  if ncursesw development headers are installed, but not ncurses
+	  development headers.  Or they may not coincide (Debian #206287).
 
 2003/08/18
 	+ modify checkbox.c and menubox.c to display tags properly if they

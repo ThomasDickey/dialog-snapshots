@@ -1,9 +1,10 @@
 /*
- *  $Id: util.c,v 1.99 2003/08/18 00:49:43 tom Exp $
+ *  $Id: util.c,v 1.100 2003/08/20 19:00:45 tom Exp $
  *
  *  util.c
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -28,7 +29,9 @@
 #include <time.h>
 
 #ifdef NCURSES_VERSION
-#ifdef HAVE_NCURSES_TERM_H
+#if defined(HAVE_NCURSESW_TERM_H)
+#include <ncursesw/term.h>
+#elif defined(HAVE_NCURSES_TERM_H)
 #include <ncurses/term.h>
 #else
 #include <term.h>

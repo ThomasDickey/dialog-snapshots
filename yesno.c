@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.26 2003/07/12 00:27:32 tom Exp $
+ *  $Id: yesno.c,v 1.27 2003/08/20 19:46:51 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -91,6 +91,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 		break;
 	    case ' ':
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		fkey = TRUE;
 		break;

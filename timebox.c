@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.16 2003/07/26 11:11:06 tom Exp $
+ * $Id: timebox.c,v 1.17 2003/08/20 19:46:51 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -240,6 +240,7 @@ dialog_timebox(const char *title,
 		    break;
 		case ' ':
 		case '\n':
+		case '\r':
 		    key = KEY_ENTER;
 		    break;
 		case TAB:

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.31 2003/07/26 11:11:06 tom Exp $
+ * $Id: calendar.c,v 1.32 2003/08/20 19:46:51 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -497,6 +497,7 @@ dialog_calendar(const char *title,
 		switch (key) {
 		case ' ':
 		case '\n':
+		case '\r':
 		    key = KEY_ENTER;
 		    break;
 		case TAB:
