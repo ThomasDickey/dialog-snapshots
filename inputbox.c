@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.27 2001/08/09 00:20:01 tom Exp $
+ *  $Id: inputbox.c,v 1.28 2002/05/19 17:58:53 diego.alvarez Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -152,5 +152,5 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     }
 
     del_window(dialog);
-    return -1;			/* ESC pressed */
+    return DLG_EXIT_ESC;	/* ESC pressed */
 }

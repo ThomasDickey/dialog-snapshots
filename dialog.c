@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.79 2002/03/09 19:23:54 tom Exp $
+ * $Id: dialog.c,v 1.81 2002/05/19 19:33:22 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -42,10 +42,11 @@ typedef enum {
     ,o_cancel_label
     ,o_checklist
     ,o_clear
-    ,o_cr_wrap
     ,o_create_rc
+    ,o_cr_wrap
     ,o_default_item
     ,o_defaultno
+    ,o_exit_label
     ,o_fixed_font
     ,o_fselect
     ,o_fullbutton
@@ -62,12 +63,13 @@ typedef enum {
     ,o_max_input
     ,o_menu
     ,o_msgbox
+    ,o_nocancel
     ,o_no_close
+    ,o_no_collapse
     ,o_no_cr_wrap
+    ,o_noitem
     ,o_no_kill
     ,o_no_shadow
-    ,o_nocancel
-    ,o_noitem
     ,o_ok_label
     ,o_passwordbox
     ,o_print_maxsize
@@ -133,6 +135,7 @@ static const Options options[] = {
     { "create-rc",	o_create_rc,		1, NULL },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
+    { "exit-label",	o_exit_label,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
     { "fselect",	o_fselect,		2, "<filepath> <directory> <height> <width>" },
@@ -153,6 +156,7 @@ static const Options options[] = {
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
     { "no-cancel",	o_nocancel,		1, "" },
     { "no-close",	o_no_close,		1, NULL },
+    { "no-collapse",	o_no_collapse,		1, "" },
     { "no-cr-wrap",	o_no_cr_wrap,		1, NULL },
     { "no-kill",	o_no_kill,		1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
@@ -808,6 +812,9 @@ main(int argc, char *argv[])
 	    case o_cr_wrap:
 		dialog_vars.cr_wrap = TRUE;
 		break;
+	    case o_no_collapse:
+		dialog_vars.nocollapse = TRUE;
+		break;
 	    case o_no_kill:
 		dialog_vars.cant_kill = TRUE;
 		break;
@@ -893,6 +900,9 @@ main(int argc, char *argv[])
 		break;
 	    case o_cancel_label:
 		dialog_vars.cancel_label = optionString(argv, &offset);
+		break;
+	    case o_exit_label:
+		dialog_vars.exit_label = optionString(argv, &offset);
 		break;
 	    case o_help_label:
 		dialog_vars.help_label = optionString(argv, &offset);

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.18 2002/03/09 18:52:42 tom Exp $
+ * $Id: calendar.c,v 1.19 2002/05/19 17:58:53 diego.alvarez Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -494,7 +494,7 @@ dialog_calendar(const char *title,
 		state = sYEAR;
 		break;
 	    case ESC:
-		result = -1;
+		result = DLG_EXIT_ESC;
 		break;
 	    case ' ':
 	    case '\n':

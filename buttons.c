@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.25 2002/03/09 01:39:34 tom Exp $
+ *  $Id: buttons.c,v 1.26 2002/05/19 17:43:23 tom Exp $
  *
  *  buttons.c
  *
@@ -264,6 +264,14 @@ my_cancel_label(void)
 }
 
 static const char *
+my_exit_label(void)
+{
+    return (dialog_vars.exit_label != NULL)
+	? dialog_vars.exit_label
+	: _("EXIT");
+}
+
+static const char *
 my_help_label(void)
 {
     return (dialog_vars.help_label != NULL)
@@ -280,7 +288,7 @@ dlg_exit_label(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = _("EXIT");
+    labels[n++] = my_exit_label();
     labels[n] = 0;
     return labels;
 }
