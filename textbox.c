@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.45 2003/11/26 20:41:23 tom Exp $
+ *  $Id: textbox.c,v 1.47 2004/07/29 00:17:37 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -404,7 +404,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
     int box_x, box_y, key = 0, box_height = 3, box_width = 30;
     int offset = 0;
-    int fkey;
+    int fkey = 0;
     bool first = TRUE;
 
     box_x = (width - box_width) / 2;
@@ -582,7 +582,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
     dlg_attr_clear(obj.text, height - 4, width - 2, dialog_attr);
-    wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
 

@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.74 2004/06/06 01:07:03 tom Exp $
-.TH DIALOG 1 "" "$Date: 2004/06/06 01:07:03 $"
+.\" $Id: dialog.1,v 1.75 2004/07/29 00:30:36 tom Exp $
+.TH DIALOG 1 "" "$Date: 2004/07/29 00:30:36 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -332,6 +332,8 @@ The default is 8.
 .IP "\fB--timeout \fIsecs"
 Timeout (exit with error code)
 if no user response within the given number of seconds.
+This is overridden if the background "\fB--tailboxbg\fP is used.
+A timeout of zero seconds is ignored.
 .
 .IP "\fB--title \fItitle"
 Specifies a

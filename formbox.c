@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.27 2004/03/13 16:29:47 tom Exp $
+ *  $Id: formbox.c,v 1.28 2004/07/29 00:17:37 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -416,8 +416,6 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     choice = set_choice(elt, choice, item_no);
     current = &elt[choice];
-
-    wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
 	int edit = FALSE;

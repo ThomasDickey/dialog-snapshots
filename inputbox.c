@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.41 2003/11/26 20:26:31 tom Exp $
+ *  $Id: inputbox.c,v 1.42 2004/07/29 00:17:37 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -87,8 +87,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	input[0] = '\0';
     else
 	strcpy((char *) input, init);
-
-    wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
 	int edit = 0;

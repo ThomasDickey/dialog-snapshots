@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.30 2003/11/26 18:22:22 tom Exp $
+ *  $Id: yesno.c,v 1.31 2004/07/29 00:17:57 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -68,10 +68,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     dlg_print_autowrap(dialog, prompt, height, width);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-
-#ifndef KEY_RESIZE
-    wtimeout(dialog, WTIMEOUT_VAL);
-#endif
 
     while (result == DLG_EXIT_UNKNOWN) {
 	key = dlg_mouse_wgetch(dialog, &fkey);

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.67 2004/06/06 00:59:27 tom Exp $
+ *  $Id: menubox.c,v 1.70 2004/07/29 00:17:37 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -130,7 +130,7 @@ input_menu_edit(WINDOW *win, char **items, int choice)
 {
     char *result;
     int offset = 0;
-    int key = 0, fkey;
+    int key = 0, fkey = 0;
     int first = TRUE;
     /* see above */
     int y = ItemToRow(choice);
@@ -269,6 +269,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
      * leave it intact.
      */
     use_width = (menu_width - GUTTER);
+    if (use_width <= 5)
+	dlg_exiterr("screen too small");
     if (text_width + name_width > use_width) {
 	int need = 0.25 * use_width;
 	if (name_width > need) {
@@ -277,6 +279,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	}
 	text_width = use_width - name_width;
     }
+    if (text_width <= 1 || name_width <= 1)
+	dlg_exiterr("screen too small");
 
     tag_x = (dialog_vars.input_menu
 	     ? 0
@@ -304,8 +308,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		    box_y + menu_height + 1);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-
-    wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
 	if (button < 0)		/* --visit-items */

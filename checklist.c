@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.73 2004/06/06 00:42:41 tom Exp $
+ *  $Id: checklist.c,v 1.76 2004/07/29 00:17:37 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -184,6 +184,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
      * leave it intact.
      */
     use_width = (list_width - 6);
+    if (use_width <= 5)
+	dlg_exiterr("screen too small");
     if (text_width + name_width > use_width) {
 	int need = 0.25 * use_width;
 	if (name_width > need) {
@@ -192,6 +194,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 	text_width = use_width - name_width;
     }
+    if (text_width <= 1 || name_width <= 1)
+	dlg_exiterr("screen too small");
 
     check_x = (use_width - (text_width + name_width)) / 2;
     item_x = name_width + check_x + 6;
@@ -214,8 +218,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    box_y + list_height + 1);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-
-    wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
 	if (button < 0)		/* --visit-items */
@@ -535,7 +537,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		} else {
 		    if (*(dialog_vars.input_result))
 			dlg_add_result(" ");
-		    if (FLAG_CHECK) {
+		    if (flag == FLAG_CHECK) {
 			dlg_add_quoted(ItemName(i));
 		    } else {
 			dlg_add_result(ItemName(i));
