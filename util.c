@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.46 2000/10/08 18:16:23 tom Exp $
+ *  $Id: util.c,v 1.48 2000/10/18 01:02:18 tom Exp $
  *
  *  util.c
  *
@@ -189,6 +189,24 @@ my_putc(int ch)
 }
 #endif
 
+static int
+open_terminal(char **result, int mode)
+{
+    const char *device = "/dev/tty";
+    if (!isatty(fileno(stderr))
+	|| (device = ttyname(fileno(stderr))) == 0) {
+	if (!isatty(fileno(stdout))
+	    || (device = ttyname(fileno(stdout))) == 0) {
+	    if (!isatty(fileno(stdin))
+		|| (device = ttyname(fileno(stdin))) == 0) {
+		device = "/dev/tty";
+	    }
+	}
+    }
+    *result = strclone(device);
+    return open(device, mode);
+}
+
 /*
  * Do some initialization for dialog
  */
@@ -196,7 +214,7 @@ void
 init_dialog(void)
 {
     int fd1, fd2;
-    const char *device = "/dev/tty";
+    char *device = 0;
     char *name;
 
 #ifdef HAVE_RC_FILE
@@ -211,7 +229,7 @@ init_dialog(void)
      */
     pipe_fp = stdin;
     if (!isatty(fileno(stdin))) {
-	if ((fd1 = open(device, O_RDONLY)) >= 0
+	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    pipe_fp = fdopen(fd2, "r");
 	    *stdin = *freopen(device, "r", stdin);
@@ -225,7 +243,7 @@ init_dialog(void)
      * command-line option "--stdout".  Otherwise it will get lost in the
      * normal output to the screen.
      */
-    if ((fd1 = open(device, O_WRONLY)) >= 0
+    if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
 	&& (my_output = fdopen(fd1, "w")) != 0) {
 	if (newterm(NULL, my_output, stdin) == 0) {
 	    exiterr("cannot initialize curses");
@@ -912,6 +930,20 @@ new_window(int height, int width, int y, int x)
 #endif
     if ((win = newwin(height, width, y, x)) == 0) {
 	exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
+		y, x, height, width);
+    }
+
+    keypad(win, TRUE);
+    return win;
+}
+
+WINDOW *
+sub_window(WINDOW *parent, int height, int width, int y, int x)
+{
+    WINDOW *win;
+
+    if ((win = subwin(parent, height, width, y, x)) == 0) {
+	exiterr("Can't make sub-window at (%d,%d), size (%d,%d).\n",
 		y, x, height, width);
     }
 

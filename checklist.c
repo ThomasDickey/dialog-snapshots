@@ -1,4 +1,6 @@
 /*
+ *  $Id: checklist.c,v 1.31 2000/10/18 01:02:36 tom Exp $
+ *
  *  checklist.c -- implements the checklist box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -119,8 +121,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     box_x = (width - list_width) / 2 - 1;
 
     /* create new window for the list */
-    list = subwin(dialog, list_height, list_width,
-		  y + box_y + 1, x + box_x + 1);
+    list = sub_window(dialog, list_height, list_width,
+		      y + box_y + 1, x + box_x + 1);
     keypad(list, TRUE);
 
     /* draw a box around the list items */

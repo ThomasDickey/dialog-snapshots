@@ -1,4 +1,6 @@
 /*
+ *  $Id: textbox.c,v 1.23 2000/10/18 01:11:42 tom Exp $
+ *
  *  textbox.c -- implements the text box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -94,7 +96,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     mouse_setbase(x, y);
 
     /* Create window for text region, used for scrolling text */
-    text = subwin(dialog, height - 4, width - 2, y + 1, x + 1);
+    text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
 
     keypad(text, TRUE);
 
@@ -288,8 +290,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 			break;
 		    }
 		    /* Get search term from user */
-		} else if (get_search_term(text, search_term, height - 4,
-			width - 2) == -1) {
+		} else if (get_search_term(text, search_term,
+					   height - 4,
+					   width - 2) == -1) {
 		    /* ESC pressed in get_search_term(). Reprint page to clear box */
 		    wattrset(text, dialog_attr);
 		    back_lines(page_length);
@@ -428,7 +431,7 @@ back_lines(int n)
 			val_to_tabize = fpos - fd_bytes_read;
 		    } else {	/* Move backward BUF_SIZE/2 bytes */
 			if (lseek(fd, -(BUF_SIZE / 2 + fd_bytes_read),
-				SEEK_CUR) == -1)
+				  SEEK_CUR) == -1)
 			    exiterr("Error moving file pointer in back_lines().");
 
 			val_to_tabize = BUF_SIZE / 2;
@@ -575,7 +578,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	}
 	if (dlg_edit_string(input, &offset, key, first)) {
 	    dlg_show_string(dialog, input, offset, searchbox_attr,
-		box_y, box_x, box_width, FALSE, first);
+			    box_y, box_x, box_width, FALSE, first);
 	    first = FALSE;
 	}
     }
@@ -601,8 +604,10 @@ print_position(WINDOW *win, int height, int width)
 	exiterr("Error moving file pointer in print_position().");
 
     wattrset(win, position_indicator_attr);
-    percent = !file_size ? 100 : ((fpos - fd_bytes_read + tabize(page - buf,
-		1)) * 100) / file_size;
+    percent = !file_size
+	? 100
+	: ((fpos - fd_bytes_read + tabize(page - buf, 1)) * 100)
+	/ file_size;
     wmove(win, height - 3, width - 9);
     wprintw(win, "(%3d%%)", percent);
 }
@@ -638,8 +643,8 @@ read_high(int my_fd, char *my_buf, size_t size_read)
 	bytes_read = begin_line = 0;
 	for (j = 0; j < fd_bytes_read; j++)
 	    if (buftab[j] == TAB)
-		bytes_read += dialog_vars.tab_len - ((bytes_read -
-			begin_line) % dialog_vars.tab_len);
+		bytes_read += dialog_vars.tab_len
+		    - ((bytes_read - begin_line) % dialog_vars.tab_len);
 	    else if (buftab[j] == '\n') {
 		bytes_read++;
 		begin_line = bytes_read;

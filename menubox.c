@@ -1,4 +1,6 @@
 /*
+ *  $Id: menubox.c,v 1.25 2000/10/18 01:03:21 tom Exp $
+ *
  *  menubox.c -- implements the menu box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -106,8 +108,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     box_x = (width - menu_width) / 2 - 1;
 
     /* create new window for the menu */
-    menu = subwin(dialog, menu_height, menu_width, y + box_y + 1,
-		  x + box_x + 1);
+    menu = sub_window(dialog, menu_height, menu_width, y + box_y + 1,
+		      x + box_x + 1);
     keypad(menu, TRUE);
 
     /* draw a box around the menu items */
