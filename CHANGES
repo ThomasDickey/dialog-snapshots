@@ -1,8 +1,26 @@
--- $Id: CHANGES,v 1.122 2005/01/16 16:54:22 tom Exp $
+-- $Id: CHANGES,v 1.125 2005/02/07 00:52:47 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/02/06
+	+ modify makefile.in so --disable-echo applies to libtool builds.
+	+ corrected malloc size used for editable fields in formbox widget to
+	  match the function which updates the corresponding buffer.
+	+ modify formbox widget's use of flen to allow negative values to be
+	  used to limit the length of the displayed field.
+	+ improve description in manpage of output from formbox widget
+	  (Debian #292418).
+	+ modify formbox widget to allow fields with flen==0 to display
+	  (Debian #292417).
+	+ improved configure macros CF_POSIX_C_SOURCE and CF_XOPEN_SOURCE, to
+	  avoid redefinition warnings on cygwin.
+	+ fix a typo in inputmenu-stdout found via "sh -n" (report by Steve
+	  Grubb).
+	+ add/update po files from
+		http://www.iro.umontreal.ca/translation/maint/dialog/
+	  ca.po, da.po, hu.po, nl.po, rm.po, ro.po, vi.po
 
 2005/01/16
 	+ add --args option to help with debugging scripts.

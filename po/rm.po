@@ -1,27 +1,28 @@
-# Dialog
-# Copyright 2003, # Thomas Dickey
-# Arpad Biro <biro_arpad@yahoo.com>, 2003
+# Rumantsch (Rhaeto-Romance) [rm] translation of Dialog.
+# This file is distributed under the same license as the dialog package.
+# Copyright (C) 2003-2004,2005 Thomas Dickey.
+# Florian Verdet _goto <fvgoto@linuxbourg.ch>, 2005.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2004-12-19 20:14-0500\n"
-"PO-Revision-Date: 2005-02-02 08:21+0100\n"
-"Last-Translator: Németh Csaba <csaba@sopron.hu>\n"
-"Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
+"PO-Revision-Date: 2005-02-06 13:22+0100\n"
+"Last-Translator: Florian Verdet _goto <fvgoto@linuxbourg.ch>\n"
+"Language-Team: Rhaeto-Romance <gnu-rumantsch@guglielmtux.ch>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.0.1\n"
+"X-Generator: KBabel 1.2\n"
 
 #: buttons.c:359
 msgid "Yes"
-msgstr "Igen"
+msgstr "Schi"
 
 #: buttons.c:367
 msgid "No"
-msgstr "Nem"
+msgstr "Na"
 
 #: buttons.c:375
 msgid "OK"
@@ -29,11 +30,11 @@ msgstr "OK"
 
 #: buttons.c:383
 msgid "Cancel"
-msgstr "Mégsem"
+msgstr "Laschar star"
 
 #: buttons.c:391
 msgid "EXIT"
-msgstr "KILÉPÉS"
+msgstr "SORTIR"
 
 #: buttons.c:399
 msgid "Extra"
@@ -41,30 +42,31 @@ msgstr "Extra"
 
 #: buttons.c:407
 msgid "Help"
-msgstr "Súgó"
+msgstr "AgÃ¼d"
 
 #. Headline "Month"
 #: calendar.c:299
 msgid "Month"
-msgstr "Hónap"
+msgstr "Mais"
 
 #. Headline "Year"
 #: calendar.c:319
 msgid "Year"
-msgstr "Év"
+msgstr "On"
 
 #: dialog.c:672
 msgid "Rename"
-msgstr "Átnevezés"
+msgstr "MÃ¼dar nom"
 
 #: fselect.c:426
+#, fuzzy
 msgid "Directories"
-msgstr "Könyvtárak"
+msgstr "Registers"
 
 #: fselect.c:427
 msgid "Files"
-msgstr "Fájlok"
+msgstr "Datotecas"
 
 #: textbox.c:437
 msgid "Search"
-msgstr "Keresés"
+msgstr "Tscherchar"

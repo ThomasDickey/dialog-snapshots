@@ -1,4 +1,4 @@
-.\" $Id: dialog.1,v 1.82 2005/01/16 16:59:41 tom Exp $
+.\" $Id: dialog.1,v 1.84 2005/02/07 00:33:50 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2005/01/16 16:59:41 $"
+.TH DIALOG 1 "" "$Date: 2005/02/07 00:33:50 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -497,15 +497,28 @@ the field can be.
 The former defines the length shown for a selected field,
 while the latter defines the permissible length of the data entered in the
 field.
+.RS
+.TP 3
+-
 If \fIflen\fR is zero, the corresponding field cannot be altered.
+and the contents of the field determine the displayed-length.
+.TP 3
+-
+If \fIflen\fR is negative, the corresponding field cannot be altered,
+and the negated value of \fIflen\fR is used as the displayed-length.
+.TP 3
+-
 If \fIilen\fR is zero, it is set to \fIflen\fR.
+.RE
 .IP
 Use up/down arrows (or control/N, control/P) to move between fields.
 Use tab to move between windows.
 .IP
 On exit, the contents of the form-fields are written to \fBdialog\fP's output,
 each field separated by a newline.
-Input-only fields (\fIflen\fR is zero) are not written out.
+The text used to fill non-editable fields
+(\fIflen\fR is zero or negative)
+is not written out.
 .
 .
 .IP "\fB--fselect \fIfilepath height width\fR"

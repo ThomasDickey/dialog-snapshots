@@ -1,5 +1,5 @@
 #! /bin/bash
-# $Id: inputmenu-stdout,v 1.3 2004/09/19 17:59:14 tom Exp $
+# $Id: inputmenu-stdout,v 1.4 2005/02/06 22:51:23 tom Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
 : ${DIALOG=dialog}
 
@@ -41,6 +41,7 @@ configuration purpose. Here is a possible piece of a configuration program.
                        GID) gid="$item";;
                        HOME) home="$item";;
                esac
+	       ;;
 
        255)
                 echo "ESC pressed."

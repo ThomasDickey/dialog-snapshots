@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.39 2004/12/20 00:01:11 Yura.Kalinichen Exp $
+# $Id: makefile.in,v 1.40 2005/02/07 00:50:22 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -38,7 +38,7 @@ RANLIB		= @LIB_PREP@
 RM		= rm -f
 LINT		= lint
 
-LIBTOOL		= @LIBTOOL@
+LIBTOOL		= @LIBTOOL@ @ECHO_LT@
 LIBTOOL_CLEAN	= @LIB_CLEAN@
 LIBTOOL_COMPILE	= @LIB_COMPILE@
 LIBTOOL_CREATE	= @LIB_CREATE@
