@@ -3,6 +3,14 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/12/17
+	+ restore treatment of predefined height/width in real_auto_size()
+	  which was lost in 2000/12/12 rewrite (report by Raphael Halimi
+	  <raphaelh@easynet.fr>).
+	+ updates for configure script macros AM_PATH_PROG_WITH_TEST,
+	  CF_CURSES_LIBS, CF_LIB_PREFIX, CF_PROG_EXT for $PATHSEP and $CFLAGS
+	  fixes.
+
 2000/12/13
 	+ correct change for create_lock(), which resulted in an infinite loop
 	  (patch by Chris Butler, <chrisb@debian.org>).

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.58 2000/12/14 01:48:02 tom Exp $
+ *  $Id: util.c,v 1.59 2000/12/18 01:48:35 tom Exp $
  *
  *  util.c
  *
@@ -439,12 +439,7 @@ print_autowrap(WINDOW *win, const char *prompt, int height, int width, int
 
 /*
  * if (height or width == -1) Maximize()
- * if (height or width == 0)
- *    if (there are \n in prompt)
- *       width=MAX(longer line+n, mincols)
- *       height=num.lines
- *    else
- *       calculate with aspect_ratio
+ * if (height or width == 0), justify and return actual limits.
  */
 static void
 real_auto_size(const char *title,
@@ -458,6 +453,8 @@ real_auto_size(const char *title,
     int nc = 4;
     int high;
     int wide;
+    int save_high = *height;
+    int save_wide = *width;
 
     if (prompt == 0) {
 	if (*height == 0)
@@ -488,10 +485,16 @@ real_auto_size(const char *title,
     }
 
     justify_text((WINDOW *) 0, prompt, high, wide, y, x, height, width);
+    if (*width < mincols && save_wide == 0)
+	*width = mincols;
     if (prompt != 0) {
 	*width += nc;
 	*height += boxlines + 2;
     }
+    if (save_high > 0)
+	*height = save_high;
+    if (save_wide > 0)
+	*width = save_wide;
 }
 
 /* End of auto_size() */
