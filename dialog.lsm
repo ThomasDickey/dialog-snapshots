@@ -1,7 +1,7 @@
 Begin3
 Title:          dialog - Display dialog boxes in scripts
-Version:        1.0-20041117
-Entered-date:   17NOV04
+Version:        1.0-20041118
+Entered-date:   18NOV04
 Description:    Dialog is a program that will let you present a variety
                 of questions or display messages in nice looking color
                 non-graphical dialog boxes from a shell or perl script.

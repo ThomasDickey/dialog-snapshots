@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.36 2004/09/18 16:37:44 tom Exp $
+ * $Id: inputstr.c,v 1.37 2004/11/19 01:26:05 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -330,7 +330,7 @@ dlg_index_columns(const char *string)
 				   : strlen(unctrl(UCH(string[inx]))));
 	    if (string[inx] == '\n')
 		cache.list[inx + 1] = 1;
-	    if (inx > 0)
+	    if (inx != 0)
 		cache.list[inx + 1] += cache.list[inx];
 	}
 #endif
@@ -351,8 +351,10 @@ dlg_count_columns(const char *string)
     if (limit > 0) {
 	const int *cols = dlg_index_columns(string);
 	result = cols[limit];
+    } else {
+	result = strlen(string);
     }
-    return strlen(string);
+    return result;
 }
 
 /*

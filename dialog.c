@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.124 2004/09/19 21:05:14 tom Exp $
+ * $Id: dialog.c,v 1.125 2004/11/18 22:23:32 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -145,7 +145,6 @@ static char **dialog_argv;
 static bool ignore_unknown = FALSE;
 
 static const char *program = "dialog";
-static const char *const and_widget = "--and-widget";
 
 /*
  * The options[] table is organized this way to make it simple to maintain

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.53 2004/09/19 22:51:45 tom Exp $
+ *  $Id: textbox.c,v 1.54 2004/11/18 22:47:15 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -33,7 +33,7 @@ typedef struct {
     long file_size;
     long fd_bytes_read;
     long bytes_read;
-    int buffer_len;
+    long buffer_len;
     bool begin_reached;
     bool buffer_first;
     bool end_reached;
@@ -89,7 +89,8 @@ static void
 read_high(MY_OBJ * obj, size_t size_read)
 {
     char *buftab, ch;
-    int i = 0, j, n, begin_line, tmpint;
+    int i = 0, j, n, tmpint;
+    long begin_line;
 
     /* Allocate space for read buffer */
     buftab = xalloc(size_read + 1);
@@ -141,8 +142,8 @@ read_high(MY_OBJ * obj, size_t size_read)
 	begin_line = 0;
 	while (j < obj->fd_bytes_read)
 	    if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct != 0)) {
-		tmpint = dialog_state.tab_len
-		    - ((i - begin_line) % dialog_state.tab_len);
+		tmpint = (dialog_state.tab_len
+			  - ((int) ((long) i - begin_line) % dialog_state.tab_len));
 		for (n = 0; n < tmpint; n++)
 		    obj->buf[i++] = ' ';
 	    } else {
@@ -159,11 +160,11 @@ read_high(MY_OBJ * obj, size_t size_read)
     free(buftab);
 }
 
-static int
-tabize(MY_OBJ * obj, int val, int pos)
+static long
+tabize(MY_OBJ * obj, long val, int pos)
 {
     long fpos;
-    int i, count, begin_line;
+    long i, count, begin_line;
     char *buftab;
 
     if (!dialog_vars.tab_correct)
@@ -254,10 +255,11 @@ match_string(MY_OBJ * obj, char *string)
  * 'in_buf' will be updated to point to the desired line in 'buf'.
  */
 static void
-back_lines(MY_OBJ * obj, int n)
+back_lines(MY_OBJ * obj, long n)
 {
+    int i;
     long fpos;
-    int i, val_to_tabize;
+    long val_to_tabize;
 
     obj->begin_reached = FALSE;
     /* We have to distinguish between end_reached and !end_reached since at end
@@ -392,10 +394,10 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
     size = tabize(obj, obj->in_buf, 1);
 
     wattrset(win, position_indicator_attr);
-    percent = !obj->file_size
-	? 100
-	: ((fpos - obj->fd_bytes_read + size) * 100)
-	/ obj->file_size;
+    percent = (!obj->file_size
+	       ? 100
+	       : (int) (((fpos - obj->fd_bytes_read + size) * 100)
+			/ obj->file_size));
 
     if (percent < 0)
 	percent = 0;
@@ -430,6 +432,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     int offset = 0;
     int fkey = 0;
     bool first = TRUE;
+    int result = DLG_EXIT_UNKNOWN;
 
     box_x = (width - box_width) / 2;
     box_y = (height - box_height) / 2;
@@ -452,10 +455,13 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     for (;;) {
 	if (!first) {
 	    key = dlg_getc(dialog, &fkey);
-	    if (key == ESC)
-		return DLG_EXIT_ESC;
-	    if (key == '\n')
-		return DLG_EXIT_OK;
+	    if (key == ESC) {
+		result = DLG_EXIT_ESC;
+		break;
+	    } else if (key == '\n') {
+		result = DLG_EXIT_OK;
+		break;
+	    }
 	}
 	if (dlg_edit_string(input, &offset, key, fkey, first)) {
 	    dlg_show_string(dialog, input, offset, searchbox_attr,
@@ -464,12 +470,14 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	}
     }
     wattrset(dialog, save);
+    return result;
 }
 
 static bool
 perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 {
-    int dir, tempinx;
+    int dir;
+    long tempinx;
     long fpos;
     bool found;
     bool temp, temp1;

@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.28 2004/07/29 00:17:37 tom Exp $
+ *  $Id: formbox.c,v 1.29 2004/11/18 21:43:03 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -105,7 +105,7 @@ print_form(WINDOW *win, FORM_ELT * elt, int total, int scrollamt, int choice)
 	count += print_item(win, elt + n, scrollamt, n == choice);
     }
     if (count) {
-	wbkgdset(win, menubox_attr);
+	wbkgdset(win, menubox_attr | ' ');
 	wclrtobot(win);
 	(void) wnoutrefresh(win);
     }

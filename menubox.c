@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.76 2004/09/19 23:43:39 tom Exp $
+ *  $Id: menubox.c,v 1.77 2004/11/19 01:49:04 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -323,12 +323,14 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     }
 
     /* If the name+text is wider than the list is allowed, then truncate
-     * one or both of them.  If the name is no wider than 1/4 of the list,
+     * one or both of them.  If the name is no wider than 30% of the list,
      * leave it intact.
+     *
+     * FIXME: the gutter width and name/list ratio should be configurable.
      */
     use_width = (menu_width - GUTTER);
     if (text_width + name_width > use_width) {
-	int need = (int) (0.25 * use_width);
+	int need = (int) (0.30 * use_width);
 	if (name_width > need) {
 	    int want = (int) (use_width
 			      * ((double) name_width)

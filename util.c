@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.138 2004/11/18 00:26:55 tom Exp $
+ *  $Id: util.c,v 1.139 2004/11/19 02:30:13 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -892,7 +892,7 @@ dlg_auto_sizefile(const char *title,
 {
     int count = 0, len = title ? strlen(title) : 0, nc = 4, numlines = 2;
     long offset;
-    char ch;
+    int ch;
     FILE *fd;
 
     /* Open input file for reading */
