@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.31 2004/12/19 22:56:29 tom Exp $
+ *  $Id: formbox.c,v 1.32 2005/02/07 00:10:37 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -95,8 +95,8 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 	    count = 1;
 	}
     }
-    if (elt->text_flen && ok_move(win, scrollamt, elt->text_y, elt->text_x)) {
-	len = elt->text_flen;
+    if (elt->text_len && ok_move(win, scrollamt, elt->text_y, elt->text_x)) {
+	len = elt->text_len;
 	len = MIN(len, getmaxx(win) - elt->text_x);
 	if (len > 0) {
 	    dlg_show_string(win,
@@ -300,27 +300,30 @@ init_fe(char **items,
 	int text_x = atoi(ItemTextX(i));
 	int text_flen = atoi(ItemTextFLen(i));
 	int text_ilen = atoi(ItemTextILen(i));
+	int text_len = (text_flen > 0
+			? text_flen
+			: (text_flen < 0
+			   ? -text_flen
+			   : (int) strlen(ItemText(i))));
 
 	/*
 	 * Special value '0' for text_flen: no input allowed
 	 * Special value '0' for text_ilen: 'be as text_flen'
 	 */
 	if (text_ilen == 0)
-	    text_ilen = text_flen;
+	    text_ilen = text_len;
 
 	min_h = MAX(min_h, name_y);
 	min_h = MAX(min_h, text_y);
 	min_w = MAX(min_w, name_x + name_len);
-	min_w = MAX(min_w, text_x + text_flen);
+	min_w = MAX(min_w, text_x + text_len);
 
 	elt[i].name = ItemName(i);
 	elt[i].name_len = strlen(elt[i].name);
 	elt[i].name_y = name_y - 1;
 	elt[i].name_x = name_x - 1;
 	elt[i].text = ItemText(i);
-	elt[i].text_len = (elt[i].text_flen
-			   ? elt[i].text_flen
-			   : (int) strlen(elt[i].text));
+	elt[i].text_len = text_len;
 	elt[i].text_y = text_y - 1;
 	elt[i].text_x = text_x - 1;
 	elt[i].text_flen = text_flen;
@@ -328,7 +331,10 @@ init_fe(char **items,
 	elt[i].help = ItemHelp(i);
 
 	if (text_flen > 0) {
-	    elt[i].text = malloc(text_ilen + 1);
+	    int max_len = MAX_LEN;
+	    if (dialog_vars.max_input != 0 && dialog_vars.max_input < MAX_LEN)
+		max_len = dialog_vars.max_input;
+	    elt[i].text = malloc(max_len + 1);
 	    assert_ptr(elt[i].text, "dialog_form");
 	    sprintf(elt[i].text, "%.*s", text_ilen, ItemText(i));
 	}
@@ -469,7 +475,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 			    form_active_text_attr,
 			    current->text_y - scrollamt,
 			    current->text_x,
-			    current->text_flen, password, first);
+			    current->text_len, password, first);
 	    field_changed = FALSE;
 	}
 
@@ -656,7 +662,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 				form_active_text_attr,
 				current->text_y - scrollamt,
 				current->text_x,
-				current->text_flen, password, first);
+				current->text_len, password, first);
 		continue;
 	    }
 	}
@@ -683,7 +689,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     }
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
-	    if (elt[i].text_flen != 0) {
+	    if (elt[i].text_flen > 0) {
 		dlg_add_result(elt[i].text);
 		dlg_add_result("\n");
 		free(elt[i].text);
