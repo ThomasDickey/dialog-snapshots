@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.43 2003/11/26 18:27:26 tom Exp $
+ *  $Id: buttons.c,v 1.44 2003/12/07 19:17:55 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -502,7 +502,7 @@ dlg_defaultno_button(void)
 {
     int result = 0;
 
-    if (dialog_vars.defaultno) {
+    if (dialog_vars.defaultno && !dialog_vars.nocancel) {
 	while (dlg_ok_buttoncode(result) != DLG_EXIT_CANCEL)
 	    ++result;
     }
