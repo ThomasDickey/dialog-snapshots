@@ -44,9 +44,10 @@
 
 #ifdef ENABLE_NLS
 #include <libintl.h>
+#define _(s) gettext(s)
 #else
-#undef gettext
-#define gettext(s) s
+#undef _
+#define _(s) s
 #endif
 
 /*

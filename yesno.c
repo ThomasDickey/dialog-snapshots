@@ -38,7 +38,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 #endif
 
     tab_correct_str(prompt);
-    prompt = auto_size(title, prompt, &height, &width, 2, 25);
+    prompt = auto_size(title, prompt, &height, &width, 6, 25);
     print_size(height, width);
     ctl_size(height, width);
 

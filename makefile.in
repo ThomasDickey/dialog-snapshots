@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.14 2000/07/27 23:16:56 tom Exp $
+# $Id: makefile.in,v 1.16 2000/07/30 18:15:08 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -56,6 +56,10 @@ OBJS = $(EXTRAOBJS) \
 	yesno.o
 
 SRCS = $(OBJS:.o=.c)
+HDRS = \
+	colors.h \
+	config.h \
+	dialog.h
 
 LIB	= libdialog.a
 PROG	= dialog
@@ -82,7 +86,7 @@ dialog: $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
 clean	::
 @INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
 @MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
-	rm -f core *.o *~ $(ALL)
+	rm -f core *.o *~ tags TAGS $(ALL)
 
 distclean :: clean
 @INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
@@ -104,3 +108,9 @@ uninstall ::
 
 $(bindir) \
 $(MANDIR) : ; $(srcdir)/mkdirs.sh $@
+
+tags:
+	ctags $(SRCS) $(HDRS)
+
+TAGS:
+	etags $(SRCS) $(HDRS)

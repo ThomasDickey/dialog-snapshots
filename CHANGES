@@ -3,7 +3,14 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2000/7/29
+2000/7/30
+	+ change real_auto_size() to allow it to be used for dialogs that have
+	  no prompt, e.g., fselect.  Also, rather than requiring both height
+	  and width to be given as -1 for maximizing the dialog, allow either
+	  alone.
+	+ increase minimum height needed for autosized yesno dialog.
+	+ add --version as an alias for --print-version.
+	+ fix for build on Solaris without NLS (cannot redefine 'gettext()').
 	+ add fselect dialog (compatible with xdialog).
 	+ add --enable-lxdialog configure option.
 	+ use new configure macro CF_ARG_MSG_ENABLE to show progress with

@@ -346,7 +346,7 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
  */
 static char *
 real_auto_size(const char *title, char *prompt, int *height, int *width, int
-    boxlines, int mincols)
+	       boxlines, int mincols)
 {
     int count = 0;
     int len = title ? strlen(title) : 0;
@@ -358,10 +358,18 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
     int text_width;
     char *cr2, *ptr = prompt, *str, *word;
 
-    if ((*height == -1) || (*width == -1)) {
-	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
-	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
+    if (prompt == 0) {
+	if (*height == 0)
+	    *height = -1;
+	if (*width == 0)
+	    *width = -1;
     }
+
+    if (*height == -1)
+	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
+    if (*width == -1)
+	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
+
     if ((*height != 0) && (*width != 0))
 	return prompt;
 
@@ -400,7 +408,7 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
 	    count = 0;
 	    strcpy(ptr, prompt);
 	    while (((word = strtok(first ? ptr : NULL, " ")) != NULL)
-		&& ((int) strlen(word) <= text_width)) {
+		   && ((int) strlen(word) <= text_width)) {
 		if (first)
 		    first = 0;
 
@@ -435,7 +443,7 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
 
 char *
 auto_size(const char *title, char *prompt, int *height, int *width, int
-    boxlines, int mincols)
+	  boxlines, int mincols)
 {
     char *s = real_auto_size(title, prompt, height, width, boxlines, mincols);
 
@@ -458,7 +466,7 @@ auto_size(const char *title, char *prompt, int *height, int *width, int
  */
 void
 auto_sizefile(const char *title, const char *file, int *height, int *width, int
-    boxlines, int mincols)
+	      boxlines, int mincols)
 {
     int count = 0, len = title ? strlen(title) : 0, nc = 4, numlines = 2;
     long offset;
@@ -509,7 +517,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
  */
 void
 draw_box(WINDOW *win, int y, int x, int height, int width,
-    chtype boxchar, chtype borderchar)
+	 chtype boxchar, chtype borderchar)
 {
     int i, j;
     chtype save = getattrs(win);
@@ -747,15 +755,15 @@ ctl_size(int height, int width)
     if (dialog_vars.size_err) {
 	if ((width > COLS) || (height > LINES)) {
 	    sprintf(tempstr,
-		"\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
-		height, width, LINES, COLS);
+		    "\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
+		    height, width, LINES, COLS);
 	    exiterr(tempstr);
 	}
 #ifdef HAVE_COLOR
 	else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
 	    sprintf(tempstr,
-		"\nWindow+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
-		height, width, SLINES, SCOLS);
+		    "\nWindow+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
+		    height, width, SLINES, SCOLS);
 	    exiterr(tempstr);
 	}
 #endif
@@ -879,7 +887,7 @@ new_window(int height, int width, int y, int x)
 #endif
     if ((win = newwin(height, width, y, x)) == 0) {
 	sprintf(buffer, "Can't make new window at (%d,%d), size (%d,%d).\n",
-	    y, x, height, width);
+		y, x, height, width);
 	exiterr(buffer);
     }
 

@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.10 2000/07/29 19:34:39 tom Exp $
+dnl $Id: aclocal.m4,v 1.11 2000/07/30 03:33:32 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -645,6 +645,8 @@ if test ".$ac_cv_func_initscr" != .yes ; then
 			[cf_result=no])
 		AC_MSG_RESULT($cf_result)
 		test $cf_result = no && AC_ERROR(Cannot link curses library)
+	elif test "$cf_curs_lib" = "$cf_term_lib" ; then
+		:
 	elif test "$cf_term_lib" != predefined ; then
 		AC_MSG_CHECKING(if we need both $cf_curs_lib and $cf_term_lib libraries)
 		AC_TRY_LINK([#include <${cf_cv_ncurses_header-curses.h}>],

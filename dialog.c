@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.38 2000/07/03 02:00:20 tom Exp $
+ * $Id: dialog.c,v 1.40 2000/07/30 17:42:31 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -151,6 +151,7 @@ static Options options[] = {
     { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
     { "title",		o_title,		1, "<title>" },
+    { "version",	o_print_version,	5, "" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
 };
 /* *INDENT-ON* */
@@ -413,7 +414,7 @@ j_tailboxbg(JUMPARGS)
     if (tailbg_lastpid + 1 >= MAX_TAILBG) {
 	char temp[80];
 	sprintf(temp, "lastpid value %d is greater than %d",
-	    tailbg_lastpid, MAX_TAILBG);
+	    (int) tailbg_lastpid, MAX_TAILBG);
 	Usage(temp);
     }
 
@@ -552,9 +553,7 @@ Help(void)
 {
     static const char *tbl_1[] =
     {
-	"cdialog (ComeOn Dialog!) version %s by Pako (demarco_p@abramo.it)",
-	"originally dialog version 0.3, by Savio Lam (lam836@cs.cuhk.hk).",
-	"  patched to version 0.4 by Stuart Herbert (S.Herbert@shef.ac.uk)",
+	"cdialog (ComeOn Dialog!) version %s",
 	"",
 	"* Display dialog boxes from shell scripts *",
 	"",
