@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.117 2003/11/26 21:26:10 tom Exp $
+ *  $Id: util.c,v 1.118 2003/12/01 00:32:44 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1456,15 +1456,19 @@ dlg_add_quoted(char *string)
 {
     char temp[2];
 
-    temp[1] = '\0';
-    dlg_add_result("\"");
-    while (*string != '\0') {
-	temp[0] = *string++;
-	if (*temp == '"')
-	    dlg_add_result("\\");
-	dlg_add_result(temp);
+    if (strcspn(string, " \n\t\\\"[]{}?*;`~#$^&()|<>") == strlen(string)) {
+	dlg_add_result(string);
+    } else {
+	temp[1] = '\0';
+	dlg_add_result("\"");
+	while (*string != '\0') {
+	    temp[0] = *string++;
+	    if (*temp == '"')
+		dlg_add_result("\\");
+	    dlg_add_result(temp);
+	}
+	dlg_add_result("\"");
     }
-    dlg_add_result("\"");
 }
 
 /*
