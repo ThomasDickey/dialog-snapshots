@@ -12,7 +12,7 @@ HAVE_NCURSES=true
 # support of a configuration file
 HAVE_RC_FILE=false
 # can be disabled to make cdialog a bit smaller (could be done for more things)
-HAVE_GUAGE=true
+HAVE_GAUGE=true
 HAVE_TAILBOX=true
 
 BINDIR = $(prefix)/bin
@@ -47,9 +47,9 @@ ifeq ($(HAVE_RC_FILE), true)
 CFLAGS+=-DHAVE_RC_FILE
 OBJS+=rc.o
 endif
-ifeq ($(HAVE_GUAGE), true)
+ifeq ($(HAVE_GAUGE), true)
 OBJS+=guage.o
-CFLAGS+=-DHAVE_GUAGE
+CFLAGS+=-DHAVE_GAUGE
 endif
 ifeq ($(HAVE_TAILBOX), true)
 OBJS+=tailbox.o

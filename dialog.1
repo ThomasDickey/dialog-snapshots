@@ -30,7 +30,7 @@ these types of dialog boxes are implemented:
 .LP
 .BR yes/no " box," " menu" " box," " input" " box,"
 .BR message " box," " text" " box," " info" " box,"
-.BR checklist " box," " radiolist" " box, and" " guage" " box."
+.BR checklist " box," " radiolist" " box, and" " gauge" " box."
 .SH OPTIONS
 .TP
 .B \-\-clear
@@ -173,13 +173,13 @@ strings of those entries that are turned on will be printed on
 that you can indicate which entry is currently selected, by setting its
 .IR status " to " on "."
 
-.IP "\fB\-\-guage \fItext height width percent\fR"
-.RB "A " guage " box displays a meter along the bottom of the box.
+.IP "\fB\-\-gauge \fItext height width percent\fR"
+.RB "A " gauge " box displays a meter along the bottom of the box.
 The meter indicates the percentage.  New percentages are read from
 standard input, one integer per line.  The meter is updated
 to reflect each new percentage.  If stdin is XXX, then subsequent
 lines up to another XXX are used for a new prompt.
-The guage exits when EOF is reached on stdin.
+The gauge exits when EOF is reached on stdin.
 
 .SH "RUN-TIME CONFIGURATION"
 .TP 4
@@ -213,7 +213,7 @@ if the file in (b) can't be found, use compiled in defaults.
 Edit the sample configuration file and copy it to some place that
 .B dialog
 can find, as stated in step 2 above.
-.SH ENVIROMENT
+.SH ENVIRONMENT
 .TP 15
 .B DIALOGRC
 Define this variable if you want to specify the name of the configuration file

@@ -73,26 +73,12 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
 
   page = buf;    /* page is pointer to start of page to be displayed */
 
-  if (begin_set == 1) {
-    x = begin_x;
-    y = begin_y;
-  } else {
-    /* center dialog box on screen */
-    x = (SCOLS - width)/2;
-    y = (SLINES - height)/2;
-  }
+  x = box_x_ordinate(width);
+  y = box_y_ordinate(height);
 
-#ifdef HAVE_NCURSES
-  if (use_shadow)
-    draw_shadow(stdscr, y, x, height, width);
-#endif
-  dialog = newwin(height, width, y, x);
-
-  if ( dialog == 0 )
-    exiterr("\nCan't make new window.\n");
+  dialog = new_window(height, width, y, x);
 
   mouse_setbase (x, y);
-  keypad(dialog, TRUE);
 
   /* Create window for text region, used for scrolling text */
   text = subwin(dialog, height-4, width-2, y+1, x+1);
@@ -102,25 +88,9 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
   /* register the new window, along with its borders */
   mouse_mkbigregion (0, 0, height - 2, width, 1, 0, 2 /* not normal */ );
   draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+  draw_bottom_box(dialog);
+  draw_title(dialog, title);
 
-  wattrset(dialog, border_attr);
-  wmove(dialog, height-3, 0);
-  waddch(dialog, ACS_LTEE);
-  for (i = 0; i < width-2; i++)
-    waddch(dialog, ACS_HLINE);
-  wattrset(dialog, dialog_attr);
-  waddch(dialog, ACS_RTEE);
-  wmove(dialog, height-2, 1);
-  for (i = 0; i < width-2; i++)
-    waddch(dialog, ' ');
-
-  if (title != NULL) {
-    wattrset(dialog, title_attr);
-    wmove(dialog, 0, (width - strlen(title))/2 - 1);
-    waddch(dialog, ' ');
-    waddstr(dialog, title);
-    waddch(dialog, ' ');
-  }
   print_button(dialog, " EXIT ", height-2, width/2-4, TRUE);
   wnoutrefresh(dialog);
   getyx(dialog, cur_y, cur_x);    /* Save cursor position */

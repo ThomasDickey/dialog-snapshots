@@ -41,7 +41,7 @@ void signal_tailbg(int sig) { /* __sighandler_t */
  */
 int dialog_tailbox(const char *title, const char *file, int height, int width)
 {
-  int i, x, y, cur_x, cur_y, key = 0;
+  int x, y, cur_x, cur_y, key = 0;
   WINDOW *dialog, *text;
   char ch;
 
@@ -53,51 +53,21 @@ int dialog_tailbox(const char *title, const char *file, int height, int width)
   if ((fd = fopen(file, "rb")) == NULL)
     exiterr("\nCan't open input file in dialog_tailbox().\n");
 
-  if (begin_set == 1) {
-    x = begin_x;
-    y = begin_y;
-  } else {
-    /* center dialog box on screen */
-    x = (SCOLS - width)/2;
-    y = (SLINES - height)/2;
-  }
+  x = box_x_ordinate(width);
+  y = box_y_ordinate(height);
 
-#ifdef HAVE_NCURSES
-  if (use_shadow)
-    draw_shadow(stdscr, y, x, height, width);
-#endif
-  dialog = newwin(height, width, y, x);
-
-  if ( dialog == 0 )
-    exiterr("\nCan't make new window.\n");
+  dialog = new_window(height, width, y, x);
 
   mouse_setbase (x, y);
-  keypad(dialog, TRUE);
 
   /* Create window for text region, used for scrolling text */
   text = subwin(dialog, height-4, width-2, y+1, x+1);
   keypad(text, TRUE);
 
   draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+  draw_bottom_box(dialog);
+  draw_title(dialog, title);
 
-  wattrset(dialog, border_attr);
-  wmove(dialog, height-3, 0);
-  waddch(dialog, ACS_LTEE);
-  for (i = 0; i < width-2; i++)
-    waddch(dialog, ACS_HLINE);
-  wattrset(dialog, dialog_attr);
-  waddch(dialog, ACS_RTEE);
-  wmove(dialog, height-2, 1);
-  for (i = 0; i < width-2; i++)
-    waddch(dialog, ' ');
-
-  if (title != NULL) {
-    wattrset(dialog, title_attr);
-    wmove(dialog, 0, (width - strlen(title))/2 - 1);
-    waddch(dialog, ' ');
-    waddstr(dialog, title);
-    waddch(dialog, ' ');
-  }
   print_button(dialog, " EXIT ", height-2, width/2-4, TRUE);
     
   wmove(dialog, height-4, 2);
@@ -180,41 +150,18 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
   if ((fd = fopen(file, "rb")) == NULL)
     exiterr("\nCan't open input file in dialog_tailboxbg().\n");
 
-  if (begin_set == 1) {
-    x = begin_x;
-    y = begin_y;
-  } else {
-    /* center dialog box on screen */
-    x = (SCOLS - width)/2;
-    y = (SLINES - height)/2;
-  }
+  x = box_x_ordinate(width);
+  y = box_y_ordinate(height);
 
-#ifdef HAVE_NCURSES
-  if (use_shadow)
-    draw_shadow(stdscr, y, x, height, width);
-#endif
-  dialog = newwin(height, width, y, x);
+  dialog = new_window(height, width, y, x);
 
-  if ( dialog == 0 )
-    exiterr("\nCan't make new window.\n");
-
-  keypad(dialog, FALSE);
-/*  leaveok(dialog, TRUE);
-*/
   /* Create window for text region, used for scrolling text */
   text = subwin(dialog, height-2, width-2, y+1, x+1);
   keypad(text, FALSE);
-/*  leaveok(text, TRUE);
-*/
+
   draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
 
-  if (title != NULL) {
-    wattrset(dialog, title_attr);
-    wmove(dialog, 0, (width - strlen(title))/2 - 1);
-    waddch(dialog, ' ');
-    waddstr(dialog, title);
-    waddch(dialog, ' ');
-  }
+  draw_title(dialog, title);
 
   wmove(dialog, height-2, 2);
   

@@ -3,7 +3,7 @@
 # Return values are 1 for success and 0 for failure (or cancel)
 # Resultant text (if any) is in dialog_result
 
-# Unfortunately, the guage requires use of /bin/sh to get going.
+# Unfortunately, the gauge requires use of /bin/sh to get going.
 # I didn't bother to make the others shell-free, although it
 # would be simple to do.
 
@@ -82,11 +82,11 @@ sub rhs_yesno {
     }
 }
 
-sub rhs_guage {
+sub rhs_gauge {
     local ( $title, $message, $width, $percent ) = @_;
     local ( $tmp, $height, $message_len );
 
-    $guage_width = $width;
+    $gauge_width = $width;
 
     $message = &rhs_wordwrap($message, $width);
     $message_len = split(/^/, $message);
@@ -96,25 +96,25 @@ sub rhs_guage {
     }
     $height = 5 + $message_len;
 
-    open(GUAGE, "|dialog --title \"$title\" --guage \"$message\" $height $width $percent");
+    open(GAUGE, "|dialog --title \"$title\" --gauge \"$message\" $height $width $percent");
 }
 
-sub rhs_update_guage {
+sub rhs_update_gauge {
     local ( $percent ) = @_;
 
-    &printflush(GUAGE, "$percent\n");
+    &printflush(GAUGE, "$percent\n");
 }
 
-sub rhs_update_guage_and_message {
+sub rhs_update_gauge_and_message {
     local ( $message, $percent ) = @_;
 
-    $message = &rhs_wordwrap($message, $guage_width);
+    $message = &rhs_wordwrap($message, $gauge_width);
     $message =~ s/\n/\\n/g;
-    &printflush(GUAGE, "XXX\n$percent\n$message\nXXX\n");
+    &printflush(GAUGE, "XXX\n$percent\n$message\nXXX\n");
 }
 
-sub rhs_stop_guage {
-    close GUAGE;
+sub rhs_stop_gauge {
+    close GAUGE;
 }
 
 sub rhs_inputbox {
