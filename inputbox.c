@@ -29,8 +29,20 @@ int
 dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     const char *init, const int password)
 {
-    int i, x, y, box_y, box_x, box_width;
-    int input_x = 0, scrollamt = 0, key = 0, button = -1;
+    /* -1 (input)  =>  1 (Ok)     */
+    /*  0 (Ok)     => -1 (input)  */
+    /*  1 (Cancel) =>  0 (Cancel) */
+    static int forward[] =
+    {1, -1, 0};
+    /* -1 (input)  =>  0 (Cancel) */
+    /*  0 (Ok)     =>  1 (Ok)     */
+    /*  1 (Cancel) => -1 (input)  */
+    static int backward[] =
+    {0, 1, -1};
+
+    int x, y, box_y, box_x, box_width;
+    int show_buttons = 1, first = 1, offset = 0;
+    int input_x = 0, key = 0, button = -1;
     unsigned char *input = dialog_input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
@@ -69,115 +81,49 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     x = width / 2 - 11;
     y = height - 2;
-    print_button(dialog, "Cancel", y, x + 14, FALSE);
-    print_button(dialog, "  OK  ", y, x, TRUE);
 
     /* Set up the initial value */
-    wmove(dialog, box_y, box_x);
-    wattrset(dialog, inputbox_attr);
     if (!init)
 	input[0] = '\0';
     else
 	strcpy((char *) input, init);
-    input_x = strlen((char *) input);
-    if (input_x >= box_width) {
-	scrollamt = input_x - box_width + 1;
-	input_x = box_width - 1;
-	if (!password)
-	    for (i = 0; i < box_width - 1; i++)
-		waddch(dialog, input[scrollamt + i]);
-    } else if (!password)
-	waddstr(dialog, (char *) input);
-    for (i = 0; i < box_width - 1 - input_x; i++)
-	waddch(dialog, ' ');
 
-    wmove(dialog, box_y, box_x + (password ? 0 : input_x));
-
-    wrefresh_lock(dialog);
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (key != ESC) {
-	key = mouse_wgetch(dialog);
+	int edit = 0;
+
+	/*
+	 * The last field drawn determines where the cursor is shown:
+	 */
+	if (show_buttons) {
+	    show_buttons = 0;
+	    if (button != 0) {
+		print_button(dialog, "Cancel", y, x + 14, FALSE);
+		print_button(dialog, "  OK  ", y, x, TRUE);
+		if (button == -1)
+		    wmove(dialog, box_y, box_x + input_x);
+	    } else {
+		print_button(dialog, "  OK  ", y, x, FALSE);
+		print_button(dialog, "Cancel", y, x + 14, TRUE);
+	    }
+	    wrefresh_lock(dialog);
+	}
+
+	if (!first)
+	    key = mouse_wgetch(dialog);
 
 	if (button == -1) {	/* Input box selected */
-	    switch (key) {
-	    case TAB:
-	    case KEY_UP:
-	    case KEY_DOWN:
-	    case M_EVENT + 'i':
-	    case M_EVENT + 'o':
-	    case M_EVENT + 'c':
-		break;
-	    case KEY_LEFT:
-		continue;
-	    case KEY_RIGHT:
-		continue;
-	    case KEY_BACKSPACE:
-	    case KEY_DC:
-	    case 127:
-		if (input_x || scrollamt) {
-		    wattrset(dialog, inputbox_attr);
-		    if (!input_x) {
-			scrollamt = scrollamt < box_width - 1 ?
-			    0 : scrollamt - (box_width - 1);
-			if (!password) {
-			    wmove(dialog, box_y, box_x);
-			    for (i = 0; i < box_width; i++)
-				waddch(dialog, input[scrollamt + input_x +
-				    i] ?
-				    input[scrollamt + input_x + i] : ' ');
-			}
-			input_x = strlen((char *) input) - scrollamt;
-		    } else
-			input_x--;
-		    input[scrollamt + input_x] = '\0';
-		    if (!password) {
-			wmove(dialog, box_y, input_x + box_x);
-			waddch(dialog, ' ');
-			wmove(dialog, box_y, input_x + box_x);
-			wrefresh_lock(dialog);
-		    }
-		}
-		continue;
-	    case 21:		/* ^U   support by Martin Schulze <joey@artis.uni-oldenburg.de> */
-		input_x = 0;
-		scrollamt = 0;
-		if (!password) {
-		    wmove(dialog, box_y, box_x);
-		    for (i = 0; i < box_width - 1; i++)
-			waddch(dialog, ' ');
-		    input[0] = '\0';
-		    wmove(dialog, box_y, input_x + box_x);
-		    wrefresh_lock(dialog);
-		}
-		continue;
-	    default:
-		if (key < 0x100 && isprint(key)) {
-		    if (scrollamt + input_x < MAX_LEN) {
-			wattrset(dialog, inputbox_attr);
-			input[scrollamt + input_x] = key;
-			input[scrollamt + input_x + 1] = '\0';
-			if (input_x == box_width - 1) {
-			    scrollamt++;
-			    if (!password) {
-				wmove(dialog, box_y, box_x);
-				for (i = 0; i < box_width - 1; i++)
-				    waddch(dialog, input[scrollamt + i]);
-			    }
-			} else if (!password) {
-			    wmove(dialog, box_y, input_x++ + box_x);
-			    waddch(dialog, key);
-			} else
-			    input_x++;
+	    edit = dlg_edit_string(input, &offset, key, first);
 
-			if (!password)
-			    wrefresh_lock(dialog);
-		    } else
-			flash();	/* Alarm user about overflow */
-		    continue;
-		}
+	    if (edit) {
+		dlg_show_string(dialog, input, offset, inputbox_attr,
+		    box_y, box_x, box_width, password, first);
+		first = 0;
+		continue;
 	    }
 	}
+
 	switch (key) {
 	case 'O':
 	case 'o':
@@ -191,54 +137,17 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	case M_EVENT + 'o':	/* use the code for 'UP' */
 	case M_EVENT + 'c':
 	    button = (key == M_EVENT + 'o') - (key == M_EVENT + 'c');
+	    /* FALLTHRU */
 	case KEY_UP:
 	case KEY_LEFT:
-	    switch (button) {
-	    case -1:
-		button = 1;	/* Indicates "Cancel" button is selected */
-		print_button(dialog, "  OK  ", y, x, FALSE);
-		print_button(dialog, "Cancel", y, x + 14, TRUE);
-		wrefresh_lock(dialog);
-		break;
-	    case 0:
-		button = -1;	/* Indicates input box is selected */
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-		wmove(dialog, box_y, box_x + input_x);
-		wrefresh_lock(dialog);
-		break;
-	    case 1:
-		button = 0;	/* Indicates "OK" button is selected */
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-		wrefresh_lock(dialog);
-		break;
-	    }
+	    show_buttons = 1;
+	    button = backward[button + 1];
 	    break;
 	case TAB:
 	case KEY_DOWN:
 	case KEY_RIGHT:
-	    switch (button) {
-	    case -1:
-		button = 0;	/* Indicates "OK" button is selected */
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-		wrefresh_lock(dialog);
-		break;
-	    case 0:
-		button = 1;	/* Indicates "Cancel" button is selected */
-		print_button(dialog, "  OK  ", y, x, FALSE);
-		print_button(dialog, "Cancel", y, x + 14, TRUE);
-		wrefresh_lock(dialog);
-		break;
-	    case 1:
-		button = -1;	/* Indicates input box is selected */
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-		wmove(dialog, box_y, box_x + input_x);
-		wrefresh_lock(dialog);
-		break;
-	    }
+	    show_buttons = 1;
+	    button = forward[button + 1];
 	    break;
 	case ' ':
 	case '\n':

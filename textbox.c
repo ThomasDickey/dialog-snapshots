@@ -20,17 +20,26 @@
 
 #include "dialog.h"
 
-static void back_lines(int n);
-static void print_page(WINDOW *win, int height, int width);
-static void print_line(WINDOW *win, int row, int width);
+static bool match_string(char *string);
 static char *get_line(void);
-static int get_search_term(WINDOW *win, char *search_term, int height, int width);
-static void print_position(WINDOW *win, int height, int width);
 static char *read_high(int fd, char *buf, size_t size_read);
+static int get_search_term(WINDOW *win, char *input, int height, int width);
 static int tabize(int val, int pos);
+static void back_lines(int n);
+static void print_line(WINDOW *win, int row, int width);
+static void print_page(WINDOW *win, int height, int width);
+static void print_position(WINDOW *win, int height, int width);
 
-static int hscroll = 0, fd, file_size, bytes_read, begin_reached = 1,
-end_reached = 0, page_length, buffer_len = 0, buffer_first = 1, fd_bytes_read;
+static int begin_reached = 1;
+static int buffer_first = 1;
+static int buffer_len = 0;
+static int bytes_read;
+static int end_reached = 0;
+static int fd;
+static int fd_bytes_read;
+static int file_size;
+static int hscroll = 0;
+static int page_length;
 
 static char *buf;
 static char *page;
@@ -42,11 +51,15 @@ int
 dialog_textbox(const char *title, const char *file, int height, int width)
 {
     int i, x, y, cur_x, cur_y, fpos, key = 0, dir, temp, temp1;
+    int next = 0;
 #ifdef NCURSES_VERSION
     int passed_end;
 #endif
-    char search_term[MAX_LEN + 1], *tempptr, *found;
+    char search_term[MAX_LEN + 1], *tempptr;
     WINDOW *dialog, *text;
+    bool found;
+    bool done = FALSE;
+    bool moved = TRUE;
 
     auto_sizefile(title, file, &height, &width, 2, 12);
     print_size(height, width);
@@ -94,81 +107,37 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
-    /* Print first page of text */
     attr_clear(text, height - 4, width - 2, dialog_attr);
-    print_page(text, height - 4, width - 2);
-    print_position(dialog, height, width);
-    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-    wrefresh_lock(dialog);
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (key != ESC) {
-	key = mouse_wgetch(dialog);
-	switch (key) {
-	case M_EVENT + 'E':
-	case 'E':		/* Exit */
-	case 'e':
-	case '\n':
-	    delwin(dialog);
-	    free(buf);
-	    close(fd);
-	    return 0;
-	case 'g':		/* First page */
-	case KEY_HOME:
-	    if (!begin_reached) {
-		begin_reached = 1;
-		/* First page not in buffer? */
-		if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
-		    exiterr("Error moving file pointer in dialog_textbox().");
+    while (!done) {
 
-		if (fpos > fd_bytes_read) {	/* Yes, we have to read it in */
-		    if (lseek(fd, 0, SEEK_SET) == -1)
-			exiterr("Error moving file pointer in dialog_textbox().");
-
-		    if ((buf = read_high(fd, buf, BUF_SIZE)) == NULL)
-			exiterr("Error reading file in dialog_textbox().");
-		}
-		page = buf;
-		print_page(text, height - 4, width - 2);
-		print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
-	    }
-	    break;
-	case 'G':		/* Last page */
-#ifdef NCURSES_VERSION
-	case KEY_END:
+	/*
+	 * Update the screen according to whether we shifted up/down by a line
+	 * or not.
+	 */
+	if (moved) {
+	    if (next < 0) {
+		scrollok(text, TRUE);
+		scroll(text);	/* Scroll text region up one line */
+		scrollok(text, FALSE);
+		print_line(text, height - 5, width - 2);
+#ifndef NCURSES_VERSION
+		wmove(text, height - 5, 0);
+		waddch(text, ' ');
+		wmove(text, height - 5, width - 3);
+		waddch(text, ' ');
 #endif
-	    end_reached = 1;
-	    /* Last page not in buffer? */
-	    if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
-		exiterr("Error moving file pointer in dialog_textbox().");
-
-	    if (fpos < file_size) {	/* Yes, we have to read it in */
-		if (lseek(fd, -BUF_SIZE, SEEK_END) == -1)
-		    exiterr("Error moving file pointer in dialog_textbox().");
-
-		if ((buf = read_high(fd, buf, BUF_SIZE)) == NULL)
-		    exiterr("Error reading file in dialog_textbox().");
-	    }
-	    page = buf + bytes_read;
-	    back_lines(height - 4);
-	    print_page(text, height - 4, width - 2);
-	    print_position(dialog, height, width);
-	    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-	    wrefresh_lock(dialog);
-	    break;
-	case 'K':		/* Previous line */
-	case 'k':
-	case KEY_UP:
-	    if (!begin_reached) {
-		back_lines(page_length + 1);
+		wnoutrefresh(text);
+	    } else if (next > 0) {
 #ifdef NCURSES_VERSION
-		/* We don't call print_page() here but use scrolling to ensure
-		   faster screen update. However, 'end_reached' and 'page_length'
-		   should still be updated, and 'page' should point to start of
-		   next page. This is done by calling get_line() in the following
-		   'for' loop. */
+		/*
+		 * We don't call print_page() here but use scrolling to ensure
+		 * faster screen update.  However, 'end_reached' and
+		 * 'page_length' should still be updated, and 'page' should
+		 * point to start of next page.  This is done by calling
+		 * get_line() in the following 'for' loop.
+		 */
 		scrollok(text, TRUE);
 		wscrl(text, -1);	/* Scroll text region down one line */
 		scrollok(text, FALSE);
@@ -188,9 +157,71 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 #else
 		print_page(text, height - 4, width - 2);
 #endif
-		print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+	    } else {
+		print_page(text, height - 4, width - 2);
+	    }
+	    print_position(dialog, height, width);
+	    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
+	    wrefresh_lock(dialog);
+	}
+	moved = FALSE;		/* assume we'll not move */
+	next = 0;		/* ...but not scroll by a line */
+
+	key = mouse_wgetch(dialog);
+	switch (key) {
+	case ESC:
+	    done = TRUE;
+	    break;
+	case M_EVENT + 'E':
+	case 'E':		/* Exit */
+	case 'e':
+	case '\n':
+	    done = TRUE;
+	    break;
+	case 'g':		/* First page */
+	case KEY_HOME:
+	    if (!begin_reached) {
+		begin_reached = 1;
+		/* First page not in buffer? */
+		if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
+		    exiterr("Error moving file pointer in dialog_textbox().");
+
+		if (fpos > fd_bytes_read) {	/* Yes, we have to read it in */
+		    if (lseek(fd, 0, SEEK_SET) == -1)
+			exiterr("Error moving file pointer in dialog_textbox().");
+
+		    if ((buf = read_high(fd, buf, BUF_SIZE)) == NULL)
+			exiterr("Error reading file in dialog_textbox().");
+		}
+		page = buf;
+		moved = TRUE;
+	    }
+	    break;
+	case 'G':		/* Last page */
+	case KEY_END:
+	    end_reached = 1;
+	    /* Last page not in buffer? */
+	    if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
+		exiterr("Error moving file pointer in dialog_textbox().");
+
+	    if (fpos < file_size) {	/* Yes, we have to read it in */
+		if (lseek(fd, -BUF_SIZE, SEEK_END) == -1)
+		    exiterr("Error moving file pointer in dialog_textbox().");
+
+		if ((buf = read_high(fd, buf, BUF_SIZE)) == NULL)
+		    exiterr("Error reading file in dialog_textbox().");
+	    }
+	    page = buf + bytes_read;
+	    back_lines(height - 4);
+	    moved = TRUE;
+	    break;
+	case 'K':		/* Previous line */
+	case 'k':
+	case KEY_UP:
+	    if (!begin_reached) {
+		back_lines(page_length + 1);
+		next = 1;
+		moved = TRUE;
 	    }
 	    break;
 	case 'B':		/* Previous page */
@@ -198,10 +229,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	case KEY_PPAGE:
 	    if (!begin_reached) {
 		back_lines(page_length + height - 4);
-		print_page(text, height - 4, width - 2);
-		print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+		moved = TRUE;
 	    }
 	    break;
 	case 'J':		/* Next line */
@@ -209,30 +237,15 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	case KEY_DOWN:
 	    if (!end_reached) {
 		begin_reached = 0;
-		scrollok(text, TRUE);
-		scroll(text);	/* Scroll text region up one line */
-		scrollok(text, FALSE);
-		print_line(text, height - 5, width - 2);
-#ifndef NCURSES_VERSION
-		wmove(text, height - 5, 0);
-		waddch(text, ' ');
-		wmove(text, height - 5, width - 3);
-		waddch(text, ' ');
-#endif
-		wnoutrefresh(text);
-		print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+		next = -1;
+		moved = TRUE;
 	    }
 	    break;
 	case ' ':		/* Next page */
 	case KEY_NPAGE:
 	    if (!end_reached) {
 		begin_reached = 0;
-		print_page(text, height - 4, width - 2);
-		print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+		moved = TRUE;
 	    }
 	    break;
 	case '0':		/* Beginning of line */
@@ -246,9 +259,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    hscroll--;
 		/* Reprint current page to scroll horizontally */
 		back_lines(page_length);
-		print_page(text, height - 4, width - 2);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+		moved = TRUE;
 	    }
 	    break;
 	case 'L':		/* Scroll right */
@@ -258,9 +269,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		hscroll++;
 		/* Reprint current page to scroll horizontally */
 		back_lines(page_length);
-		print_page(text, height - 4, width - 2);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
+		moved = TRUE;
 	    }
 	    break;
 	case '/':		/* Forward search */
@@ -275,16 +284,13 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 			beep();
 			break;
 		    }
-		} else
-		    /* Get search term from user */ if
-			(get_search_term(text, search_term, height - 4,
+		    /* Get search term from user */
+		} else if (get_search_term(text, search_term, height - 4,
 			width - 2) == -1) {
 		    /* ESC pressed in get_search_term(). Reprint page to clear box */
 		    wattrset(text, dialog_attr);
 		    back_lines(page_length);
-		    print_page(text, height - 4, width - 2);
-		    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		    wrefresh_lock(dialog);
+		    moved = TRUE;
 		    break;
 		}
 		/* Save variables for restoring in case search term can't be found */
@@ -298,18 +304,20 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		/* update 'page' to point to next (previous) line before
 		   forward (backward) searching */
 		back_lines(dir ? page_length - 1 : page_length + 1);
-		found = NULL;
-		if (dir)	/* Forward search */
-		    while ((found = strstr(get_line(), search_term)) == NULL) {
+		found = FALSE;
+		if (dir) {	/* Forward search */
+		    while ((found = match_string(search_term)) == FALSE) {
 			if (end_reached)
 			    break;
-		} else		/* Backward search */
-		    while ((found = strstr(get_line(), search_term)) == NULL) {
+		    }
+		} else {	/* Backward search */
+		    while ((found = match_string(search_term)) == FALSE) {
 			if (begin_reached)
 			    break;
 			back_lines(2);
 		    }
-		if (found == NULL) {	/* not found */
+		}
+		if (found == FALSE) {	/* not found */
 		    beep();
 		    /* Restore program state to that before searching */
 		    if (lseek(fd, fpos, SEEK_SET) == -1)
@@ -325,19 +333,15 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		       re-print current page. Note that 'page' always points to
 		       start of next page, so this is necessary */
 		    back_lines(page_length);
-		} else		/* Search term found */
+		} else {	/* Search term found */
 		    back_lines(1);
+		}
 		/* Reprint page */
 		wattrset(text, dialog_attr);
-		print_page(text, height - 4, width - 2);
-		if (found != NULL)
-		    print_position(dialog, height, width);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
-		wrefresh_lock(dialog);
-	    } else		/* no need to find */
+		moved = TRUE;
+	    } else {		/* no need to find */
 		beep();
-	    break;
-	case ESC:
+	    }
 	    break;
 	}
     }
@@ -345,7 +349,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     delwin(dialog);
     free(buf);
     close(fd);
-    return -1;			/* ESC pressed */
+    return (key == ESC) ? -1 : 0;
 }
 /* End of dialog_textbox() */
 
@@ -421,7 +425,7 @@ back_lines(int n)
 			val_to_tabize = fpos - fd_bytes_read;
 		    } else {	/* Move backward BUF_SIZE/2 bytes */
 			if (lseek(fd, -(BUF_SIZE / 2 + fd_bytes_read),
-			    SEEK_CUR) == -1)
+				SEEK_CUR) == -1)
 			    exiterr("Error moving file pointer in back_lines().");
 
 			val_to_tabize = BUF_SIZE / 2;
@@ -536,79 +540,51 @@ get_line(void)
  * Display a dialog box and get the search term from user
  */
 static int
-get_search_term(WINDOW *win, char *search_term, int height, int width)
+get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
-    int i, x, y, input_x = 0, scrollamt = 0, key = 0, box_height = 3,
-    box_width = 30;
+    int box_x, box_y, key = 0, box_height = 3, box_width = 30;
+    int offset = 0;
+    bool first = TRUE;
 
-    x = (width - box_width) / 2;
-    y = (height - box_height) / 2;
+    box_x = (width - box_width) / 2;
+    box_y = (height - box_height) / 2;
 #ifdef HAVE_COLOR
     if (use_shadow)
-	draw_shadow(win, y, x, box_height, box_width);
+	draw_shadow(dialog, box_y, box_x, box_height, box_width);
 #endif
-    draw_box(win, y, x, box_height, box_width, dialog_attr, searchbox_border_attr);
-    wattrset(win, searchbox_title_attr);
-    wmove(win, y, x + box_width / 2 - 4);
-    waddstr(win, " Search ");
+    draw_box(dialog, box_y, box_x, box_height, box_width, dialog_attr, searchbox_border_attr);
+    wattrset(dialog, searchbox_title_attr);
+    wmove(dialog, box_y, box_x + box_width / 2 - 4);
+    waddstr(dialog, " Search ");
 
+    box_y++;
+    box_x++;
     box_width -= 2;
-    wmove(win, y + 1, x + 1);
-    wrefresh_lock(win);
-    search_term[0] = '\0';
-    wattrset(win, searchbox_attr);
-    while (key != ESC) {
-	key = wgetch(win);
-	switch (key) {
-	case '\n':
-	    if (search_term[0] != '\0')
+    input[0] = '\0';
+
+    for (;;) {
+	if (!first) {
+	    key = wgetch(dialog);
+	    if (key == ESC)
+		return -1;
+	    if (key == '\n' && *input != '\0')
 		return 0;
-	    break;
-	case KEY_BACKSPACE:
-	case KEY_DC:
-	case 127:
-	    if (input_x || scrollamt) {
-		if (!input_x) {
-		    scrollamt = scrollamt < box_width - 1 ? 0 : scrollamt -
-			(box_width - 1);
-		    wmove(win, y + 1, x + 1);
-		    for (i = 0; i < box_width; i++)
-			waddch(win, search_term[scrollamt + input_x + i] ?
-			    search_term[scrollamt + input_x + i] : ' ');
-		    input_x = strlen(search_term) - scrollamt;
-		} else
-		    input_x--;
-		search_term[scrollamt + input_x] = '\0';
-		wmove(win, y + 1, input_x + x + 1);
-		waddch(win, ' ');
-		wmove(win, y + 1, input_x + x + 1);
-		wrefresh_lock(win);
-	    }
-	    break;
-	case ESC:
-	    break;
-	default:
-	    if (isprint(key))
-		if (scrollamt + input_x < MAX_LEN) {
-		    search_term[scrollamt + input_x] = key;
-		    search_term[scrollamt + input_x + 1] = '\0';
-		    if (input_x == box_width - 1) {
-			scrollamt++;
-			wmove(win, y + 1, x + 1);
-			for (i = 0; i < box_width - 1; i++)
-			    waddch(win, search_term[scrollamt + i]);
-		    } else {
-			wmove(win, y + 1, input_x++ + x + 1);
-			waddch(win, key);
-		    }
-		    wrefresh_lock(win);
-		}
+	}
+	if (dlg_edit_string(input, &offset, key, first)) {
+	    dlg_show_string(dialog, input, offset, searchbox_attr,
+		box_y, box_x, box_width, FALSE, first);
+	    first = FALSE;
 	}
     }
-
-    return -1;			/* ESC pressed */
 }
 /* End of get_search_term() */
+
+static bool
+match_string(char *string)
+{
+    char *match = get_line();
+    return strstr(match, string) != 0;
+}
 
 /*
  * Print current position
@@ -623,7 +599,7 @@ print_position(WINDOW *win, int height, int width)
 
     wattrset(win, position_indicator_attr);
     percent = !file_size ? 100 : ((fpos - fd_bytes_read + tabize(page - buf,
-	1)) * 100) / file_size;
+		1)) * 100) / file_size;
     wmove(win, height - 3, width - 9);
     wprintw(win, "(%3d%%)", percent);
 }
