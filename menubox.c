@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.66 2004/03/14 16:23:32 tom Exp $
+ *  $Id: menubox.c,v 1.67 2004/06/06 00:59:27 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -308,6 +308,9 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	if (button < 0)		/* --visit-items */
+	    wmove(dialog, box_y + ItemToRow(choice) + 1, box_x + tag_x + 1);
+
 	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if (!fkey) {

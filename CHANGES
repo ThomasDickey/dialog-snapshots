@@ -1,8 +1,29 @@
--- $Id: CHANGES,v 1.94 2004/04/22 00:20:04 tom Exp $
+-- $Id: CHANGES,v 1.96 2004/06/06 14:13:36 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/06/06
+	+ add --visit-items option, which allows the user to tab to the item
+	  list in the checklist/radiobox and menubox widgets (request by
+	  Ari Moisio).
+	+ use wide-character line-drawing for up/down arrows when configured
+	  for wide-characters, gives better results with uxterm.
+	+ limit the number of times a --file option can be used, to prevent
+	  runaway recursion if a --file option is embedded within a file which
+	  is included.
+	+ improve discussion of wrapping in the manpage (Debian #251937).
+	+ modify msgbox to allow it to scroll vertically like textbox (Debian
+	  #233276).  This only works with ncurses.
+	+ implement $DIALOGVARS environment variable to apply common options to
+	  dialog_vars when it is reset before processing other common options.
+	+ add --single-quoted option to control whether output is double-quoted
+	  with '"' or single-quoted with single-quotes.
+	+ revert the default quoting behavior of checklists to use
+	  double-quotes (report by Mark K Post regarding Slackware scripts).
+	+ add eu.po (Basque) (Piarres Beobide Egaa).
+	+ add ca.po (Catalan) (Jordi Mallach).
 
 2004/04/21
 	+ add a call to flushinp() to init_dialog(), to discard any typeahead

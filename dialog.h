@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.139 2004/03/14 23:42:40 tom Exp $
+ *  $Id: dialog.h,v 1.142 2004/06/06 15:02:58 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -352,6 +352,7 @@ typedef struct {
     FILE *screen_output;	/* newterm(), etc. */
     bool screen_initialized;
     bool use_colors;		/* use colors by default? */
+    bool use_scrollbar;		/* RESERVED */
     bool use_shadow;		/* shadow dialog boxes by default? */
     bool visit_items;		/* option "--visit-items" */
     char *separate_str;		/* option "--separate-widget string" */
@@ -385,6 +386,7 @@ typedef struct {
     bool nocollapse;		/* option "--no-collapse" */
     bool print_siz;		/* option "--print-size" */
     bool separate_output;	/* option "--separate-output" */
+    bool single_quoted;		/* option "--single-quoted" */
     bool size_err;		/* option "--size-err" */
     bool tab_correct;		/* option "--tab-correct" */
     bool trim_whitespace;	/* option "--trim" */
@@ -402,6 +404,7 @@ typedef struct {
     int begin_x;		/* option "--begin y x" (second value) */
     int begin_y;		/* option "--begin y x" (first value) */
     int max_input;		/* option "--max-input size" */
+    int scale_factor;		/* RESERVED */
     int sleep_secs;		/* option "--sleep secs" */
     int timeout_secs;		/* option "--timeout secs" */
     unsigned input_length;	/* nonzero if input_result is allocated */
@@ -615,5 +618,15 @@ extern int dlg_mouse_wgetch (WINDOW *, int *);
  */
 #define FLAG_CHECK 1
 #define FLAG_RADIO 0
+
+/*
+ * This is used only for debugging (FIXME: should have a separate header).
+ */
+#ifdef NO_LEAKS
+extern void _dlg_inputstr_leaks(void);
+#ifdef NCURSES_VERSION
+extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
+#endif
+#endif
 
 #endif /* DIALOG_H_included */

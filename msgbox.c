@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.26 2003/11/26 17:30:22 tom Exp $
+ *  $Id: msgbox.c,v 1.30 2004/06/06 14:47:27 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -24,6 +24,52 @@
 #include "dialog.h"
 
 /*
+ * Display the message in a scrollable window.  Actually the way it works is
+ * that we create a "tall" window of the proper width, let the text wrap within
+ * that, and copy a slice of the result to the dialog.
+ *
+ * It works for ncurses.  Other curses implementations show only blanks (Tru64)
+ * or garbage (NetBSD).
+ */
+static int
+show_message(WINDOW *dialog, const char *prompt, int offset, int page, int width)
+{
+#ifdef NCURSES_VERSION
+    int wide = width - (2 * MARGIN);
+    int y, x;
+    int percent;
+    WINDOW *dummy;
+
+    dummy = newwin(LINES, width, 0, 0);
+    wbkgdset(dummy, dialog_attr);
+    wattrset(dummy, dialog_attr);
+    werase(dummy);
+    dlg_print_autowrap(dummy, prompt, LINES, wide);
+    getyx(dummy, y, x);
+    copywin(dummy, dialog, offset, MARGIN, MARGIN, MARGIN, page, wide, FALSE);
+    delwin(dummy);
+
+    /* if the text is incomplete, or we have scrolled, show the percentage */
+    if (y > 0 && wide > 4) {
+	percent = ((page + offset - 1) * 100.0 / y);
+	if (percent > 100)
+	    percent = 100;
+	if (offset != 0 || percent != 100) {
+	    wattrset(dialog, dialog_attr);
+	    wmove(dialog, MARGIN + page, wide - 4);
+	    wprintw(dialog, "%3d%%", percent);
+	}
+    }
+    return (1 + y - page);
+#else
+    (void) offset;
+    wattrset(dialog, dialog_attr);
+    dlg_print_autowrap(dialog, prompt, page + 1 + (3 * MARGIN), width);
+    return 0;
+#endif
+}
+
+/*
  * Display a message box. Program will pause and display an "OK" button
  * if the parameter 'pauseopt' is non-zero.
  */
@@ -31,11 +77,13 @@ int
 dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	      int pauseopt)
 {
-    int x, y;
+    int x, y, last = 0, page;
     int key = 0, fkey;
     WINDOW *dialog = 0;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_label();
+    int offset = 0;
+    bool show = TRUE;
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -61,6 +109,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     } else
 #endif
 	dialog = dlg_new_window(height, width, y, x);
+    page = height - (1 + 3 * MARGIN);
 
     dlg_mouse_setbase(x, y);
 
@@ -68,7 +117,6 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    dlg_print_autowrap(dialog, prompt, height, width);
 
     if (pauseopt) {
 	bool done = FALSE;
@@ -77,13 +125,56 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
-	wrefresh(dialog);
-
 #ifndef KEY_RESIZE
 	wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 	while (!done) {
+	    if (show) {
+		getyx(dialog, y, x);
+		last = show_message(dialog, prompt, offset, page, width);
+		wmove(dialog, y, x);
+		wrefresh(dialog);
+		show = FALSE;
+	    }
 	    key = dlg_mouse_wgetch(dialog, &fkey);
+	    if (!fkey) {
+		fkey = TRUE;
+		switch (key) {
+		case ESC:
+		    done = TRUE;
+		    continue;
+		case ' ':
+		case '\n':
+		case '\r':
+		    key = KEY_ENTER;
+		    break;
+		case 'F':
+		case 'f':
+		    key = KEY_NPAGE;
+		    break;
+		case 'B':
+		case 'b':
+		    key = KEY_PPAGE;
+		    break;
+		case 'g':
+		    key = KEY_HOME;
+		    break;
+		case 'G':
+		    key = KEY_END;
+		    break;
+		case 'K':
+		case 'k':
+		    key = KEY_UP;
+		    break;
+		case 'J':
+		case 'j':
+		    key = KEY_DOWN;
+		    break;
+		default:
+		    fkey = FALSE;
+		    break;
+		}
+	    }
 	    if (fkey) {
 		switch (key) {
 #ifdef KEY_RESIZE
@@ -93,23 +184,58 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    width = req_wide;
 		    goto restart;
 #endif
+		case KEY_ENTER:
+		    done = TRUE;
+		    break;
+		case KEY_HOME:
+		    if (offset > 0) {
+			offset = 0;
+			show = TRUE;
+		    }
+		    break;
+		case KEY_END:
+		    if (offset < last) {
+			offset = last;
+			show = TRUE;
+		    }
+		    break;
+		case KEY_UP:
+		    if (offset > 0) {
+			--offset;
+			show = TRUE;
+		    }
+		    break;
+		case KEY_DOWN:
+		    if (offset < last) {
+			++offset;
+			show = TRUE;
+		    }
+		    break;
+		case KEY_PPAGE:
+		    if (offset > 0) {
+			offset -= page;
+			if (offset < 0)
+			    offset = 0;
+			show = TRUE;
+		    }
+		    break;
+		case KEY_NPAGE:
+		    if (offset < last) {
+			offset += page;
+			if (offset > last)
+			    offset = last;
+			show = TRUE;
+		    }
+		    break;
 		default:
 		    if (key >= M_EVENT)
 			done = TRUE;
 		    break;
 		}
-	    } else {
-		switch (key) {
-		case ESC:
-		case ' ':
-		case '\n':
-		case '\r':
-		    done = TRUE;
-		    break;
-		}
 	    }
 	}
     } else {
+	show_message(dialog, prompt, offset, page, width);
 	key = '\n';
 	wrefresh(dialog);
     }

@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.6 2003/11/26 16:37:34 tom Exp $
+ *  $Id: arrows.c,v 1.7 2004/06/05 23:45:14 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -22,6 +22,12 @@
 
 #include "dialog.h"
 
+#ifdef USE_WIDE_CURSES
+#define add_acs(win, code) wadd_wch(win, W ## code)
+#else
+#define add_acs(win, code) waddch(win, code)
+#endif
+
 void
 dlg_draw_arrows(WINDOW *dialog,
 		int top_arrow,
@@ -37,7 +43,7 @@ dlg_draw_arrows(WINDOW *dialog,
     (void) wmove(dialog, top, x);
     if (top_arrow) {
 	wattrset(dialog, uarrow_attr);
-	(void) waddch(dialog, ACS_UARROW);
+	(void) add_acs(dialog, ACS_UARROW);
 	(void) waddstr(dialog, "(+)");
     } else {
 	wattrset(dialog, menubox_attr);
@@ -48,7 +54,7 @@ dlg_draw_arrows(WINDOW *dialog,
     (void) wmove(dialog, bottom, x);
     if (bottom_arrow) {
 	wattrset(dialog, darrow_attr);
-	(void) waddch(dialog, ACS_DARROW);
+	(void) add_acs(dialog, ACS_DARROW);
 	(void) waddstr(dialog, "(+)");
     } else {
 	wattrset(dialog, menubox_border_attr);

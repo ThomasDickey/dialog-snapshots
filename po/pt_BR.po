@@ -5,7 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Dialog 0.9a-20020814\n"
-"POT-Creation-Date: 2001-05-27 11:42-0400\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-06-06 11:07-0400\n"
 "PO-Revision-Date: 2002-09-04 19:12-0300\n"
 "Last-Translator: Frédéric L. W. Meunier <0 @ pervalidus.net>\n"
 "Language-Team: Brazilian Portuguese <ldp-br @ bazar.conectiva.com.br>\n"
@@ -13,42 +14,50 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:255
-msgid "OK"
-msgstr "Aceitar"
-
-#: buttons.c:263
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: buttons.c:271
-msgid "Help"
-msgstr "Ajuda"
-
-#: buttons.c:283
-msgid "EXIT"
-msgstr "Sair"
-
-#: buttons.c:339
+#: buttons.c:354
 msgid "Yes"
 msgstr "Sim"
 
-#: buttons.c:340
+#: buttons.c:362
 msgid "No"
 msgstr "Não"
 
-#: calendar.c:261
+#: buttons.c:370
+msgid "OK"
+msgstr "Aceitar"
+
+#: buttons.c:378
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: buttons.c:386
+msgid "EXIT"
+msgstr "Sair"
+
+#: buttons.c:394
+msgid "Extra"
+msgstr ""
+
+#: buttons.c:402
+msgid "Help"
+msgstr "Ajuda"
+
+#: calendar.c:301
 msgid "Month"
 msgstr "Mês"
 
-#: calendar.c:280
+#: calendar.c:320
 msgid "Year"
 msgstr "Ano"
 
-#: fselect.c:344
+#: dialog.c:670
+msgid "Rename"
+msgstr ""
+
+#: fselect.c:426
 msgid "Directories"
 msgstr "Diretórios"
 
-#: fselect.c:345
+#: fselect.c:427
 msgid "Files"
 msgstr "Arquivos"
