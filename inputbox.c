@@ -42,7 +42,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     int x, y, box_y, box_x, box_width;
     int show_buttons = TRUE, first = TRUE, offset = 0;
-    int input_x = 0, key = 0, button = -1;
+    int input_x = 0, key = 0, key2, button = -1;
     char *input = (char *)dialog_input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
@@ -115,15 +115,12 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    }
 	}
 
+	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
+	    delwin(dialog);
+	    return key2;
+	}
+
 	switch (key) {
-	case 'O':
-	case 'o':
-	    delwin(dialog);
-	    return 0;
-	case 'C':
-	case 'c':
-	    delwin(dialog);
-	    return 1;
 	case M_EVENT + 'i':	/* mouse enter events */
 	case M_EVENT + 'o':	/* use the code for 'UP' */
 	case M_EVENT + 'c':
@@ -149,8 +146,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	case '\n':
 	    delwin(dialog);
 	    return (button > 0);
-	case ESC:
-	    break;
 	}
     }
 

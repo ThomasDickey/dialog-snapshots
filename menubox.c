@@ -313,13 +313,9 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	}
 
 	switch (key) {
-	case 'O':
-	case 'o':
 	case M_EVENT + 'O':
 	    delwin(dialog);
 	    return scrollamt + choice;
-	case 'C':
-	case 'c':
 	case M_EVENT + 'C':
 	    delwin(dialog);
 	    return -2;
@@ -339,8 +335,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	case '\n':
 	    delwin(dialog);
 	    return (button ? -2 : (scrollamt + choice));
-	case ESC:
-	    break;
 	}
     }
 

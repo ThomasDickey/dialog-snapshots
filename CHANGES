@@ -3,6 +3,20 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/4/23
+	+ modified to use gettext (configure option --enable-nls).  This uses
+	  gettext 0.10.35, which must be previously installed.  (It can also
+	  use an included intl library, but I consider that to be a waste of
+	  disk space).
+	+ remove code in checklist/radiobox, menubox that try to use
+	  abbreviations for the OK/Cancel buttons since those conflict with the
+	  check for abbreviations in list entries, which are more useful.
+	+ moved padding of button labels out of string literals, into the
+	  logic of dlg_draw_buttons().
+	+ resync/update with configure macros CF_CURSES_LIBS, CF_FIND_LIBRARY,
+	  CF_HEADER_PATH, CF_LIBRARY_PATH and CF_NCURSES_LIBS, as well as
+	  mkdirs.sh and config.guess.
+
 2000/2/22
 	+ add --default-item option, for menubox to set the default selection
 	  (fixes Debian #49796).

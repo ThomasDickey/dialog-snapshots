@@ -1,0 +1,18 @@
+#, fuzzy
+msgid ""
+msgstr ""
+
+msgid "EXIT"
+msgstr "Verlassen"
+
+msgid "OK"
+msgstr ""
+
+msgid "Cancel"
+msgstr "Absagen"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"

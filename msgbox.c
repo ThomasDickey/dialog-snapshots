@@ -31,6 +31,7 @@ dialog_msgbox (const char *title, const char *cprompt, int height, int width,
     int x, y, key = 0;
     WINDOW *dialog = 0;
     char *prompt = strclone(cprompt);
+    const char **buttons = dlg_ok_label();
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -68,7 +69,7 @@ restart:
 
 	draw_bottom_box (dialog);
 	mouse_mkbutton (height - 2, width / 2 - 4, 6, '\n');
-	print_button (dialog, LABEL_OK, height - 2, width / 2 - 4, TRUE);
+	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
 	wrefresh_lock(dialog);
 

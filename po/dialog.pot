@@ -1,0 +1,26 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright 2000, Thomas Dickey
+#
+#, fuzzy
+msgid ""
+msgstr ""
+
+#: buttons.c:196
+msgid "EXIT"
+msgstr ""
+
+#: buttons.c:207 buttons.c:218
+msgid "OK"
+msgstr ""
+
+#: buttons.c:220
+msgid "Cancel"
+msgstr ""
+
+#: buttons.c:231
+msgid "Yes"
+msgstr ""
+
+#: buttons.c:232
+msgid "No"
+msgstr ""

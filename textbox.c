@@ -60,6 +60,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     bool found;
     bool done = FALSE;
     bool moved = TRUE;
+    const char **buttons = dlg_exit_label();
 
     auto_sizefile(title, file, &height, &width, 2, 12);
     print_size(height, width);
@@ -103,7 +104,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     draw_bottom_box(dialog);
     draw_title(dialog, title);
 
-    print_button(dialog, LABEL_EXIT, height - 2, width / 2 - 4, TRUE);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
     wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
@@ -168,13 +169,14 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	next = 0;		/* ...but not scroll by a line */
 
 	key = mouse_wgetch(dialog);
+	if (dlg_char_to_button(key, buttons) == 0) {
+	    key = '\n';
+	}
 	switch (key) {
 	case ESC:
 	    done = TRUE;
 	    break;
 	case M_EVENT + 'E':
-	case 'E':		/* Exit */
-	case 'e':
 	case '\n':
 	    done = TRUE;
 	    break;

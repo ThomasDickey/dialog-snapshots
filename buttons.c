@@ -20,13 +20,33 @@
 
 #include "dialog.h"
 
+static void
+center_label(char *buffer, int longest, const char *label)
+{
+    int len = strlen(label);
+
+    if (len < longest) {
+	len = (longest - len) / 2;
+	longest -= len;
+	sprintf(buffer, "%*s", len, " ");
+	buffer += strlen(buffer);
+    }
+    sprintf(buffer, "%-*s", longest, label);
+}
+
 /*
  * Print a button
  */
-void
+static void
 print_button(WINDOW *win, const char *label, int y, int x, int selected)
 {
     int i, temp;
+    chtype key_attr = (selected
+	? button_key_active_attr
+	: button_key_inactive_attr);
+    chtype label_attr = (selected
+	? button_label_active_attr
+	: button_label_inactive_attr);
 
     wmove(win, y, x);
     wattrset(win, selected
@@ -36,20 +56,19 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
     temp = strspn(label, " ");
     mouse_mkbutton(y, x, strlen(label) + 2, tolower(label[temp]));
     label += temp;
-    wattrset(win, selected
-	? button_label_active_attr
-	: button_label_inactive_attr);
+    wattrset(win, label_attr);
     for (i = 0; i < temp; i++)
 	waddch(win, ' ');
-    wattrset(win, selected
-	? button_key_active_attr
-	: button_key_inactive_attr);
-    waddch(win, label[0]);
-    wattrset(win, selected
-	? button_label_active_attr
-	: button_label_inactive_attr);
-    wprintw(win, "%s", label + 1);
-    wattrset(win, selected ? button_active_attr : button_inactive_attr);
+    for (i = 0; label[i] != 0; i++) {
+	if (isupper(label[i])) {
+	    wattrset(win, key_attr);
+	    key_attr = label_attr;	/* only the first is highlighted */
+	} else {
+	    wattrset(win, label_attr);
+	}
+	waddch(win, label[i]);
+    }
+    wattrset(win, label_attr);
     waddstr(win, ">");
     wmove(win, y, x + temp + 1);
 }
@@ -58,8 +77,8 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
  * Print a list of buttons at the given position.
  */
 void
-dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int
-    vertical, int limit)
+dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
+    int vertical, int limit)
 {
     int n;
     int step;
@@ -71,6 +90,7 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, i
     int gap;
     int margin;
     int count = 0;
+    char *buffer;
 
     getyx(win, first_y, first_x);
 
@@ -86,12 +106,16 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, i
 	    length += len;
 	}
     }
-
     /*
-     * FIXME:
      * If we can, make all of the buttons the same size.  This is only optional
      * for buttons laid out horizontally.
      */
+    if (longest < 6 - (longest & 1))
+	longest = 6 - (longest & 1);
+    if (!vertical)
+	length = longest * n;
+    buffer = malloc((unsigned) longest + 1);
+
     if ((gap = (limit - length) / (count + 3)) <= 0) {
 	gap = (limit - length) / (count + 1);
 	margin = gap;
@@ -109,7 +133,8 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, i
     final_x = 0;
     final_y = 0;
     for (n = 0; labels[n] != 0; n++) {
-	print_button(win, labels[n], y, x,
+	center_label(buffer, longest, labels[n]);
+	print_button(win, buffer, y, x,
 	    (selected == n) || (n == 0 && selected < 0));
 	if (!found) {
 	    found = (selected == n);
@@ -128,6 +153,60 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, i
     else
 	wmove(win, first_y, first_x);
     wrefresh_lock(win);
+    free(buffer);
+}
+
+/*
+ * Given a list of button labels, and a character which may be the abbreviation
+ * for one, find it, if it exists.  An abbreviation will be the first character
+ * which happens to be capitalized in the label.
+ */
+int
+dlg_char_to_button(int ch, const char **labels)
+{
+    if (ch > 0 && ch < 256) {
+	int n = 0;
+	const char *label;
+
+	while ((label = *labels++) != 0) {
+	    while (*label != 0) {
+		if (isupper(*label)) {
+		    if (ch == *label
+			|| (isalpha(ch) && toupper(ch) == *label)) {
+			return n;
+		    }
+		    break;
+		}
+	    }
+	    n++;
+	}
+    }
+    return -1;
+}
+
+/*
+ * These functions return a list of button labels.
+ */
+const char **
+dlg_exit_label(void)
+{
+    static const char *labels[3];
+    int n = 0;
+
+    labels[n++] = gettext("EXIT");
+    labels[n] = 0;
+    return labels;
+}
+
+const char **
+dlg_ok_label(void)
+{
+    static const char *labels[3];
+    int n = 0;
+
+    labels[n++] = gettext("OK");
+    labels[n] = 0;
+    return labels;
 }
 
 const char **
@@ -136,9 +215,9 @@ dlg_ok_labels(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = LABEL_OK;
+    labels[n++] = gettext("OK");
     if (!dialog_vars.nocancel)
-	labels[n++] = LABEL_CANCEL;
+	labels[n++] = gettext("Cancel");
     labels[n] = 0;
     return labels;
 }
@@ -149,8 +228,8 @@ dlg_yes_labels(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = LABEL_YES;
-    labels[n++] = LABEL_NO;
+    labels[n++] = gettext("Yes");
+    labels[n++] = gettext("No");
     labels[n] = 0;
     return labels;
 }
