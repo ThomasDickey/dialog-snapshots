@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.40 2000/07/30 17:42:31 tom Exp $
+ * $Id: dialog.c,v 1.45 2000/10/08 17:00:06 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -27,18 +27,6 @@
 #include <locale.h>
 #endif
 
-/* globals */
-DIALOG_VARS dialog_vars;
-char *lock_refresh;
-char *lock_tailbg_exit;
-char *lock_tailbg_refreshed;
-int defaultno = FALSE;
-int is_tailbg = FALSE;
-int screen_initialized = 0;
-pid_t tailbg_lastpid = 0;
-pid_t tailbg_nokill_lastpid = 0;
-pid_t tailbg_nokill_pids[MAX_TAILBG];
-pid_t tailbg_pids[MAX_TAILBG];
 
 #define JUMPARGS const char *t, char *av[], int *offset_add
 typedef int (jumperFn) (JUMPARGS);
@@ -63,6 +51,7 @@ typedef enum {
     ,o_help
     ,o_infobox
     ,o_inputbox
+    ,o_item_help
     ,o_menu
     ,o_msgbox
     ,o_no_kill
@@ -127,6 +116,7 @@ static Options options[] = {
     { "help",		o_help,			4, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
+    { "item-help",	o_item_help,		1, "" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
     { "no-kill",	o_no_kill,		1, "" },
@@ -177,10 +167,7 @@ lookupOption(const char *name, int pass)
 static void
 Usage(char *msg)
 {
-    const char *format = "Error: %s.\nUse --help to list options.\n\n";
-    char *str = malloc(strlen(msg) + strlen(format) + 1);
-    sprintf(str, format, msg);
-    exiterr(str);
+    exiterr("Error: %s.\nUse --help to list options.\n\n", msg);
 }
 
 /*
@@ -193,8 +180,8 @@ arg_rest(char *argv[])
     int i = 1;			/* argv[0] points to a "--" token */
 
     while (argv[i] != 0
-	&& (strncmp(argv[i], "--", 2)
-	    || lookupOption(argv[i], 7) == o_unknown))
+	   && (strncmp(argv[i], "--", 2)
+	       || lookupOption(argv[i], 7) == o_unknown))
 	i++;
     return i;
 }
@@ -241,9 +228,9 @@ j_yesno(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_yesno(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]), defaultno);
+			av[1],
+			atoi(av[2]),
+			atoi(av[3]), defaultno);
 }
 
 static int
@@ -251,9 +238,9 @@ j_msgbox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]), 1);
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]), 1);
 }
 
 static int
@@ -261,9 +248,9 @@ j_infobox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]), 0);
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]), 0);
 }
 
 static int
@@ -271,25 +258,25 @@ j_textbox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_textbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]));
+			  av[1],
+			  atoi(av[2]),
+			  atoi(av[3]));
 }
 
 static int
 j_menu(JUMPARGS)
 {
     int ret;
-    int tags = howmany_tags(av + 5, 2);
-    *offset_add = 5 + tags * 2;
+    int tags = howmany_tags(av + 5, MENUBOX_TAGS);
+    *offset_add = 5 + tags * MENUBOX_TAGS;
     ret = dialog_menu(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	atoi(av[4]),
-	tags, av + 5);
+		      av[1],
+		      atoi(av[2]),
+		      atoi(av[3]),
+		      atoi(av[4]),
+		      tags, av + 5);
     if (ret >= 0) {
-	fprintf(dialog_vars.output, av[5 + ret * 2]);
+	fprintf(dialog_vars.output, av[5 + ret * MENUBOX_TAGS]);
 	return 0;
     } else if (ret == -2)
 	return 1;		/* CANCEL */
@@ -299,27 +286,27 @@ j_menu(JUMPARGS)
 static int
 j_checklist(JUMPARGS)
 {
-    int tags = howmany_tags(av + 5, 3);
-    *offset_add = 5 + tags * 3;
+    int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
+    *offset_add = 5 + tags * CHECKBOX_TAGS;
     return dialog_checklist(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	atoi(av[4]),
-	tags, av + 5, FLAG_CHECK, dialog_vars.separate_output);
+			    av[1],
+			    atoi(av[2]),
+			    atoi(av[3]),
+			    atoi(av[4]),
+			    tags, av + 5, FLAG_CHECK, dialog_vars.separate_output);
 }
 
 static int
 j_radiolist(JUMPARGS)
 {
-    int tags = howmany_tags(av + 5, 3);
-    *offset_add = 5 + tags * 3;
+    int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
+    *offset_add = 5 + tags * CHECKBOX_TAGS;
     return dialog_checklist(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	atoi(av[4]),
-	tags, av + 5, FLAG_RADIO, dialog_vars.separate_output);
+			    av[1],
+			    atoi(av[2]),
+			    atoi(av[3]),
+			    atoi(av[4]),
+			    tags, av + 5, FLAG_RADIO, dialog_vars.separate_output);
 }
 
 static int
@@ -333,10 +320,10 @@ j_inputbox(JUMPARGS)
 
     *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	init_inputbox, 0);
+			  av[1],
+			  atoi(av[2]),
+			  atoi(av[3]),
+			  init_inputbox, 0);
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
@@ -353,10 +340,10 @@ j_passwordbox(JUMPARGS)
 
     *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	init_inputbox, 1);
+			  av[1],
+			  atoi(av[2]),
+			  atoi(av[3]),
+			  init_inputbox, 1);
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
@@ -370,9 +357,9 @@ j_fselect(JUMPARGS)
 
     *offset_add = arg_rest(av);
     ret = dialog_fselect(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]));
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]));
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
@@ -390,10 +377,10 @@ j_gauge(JUMPARGS)
 
     *offset_add = arg_rest(av);
     return dialog_gauge(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]),
-	percent);
+			av[1],
+			atoi(av[2]),
+			atoi(av[3]),
+			percent);
 }
 #endif
 
@@ -403,9 +390,9 @@ j_tailbox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_tailbox(t,
-	av[1],
-	atoi(av[2]),
-	atoi(av[3]));
+			  av[1],
+			  atoi(av[2]),
+			  atoi(av[3]));
 }
 
 static int
@@ -414,7 +401,7 @@ j_tailboxbg(JUMPARGS)
     if (tailbg_lastpid + 1 >= MAX_TAILBG) {
 	char temp[80];
 	sprintf(temp, "lastpid value %d is greater than %d",
-	    (int) tailbg_lastpid, MAX_TAILBG);
+		(int) tailbg_lastpid, MAX_TAILBG);
 	Usage(temp);
     }
 
@@ -433,10 +420,10 @@ j_tailboxbg(JUMPARGS)
 	    fprintf(dialog_vars.output, "%d", (int) getpid());
 	is_tailbg = TRUE;
 	dialog_tailboxbg(t,
-	    av[1],
-	    atoi(av[2]),
-	    atoi(av[3]),
-	    dialog_vars.cant_kill);
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]),
+			 dialog_vars.cant_kill);
 
 	refresh();		/* quitting for signal 15 and --no-kill */
 	endwin();
@@ -586,7 +573,7 @@ Help(void)
 		k = len;
 	    }
 	    fprintf(dialog_vars.output, " [--%s%s%s]", options[j].name,
-		*(options[j].help) ? " " : "", options[j].help);
+		    *(options[j].help) ? " " : "", options[j].help);
 	}
     }
     fprintf(dialog_vars.output, "\nBox options:\n");
@@ -595,7 +582,7 @@ Help(void)
 	    && options[j].help != 0
 	    && lookupMode(options[j].code))
 	    fprintf(dialog_vars.output, "  --%-12s %s\n", options[j].name,
-		options[j].help);
+		    options[j].help);
     }
     PrintList(tbl_3);
 
@@ -673,7 +660,7 @@ main(int argc, char *argv[])
 
     if ((lock_refresh = make_lock_filename("/tmp/.lock_fileXXXXXX")) == NULL ||
 	(lock_tailbg_refreshed =
-	    make_lock_filename("/tmp/.lock_tailbgXXXXXX")) == NULL ||
+	 make_lock_filename("/tmp/.lock_tailbgXXXXXX")) == NULL ||
 	(lock_tailbg_exit = make_lock_filename("/tmp/.lock_exitXXXXXX")) == NULL)
 	exiterr("Internal error: can't make lock files.");
 
@@ -724,6 +711,9 @@ main(int argc, char *argv[])
 		break;
 	    case o_default_item:
 		dialog_vars.default_item = optionString(argv, &offset);
+		break;
+	    case o_item_help:
+		dialog_vars.item_help = TRUE;
 		break;
 	    case o_no_shadow:
 		use_shadow = FALSE;
@@ -808,13 +798,13 @@ main(int argc, char *argv[])
 
 	if (arg_rest(&argv[offset]) < modePtr->argmin) {
 	    sprintf(temp, "Expected at least %d tokens for %.20s, have %d",
-		modePtr->argmin, argv[offset], arg_rest(&argv[offset]));
+		    modePtr->argmin, argv[offset], arg_rest(&argv[offset]));
 	    Usage(temp);
 	}
 	if (modePtr->argmax && arg_rest(&argv[offset]) > modePtr->argmax) {
 	    sprintf(temp,
-		"Expected no more than %d tokens for %.20s, have %d",
-		modePtr->argmax, argv[offset], arg_rest(&argv[offset]));
+		    "Expected no more than %d tokens for %.20s, have %d",
+		    modePtr->argmax, argv[offset], arg_rest(&argv[offset]));
 	    Usage(temp);
 	}
 
@@ -839,7 +829,7 @@ main(int argc, char *argv[])
 		    break;
 		case o_unknown:
 		    sprintf(temp, "Expected --and-widget, not %.20s",
-			argv[offset]);
+			    argv[offset]);
 		    Usage(temp);
 		    break;
 		default:
@@ -852,7 +842,7 @@ main(int argc, char *argv[])
 		}
 	    }
 	    if (dialog_vars.clear_screen)
-		attr_clear(stdscr, LINES, COLS, screen_attr);
+		dialog_clear();
 	}
 
     }

@@ -120,7 +120,7 @@
 
 #define TAG_KEY_FG                   COLOR_RED
 #define TAG_KEY_BG                   COLOR_WHITE
-#define TAG_KEY_HL                   TRUE
+#define TAG_KEY_HL                   FALSE
 
 #define TAG_KEY_SELECTED_FG          COLOR_RED
 #define TAG_KEY_SELECTED_BG          COLOR_BLUE
@@ -141,6 +141,10 @@
 #define DARROW_FG                    COLOR_GREEN
 #define DARROW_BG                    COLOR_WHITE
 #define DARROW_HL                    TRUE
+
+#define ITEMHELP_FG                  COLOR_WHITE
+#define ITEMHELP_BG                  COLOR_BLACK
+#define ITEMHELP_HL                  FALSE
 
 /* End of default color definitions */
 

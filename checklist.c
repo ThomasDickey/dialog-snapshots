@@ -24,14 +24,14 @@
 
 static int list_width, check_x, item_x, checkflag;
 
-#define LLEN(n) ((n) * 3)
+#define LLEN(n) ((n) * CHECKBOX_TAGS)
 
 /*
  * Print list item
  */
 static void
-print_item(WINDOW *win, const char *tag, const char *item, int status,
-    int choice, int selected)
+print_item(WINDOW *win, char **strings, int status,
+	   int choice, int selected)
 {
     int i;
 
@@ -40,20 +40,26 @@ print_item(WINDOW *win, const char *tag, const char *item, int status,
     wmove(win, choice, 0);
     for (i = 0; i < list_width; i++)
 	waddch(win, ' ');
+
     wmove(win, choice, check_x);
     wattrset(win, selected ? check_selected_attr : check_attr);
     wprintw(win,
-	(checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
-	status ? 'X' : ' ');
+	    (checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
+	    status ? 'X' : ' ');
     wattrset(win, menubox_attr);
     waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    waddch(win, CharOf(tag[0]));
+    waddch(win, CharOf(strings[0][0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    wprintw(win, "%s", tag + 1);
+    wprintw(win, "%s", strings[0] + 1);
+
     wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    wprintw(win, "%s", item);
+    wprintw(win, "%s", strings[1]);
+
+    if (selected) {
+	dlg_item_help(strings[3]);
+    }
 }
 
 /*
@@ -62,8 +68,8 @@ print_item(WINDOW *win, const char *tag, const char *item, int status,
  */
 int
 dialog_checklist(const char *title, const char *cprompt, int height, int width,
-    int list_height, int item_no, char **items, int flag,
-    int separate_output)
+		 int list_height, int item_no, char **items, int flag,
+		 int separate_output)
 {
     int i, j, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
@@ -114,16 +120,16 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     /* create new window for the list */
     list = subwin(dialog, list_height, list_width,
-	y + box_y + 1, x + box_x + 1);
+		  y + box_y + 1, x + box_x + 1);
     keypad(list, TRUE);
 
     /* draw a box around the list items */
     draw_box(dialog, box_y, box_x, list_height + 2, list_width + 2,
-	menubox_border_attr, menubox_attr);
+	     menubox_border_attr, menubox_attr);
 
     check_x = 0;
     item_x = 0;
-    /* Find length of longest item in order to center checklist */
+    /* Find length of longest item to center checklist */
     for (i = 0; i < item_no; i++) {
 	check_x = MAX(check_x, (int) strlen(items[LLEN(i) + 1]));
 	item_x = MAX(item_x, (int) strlen(items[LLEN(i)]));
@@ -134,21 +140,20 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     /* Print the list */
     for (i = 0; i < max_choice; i++)
 	print_item(list,
-	    items[LLEN(i)],
-	    items[LLEN(i) + 1],
-	    status[i], i, i == choice);
+		   &items[LLEN(i)],
+		   status[i], i, i == choice);
     wnoutrefresh(list);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(box_y, box_x, list_height + 2, list_width + 2,
-	item_no, item_x,	/* the threshold */
-	0 /* normal */ );
+		      item_no, item_x,	/* the threshold */
+		      0 /* normal */ );
 
     dlg_draw_arrows(dialog, scrollamt,
-	scrollamt + choice < item_no - 1,
-	box_x + check_x + 5,
-	box_y,
-	box_y + list_height + 1);
+		    scrollamt + choice < item_no - 1,
+		    box_x + check_x + 5,
+		    box_y,
+		    box_y + list_height + 1);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, 0, FALSE, width);
 
@@ -167,9 +172,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    if (flag == FLAG_CHECK) {	/* checklist? */
 		status[scrollamt + choice] = !status[scrollamt + choice];
 		print_item(list,
-		    items[LLEN(scrollamt + choice)],
-		    items[LLEN(scrollamt + choice) + 1],
-		    status[scrollamt + choice], choice, TRUE);
+			   &items[LLEN(scrollamt + choice)],
+			   status[scrollamt + choice], choice, TRUE);
 	    } else {		/* radiolist */
 		if (!status[scrollamt + choice]) {
 		    for (i = 0; i < item_no; i++)
@@ -177,9 +181,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    status[scrollamt + choice] = TRUE;
 		    for (i = 0; i < max_choice; i++)
 			print_item(list,
-			    items[LLEN(scrollamt + i)],
-			    items[LLEN(scrollamt + i) + 1],
-			    status[scrollamt + i], i, i == choice);
+				   &items[LLEN(scrollamt + i)],
+				   status[scrollamt + i], i, i == choice);
 		}
 	    }
 	    wnoutrefresh(list);
@@ -277,36 +280,32 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			if (list_height > 1) {
 			    /* De-highlight current first item */
 			    print_item(list,
-				items[LLEN(scrollamt)],
-				items[LLEN(scrollamt) + 1],
-				status[scrollamt], 0, FALSE);
+				       &items[LLEN(scrollamt)],
+				       status[scrollamt], 0, FALSE);
 			    scrollok(list, TRUE);
 			    wscrl(list, -1);
 			    scrollok(list, FALSE);
 			}
 			scrollamt--;
 			print_item(list,
-			    items[LLEN(scrollamt)],
-			    items[LLEN(scrollamt) + 1],
-			    status[scrollamt], 0, TRUE);
+				   &items[LLEN(scrollamt)],
+				   status[scrollamt], 0, TRUE);
 		    } else if (i == max_choice) {
 			if (list_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(list,
-				items[LLEN(scrollamt + max_choice - 1)],
-				items[LLEN(scrollamt + max_choice - 1) + 1],
-				status[scrollamt + max_choice - 1],
-				max_choice - 1, FALSE);
+				       &items[LLEN(scrollamt + max_choice - 1)],
+				       status[scrollamt + max_choice - 1],
+				       max_choice - 1, FALSE);
 			    scrollok(list, TRUE);
 			    wscrl(list, 1);
 			    scrollok(list, FALSE);
 			}
 			scrollamt++;
 			print_item(list,
-			    items[LLEN(scrollamt + max_choice - 1)],
-			    items[LLEN(scrollamt + max_choice - 1) + 1],
-			    status[scrollamt + max_choice - 1],
-			    max_choice - 1, TRUE);
+				   &items[LLEN(scrollamt + max_choice - 1)],
+				   status[scrollamt + max_choice - 1],
+				   max_choice - 1, TRUE);
 		    } else
 #endif
 		    {
@@ -319,29 +318,26 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			}
 			for (i = 0; i < max_choice; i++) {
 			    print_item(list,
-				items[LLEN(scrollamt + i)],
-				items[LLEN(scrollamt + i) + 1],
-				status[scrollamt + i], i, i == choice);
+				       &items[LLEN(scrollamt + i)],
+				       status[scrollamt + i], i, i == choice);
 			}
 		    }
 		    wnoutrefresh(list);
 		    dlg_draw_arrows(dialog, scrollamt,
-			scrollamt + choice < item_no - 1,
-			box_x + check_x + 5,
-			box_y,
-			box_y + list_height + 1);
+				    scrollamt + choice < item_no - 1,
+				    box_x + check_x + 5,
+				    box_y,
+				    box_y + list_height + 1);
 		} else {
 		    /* De-highlight current item */
 		    print_item(list,
-			items[LLEN(scrollamt + choice)],
-			items[LLEN(scrollamt + choice) + 1],
-			status[scrollamt + choice], choice, FALSE);
+			       &items[LLEN(scrollamt + choice)],
+			       status[scrollamt + choice], choice, FALSE);
 		    /* Highlight new item */
 		    choice = i;
 		    print_item(list,
-			items[LLEN(scrollamt + choice)],
-			items[LLEN(scrollamt + choice) + 1],
-			status[scrollamt + choice], choice, TRUE);
+			       &items[LLEN(scrollamt + choice)],
+			       status[scrollamt + choice], choice, TRUE);
 		    wnoutrefresh(list);
 		    wmove(dialog, cur_y, cur_x);
 		    wrefresh_lock(dialog);
@@ -351,21 +347,17 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 
 	switch (key) {
-	case M_EVENT + 'O':
+	case M_EVENT + 0:
 	    done = TRUE;
 	    break;
 	case '\n':
 	    done = TRUE;
 	    result = button ? EXIT_CANCEL : EXIT_OK;
 	    break;
-	case M_EVENT + 'C':
+	case M_EVENT + 1:
 	    result = EXIT_CANCEL;
 	    done = TRUE;
 	    break;
-	case M_EVENT + 'o':	/* mouse enter... */
-	case M_EVENT + 'c':	/* use the code for toggling */
-	    button = (key == M_EVENT + 'o');
-	    /* FALLTHRU */
 	case TAB:
 	case KEY_LEFT:
 	case KEY_RIGHT:

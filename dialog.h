@@ -155,9 +155,10 @@
 #define check_selected_attr           attributes[26]
 #define uarrow_attr                   attributes[27]
 #define darrow_attr                   attributes[28]
+#define itemhelp_attr                 attributes[29]
 
 /* number of attributes */
-#define ATTRIBUTE_COUNT               29
+#define ATTRIBUTE_COUNT               30
 
 /*
  * Global variables
@@ -170,6 +171,7 @@ typedef struct {
 	bool cant_kill;
 	bool clear_screen;
 	bool cr_wrap;
+        bool item_help;
 	bool nocancel;
 	bool print_siz;
 	bool separate_output;
@@ -185,6 +187,9 @@ typedef struct {
 	int tab_len;
 } DIALOG_VARS;
 
+#define CHECKBOX_TAGS (dialog_vars.item_help ? 4 : 3)
+#define MENUBOX_TAGS (dialog_vars.item_help ? 3 : 2)
+
 extern DIALOG_VARS dialog_vars;
 
 #ifdef HAVE_COLOR
@@ -192,16 +197,22 @@ extern bool use_colors;
 extern bool use_shadow;
 #endif
 
+#ifndef HAVE_TYPE_CHTYPE
+#define chtype long
+#endif
+
 extern FILE *pipe_fp;
-
 extern chtype attributes[];
-
+extern int defaultno;
 extern int is_tailbg;
-
 extern int screen_initialized;
-
-extern char *lock_refresh, *lock_tailbg_refreshed, *lock_tailbg_exit;
-extern pid_t tailbg_pids[MAX_TAILBG], tailbg_lastpid, tailbg_nokill_pids[MAX_TAILBG], tailbg_nokill_lastpid;
+extern char *lock_refresh;
+extern char *lock_tailbg_refreshed;
+extern char *lock_tailbg_exit;
+extern pid_t tailbg_pids[MAX_TAILBG];
+extern pid_t tailbg_lastpid;
+extern pid_t tailbg_nokill_pids[MAX_TAILBG];
+extern pid_t tailbg_nokill_lastpid;
 
 /*
  * Function prototypes
@@ -211,7 +222,7 @@ extern void create_rc (const char *filename);
 extern int parse_rc (void);
 #endif
 
-
+void dialog_clear (void);
 void init_dialog (void);
 void end_dialog (void);
 void attr_clear (WINDOW * win, int height, int width, chtype attr);
@@ -233,7 +244,11 @@ void remove_lock(char *filename);
 
 void killall_bg(void);
 void quitall_bg(void);
-void exiterr(const char *);
+void exiterr(const char *, ...)
+#ifdef __GNUC__
+__attribute__((format(printf,1,2)))
+#endif
+;
 void beeping(void);
 void print_size(int height, int width);
 void ctl_size(int height, int width);
@@ -256,7 +271,7 @@ void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
 		chtype borderchar);
 
-int dialog_yesno (const char *title, const char *cprompt, int height, int width, int defaultno);
+int dialog_yesno (const char *title, const char *cprompt, int height, int width, int dftno);
 int dialog_msgbox (const char *title, const char *cprompt, int height,
 		int width, int pauseopt);
 int dialog_textbox (const char *title, const char *file, int height, int width);
@@ -292,42 +307,57 @@ extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, 
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
 extern int dlg_getc(WINDOW *win);
+extern void dlg_item_help(char *txt);
 extern void dlg_trim_string(char *src);
 
 /*
  * The following stuff is needed for mouse support
  */
-#ifndef HAVE_LIBGPM
+typedef struct mseRegion {
+    int x, y, X, Y, code;
+    struct mseRegion *next;
+} mseRegion;
 
-/*
- * This used to be defined as "extern __inline__", which caused problems
- * when building with -g . That might be a gcc bug, but what does a compiler
- * do with an "extern" inline? Inline it and then generate an
- * externaly-callable version? Ugh!
- */
-#define	mouse_open() {}
-#define	mouse_close() {}
-#define	mouse_mkregion(y, x, height, width, code) {}
-#define	mouse_mkbigregion(y, x, height, width, nitems, th, mode) {}
-#define	mouse_setbase(x, y) {}
+#if defined(NCURSES_MOUSE_VERSION)
 
-#else
+#define	mouse_open() mousemask(BUTTON1_CLICKED, (mmask_t *) 0)
+#define	mouse_close() mousemask(0, (mmask_t *) 0)
+
+void mouse_mkregion (int y, int x, int height, int width, int code);
+void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
+void mouse_setbase (int x, int y);
+
+#define USE_MOUSE 1
+
+#elif defined(HAVE_LIBGPM)
 
 void mouse_open (void);
 void mouse_close (void);
 void mouse_mkregion (int y, int x, int height, int width, int code);
-void mouse_mkbigregion (int y, int x, int height, int width, int nitems,
-			int th, int mode);
+void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
 void mouse_setbase (int x, int y);
+
+#define USE_MOUSE 1
+
+#else
+
+#define	mouse_open() /*nothing*/
+#define	mouse_close() /*nothing*/
+#define	mouse_mkregion(y, x, height, width, code) /*nothing*/
+#define	mouse_mkbigregion(y, x, height, width, nitems, th, mode) /*nothing*/
+#define	mouse_setbase(x, y) /*nothing*/
+
+#define USE_MOUSE 0
 
 #endif
 
-int mouse_wgetch (WINDOW *);
+extern mseRegion *mouse_region (int y, int x);
+extern int mouse_wgetch (WINDOW *);
 
 #define mouse_mkbutton(y,x,len,code) mouse_mkregion(y,x,1,len,code);
 
 /*
- * This is the base for fictious keys, which activate
+ * This is the base for fictitious keys, which activate
  * the buttons.
  *
  * Mouse-generated keys are the following:

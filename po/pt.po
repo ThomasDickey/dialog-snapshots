@@ -1,0 +1,20 @@
+# From: Marco Mariani <marcom@sferacarta.com>
+
+#, fuzzy
+msgid ""
+msgstr ""
+
+msgid "EXIT"
+msgstr "Saída"
+
+msgid "OK"
+msgstr ""
+
+msgid "Cancel"
+msgstr "Anula"
+
+msgid "Yes"
+msgstr "Sim"
+
+msgid "No"
+msgstr "Não"

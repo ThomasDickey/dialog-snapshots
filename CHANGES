@@ -3,6 +3,28 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/10/8
+	+ change exiterr() to use stdarg.h, make some messages easier to
+	  understand.
+	+ add dialog_clear()
+	+ make samples/install/setup build.
+	+ implemented mouse support for buttons, e.g., in yesno dialog using
+	  ncurses (the gpm support no longer works, but is useful for reference)
+	+ add a configure check for chtype.
+	+ updates for configure script macros (CF_BUNDLED_INTL, CF_CURSES_LIBS,
+	  CF_GCC_ATTRIBUTES, CF_GCC_WARNINGS, CF_INCLUDE_DIRS), and scripts
+	  config.guess, config.sub
+	+ cleanup of item-help change, integrate with checkbox and radiobox.
+	+ add ja.po, from Hirofumi Takeda <takepin@turbolinux.co.jp>.
+	> patch by Marco Mariani <marcom@sferacarta.com>
+	+ add --item-help option, which makes menubox data interpreted as
+	  3 columns rather than 2.  The third column is displayed on the
+	  last line of the screen as a help/status message for the currently
+	  selected item.
+	+ add it.po, pt.po
+	+ change TAG_KEY_HL to FALSE, making unselected items in checkbox
+	  easier to read on Linux console.
+
 2000/7/30
 	+ change real_auto_size() to allow it to be used for dialogs that have
 	  no prompt, e.g., fselect.  Also, rather than requiring both height

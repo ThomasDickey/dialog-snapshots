@@ -1,4 +1,6 @@
 /*
+ *  $Id: util.c,v 1.46 2000/10/08 18:16:23 tom Exp $
+ *
  *  util.c
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -20,11 +22,25 @@
 
 #include "dialog.h"
 
+#include <stdarg.h>
+
 #ifdef NCURSES_VERSION
 #include <term.h>
 #endif
 
+/* globals */
 FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
+DIALOG_VARS dialog_vars;
+char *lock_refresh;
+char *lock_tailbg_exit;
+char *lock_tailbg_refreshed;
+int defaultno = FALSE;
+int is_tailbg = FALSE;
+int screen_initialized = 0;
+pid_t tailbg_lastpid = 0;
+pid_t tailbg_nokill_lastpid = 0;
+pid_t tailbg_nokill_pids[MAX_TAILBG];
+pid_t tailbg_pids[MAX_TAILBG];
 static FILE *my_output;		/* prefer to stdout, to support --stdout */
 
 #ifdef HAVE_COLOR
@@ -70,7 +86,8 @@ chtype attributes[] =
     A_REVERSE,			/* check_attr */
     A_REVERSE,			/* check_selected_attr */
     A_REVERSE,			/* uarrow_attr */
-    A_REVERSE			/* darrow_attr */
+    A_REVERSE,			/* darrow_attr */
+    A_NORMAL			/* itemhelp_attr */
 };
 
 #ifdef HAVE_COLOR
@@ -112,6 +129,7 @@ int color_table[][3] =
     DATA(CHECK_SELECTED),
     DATA(UARROW),
     DATA(DARROW),
+    DATA(ITEMHELP),
 };				/* color_table */
 #endif
 
@@ -155,6 +173,12 @@ attr_clear(WINDOW *win, int height, int width, chtype attr)
     touchwin(win);
 }
 
+void
+dialog_clear(void)
+{
+    attr_clear(stdscr, LINES, COLS, screen_attr);
+}
+
 #define isprivate(s) ((s) != 0 && strstr(s, "\033[?") != 0)
 
 #ifdef NCURSES_VERSION
@@ -175,10 +199,9 @@ init_dialog(void)
     const char *device = "/dev/tty";
     char *name;
 
-    mouse_open();
 #ifdef HAVE_RC_FILE
     if (parse_rc() == -1)	/* Read the configuration file */
-	exiterr("");
+	exiterr("init_dialog: parse_rc");
 #endif
 
     /* 
@@ -225,6 +248,7 @@ init_dialog(void)
     keypad(stdscr, TRUE);
     cbreak();
     noecho();
+    mouse_open();
     screen_initialized = 1;
 
 #ifdef HAVE_COLOR
@@ -233,7 +257,7 @@ init_dialog(void)
 #endif
 
     /* Set screen to screen attribute */
-    attr_clear(stdscr, LINES, COLS, screen_attr);
+    dialog_clear();
 }
 
 #ifdef HAVE_COLOR
@@ -475,7 +499,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
-	exiterr("Can't open input file in auto_sizefile().");
+	exiterr("auto_sizefile: Cannot open input file %s", file);
 
     if ((*height == -1) || (*width == -1)) {
 	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
@@ -620,7 +644,7 @@ ctl_idlemsg(WINDOW *win)
     /* if a tailboxbg exited, quit */
     if (exist_lock(lock_tailbg_exit)) {
 	remove_lock(lock_tailbg_exit);
-	exiterr("");
+	exiterr("ctl_idlemsg: quit");
     }
 }
 
@@ -639,8 +663,10 @@ wrefresh_lock_tailbg(WINDOW *win)
 void
 wrefresh_lock_sub(WINDOW *win)
 {
-    while_exist_lock(lock_refresh);
-    create_lock(lock_refresh);
+    if (lock_refresh) {
+	while_exist_lock(lock_refresh);
+	create_lock(lock_refresh);
+    }
     wrefresh(win);
     beeping();
     wrefresh(win);
@@ -714,12 +740,18 @@ quitall_bg(void)
 
 /* exiterr quit program killing all tailbg */
 void
-exiterr(const char *str)
+exiterr(const char *fmt,...)
 {
+    va_list ap;
+
     if (screen_initialized)
 	endwin();
 
-    fprintf(stderr, "\n%s\n", str);
+    fputc('\n', stderr);
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    fputc('\n', stderr);
 
     if (is_tailbg)		/* this is a child process */
 	create_lock(lock_tailbg_exit);
@@ -732,7 +764,7 @@ exiterr(const char *str)
 }
 
 void
-beeping()
+beeping(void)
 {
     if (dialog_vars.beep_signal) {
 	beep();
@@ -750,21 +782,15 @@ print_size(int height, int width)
 void
 ctl_size(int height, int width)
 {
-    char tempstr[MAX_LEN];
-
     if (dialog_vars.size_err) {
 	if ((width > COLS) || (height > LINES)) {
-	    sprintf(tempstr,
-		    "\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
+	    exiterr("Window too big. (Height, width) = (%d, %d). Max allowed (%d, %d).",
 		    height, width, LINES, COLS);
-	    exiterr(tempstr);
 	}
 #ifdef HAVE_COLOR
 	else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
-	    sprintf(tempstr,
-		    "\nWindow+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
+	    exiterr("Window+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).",
 		    height, width, SLINES, SCOLS);
-	    exiterr(tempstr);
 	}
 #endif
     }
@@ -879,16 +905,14 @@ WINDOW *
 new_window(int height, int width, int y, int x)
 {
     WINDOW *win;
-    char buffer[MAX_LEN];
 
 #ifdef HAVE_COLOR
     if (use_shadow)
 	draw_shadow(stdscr, y, x, height, width);
 #endif
     if ((win = newwin(height, width, y, x)) == 0) {
-	sprintf(buffer, "Can't make new window at (%d,%d), size (%d,%d).\n",
+	exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
 		y, x, height, width);
-	exiterr(buffer);
     }
 
     keypad(win, TRUE);
@@ -923,6 +947,21 @@ dlg_getc(WINDOW *win)
 	default:
 	    return ch;
 	}
+    }
+}
+
+/*
+ * Draw the string for item_help
+ */
+void
+dlg_item_help(char *txt)
+{
+    if (dialog_vars.item_help && txt) {
+	wattrset(stdscr, itemhelp_attr);
+	wmove(stdscr, LINES - 1, 0);
+	wclrtoeol(stdscr);
+	wprintw(stdscr, " %.*s", COLS - 2, txt);
+	wnoutrefresh(stdscr);
     }
 }
 
