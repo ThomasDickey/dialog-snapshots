@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.67 2003/11/26 18:44:28 tom Exp $
+ *  $Id: checklist.c,v 1.70 2004/02/29 23:07:51 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -109,7 +109,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
     int button = dlg_defaultno_button();
-    int choice = 0;
+    int choice = dlg_default_item(items, CHECKBOX_TAGS);
     int scrollamt = 0;
     int max_choice, *status;
     int use_width, name_width, text_width;
@@ -222,19 +222,25 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
 	if (fkey && (key >= (M_EVENT + KEY_MAX))) {
 	    getyx(dialog, cur_y, cur_x);
-	    /* De-highlight current item */
-	    print_item(list,
-		       ItemData(scrollamt + choice),
-		       status[scrollamt + choice], choice, FALSE);
-	    /* Highlight new item */
-	    choice = (key - (M_EVENT + KEY_MAX));
-	    print_item(list,
-		       ItemData(scrollamt + choice),
-		       status[scrollamt + choice], choice, TRUE);
-	    (void) wnoutrefresh(list);
-	    (void) wmove(dialog, cur_y, cur_x);
+	    i = (key - (M_EVENT + KEY_MAX));
+	    if (scrollamt + i < max_choice) {
+		/* De-highlight current item */
+		print_item(list,
+			   ItemData(scrollamt + choice),
+			   status[scrollamt + choice], choice, FALSE);
+		/* Highlight new item */
+		choice = (key - (M_EVENT + KEY_MAX));
+		print_item(list,
+			   ItemData(scrollamt + choice),
+			   status[scrollamt + choice], choice, TRUE);
+		(void) wnoutrefresh(list);
+		(void) wmove(dialog, cur_y, cur_x);
 
-	    key = ' ';		/* force the selected item to toggle */
+		key = ' ';	/* force the selected item to toggle */
+	    } else {
+		beep();
+		continue;
+	    }
 	    fkey = FALSE;
 	}
 
@@ -433,7 +439,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 				    box_x + check_x + 5,
 				    box_y,
 				    box_y + list_height + 1);
-		} else {
+		} else if (scrollamt + i < max_choice) {
 		    /* De-highlight current item */
 		    print_item(list,
 			       ItemData(scrollamt + choice),
@@ -446,6 +452,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    (void) wnoutrefresh(list);
 		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh(dialog);
+		} else {
+		    beep();
 		}
 	    }
 	    continue;		/* wait for another key press */
@@ -489,17 +497,18 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	break;
     case DLG_EXIT_HELP:
 	dlg_add_result("HELP ");
-	if ((show_status = dialog_vars.help_status) != FALSE) {
-	    if (separate_output) {
-		dlg_add_result(ItemHelp(scrollamt + choice));
-		dlg_add_result("\n");
-	    } else {
-		dlg_add_quoted(ItemHelp(scrollamt + choice));
-	    }
-	} else {
-	    dlg_add_result(ItemHelp(scrollamt + choice));
-	}
+	show_status = dialog_vars.help_status;
 	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
+	    if (show_status) {
+		if (separate_output) {
+		    dlg_add_result(ItemHelp(scrollamt + choice));
+		    dlg_add_result("\n");
+		} else {
+		    dlg_add_quoted(ItemHelp(scrollamt + choice));
+		}
+	    } else {
+		dlg_add_result(ItemHelp(scrollamt + choice));
+	    }
 	    result = DLG_EXIT_OK;	/* this is inconsistent */
 	}
 	break;

@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.44 2003/12/07 19:17:55 tom Exp $
+ *  $Id: buttons.c,v 1.46 2004/03/02 00:59:04 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -143,7 +143,10 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
     (void) wmove(win, y, x + strspn(label, " ") + 1);
 }
 
-static int
+/*
+ * Count the buttons in the list.
+ */
+int
 dlg_button_count(const char **labels)
 {
     int result = 0;
@@ -153,7 +156,7 @@ dlg_button_count(const char **labels)
 }
 
 /*
- * Print a list of buttons at the given position.
+ * Compute the size of the button array.
  */
 void
 dlg_button_sizes(const char **labels,
@@ -186,6 +189,9 @@ dlg_button_sizes(const char **labels,
 	*length = *longest * n;
 }
 
+/*
+ * Compute the size of the button array.
+ */
 int
 dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step)
 {
@@ -495,7 +501,8 @@ dlg_prev_ok_buttonindex(int current, int extra)
 
 /*
  * Find the button-index for the "OK" or "Cancel" button, according to
- * whether --defaultno is given.
+ * whether --defaultno is given.  If --nocancel was given, we always return
+ * the index for "OK".
  */
 int
 dlg_defaultno_button(void)
