@@ -22,14 +22,15 @@
 
 static int menu_width, tag_x, item_x;
 
-#define LLEN(n) ((n) * 2)
+#define LLEN(n) ((n) * MENUBOX_TAGS)
 
 /*
  * Print menu item
  */
 static void
-print_item(WINDOW *win, const char *tag, const char *item,
-    int choice, int selected)
+print_item(WINDOW *win,
+	   char **strings,
+	   int choice, int selected)
 {
     int i;
 
@@ -38,14 +39,20 @@ print_item(WINDOW *win, const char *tag, const char *item,
     wmove(win, choice, 0);
     for (i = 0; i < menu_width; i++)
 	waddch(win, ' ');
+
     wmove(win, choice, tag_x);
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    waddch(win, CharOf(tag[0]));
+    waddch(win, CharOf(strings[0][0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    wprintw(win, "%s", tag + 1);
+    wprintw(win, "%s", strings[0] + 1);
+
     wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    wprintw(win, "%s", item);
+    wprintw(win, "%s", strings[1]);
+
+    if (selected) {
+	dlg_item_help(strings[2]);
+    }
 }
 
 /*
@@ -53,12 +60,12 @@ print_item(WINDOW *win, const char *tag, const char *item,
  */
 int
 dialog_menu(const char *title, const char *cprompt, int height, int width,
-    int menu_height, int item_no, char **items)
+	    int menu_height, int item_no, char **items)
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0;
     int button = 0;
-    int choice = dlg_default_item(items, 2);
+    int choice = dlg_default_item(items, MENUBOX_TAGS);
     int scrollamt = 0;
     int max_choice, min_width;
     int found;
@@ -68,7 +75,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
     tab_correct_str(prompt);
     if (menu_height == 0) {
-	min_width = calc_listw(item_no, items, 2) + 10;
+	min_width = calc_listw(item_no, items, MENUBOX_TAGS) + 10;
 	/* calculate height without items (4) */
 	prompt = auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
 	calc_listh(&height, &menu_height, item_no);
@@ -100,16 +107,16 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
     /* create new window for the menu */
     menu = subwin(dialog, menu_height, menu_width, y + box_y + 1,
-	x + box_x + 1);
+		  x + box_x + 1);
     keypad(menu, TRUE);
 
     /* draw a box around the menu items */
     draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
-	menubox_border_attr, menubox_attr);
+	     menubox_border_attr, menubox_attr);
 
     tag_x = 0;
     item_x = 0;
-    /* Find length of longest item in order to center menu */
+    /* Find length of longest item to center menu */
     for (i = 0; i < item_no; i++) {
 	tag_x = MAX(tag_x, (int) strlen(items[LLEN(i) + 1]));
 	item_x = MAX(item_x, (int) strlen(items[LLEN(i)]));
@@ -124,21 +131,19 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
     /* Print the menu */
     for (i = 0; i < max_choice; i++)
-	print_item(menu,
-	    items[LLEN(i + scrollamt)],
-	    items[LLEN(i + scrollamt) + 1], i, i == choice);
+	print_item(menu, &items[LLEN(i + scrollamt)], i, i == choice);
     wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(box_y, box_x, menu_height + 2, menu_width + 2,
-	item_no, item_x,	/* the threshold */
-	1 /* dirty mode */ );
+		      item_no, item_x,	/* the threshold */
+		      1 /* dirty mode */ );
 
     dlg_draw_arrows(dialog, scrollamt,
-	scrollamt + max_choice < item_no,
-	box_x + tag_x + 1,
-	box_y,
-	box_y + menu_height + 1);
+		    scrollamt + max_choice < item_no,
+		    box_x + tag_x + 1,
+		    box_y,
+		    box_y + menu_height + 1);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -240,35 +245,27 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		    if (i == -1) {
 			if (menu_height > 1) {
 			    /* De-highlight current first item */
-			    print_item(menu,
-				items[LLEN(scrollamt)],
-				items[LLEN(scrollamt) + 1],
-				0, FALSE);
+			    print_item(menu, &items[LLEN(scrollamt)], 0, FALSE);
 			    scrollok(menu, TRUE);
 			    wscrl(menu, -1);
 			    scrollok(menu, FALSE);
 			}
 			scrollamt--;
-			print_item(menu,
-			    items[LLEN(scrollamt)],
-			    items[LLEN(scrollamt) + 1],
-			    0, TRUE);
+			print_item(menu, &items[LLEN(scrollamt)], 0, TRUE);
 		    } else if (i == max_choice) {
 			if (menu_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(menu,
-				items[LLEN(scrollamt + max_choice - 1)],
-				items[LLEN(scrollamt + max_choice - 1) + 1],
-				max_choice - 1, FALSE);
+				       &items[LLEN(scrollamt + max_choice - 1)],
+				       max_choice - 1, FALSE);
 			    scrollok(menu, TRUE);
 			    wscrl(menu, 1);
 			    scrollok(menu, FALSE);
 			}
 			scrollamt++;
 			print_item(menu,
-			    items[LLEN(scrollamt + max_choice - 1)],
-			    items[LLEN(scrollamt + max_choice - 1) + 1],
-			    max_choice - 1, TRUE);
+				   &items[LLEN(scrollamt + max_choice - 1)],
+				   max_choice - 1, TRUE);
 		    } else
 #endif
 		    {
@@ -281,29 +278,26 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 			}
 			for (i = 0; i < max_choice; i++) {
 			    print_item(menu,
-				items[LLEN(scrollamt + i)],
-				items[LLEN(scrollamt + i) + 1],
-				i, i == choice);
+				       &items[LLEN(scrollamt + i)],
+				       i, i == choice);
 			}
 		    }
 		    wnoutrefresh(menu);
 		    dlg_draw_arrows(dialog, scrollamt,
-			scrollamt + choice < item_no - 1,
-			box_x + tag_x + 1,
-			box_y,
-			box_y + menu_height + 1);
+				    scrollamt + choice < item_no - 1,
+				    box_x + tag_x + 1,
+				    box_y,
+				    box_y + menu_height + 1);
 		} else {
 		    /* De-highlight current item */
 		    print_item(menu,
-			items[LLEN(scrollamt + choice)],
-			items[LLEN(scrollamt + choice) + 1],
-			choice, FALSE);
+			       &items[LLEN(scrollamt + choice)],
+			       choice, FALSE);
 		    /* Highlight new item */
 		    choice = i;
 		    print_item(menu,
-			items[LLEN(scrollamt + choice)],
-			items[LLEN(scrollamt + choice) + 1],
-			choice, TRUE);
+			       &items[LLEN(scrollamt + choice)],
+			       choice, TRUE);
 		    wnoutrefresh(menu);
 		    wmove(dialog, cur_y, cur_x);
 		    wrefresh_lock(dialog);

@@ -24,9 +24,9 @@
  * Display a dialog box with two buttons - Yes and No
  */
 int
-dialog_yesno(const char *title, const char *cprompt, int height, int width, int defaultno)
+dialog_yesno(const char *title, const char *cprompt, int height, int width, int dft_no)
 {
-    int x, y, key = 0, key2, button = defaultno;
+    int x, y, key = 0, key2, button = dft_no;
     WINDOW *dialog = 0;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_yes_labels();
@@ -54,8 +54,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 #endif
 	dialog = new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
-
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     draw_bottom_box(dialog);
     draw_title(dialog, title);
@@ -63,7 +61,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     wattrset(dialog, dialog_attr);
     print_autowrap(dialog, prompt, width, 1, 2);
 
-    dlg_draw_buttons(dialog, height - 2, 0, buttons, defaultno, FALSE, width);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, dft_no, FALSE, width);
 
 #ifndef KEY_RESIZE
     wtimeout(dialog, WTIMEOUT_VAL);
@@ -76,10 +74,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    return key2;
 	}
 	switch (key) {
-	case M_EVENT + 'y':	/* mouse enter... */
-	case M_EVENT + 'n':	/* use the code for toggling */
-	    button = (key == M_EVENT + 'y');
-	    /* FALLTHRU */
 	case KEY_BTAB:
 	case TAB:
 	case KEY_UP:
@@ -89,6 +83,10 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    button = !button;
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
+	case M_EVENT + 0:
+	case M_EVENT + 1:
+	    button = (key == (M_EVENT + 1));
+	    /* FALLTHRU */
 	case ' ':
 	case '\n':
 	    delwin(dialog);
@@ -97,7 +95,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    break;
 #ifdef KEY_RESIZE
 	case KEY_RESIZE:
-	    attr_clear(stdscr, LINES, COLS, screen_attr);
+	    dialog_clear();
 	    height = req_high;
 	    width = req_wide;
 	    goto restart;

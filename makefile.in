@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.16 2000/07/30 18:15:08 tom Exp $
+# $Id: makefile.in,v 1.19 2000/10/08 18:18:14 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -13,6 +13,7 @@ top_builddir	= .
 
 DESTDIR		=
 bindir		= $(DESTDIR)@bindir@
+includedir	= $(DESTDIR)@includedir@
 libdir		= $(DESTDIR)@libdir@
 mandir		= $(DESTDIR)@mandir@
 MANDIR		= $(mandir)/man1
@@ -49,6 +50,7 @@ OBJS = $(EXTRAOBJS) \
 	inputbox.o \
 	inputstr.o \
 	menubox.o \
+	mouse.o \
 	mousewget.o \
 	msgbox.o \
 	textbox.o \
@@ -65,7 +67,8 @@ LIB	= libdialog.a
 PROG	= dialog
 ALL	= $(LIB) $(PROG)
 
-DIRS	= $(bindir) $(MANDIR)
+BIN_DIRS	= $(bindir) $(MANDIR)
+LIB_DIRS	= $(libdir) $(includedir)
 
 all	:: $(ALL)
 
@@ -93,8 +96,9 @@ distclean :: clean
 @MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f intl/libintl.h intl/po2tbl.sed
 	rm -f makefile config.h config.cache config.log config.status
+	rm -f samples/install/makefile
 
-install :: $(ALL) $(DIRS)
+install :: $(ALL) $(BIN_DIRS)
 @INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
 @MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
@@ -105,6 +109,15 @@ uninstall ::
 @MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f $(bindir)/$(PROG)
 	rm -f $(MANDIR)/dialog.1
+
+# most users do not want/need the library, so the install rules are distinct.
+install-lib :: $(LIB_DIRS)
+	$(INSTALL_DATA) $(LIB) $(libdir)
+	$(INSTALL_DATA) dialog.h $(includedir)
+
+uninstall-lib :: $(LIB_DIRS)
+	rm -f $(libdir)/$(LIB)
+	rm -f $(includedir)/dialog.h
 
 $(bindir) \
 $(MANDIR) : ; $(srcdir)/mkdirs.sh $@

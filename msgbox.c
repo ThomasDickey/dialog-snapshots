@@ -86,7 +86,7 @@ restart:
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
-		attr_clear (stdscr, LINES, COLS, screen_attr);
+		dialog_clear();
 		height = req_high;
 		width  = req_wide;
 		goto restart;

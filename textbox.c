@@ -332,7 +332,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    page = tempptr;
 		    begin_reached = temp;
 		    end_reached = temp1;
-		    /* move 'page' to point to start of current page in order to
+		    /* move 'page' to point to start of current page to
 		       re-print current page. Note that 'page' always points to
 		       start of next page, so this is necessary */
 		    back_lines(page_length);

@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.13 2000/07/30 03:20:46 tom Exp $
+ *  $Id: buttons.c,v 1.16 2000/10/07 21:26:28 tom Exp $
  *
  *  buttons.c
  *
@@ -56,7 +56,6 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 	: button_inactive_attr);
     waddstr(win, "<");
     temp = strspn(label, " ");
-    mouse_mkbutton(y, x, strlen(label) + 2, tolower(label[temp]));
     label += temp;
     wattrset(win, label_attr);
     for (i = 0; i < temp; i++)
@@ -93,6 +92,8 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
     int margin;
     int count = 0;
     char *buffer;
+
+    mouse_setbase(getbegx(win), getbegy(win));
 
     getyx(win, first_y, first_x);
 
@@ -136,6 +137,7 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
     final_y = 0;
     for (n = 0; labels[n] != 0; n++) {
 	center_label(buffer, longest, labels[n]);
+	mouse_mkbutton(y, x, strlen(buffer), n);
 	print_button(win, buffer, y, x,
 	    (selected == n) || (n == 0 && selected < 0));
 	if (!found) {

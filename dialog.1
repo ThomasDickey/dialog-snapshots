@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.17 2000/07/30 17:44:13 tom Exp $
-.TH DIALOG 1 "" "$Date: 2000/07/30 17:44:13 $"
+.\" $Id: dialog.1,v 1.18 2000/10/07 15:52:12 tom Exp $
+.TH DIALOG 1 "" "$Date: 2000/10/07 15:52:12 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -103,6 +103,11 @@ box a
 .IP "\fB\-\-default-item \fIstring"
 Set the default item in a menu box.
 Normally the first item in the box is the default.
+.
+.IP "\fB\-\-item-help"
+Interpret the tags data for checklist, radiolist and menuboxes 
+adding a column which is displayed in the bottom line of the
+screen, for the currently selected item.
 .
 .IP "\fB\-\-no-kill"
 Tells

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.11 2000/07/30 03:31:41 tom Exp $
+dnl $Id: configure.in,v 1.13 2000/10/08 17:16:09 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -124,6 +124,8 @@ strcasecmp \
 )
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
+CF_CURSES_CHTYPE
+
 AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
 
-AC_OUTPUT(makefile $SUB_MAKEFILE,,,sort)
+AC_OUTPUT(makefile $SUB_MAKEFILE samples/install/makefile,,,sort)

@@ -1,4 +1,6 @@
 /*
+ * $Id: mouse.c,v 1.5 2000/10/07 21:16:19 tom Exp $
+ *
  * mouse.c - mouse support for cdialog
  *
  * Copyright 1994   rubini@ipvvis.unipv.it (Alessandro Rubini)
@@ -20,19 +22,11 @@
 
 #include "dialog.h"
 
-#include <gpm.h>
-
-static Gpm_Connect connectInfo;
-static Gpm_Handler mouse_handler;
+#if USE_MOUSE
 
 static int basex, basey;
 
-typedef struct Region {
-    int x, y, X, Y, code;
-    struct Region *next;
-} Region;
-
-static Region *regionList = NULL;
+static mseRegion *regionList = NULL;
 
 static struct bigRegion {
     int x, y, X, Y;
@@ -43,37 +37,18 @@ static struct bigRegion {
 
 static int bigregionFlag = 0;	/* no bigRegion at startup */
 
-/*==================== simple functions =============*/
+/*=========== region related functions =============*/
 
 void
-mouse_open (void)
-{
-    gpm_zerobased = gpm_visiblepointer = 1;
-    connectInfo.eventMask = ~0;
-    connectInfo.defaultMask = GPM_MOVE & GPM_HARD;
-    connectInfo.minMod = connectInfo.maxMod = 0;
-    Gpm_Open (&connectInfo, 0);
-    gpm_handler = mouse_handler;
-}
-
-void
-mouse_close (void)
-{
-    Gpm_Close ();
-}
-
-void
-mouse_setbase (int x, int y)
+mouse_setbase(int x, int y)
 {
     basex = x;
     basey = y;
 }
 
-/*=========== region related functions =============*/
-
 void
-mouse_mkbigregion (int y, int x, int height, int width, int nitems,
-		   int th, int mode)
+mouse_mkbigregion(int y, int x, int height, int width, int nitems,
+		  int th, int mode)
 {
     bigRegion.x = basex + x;
     bigRegion.X = basex + x + width;
@@ -90,11 +65,11 @@ mouse_mkbigregion (int y, int x, int height, int width, int nitems,
 }
 
 void
-mouse_mkregion (int y, int x, int height, int width, int code)
+mouse_mkregion(int y, int x, int height, int width, int code)
 {
-    Region *butPtr;
+    mseRegion *butPtr;
 
-    butPtr = malloc (sizeof (Region));
+    butPtr = malloc(sizeof(mseRegion));
     if (!butPtr)
 	return;			/* WARN */
     butPtr->y = basey + y;
@@ -106,11 +81,30 @@ mouse_mkregion (int y, int x, int height, int width, int code)
     regionList = butPtr;
 }
 
+/* retrieve the frame under the pointer */
+mseRegion *mouse_region(int y, int x)
+{
+    mseRegion *butPtr;
+
+    for (butPtr = regionList; butPtr; butPtr = butPtr->next) {
+	if (y < butPtr->y || y >= butPtr->Y)
+	    continue;
+	if (x < butPtr->x || x >= butPtr->X)
+	    continue;
+	break;			/* found */
+    }
+    return butPtr;
+}
+
 /*=================================================== the mouse handler ====*/
 
+#if defined(NCURSES_MOUSE_VERSION)
+
+#elif defined(HAVE_LIBGPM)
+
+#include <gpm.h>
 #include <unistd.h>		/* select(); */
 #include <sys/time.h>		/* timeval */
-
 
 /*
  * This is the mouse handler.
@@ -118,10 +112,10 @@ mouse_mkregion (int y, int x, int height, int width, int code)
  */
 
 int
-mouse_handler (Gpm_Event * event, void *unused)
+mouse_handler(Gpm_Event * event, void *unused)
 {
-    static Region *prevPtr;
-    Region *butPtr;
+    static mseRegion *prevPtr;
+    mseRegion *butPtr;
     static int grabkey = 0;
     static int reptkey = 0;
     static int dragging = 0;
@@ -131,14 +125,14 @@ mouse_handler (Gpm_Event * event, void *unused)
 #define CURRENT_POS (M_EVENT+event->y-bigRegion.y-1)
 
 #if 0
-    fprintf (stderr,
-	     "grab %i, more %i, drag %i, x %i, y %i, butt %i, type %x\n",
-	     grabkey, gpm_morekeys, dragging, event->x,
-	     event->y, event->buttons, event->type);
+    fprintf(stderr,
+	    "grab %i, more %i, drag %i, x %i, y %i, butt %i, type %x\n",
+	    grabkey, gpm_morekeys, dragging, event->x,
+	    event->y, event->buttons, event->type);
 #endif
 
     if (grabkey) {		/* return key or 0 */
-	if (Gpm_Repeat (100))
+	if (Gpm_Repeat(100))
 	    return grabkey;	/* go on (slow to ease xterm( */
 	else
 	    return grabkey = gpm_morekeys = 0;	/* no more grab */
@@ -159,7 +153,7 @@ mouse_handler (Gpm_Event * event, void *unused)
 	    return 0;
 	prevY = event->y;
 	reptkey = (delta > 0 ? KEY_DOWN : KEY_UP);
-	gpm_morekeys = bigRegion.step * abs (delta);
+	gpm_morekeys = bigRegion.step * abs(delta);
 	return (reptkey == KEY_UP ? M_EVENT : M_EVENT + bigRegion.height);
     }
     /* the big region */
@@ -222,16 +216,9 @@ mouse_handler (Gpm_Event * event, void *unused)
     /* smaller regions */
 
     /* retrieve the frame under the pointer */
-    for (butPtr = regionList; butPtr; butPtr = butPtr->next) {
-	if (event->y < butPtr->y || event->y >= butPtr->Y)
-	    continue;
-	if (event->x < butPtr->x || event->x >= butPtr->X)
-	    continue;
-	break;			/* found */
-    }
+    butPtr = mouse_region(event->y, event->x);
 
-
-    switch (GPM_BARE_EVENTS (event->type)) {
+    switch (GPM_BARE_EVENTS(event->type)) {
     case GPM_MOVE:
 	if (butPtr && butPtr != prevPtr) {	/* enter event */
 	    prevPtr = butPtr;
@@ -258,10 +245,10 @@ mouse_handler (Gpm_Event * event, void *unused)
 	case GPM_B_LEFT:
 
 	    if (butPtr && butPtr == prevPtr) {
-		/* complete button press *//* return two keys... */
+/* complete button press *//* return two keys... */
 		gpm_morekeys++;
 		reptkey = butPtr->code;
-		return M_EVENT + toupper (butPtr->code);
+		return M_EVENT + toupper(butPtr->code);
 	    }
 	    prevPtr = butPtr;
 	    return M_EVENT + butPtr->code;	/* no, only an enter event */
@@ -269,3 +256,31 @@ mouse_handler (Gpm_Event * event, void *unused)
     }
     return 0;			/* nothing relevant */
 }
+
+void
+mouse_open(void)
+{
+    static Gpm_Connect connectInfo;
+
+    gpm_zerobased = gpm_visiblepointer = 1;
+    connectInfo.eventMask = ~0;
+    connectInfo.defaultMask = GPM_MOVE & GPM_HARD;
+    connectInfo.minMod = connectInfo.maxMod = 0;
+    Gpm_Open(&connectInfo, 0);
+    gpm_handler = mouse_handler;
+}
+
+void
+mouse_close(void)
+{
+    Gpm_Close();
+}
+
+#endif
+#else
+void mouse_dummy(void);
+void
+mouse_dummy(void)
+{
+}
+#endif /* USE_MOUSE */

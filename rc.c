@@ -1,4 +1,6 @@
 /*
+ *  $Id: rc.c,v 1.8 2000/10/07 16:20:29 tom Exp $
+ *
  *  rc.c -- routines for processing the configuration file
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -36,7 +38,6 @@ static color_names_st color_names[] =
     {"CYAN", COLOR_CYAN},
     {"WHITE", COLOR_WHITE},
 };				/* color names */
-#endif
 
 #define DIALOGRC ".dialogrc"
 #define VAR_LEN 30
@@ -76,7 +77,7 @@ typedef struct {
     char comment[COMMENT_LEN];	/* comment to put in "rc" file */
 } vars_st;
 
-vars_st vars[] =
+static vars_st vars[] =
 {
     {"use_shadow",
 	&use_shadow,
@@ -231,7 +232,12 @@ vars_st vars[] =
     {"darrow_color",
 	color_table[28],
 	VAL_ATTR,
-	"Down arrow color"}
+	"Down arrow color"},
+
+    {"itemhelp_color",
+	color_table[29],
+	VAL_ATTR,
+	"Item help-text color"}
 };				/* vars */
 
 /*
@@ -416,6 +422,7 @@ parse_line(char *line, char **var, char **value)
 
     return LINE_OK;		/* no syntax error in line */
 }
+#endif
 
 /*
  * Create the configuration file
@@ -423,6 +430,7 @@ parse_line(char *line, char **var, char **value)
 void
 create_rc(const char *filename)
 {
+#ifdef HAVE_COLOR
     unsigned i;
     FILE *rc_file;
 
@@ -468,6 +476,7 @@ create_rc(const char *filename)
     }
 
     fclose(rc_file);
+#endif
 }
 
 /*
@@ -476,6 +485,7 @@ create_rc(const char *filename)
 int
 parse_rc(void)
 {
+#ifdef HAVE_COLOR
     unsigned i;
     int l = 1, parse, fg, bg, hl;
     char str[MAX_LEN + 1], *var, *value, *tempptr;
@@ -589,5 +599,6 @@ parse_rc(void)
     }
 
     fclose(rc_file);
+#endif
     return 0;			/* parse successful */
 }
