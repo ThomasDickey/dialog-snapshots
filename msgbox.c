@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.18 2001/07/31 18:00:24 tom Exp $
+ *  $Id: msgbox.c,v 1.19 2002/05/19 17:58:53 diego.alvarez Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -103,5 +103,5 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     }
 
     del_window(dialog);
-    return key == ESC ? -1 : 0;
+    return key == ESC ? DLG_EXIT_ESC : 0;
 }

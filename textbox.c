@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.32 2001/08/11 12:23:26 tom Exp $
+ *  $Id: textbox.c,v 1.34 2002/05/19 18:08:17 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -425,9 +425,9 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	if (!first) {
 	    key = dlg_getc(dialog);
 	    if (key == ESC)
-		return -1;
+		return DLG_EXIT_ESC;
 	    if (key == '\n' && *input != '\0')
-		return 0;
+		return DLG_EXIT_OK;
 	}
 	if (dlg_edit_string(input, &offset, key, first)) {
 	    dlg_show_string(dialog, input, offset, searchbox_attr,
@@ -679,7 +679,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    /* Get search term from user */
 		} else if (get_search_term(obj.text, search_term,
 					   height - 4,
-					   width - 2) == -1) {
+					   width - 2) == DLG_EXIT_ESC) {
 		    /* ESC pressed, reprint page to clear box */
 		    wattrset(obj.text, dialog_attr);
 		    back_lines(&obj, obj.page_length);
@@ -739,5 +739,5 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     del_window(dialog);
     free(obj.buf);
     (void) close(obj.fd);
-    return (key == ESC) ? -1 : 0;
+    return (key == ESC) ? DLG_EXIT_ESC : DLG_EXIT_OK;
 }

@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.24 2001/11/11 23:01:55 tom Exp $
+# $Id: makefile.in,v 1.25 2002/05/19 17:51:51 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -83,7 +83,7 @@ all	:: $(ALL)
 @INTLDIR_MAKE@	@cd intl && $(MAKE) @cf_cv_makeflags@
 
 dialog.o \
-$(OBJS) : $(srcdir)/dialog.h config.h
+$(OBJS) : $(srcdir)/dialog.h config.h VERSION
 
 $(LIB) : $(OBJS)
 	ar crv $(LIB) $(OBJS)

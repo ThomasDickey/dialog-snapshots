@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.82 2002/03/09 19:12:54 tom Exp $
+ *  $Id: dialog.h,v 1.84 2002/05/19 19:32:16 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -254,21 +254,23 @@ typedef struct {
     bool begin_set;
     bool cant_kill;
     bool cr_wrap;
-    bool trim_whitespace;
     bool dlg_clear_screen;
-    bool item_help;
     bool help_button;
+    bool item_help;
     bool nocancel;
+    bool nocollapse;
     bool print_siz;
     bool separate_output;
     bool size_err;
     bool tab_correct;
+    bool trim_whitespace;
     char *backtitle;
     char *default_item;
     char *title;
     char input_result[MAX_LEN + 1];
     char *ok_label;
     char *cancel_label;
+    char *exit_label;
     char *help_label;
     int aspect_ratio;
     int begin_x;

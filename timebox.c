@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.9 2001/08/11 18:41:21 tom Exp $
+ * $Id: timebox.c,v 1.10 2002/05/19 17:58:53 diego.alvarez Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -282,7 +282,7 @@ dialog_timebox(const char *title,
 		state = sSC;
 		break;
 	    case ESC:
-		result = -1;
+		result = DLG_EXIT_ESC;
 		break;
 	    case ' ':
 	    case '\n':

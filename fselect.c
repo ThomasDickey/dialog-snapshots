@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.24 2001/08/09 00:20:35 tom Exp $
+ * $Id: fselect.c,v 1.25 2002/05/19 17:58:53 diego.alvarez Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -534,5 +534,5 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     del_window(dialog);
     free_list(&d_list);
     free_list(&f_list);
-    return -1;			/* ESC pressed */
+    return DLG_EXIT_ESC;	/* ESC pressed */
 }

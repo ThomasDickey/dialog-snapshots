@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.41 2002/03/09 19:14:03 tom Exp $
-.TH DIALOG 1 "" "$Date: 2002/03/09 19:14:03 $"
+.\" $Id: dialog.1,v 1.43 2002/05/19 19:39:17 tom Exp $
+.TH DIALOG 1 "" "$Date: 2002/05/19 19:39:17 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -110,6 +110,9 @@ box a
 Set the default item in a menu box.
 Normally the first item in the box is the default.
 .
+.IP "\fB\-\-exit-label \fIstring"
+Override the label used for "EXIT" buttons.
+.
 .IP "\fB\-\-help"
 Prints the help message to standard error.
 The help message is printed if no options are given.
@@ -133,6 +136,20 @@ screen, for the currently selected item.
 .IP "\fB\-\-max-input \fIsize"
 Limit input strings to the given size.
 If not specified, the limit is 2000.
+.
+.
+.IP "\fB\-\-no-cancel"
+.IP "\fB\-\-nocancel"
+Suppress the "Cancel" button in checklist, inputbox and menubox modes.
+A script can still test if the user pressed the ESC key to cancel to quit.
+.
+.IP "\fB\-\-no-collapse"
+Normally \fBdialog\fR converts tabs to spaces and reduces multiple
+spaces to a single space for text which is displayed in a message boxes, etc.
+Use this option to disable that feature.
+Note that \fBdialog\fR will still wrap text, subject to the \fB\-\-cr\-wrap\fR
+option.
+.
 .IP "\fB\-\-no-kill"
 Tells
 \fBdialog\fP
@@ -141,12 +158,6 @@ to put the
 box in the background,
 printing its process id to standard error.
 SIGHUP is disabled for the background process.
-.
-.IP "\fB\-\-no-cancel"
-.IP "\fB\-\-nocancel"
-Suppress the "Cancel" button in checklist, inputbox and menubox modes.
-A script can still test if the user pressed the ESC key to cancel to quit.
-.
 .IP "\fB\-\-no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.
 .

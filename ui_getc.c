@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.10 2002/03/09 19:32:33 tom Exp $
+ *  $Id: ui_getc.c,v 1.11 2002/05/19 16:02:27 tom Exp $
  *
  *  ui_getc.c
  *
@@ -22,7 +22,16 @@
 
 #include "dialog.h"
 
-#include <sys/time.h>
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.81 2001/11/11 22:44:30 tom Exp $
+ *  $Id: util.c,v 1.82 2002/05/19 19:32:16 tom Exp $
  *
  *  util.c
  *
@@ -1097,7 +1097,7 @@ dlg_trim_string(char *s)
     int has_newlines = (strstr(s, "\\n") != 0);
 
     while (*p != '\0') {
-	if (*p == '\t')
+	if (*p == '\t' && !dialog_vars.nocollapse)
 	    *p = ' ';
 
 	if (has_newlines) {	/* If prompt contains "\n" strings */
@@ -1144,7 +1144,7 @@ dlg_trim_string(char *s)
 	    } else
 		*s++ = *p++;
 	} else {		/* If there are no "\n" strings */
-	    if (*p == ' ') {
+	    if (*p == ' ' && !dialog_vars.nocollapse) {
 		if (!trim_blank(base, s))
 		    *s++ = *p;
 		p++;
