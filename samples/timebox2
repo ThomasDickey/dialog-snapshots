@@ -1,10 +1,13 @@
 #!/bin/sh
-# $Id: timebox2,v 1.2 2003/08/15 19:40:37 tom Exp $
+# $Id: timebox2,v 1.3 2003/10/09 22:45:06 tom Exp $
 : ${DIALOG=dialog}
 
-USERTIME=`$DIALOG --stdout --title "TIMEBOX" --timebox "Please set the time..." 0 0`
+exec 3>&1
+USERTIME=`$DIALOG --title "TIMEBOX" --timebox "Please set the time..." 0 0 2>&1 1>&3`
+code=$?
+exec 3>&-
 
-case $? in
+case $code in
   0)
     echo "Time entered: $USERTIME.";;
   1)

@@ -1,10 +1,10 @@
 /*
- *  $Id: menubox.c,v 1.61 2003/09/10 23:01:06 tom Exp $
+ *  $Id: menubox.c,v 1.64 2003/11/26 21:10:11 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and:    Thomas Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -108,9 +108,9 @@ print_item(WINDOW *win,
     (void) wmove(win, my_y, my_x);
     if (dialog_vars.input_menu) {
 	my_width -= 1;
-	draw_box(win, my_y - 1, my_x, INPUT_ROWS, my_width - my_x - tag_x,
-		 selected ? item_selected_attr : item_attr,
-		 selected ? item_selected_attr : item_attr);
+	dlg_draw_box(win, my_y - 1, my_x, INPUT_ROWS, my_width - my_x - tag_x,
+		     selected ? item_selected_attr : item_attr,
+		     selected ? item_selected_attr : item_attr);
 	my_width -= 1;
 	++my_x;
     }
@@ -149,7 +149,7 @@ input_menu_edit(WINDOW *win, char **items, int choice)
     /* taken out of inputbox.c - but somewhat modified */
     while (key != '\n' && key != '\r') {
 	if (!first)
-	    key = mouse_wgetch(win, &fkey);
+	    key = dlg_mouse_wgetch(win, &fkey);
 	if (dlg_edit_string(result, &offset, key, fkey, first)) {
 	    /* 
 	     * menu_width - 2 ..... it's the actual number of maximal
@@ -198,7 +198,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = 0;
+    int button = dlg_defaultno_button();
     int choice = dlg_default_item(items, MENUBOX_TAGS);
     int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
@@ -206,20 +206,20 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     int found;
     int use_width, name_width, text_width;
     WINDOW *dialog, *menu;
-    char *prompt = strclone(cprompt);
+    char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
 
-    tab_correct_str(prompt);
+    dlg_tab_correct_str(prompt);
     if (menu_height == 0) {
-	min_width = calc_listw(item_no, items, MENUBOX_TAGS) + 10;
+	min_width = dlg_calc_listw(item_no, items, MENUBOX_TAGS) + 10;
 	/* calculate height without items (4) */
-	auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
-	calc_listh(&height, &menu_height, item_no);
+	dlg_auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
+	dlg_calc_listh(&height, &menu_height, item_no);
     } else {
-	auto_size(title, prompt, &height, &width, 4 + menu_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, 4 + menu_height, 26);
     }
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     /* Find out maximal number of displayable items at once. */
     max_choice = MIN(menu_height,
@@ -227,19 +227,19 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     if (dialog_vars.input_menu)
 	max_choice /= INPUT_ROWS;
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     menu_width = width - 6;
     getyx(dialog, cur_y, cur_x);
@@ -247,13 +247,13 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     box_x = (width - menu_width) / 2 - 1;
 
     /* create new window for the menu */
-    menu = sub_window(dialog, menu_height, menu_width,
-		      y + box_y + 1,
-		      x + box_x + 1);
+    menu = dlg_sub_window(dialog, menu_height, menu_width,
+			  y + box_y + 1,
+			  x + box_x + 1);
 
     /* draw a box around the menu items */
-    draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
-	     menubox_border_attr, menubox_attr);
+    dlg_draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
+		 menubox_border_attr, menubox_attr);
 
     name_width = 0;
     text_width = 0;
@@ -296,8 +296,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     (void) wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(box_y + 1, box_x, menu_height + 2, menu_width + 2,
-		      KEY_MAX, 1, 1, 1 /* by lines */ );
+    dlg_mouse_mkbigregion(box_y + 1, box_x, menu_height + 2, menu_width + 2,
+			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
     dlg_draw_arrows(dialog, scrollamt,
 		    scrollamt + max_choice < item_no,
@@ -310,7 +310,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if (!fkey) {
 	    fkey = TRUE;
@@ -533,7 +533,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 				 FALSE, width);
 		break;
 	    case KEY_ENTER:
-		del_window(dialog);
 		result = handle_button(dlg_ok_buttoncode(button),
 				       items,
 				       scrollamt + choice);
@@ -561,8 +560,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	}
     }
 
-    mouse_free_regions();
-    del_window(dialog);
+    dlg_mouse_free_regions();
+    dlg_del_window(dialog);
     free(prompt);
     return result;
 }

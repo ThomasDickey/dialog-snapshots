@@ -1,10 +1,10 @@
 /*
- *  $Id: formbox.c,v 1.24 2003/08/30 16:22:10 tom Exp $
+ *  $Id: formbox.c,v 1.26 2003/11/26 18:52:30 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
  *  AUTHOR: Valery Reznic (valery_reznic@users.sourceforge.net)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -121,7 +121,7 @@ set_choice(FORM_ELT elt[], int choice, int item_no)
 	if (elt[i].text_flen > 0)
 	    return i;
     }
-    exiterr("No field has flen > 0\n");
+    dlg_exiterr("No field has flen > 0\n");
     return -1;			/* Dummy, to make compiler happy */
 }
 
@@ -332,7 +332,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     int form_width;
     int first = TRUE;
     int chr_offset = 0;
-    int state = sTEXT;
+    int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
     const int password = 0;
     int i, x, y, cur_x, cur_y, box_x, box_y;
     int code;
@@ -348,13 +348,15 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     bool scroll_changed = FALSE;
     bool field_changed = FALSE;
     WINDOW *dialog, *form;
-    char *prompt = strclone(cprompt);
+    char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
     FORM_ELT *elt, *current;
 
     elt = init_fe(items, item_no, &min_height, &min_width);
-    tab_correct_str(prompt);
-    auto_size(title, prompt, &height, &width, 1 + 3 * MARGIN, MAX(26, 2 + min_width));
+    dlg_tab_correct_str(prompt);
+    dlg_auto_size(title, prompt, &height, &width,
+		  1 + 3 * MARGIN,
+		  MAX(26, 2 + min_width));
 
     if (form_height == 0)
 	form_height = min_height;
@@ -365,27 +367,27 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     } else {
 	int thigh = 0;
 	int twide = 0;
-	auto_size(title, prompt, &thigh, &twide, 0, width);
+	dlg_auto_size(title, prompt, &thigh, &twide, 0, width);
 	thigh = SLINES - (height - (thigh + 1 + 3 * MARGIN));
 	form_height = MIN(thigh, form_height);
     }
 
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     form_width = width - 6;
     getyx(dialog, cur_y, cur_x);
@@ -393,19 +395,19 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     box_x = (width - form_width) / 2 - 1;
 
     /* create new window for the form */
-    form = sub_window(dialog, form_height, form_width, y + box_y + 1,
-		      x + box_x + 1);
+    form = dlg_sub_window(dialog, form_height, form_width, y + box_y + 1,
+			  x + box_x + 1);
 
     /* draw a box around the form items */
-    draw_box(dialog, box_y, box_x, form_height + 2, form_width + 2,
-	     menubox_border_attr, menubox_attr);
+    dlg_draw_box(dialog, box_y, box_x, form_height + 2, form_width + 2,
+		 menubox_border_attr, menubox_attr);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(getbegy(form) - getbegy(dialog),
-		      getbegx(form) - getbegx(dialog),
-		      getmaxy(form),
-		      getmaxx(form),
-		      KEY_MAX, 1, 1, 3 /* by cells */ );
+    dlg_mouse_mkbigregion(getbegy(form) - getbegy(dialog),
+			  getbegx(form) - getbegx(dialog),
+			  getmaxy(form),
+			  getmaxx(form),
+			  KEY_MAX, 1, 1, 3 /* by cells */ );
 
     show_buttons = TRUE;
     scroll_changed = TRUE;
@@ -453,14 +455,14 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    field_changed = FALSE;
 	}
 
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	/* handle non-functionkeys */
 	if (!fkey) {
 	    if (state != sTEXT) {
 		code = dlg_char_to_button(key, buttons);
 		if (code >= 0) {
-		    del_window(dialog);
+		    dlg_del_window(dialog);
 		    result = code;
 		    continue;
 		}
@@ -517,7 +519,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		break;
 
 	    case KEY_ENTER:
-		del_window(dialog);
+		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		continue;
 
@@ -653,8 +655,8 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     free(elt);
 
-    mouse_free_regions();
-    del_window(dialog);
+    dlg_mouse_free_regions();
+    dlg_del_window(dialog);
     free(prompt);
     return result;
 }

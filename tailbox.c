@@ -1,10 +1,10 @@
 /*
- *  $Id: tailbox.c,v 1.38 2003/10/03 01:47:03 tom Exp $
+ *  $Id: tailbox.c,v 1.40 2003/11/26 20:40:59 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
  *  AUTHOR: Pasquale De Marco (demarco_p@abramo.it)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -44,11 +44,11 @@ get_line(MY_OBJ * obj)
 
     do {
 	if (((ch = getc(fp)) == EOF) && !feof(fp))
-	    exiterr("Error moving file pointer in get_line().");
+	    dlg_exiterr("Error moving file pointer in get_line().");
 	else if (!feof(fp) && (ch != '\n')) {
 	    if ((ch == TAB) && (dialog_vars.tab_correct)) {
-		tmpint = dialog_vars.tab_len
-		    - ((col + obj->hscroll) % dialog_vars.tab_len);
+		tmpint = dialog_state.tab_len
+		    - ((col + obj->hscroll) % dialog_state.tab_len);
 		for (j = 0; j < tmpint; j++) {
 		    if (col >= 0 && col < MAX_LEN)
 			obj->line[col] = ' ';
@@ -111,7 +111,7 @@ last_lines(MY_OBJ * obj, int target)
 
     if (fseek(fp, 0, SEEK_END) == -1
 	|| (fpos = ftell(fp)) < 0)
-	exiterr("Error moving file pointer in last_lines().");
+	dlg_exiterr("Error moving file pointer in last_lines().");
 
     if (fpos != 0) {
 	++target;
@@ -123,10 +123,10 @@ last_lines(MY_OBJ * obj, int target)
 	    }
 	    fpos -= size_to_read;
 	    if (fseek(fp, fpos, SEEK_SET) == -1)
-		exiterr("Error moving file pointer in last_lines().");
+		dlg_exiterr("Error moving file pointer in last_lines().");
 	    (void) fread(buf, size_to_read, 1, fp);
 	    if (ferror(fp))
-		exiterr("Error reading file in last_lines().");
+		dlg_exiterr("Error reading file in last_lines().");
 
 	    offset += size_to_read;
 	    for (inx = size_to_read - 1; inx >= 0; --inx) {
@@ -146,7 +146,7 @@ last_lines(MY_OBJ * obj, int target)
 	}
 
 	if (fseek(fp, fpos + offset, SEEK_SET) == -1)
-	    exiterr("Error moving file pointer in last_lines().");
+	    dlg_exiterr("Error moving file pointer in last_lines().");
     }
 }
 
@@ -275,32 +275,32 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     MY_OBJ *obj;
     FILE *fd;
 
-    auto_sizefile(title, file, &height, &width, 2, 12);
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
-	exiterr("Can't open input file in dialog_tailbox().");
+	dlg_exiterr("Can't open input file in dialog_tailbox().");
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
     thigh = height - ((2 * MARGIN) + (bg_task ? 0 : 2));
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
     /* Create window for text region, used for scrolling text */
-    text = sub_window(dialog,
-		      thigh,
-		      width - (2 * MARGIN),
-		      y + MARGIN,
-		      x + MARGIN);
+    text = dlg_sub_window(dialog,
+			  thigh,
+			  width - (2 * MARGIN),
+			  y + MARGIN,
+			  x + MARGIN);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     if (!bg_task) {
 	buttons = dlg_exit_label();
@@ -324,7 +324,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     dlg_add_callback(&(obj->obj));
 
     /* Print last page of text */
-    attr_clear(text, thigh, getmaxx(text), dialog_attr);
+    dlg_attr_clear(text, thigh, getmaxx(text), dialog_attr);
     repaint_text(obj);
 
     if (bg_task) {
@@ -336,6 +336,6 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
 	}
 	while (handle_my_getc(&(obj->obj), ch, fkey, &result));
     }
-    mouse_free_regions();
+    dlg_mouse_free_regions();
     return result;
 }

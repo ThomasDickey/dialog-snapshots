@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.15 2003/09/24 00:25:12 tom Exp $
+ *  $Id: ui_getc.c,v 1.19 2003/11/26 16:42:38 tom Exp $
  *
- *  ui_getc.c
+ *  ui_getc.c - user interface glue for getc()
  *
- *  AUTHOR: Thomas Dickey
+ * Copyright 2001-2002,2003	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -71,7 +71,7 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 	p->input = 0;
     }
 
-    del_window(p->win);
+    dlg_del_window(p->win);
     if ((q = dialog_state.getc_callbacks) == p) {
 	dialog_state.getc_callbacks = p->next;
     } else {
@@ -139,7 +139,7 @@ dlg_raise_window(WINDOW *win)
  */
 static int last_getc = ERR;
 
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 static char last_getc_bytes[80];
 static int have_last_getc;
 static int used_last_getc;
@@ -148,7 +148,7 @@ static int used_last_getc;
 int
 dlg_last_getc(void)
 {
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
     if (used_last_getc != 1)
 	return ERR;		/* not really an error... */
 #endif
@@ -159,7 +159,7 @@ void
 dlg_flush_getc(void)
 {
     last_getc = ERR;
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
     have_last_getc = 0;
     used_last_getc = 0;
 #endif
@@ -189,9 +189,11 @@ dlg_getc(WINDOW *win, int *fkey)
 	wtimeout(win, interval);
 
     while (!done) {
-#ifdef HAVE_WGET_WCH
-	wchar_t wch;
+#ifdef USE_WIDE_CURSES
+	int code;
 	mbstate_t state;
+	wchar_t my_wchar;
+	wint_t my_wint;
 
 	/*
 	 * We get a wide character, translate it to multibyte form to avoid
@@ -202,20 +204,22 @@ dlg_getc(WINDOW *win, int *fkey)
 	    have_last_getc = 0;
 	    ch = ERR;
 	    *fkey = 0;
-	    switch (wget_wch(win, (wint_t *) (&wch))) {
+	    code = wget_wch(win, &my_wint);
+	    my_wchar = my_wint;
+	    switch (code) {
 	    case KEY_CODE_YES:
-		ch = *fkey = wch;
-		last_getc = wch;
+		ch = *fkey = my_wchar;
+		last_getc = my_wchar;
 		break;
 	    case OK:
 		memset(&state, 0, sizeof(state));
-		have_last_getc = wcrtomb(last_getc_bytes, wch, &state);
+		have_last_getc = wcrtomb(last_getc_bytes, my_wchar, &state);
 		if (have_last_getc < 0) {
 		    have_last_getc = used_last_getc = 0;
-		    last_getc_bytes[0] = wch;
+		    last_getc_bytes[0] = my_wchar;
 		}
 		ch = CharOf(last_getc_bytes[used_last_getc++]);
-		last_getc = wch;
+		last_getc = my_wchar;
 		break;
 	    case ERR:
 		ch = ERR;
@@ -229,6 +233,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	}
 #else
 	ch = wgetch(win);
+	last_getc = ch;
 	*fkey = (ch > KEY_MIN && ch < KEY_MAX);
 #endif
 	current = time((time_t *) 0);
@@ -241,7 +246,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	case ERR:		/* wtimeout() in effect; check for file I/O */
 	    if (interval > 0
 		&& current >= expired) {
-		exiterr("timeout");
+		dlg_exiterr("timeout");
 	    }
 	    if (dlg_getc_callbacks(ch, *fkey, &result)) {
 		dlg_raise_window(win);
@@ -298,7 +303,7 @@ finish_bg(int sig GCC_UNUSED)
  * process.
  */
 void
-killall_bg(int *retval)
+dlg_killall_bg(int *retval)
 {
     DIALOG_CALLBACK *cb;
     int pid;

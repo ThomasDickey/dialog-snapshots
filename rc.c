@@ -1,10 +1,10 @@
 /*
- *  $Id: rc.c,v 1.17 2003/08/30 14:31:14 tom Exp $
+ *  $Id: rc.c,v 1.19 2003/11/26 16:40:44 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -79,12 +79,12 @@ typedef struct {
 static const vars_st vars[] =
 {
     {"use_shadow",
-     &use_shadow,
+     &dialog_state.use_shadow,
      VAL_BOOL,
      "Shadow dialog boxes? This also turns on color."},
 
     {"use_colors",
-     &use_colors,
+     &dialog_state.use_colors,
      VAL_BOOL,
      "Turn color support ON or OFF"},
 
@@ -277,7 +277,7 @@ parse_line(char *line, char **var, char **value)
  * Create the configuration file
  */
 void
-create_rc(const char *filename)
+dlg_create_rc(const char *filename)
 {
 #ifdef HAVE_COLOR
     char buffer[MAX_LEN + 1];
@@ -285,7 +285,7 @@ create_rc(const char *filename)
     FILE *rc_file;
 
     if ((rc_file = fopen(filename, "wt")) == NULL)
-	exiterr("Error opening file for writing in create_rc().");
+	dlg_exiterr("Error opening file for writing in dlg_create_rc().");
 
     fprintf(rc_file, "#\
 \n# Run-time configuration file for dialog\
@@ -321,12 +321,12 @@ create_rc(const char *filename)
     }
     limit = dlg_color_count();
     for (i = 0; i < limit; ++i) {
-	fprintf(rc_file, "\n# %s\n", color_table[i].comment);
-	fprintf(rc_file, "%s = %s\n", color_table[i].name,
+	fprintf(rc_file, "\n# %s\n", dlg_color_table[i].comment);
+	fprintf(rc_file, "%s = %s\n", dlg_color_table[i].name,
 		attr_to_str(buffer,
-			    color_table[i].fg,
-			    color_table[i].bg,
-			    color_table[i].hilite));
+			    dlg_color_table[i].fg,
+			    dlg_color_table[i].bg,
+			    dlg_color_table[i].hilite));
     }
 
     (void) fclose(rc_file);
@@ -357,7 +357,7 @@ find_color(char *name)
     int limit = dlg_color_count();
 
     for (i = 0; i < limit; i++) {
-	if (dlg_strcmp(color_table[i].name, name) == 0) {
+	if (dlg_strcmp(dlg_color_table[i].name, name) == 0) {
 	    result = i;
 	    break;
 	}
@@ -370,7 +370,7 @@ find_color(char *name)
  * Parse the configuration file and set up variables
  */
 int
-parse_rc(void)
+dlg_parse_rc(void)
 {
 #ifdef HAVE_COLOR
     int i;
@@ -473,9 +473,9 @@ parse_rc(void)
 				"file.\n", l);
 			return -1;	/* parse aborted */
 		    }
-		    color_table[i].fg = fg;
-		    color_table[i].bg = bg;
-		    color_table[i].hilite = hl;
+		    dlg_color_table[i].fg = fg;
+		    dlg_color_table[i].bg = bg;
+		    dlg_color_table[i].hilite = hl;
 		} else {
 		    fprintf(stderr, "\nParse error: unknown variable "
 			    "at line %d of configuration file:\n\t%s\n", l, var);

@@ -1,10 +1,10 @@
 /*
- *  $Id: yesno.c,v 1.27 2003/08/20 19:46:51 tom Exp $
+ *  $Id: yesno.c,v 1.30 2003/11/26 18:22:22 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and     Thomas Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -27,14 +27,14 @@
  * Display a dialog box with two buttons - Yes and No
  */
 int
-dialog_yesno(const char *title, const char *cprompt, int height, int width, int dft_no)
+dialog_yesno(const char *title, const char *cprompt, int height, int width)
 {
     int x, y;
     int key = 0, key2, fkey;
-    int button = dft_no;
+    int button = dlg_defaultno_button();
     WINDOW *dialog = 0;
     int result = DLG_EXIT_UNKNOWN;
-    char *prompt = strclone(cprompt);
+    char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_yes_labels();
 
 #ifdef KEY_RESIZE
@@ -43,13 +43,13 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
   restart:
 #endif
 
-    tab_correct_str(prompt);
-    auto_size(title, prompt, &height, &width, 2, 25);
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_tab_correct_str(prompt);
+    dlg_auto_size(title, prompt, &height, &width, 2, 25);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
 #ifdef KEY_RESIZE
     if (dialog != 0) {
@@ -58,23 +58,23 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	(void) refresh();
     } else
 #endif
-	dialog = new_window(height, width, y, x);
+	dialog = dlg_new_window(height, width, y, x);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
-    dlg_draw_buttons(dialog, height - 2, 0, buttons, dft_no, FALSE, width);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
 #ifndef KEY_RESIZE
     wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 
     while (result == DLG_EXIT_UNKNOWN) {
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
 	    continue;
@@ -120,7 +120,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
-		dialog_clear();
+		dlg_clear();
 		height = req_high;
 		width = req_wide;
 		goto restart;
@@ -129,8 +129,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	}
     }
 
-    del_window(dialog);
-    mouse_free_regions();
+    dlg_del_window(dialog);
+    dlg_mouse_free_regions();
     free(prompt);
     return result;
 }

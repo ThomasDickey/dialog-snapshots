@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.5 2002/06/15 14:16:12 tom Exp $
+ *  $Id: arrows.c,v 1.6 2003/11/26 16:37:34 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- *  AUTHOR: Thomas Dickey
+ * Copyright 2000-2002,2003   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

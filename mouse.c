@@ -1,9 +1,9 @@
 /*
- * $Id: mouse.c,v 1.11 2003/03/08 16:41:49 tom Exp $
+ * $Id: mouse.c,v 1.12 2003/11/26 17:31:38 tom Exp $
  *
- * mouse.c - mouse support for dialog
+ * mouse.c -- mouse support for dialog
  *
- * Copyright 2002	Thomas Dickey
+ * Copyright 2002,2003	Thomas E. Dickey
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,27 +43,27 @@ find_region_by_code(int code)
 }
 
 void
-mouse_setbase(int x, int y)
+dlg_mouse_setbase(int x, int y)
 {
     basex = x;
     basey = y;
 }
 
 void
-mouse_mkbigregion(int y, int x,
-		  int height, int width,
-		  int code,
-		  int step_y, int step_x,
-		  int mode)
+dlg_mouse_mkbigregion(int y, int x,
+		      int height, int width,
+		      int code,
+		      int step_y, int step_x,
+		      int mode)
 {
-    mseRegion *butPtr = mouse_mkregion(y, x, height, width, -(M_EVENT + code));
+    mseRegion *butPtr = dlg_mouse_mkregion(y, x, height, width, -(M_EVENT + code));
     butPtr->mode = mode;
     butPtr->step_x = MAX(1, step_x);
     butPtr->step_y = MAX(1, step_y);
 }
 
 void
-mouse_free_regions(void)
+dlg_mouse_free_regions(void)
 {
     while (regionList != 0) {
 	mseRegion *butPtr = regionList->next;
@@ -73,13 +73,13 @@ mouse_free_regions(void)
 }
 
 mseRegion *
-mouse_mkregion(int y, int x, int height, int width, int code)
+dlg_mouse_mkregion(int y, int x, int height, int width, int code)
 {
     mseRegion *butPtr;
 
     if ((butPtr = find_region_by_code(code)) == 0) {
 	butPtr = malloc(sizeof(mseRegion));
-	assert_ptr(butPtr, "mouse_mkregion");
+	assert_ptr(butPtr, "dlg_mouse_mkregion");
 	butPtr->next = regionList;
 	regionList = butPtr;
     }
@@ -116,14 +116,14 @@ any_mouse_region(int y, int x, int small)
 
 /* retrieve the frame under the pointer */
 mseRegion *
-mouse_region(int y, int x)
+dlg_mouse_region(int y, int x)
 {
     return any_mouse_region(y, x, TRUE);
 }
 
 /* retrieve the bigframe under the pointer */
 mseRegion *
-mouse_bigregion(int y, int x)
+dlg_mouse_bigregion(int y, int x)
 {
     return any_mouse_region(y, x, FALSE);
 }

@@ -1,10 +1,10 @@
 /*
- *  $Id: msgbox.c,v 1.25 2003/08/30 14:32:41 tom Exp $
+ *  $Id: msgbox.c,v 1.26 2003/11/26 17:30:22 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int x, y;
     int key = 0, fkey;
     WINDOW *dialog = 0;
-    char *prompt = strclone(cprompt);
+    char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_label();
 
 #ifdef KEY_RESIZE
@@ -43,15 +43,15 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
   restart:
 #endif
 
-    tab_correct_str(prompt);
-    auto_size(title, prompt, &height, &width,
-	      (pauseopt == 1 ? 2 : 0),
-	      (pauseopt == 1 ? 12 : 0));
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_tab_correct_str(prompt);
+    dlg_auto_size(title, prompt, &height, &width,
+		  (pauseopt == 1 ? 2 : 0),
+		  (pauseopt == 1 ? 12 : 0));
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
 #ifdef KEY_RESIZE
     if (dialog != 0) {
@@ -60,20 +60,20 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	(void) refresh();
     } else
 #endif
-	dialog = new_window(height, width, y, x);
+	dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     if (pauseopt) {
 	bool done = FALSE;
 
-	draw_bottom_box(dialog);
+	dlg_draw_bottom_box(dialog);
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
@@ -83,12 +83,12 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 	while (!done) {
-	    key = mouse_wgetch(dialog, &fkey);
+	    key = dlg_mouse_wgetch(dialog, &fkey);
 	    if (fkey) {
 		switch (key) {
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
-		    dialog_clear();
+		    dlg_clear();
 		    height = req_high;
 		    width = req_wide;
 		    goto restart;
@@ -114,8 +114,8 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	wrefresh(dialog);
     }
 
-    del_window(dialog);
-    mouse_free_regions();
+    dlg_del_window(dialog);
+    dlg_mouse_free_regions();
     free(prompt);
     return key == ESC ? DLG_EXIT_ESC : 0;
 }

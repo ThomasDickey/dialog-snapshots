@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.32 2003/08/20 19:46:51 tom Exp $
+ * $Id: calendar.c,v 1.35 2003/11/26 18:47:49 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  AUTHOR: Thomas E. Dickey
+ * Copyright 2001-2002,2003	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -112,6 +112,7 @@ next_or_previous(int key, int two_d)
     case KEY_UP:
 	result = two_d ? -7 : -1;
 	break;
+    case KEY_LEFT:
     case CHR_PREVIOUS:
     case CHR_BACKSPACE:
 	result = -1;
@@ -121,6 +122,7 @@ next_or_previous(int key, int two_d)
     case KEY_DOWN:
 	result = two_d ? 7 : 1;
 	break;
+    case KEY_RIGHT:
     case CHR_NEXT:
     case KEY_NEXT:
 	result = 1;
@@ -191,10 +193,10 @@ draw_day(BOX * data, struct tm *current)
     int prev = days_in_month(current, -1);
 
     werase(data->window);
-    draw_box(data->parent,
-	     data->y - MARGIN, data->x - MARGIN,
-	     data->height + (2 * MARGIN), data->width + (2 * MARGIN),
-	     border_attr, dialog_attr);
+    dlg_draw_box(data->parent,
+		 data->y - MARGIN, data->x - MARGIN,
+		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
+		 border_attr, dialog_attr);
 
     wattrset(data->window, item_selected_attr);
     for (x = 0; x < 7; x++) {
@@ -296,10 +298,10 @@ draw_month(BOX * data, struct tm *current)
 
     wattrset(data->parent, dialog_attr);
     (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Month"));
-    draw_box(data->parent,
-	     data->y - 1, data->x - 1,
-	     data->height + 2, data->width + 2,
-	     border_attr, dialog_attr);
+    dlg_draw_box(data->parent,
+		 data->y - 1, data->x - 1,
+		 data->height + 2, data->width + 2,
+		 border_attr, dialog_attr);
     mvwprintw(data->window, 0, 0, "%s", months[month - 1]);
     wmove(data->window, 0, 0);
     return 0;
@@ -315,10 +317,10 @@ draw_year(BOX * data, struct tm *current)
 
     wattrset(data->parent, dialog_attr);
     (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Year"));
-    draw_box(data->parent,
-	     data->y - 1, data->x - 1,
-	     data->height + 2, data->width + 2,
-	     border_attr, dialog_attr);
+    dlg_draw_box(data->parent,
+		 data->y - 1, data->x - 1,
+		 data->height + 2, data->width + 2,
+		 border_attr, dialog_attr);
     mvwprintw(data->window, 0, 0, "%4d", year);
     wmove(data->window, 0, 0);
     return 0;
@@ -346,12 +348,12 @@ init_object(BOX * data,
 	return -1;
     (void) keypad(data->window, TRUE);
 
-    mouse_setbase(getbegx(parent), getbegy(parent));
+    dlg_mouse_setbase(getbegx(parent), getbegy(parent));
     if (code == 'D') {
-	mouse_mkbigregion(y + 1, x + MON_WIDE, height - 1, width - MON_WIDE,
-			  KEY_MAX, 1, MON_WIDE, 3);
+	dlg_mouse_mkbigregion(y + 1, x + MON_WIDE, height - 1, width - MON_WIDE,
+			      KEY_MAX, 1, MON_WIDE, 3);
     } else {
-	mouse_mkregion(y, x, height, width, code);
+	dlg_mouse_mkregion(y, x, height, width, code);
     }
 
     return 0;
@@ -376,14 +378,14 @@ dialog_calendar(const char *title,
     int key = 0;
     int key2;
     int step;
-    int button = 0;
+    int button;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = 0;
+    STATES state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
-    char *prompt = strclone(subtitle);
+    char *prompt = dlg_strclone(subtitle);
 
     dlg_does_output();
 
@@ -419,24 +421,24 @@ dialog_calendar(const char *title,
 	}
     }
 
-    auto_size(title, prompt, &height, &width, 0, 0);
+    dlg_auto_size(title, prompt, &height, &width, 0, 0);
     height += MIN_HIGH;
     if (width < MIN_WIDE)
 	width = MIN_WIDE;
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     /* FIXME: how to make this resizable? */
-    dialog = new_window(height, width,
-			box_y_ordinate(height),
-			box_x_ordinate(width));
+    dialog = dlg_new_window(height, width,
+			    dlg_box_y_ordinate(height),
+			    dlg_box_x_ordinate(width));
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     /* compute positions of day, month and year boxes */
     memset(&dy_box, 0, sizeof(dy_box));
@@ -486,7 +488,7 @@ dialog_calendar(const char *title,
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
 
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
@@ -501,7 +503,7 @@ dialog_calendar(const char *title,
 		    key = KEY_ENTER;
 		    break;
 		case TAB:
-		    key = KEY_RIGHT;
+		    key = DLGK_NEXT_FIELD;
 		    break;
 		case CHR_PREVIOUS:
 		case CHR_NEXT:
@@ -537,11 +539,11 @@ dialog_calendar(const char *title,
 		case KEY_ENTER:
 		    result = dlg_ok_buttoncode(button);
 		    break;
-		case KEY_LEFT:
+		case DLGK_PREV_FIELD:
 		case KEY_BTAB:
 		    state = dlg_prev_ok_buttonindex(state, sMONTH);
 		    break;
-		case KEY_RIGHT:
+		case DLGK_NEXT_FIELD:
 		    state = dlg_next_ok_buttonindex(state, sMONTH);
 		    break;
 		default:
@@ -598,6 +600,11 @@ dialog_calendar(const char *title,
 				DrawObject(&yr_box);
 			    (void) DrawObject(obj);
 			}
+		    } else if (state >= 0) {
+			if (next_or_previous(key, FALSE) < 0)
+			    state = dlg_prev_ok_buttonindex(state, sMONTH);
+			else if (next_or_previous(key, FALSE) > 0)
+			    state = dlg_next_ok_buttonindex(state, sMONTH);
 		    }
 		    break;
 		}
@@ -605,10 +612,10 @@ dialog_calendar(const char *title,
 	}
     }
 
-    del_window(dialog);
+    dlg_del_window(dialog);
     sprintf(dialog_vars.input_result, "%02d/%02d/%0d\n",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
-    mouse_free_regions();
+    dlg_mouse_free_regions();
     free(prompt);
     return result;
 }

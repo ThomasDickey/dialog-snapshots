@@ -1,10 +1,10 @@
 /*
- *  $Id: guage.c,v 1.23 2003/08/30 14:34:47 tom Exp $
+ *  $Id: guage.c,v 1.25 2003/11/26 17:22:53 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
  *  AUTHOR: Marc Ewing, Red Hat Software
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -74,31 +74,31 @@ dialog_gauge(const char *title,
     char prompt_buf[MY_LEN];
     WINDOW *dialog;
 
-    auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     /* center dialog box on screen */
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
     curs_set(0);
     do {
 	(void) werase(dialog);
-	draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+	dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
 
-	draw_title(dialog, title);
+	dlg_draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	print_autowrap(dialog, prompt, height, width - (2 * MARGIN));
+	dlg_print_autowrap(dialog, prompt, height, width - (2 * MARGIN));
 
-	draw_box(dialog,
-		 height - 4, 2 + MARGIN,
-		 2 + MARGIN, width - 2 * (2 + MARGIN),
-		 dialog_attr,
-		 border_attr);
+	dlg_draw_box(dialog,
+		     height - 4, 2 + MARGIN,
+		     2 + MARGIN, width - 2 * (2 + MARGIN),
+		     dialog_attr,
+		     border_attr);
 
 	(void) wmove(dialog, height - 3, 4);
 	wattrset(dialog, title_attr);
@@ -118,7 +118,7 @@ dialog_gauge(const char *title,
 
 	(void) wrefresh(dialog);
 
-	if (read_data(buf, pipe_fp) == 0)
+	if (read_data(buf, dialog_state.pipe_input) == 0)
 	    break;
 	if (isMarker(buf)) {
 	    /*
@@ -126,7 +126,7 @@ dialog_gauge(const char *title,
 	     * worse-written clones of 'dialog' assumes the number is missing.
 	     * (Gresham's Law applied to software).
 	     */
-	    if (read_data(buf, pipe_fp) == 0)
+	    if (read_data(buf, dialog_state.pipe_input) == 0)
 		break;
 	    prompt_buf[0] = '\0';
 	    if (decode_percent(buf))
@@ -135,7 +135,7 @@ dialog_gauge(const char *title,
 		strcpy(prompt_buf, buf);
 
 	    /* Rest is message text */
-	    while (read_data(buf, pipe_fp) != 0
+	    while (read_data(buf, dialog_state.pipe_input) != 0
 		   && !isMarker(buf)) {
 		if (strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1) {
 		    strcat(prompt_buf, buf);
@@ -148,6 +148,6 @@ dialog_gauge(const char *title,
     } while (1);
 
     curs_set(1);
-    del_window(dialog);
+    dlg_del_window(dialog);
     return (DLG_EXIT_OK);
 }
