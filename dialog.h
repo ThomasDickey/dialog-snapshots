@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.138 2004/03/02 00:59:18 tom Exp $
+ *  $Id: dialog.h,v 1.139 2004/03/14 23:42:40 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <signal.h>	/* fork() etc. */
 #include <math.h>	/* sqrt() */

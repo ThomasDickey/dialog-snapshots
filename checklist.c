@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.70 2004/02/29 23:07:51 tom Exp $
+ *  $Id: checklist.c,v 1.71 2004/03/13 15:50:04 joerg Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -510,6 +510,17 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		dlg_add_result(ItemHelp(scrollamt + choice));
 	    }
 	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	} else {
+	    if (show_status) {
+		if (separate_output) {
+		    dlg_add_result(ItemName(scrollamt + choice));
+		    dlg_add_result("\n");
+		} else {
+		    dlg_add_quoted(ItemName(scrollamt + choice));
+		}
+	    } else {
+		dlg_add_result(ItemName(scrollamt + choice));
+	    }
 	}
 	break;
     }

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.119 2004/03/01 23:15:13 tom Exp $
+ *  $Id: util.c,v 1.122 2004/03/15 00:01:06 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -70,7 +70,7 @@ DIALOG_VARS dialog_vars;
 #endif
 
 #ifdef HAVE_COLOR
-#include <colors.h>
+#include <dlg_colors.h>
 #define COLOR_DATA(upr) , concat(upr,_FG), concat(upr,_BG), concat(upr,_HL)
 #else
 #define COLOR_DATA(upr)		/*nothing */
@@ -337,7 +337,7 @@ init_dialog(FILE *input, FILE *output)
     (void) cbreak();
     (void) noecho();
     mouse_open();
-    dialog_state.screen_initialized = 1;
+    dialog_state.screen_initialized = TRUE;
 
 #ifdef HAVE_COLOR
     if (dialog_state.use_colors || dialog_state.use_shadow)
@@ -428,7 +428,7 @@ void
 end_dialog(void)
 {
     if (dialog_state.screen_initialized) {
-	dialog_state.screen_initialized = 0;
+	dialog_state.screen_initialized = FALSE;
 	mouse_close();
 	(void) endwin();
 	(void) fflush(stdout);
@@ -729,7 +729,7 @@ longest_word(const char *string)
 
     while (*string != '\0') {
 	length = 0;
-	while (*string != '\0' && !isspace(*string)) {
+	while (*string != '\0' && !isspace(UCH(*string))) {
 	    length++;
 	    string++;
 	}

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.35 2003/11/24 01:12:30 tom Exp $
+dnl $Id: configure.in,v 1.36 2004/03/15 00:10:56 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -47,10 +47,14 @@ CF_MATH_LIB(,sqrt(x))
 
 CF_WITH_DBMALLOC
 CF_WITH_DMALLOC
+
+LIBTOOL_MAKE="#"
 CF_WITH_LIBTOOL
 if test "$with_libtool" = "yes" ; then
 	OBJEXT="lo"
+	LIBTOOL_MAKE=
 fi
+AC_SUBST(LIBTOOL_MAKE)
 
 use_ncurses=no
 AC_ARG_WITH(ncurses,

@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.33 2003/11/27 00:23:16 tom Exp $
+# $Id: makefile.in,v 1.36 2004/03/15 00:09:52 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -20,7 +20,8 @@ bindir		= $(DESTDIR)@bindir@
 includedir	= $(DESTDIR)@includedir@
 libdir		= $(DESTDIR)@libdir@
 mandir		= $(DESTDIR)@mandir@
-MANDIR		= $(mandir)/man1
+MAN1DIR		= $(mandir)/man1
+MAN3DIR		= $(mandir)/man3
 
 # see po/makefile
 localedir       = $(prefix)/@DATADIRNAME@/locale
@@ -80,18 +81,21 @@ LIB_OBJECT = @LIB_OBJECT@
 
 SRCS = $(OBJECTS:$o=.c)
 HDRS = \
-	colors.h \
 	dialog.h \
+	dlg_colors.h \
 	dlg_config.h
 
 LIB	= @LIB_PREFIX@dialog$a
 PROG	= dialog$x
 ALL	= $(LIB) $(PROG)
 
-BIN_DIRS	= $(bindir) $(MANDIR)
-LIB_DIRS	= $(libdir) $(includedir)
+BIN_DIRS	= $(bindir) $(MAN1DIR)
+LIB_DIRS	= $(libdir) $(includedir) $(MAN3DIR)
 
 all	:: $(ALL)
+
+@LIBTOOL_MAKE@install	:: install-lib
+@LIBTOOL_MAKE@uninstall	:: uninstall-lib
 
 @INTLDIR_MAKE@@INTLLIBS@ :
 @INTLDIR_MAKE@	@echo "Building GNU gettext library..."
@@ -133,25 +137,30 @@ install-strip :: $(PROG) $(bindir)
 	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
 
 install-strip \
-install :: $(MANDIR)
-	$(INSTALL_DATA) dialog.1 $(MANDIR)
+install :: $(MAN1DIR)
+	$(INSTALL_DATA) dialog.1 $(MAN1DIR)
 
 uninstall ::
 	$(RM) $(bindir)/$(PROG)
-	$(RM) $(MANDIR)/dialog.1
+	$(RM) $(MAN1DIR)/dialog.1
 
 # most users do not want/need the library, so the install rules are distinct.
 install-lib :: $(LIB_DIRS)
 	$(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(libdir)
 	$(INSTALL_DATA) dialog.h $(includedir)
+	$(INSTALL_DATA) dlg_colors.h $(includedir)
 	$(INSTALL_DATA) dlg_config.h $(includedir)
+	$(INSTALL_DATA) dialog.3 $(MAN3DIR)
 
 uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(libdir)/$(LIB)
 	$(RM) $(includedir)/dialog.h
+	$(RM) $(includedir)/dlg_colors.h
 	$(RM) $(includedir)/dlg_config.h
+	$(RM) $(MAN3DIR)/dialog.3
 
-$(MANDIR) \
+$(MAN1DIR) \
+$(MAN3DIR) \
 $(bindir) \
 $(includedir) \
 $(libdir) : ; $(srcdir)/mkdirs.sh $@
