@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.57 2003/08/20 19:52:11 tom Exp $
+ *  $Id: menubox.c,v 1.61 2003/09/10 23:01:06 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -356,15 +356,14 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		ungetch('\n');
 		continue;
 	    }
-	} else if (is8bit(key)) {
+	} else {
 	    /*
 	     * Check if key pressed matches first character of any item tag in
 	     * list.  If there is more than one match, we will cycle through
 	     * each one as the same key is pressed repeatedly.
 	     */
 	    for (j = scrollamt + choice + 1; j < item_no; j++) {
-		if (toupper(key) ==
-		    toupper(UCH(ItemName(j)[0]))) {
+		if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
@@ -372,14 +371,15 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    }
 	    if (!found) {
 		for (j = 0; j <= scrollamt + choice; j++) {
-		    if (toupper(key) ==
-			toupper(UCH(ItemName(j)[0]))) {
+		    if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 			found = TRUE;
 			i = j - scrollamt;
 			break;
 		    }
 		}
 	    }
+	    if (found)
+		dlg_flush_getc();
 
 	    /*
 	     * A single digit (1-9) positions the selection to that line in the
@@ -543,8 +543,9 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		    tmp = input_menu_edit(menu, ItemData(scrollamt + choice),
 					  choice);
 
+		    dialog_vars.input_result[0] = '\0';
 		    dlg_add_result("RENAMED ");
-		    dlg_add_result(ItemName(choice));
+		    dlg_add_result(ItemName(scrollamt + choice));
 		    dlg_add_result(" ");
 		    dlg_add_result(tmp);
 		    free(tmp);

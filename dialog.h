@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.120 2003/08/30 16:22:00 tom Exp $
+ *  $Id: dialog.h,v 1.122 2003/09/10 20:51:38 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -316,7 +316,6 @@ extern bool use_shadow;
 #endif
 
 #define UCH(ch)			((unsigned char)(ch))
-#define is8bit(ch)		(((ch) >= 0) && ((ch) < 0x100))
 
 #define assert_ptr(ptr,msg) if ((ptr) == 0) exiterr("cannot allocate memory in " msg)
 
@@ -418,6 +417,7 @@ extern const char ** dlg_ok_labels(void);
 extern const char ** dlg_yes_labels(void);
 extern int dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
 extern int dlg_char_to_button(int ch, const char **labels);
+extern int dlg_match_char(int ch, const char *string);
 extern int dlg_next_button(const char **labels, int button);
 extern int dlg_next_ok_buttonindex(int current, int extra);
 extern int dlg_ok_buttoncode(int button);
@@ -440,7 +440,9 @@ extern void dlg_show_string(WINDOW *win, const char *string, int offset, chtype 
 /* ui_getc.c */
 extern int dlg_getc(WINDOW *win, int *fkey);
 extern int dlg_getc_callbacks(int ch, int fkey, int *result);
+extern int dlg_last_getc(void);
 extern void dlg_add_callback(DIALOG_CALLBACK *p);
+extern void dlg_flush_getc(void);
 extern void dlg_remove_callback(DIALOG_CALLBACK *p);
 extern void killall_bg(int *retval);
 
@@ -453,6 +455,7 @@ extern void dlg_item_help(char *txt);
 extern void dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);
 extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
 extern void dlg_trim_string(char *src);
+
 #ifdef HAVE_STRCASECMP
 #define dlg_strcmp(a,b) strcasecmp(a,b)
 #else

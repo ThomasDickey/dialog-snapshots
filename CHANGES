@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.74 2003/08/31 00:55:12 tom Exp $
+-- $Id: CHANGES,v 1.75 2003/09/10 23:10:25 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/09/10
+	+ correct "RENAMED" result from inputmenu widget, which did not reset
+	  the result buffer, and did not account for scroll-offset (Debian
+	  #209336).
+	+ modify button, menu and checkbox logic that matches a character to
+	  the beginning of a text field to support wide-characters (completes
+	  Debian #195674).
+	+ modify configure script to not use "head -1".
 
 2003/08/30
 	+ modify searchbox popup in textbox widget so one can simply press

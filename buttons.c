@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.34 2003/08/24 17:51:32 tom Exp $
+ *  $Id: buttons.c,v 1.38 2003/09/10 23:07:13 tom Exp $
  *
  *  buttons.c
  *
@@ -22,6 +22,15 @@
 
 #include "dialog.h"
 
+#if defined(HAVE_WGET_WCH)
+#include <wctype.h>
+#define dlg_toupper(ch) towupper(ch)
+#define dlg_isupper(ch) iswupper(ch)
+#else
+#define dlg_toupper(ch) toupper(ch)
+#define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
+#endif
+
 static void
 center_label(char *buffer, int longest, const char *label)
 {
@@ -35,6 +44,43 @@ center_label(char *buffer, int longest, const char *label)
 	}
     }
     sprintf(buffer, "%-*s", longest, label);
+}
+
+/*
+ * Parse a multibyte character out of the string, set it past the parsed
+ * character.
+ */
+static int
+string_to_char(const char **stringp)
+{
+    int result;
+#ifdef HAVE_WGET_WCH
+    const char *string = *stringp;
+    int have = strlen(string);
+    int check;
+    int len;
+    wchar_t cmp2;
+    mbstate_t state;
+
+    memset(&state, 0, sizeof(state));
+    len = mbrlen(string, have, &state);
+    if (len > 0 && len <= have) {
+	memset(&state, 0, sizeof(state));
+	check = mbrtowc(&cmp2, string, len, &state);
+	if (check <= 0)
+	    cmp2 = 0;
+	*stringp += len;
+    } else {
+	cmp2 = UCH(*string);
+	*stringp += 1;
+    }
+    result = cmp2;
+#else
+    const char *string = *stringp;
+    result = UCH(*string);
+    *stringp += 1;
+#endif
+    return result;
 }
 
 /*
@@ -63,11 +109,21 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
     for (i = 0; i < limit; ++i) {
 	int first = indx[i];
 	int last = indx[i + 1];
-	int width = last - first;
 
 	switch (state) {
 	case 0:
-	    if (width == 1 && isupper(UCH(label[first]))) {
+#ifdef HAVE_WGET_WCH
+	    if ((last - first) != 1) {
+		const char *temp = (label + first);
+		int cmp = string_to_char(&temp);
+		if (dlg_isupper(cmp)) {
+		    wattrset(win, key_attr);
+		    state = 1;
+		}
+		break;
+	    }
+#endif
+	    if (dlg_isupper(UCH(label[first]))) {
 		wattrset(win, key_attr);
 		state = 1;
 	    }
@@ -231,6 +287,32 @@ dlg_draw_buttons(WINDOW *win,
 }
 
 /*
+ * Match a given character against the beginning of the string, ignoring case
+ * of the given character.  The matching string must begin with an uppercase
+ * character.
+ */
+int
+dlg_match_char(int ch, const char *string)
+{
+    if (string != 0) {
+	int cmp2 = string_to_char(&string);
+#ifdef HAVE_WGET_WCH
+	wint_t cmp1 = dlg_toupper(ch);
+	if (cmp2 != 0 && (wchar_t) cmp1 == cmp2) {
+	    return TRUE;
+	}
+#else
+	if (ch > 0 && ch < 256 && dlg_isupper(cmp2)) {
+	    int cmp1 = dlg_toupper(ch);
+	    if (cmp1 == cmp2)
+		return TRUE;
+	}
+#endif
+    }
+    return FALSE;
+}
+
+/*
  * Given a list of button labels, and a character which may be the abbreviation
  * for one, find it, if it exists.  An abbreviation will be the first character
  * which happens to be capitalized in the label.
@@ -238,22 +320,20 @@ dlg_draw_buttons(WINDOW *win,
 int
 dlg_char_to_button(int ch, const char **labels)
 {
-    if (ch > 0 && ch < 256 && labels != 0) {
-	int n = 0;
+    if (labels != 0) {
+	int j;
 	const char *label;
 
-	while ((label = *labels++) != 0) {
+	ch = dlg_toupper(dlg_last_getc());
+	for (j = 0; labels[j] != 0; ++j) {
+	    label = labels[j];
 	    while (*label != 0) {
-		if (isupper(UCH(*label))) {
-		    if (ch == *label
-			|| (isalpha(ch) && toupper(ch) == *label)) {
-			return n;
-		    }
-		    break;
+		int cmp = dlg_toupper(string_to_char(&label));
+		if (ch == cmp) {
+		    dlg_flush_getc();
+		    return j;
 		}
-		label++;
 	    }
-	    n++;
 	}
     }
     return -1;
