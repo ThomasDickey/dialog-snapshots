@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2004-03-26 11:39+0200\n"
 "Last-Translator: Leonid Kanter <leon@asplinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -56,7 +56,7 @@ msgstr "Месяц"
 msgid "Year"
 msgstr "Год"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr "Переименовать"
 
@@ -67,3 +67,8 @@ msgstr "Каталоги"
 #: fselect.c:427
 msgid "Files"
 msgstr "Файлы"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

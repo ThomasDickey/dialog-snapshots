@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: inputmenu3,v 1.5 2004/09/19 17:59:14 tom Exp $
+# $Id: inputmenu3,v 1.6 2004/12/19 23:18:53 tom Exp $
 #
 # "inputmenu1" with defaultitem, help-button and item-help.
 : ${DIALOG=dialog}
@@ -67,6 +67,10 @@ exec 3>&-
 				$user" 10 40
 			;;
 		esac
+		;;
+	2)
+		"$DIALOG" \
+		--textbox "$0" 0 0
 		;;
 	3)
 		tag=`echo "$value" |sed -e 's/^RENAMED //' -e 's/:.*/:/'`

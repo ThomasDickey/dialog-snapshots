@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: checklist1,v 1.2 2003/08/15 19:40:37 tom Exp $
+# $Id: checklist1,v 1.3 2004/12/20 00:14:24 tom Exp $
 : ${DIALOG=dialog}
 
 : ${DIALOG_OK=0}
@@ -9,7 +9,7 @@
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --backtitle "Red Hat Software Linux" \
+$DIALOG --backtitle "No Such Organization" \
 	--title "CHECKLIST BOX" \
         --checklist "Hi, this is a checklist box. You can use this to \n\
 present a list of choices which can be turned on or \n\

@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: checklist7,v 1.2 2003/08/15 19:40:37 tom Exp $
+# $Id: checklist7,v 1.3 2004/12/19 23:18:53 tom Exp $
 # "checklist6" with --separate-output
 : ${DIALOG=dialog}
 
@@ -34,9 +34,11 @@ retval=$?
 choice=`cat $tempfile`
 case $retval in
   0)
-    echo "'$choice' chosen.";;
+    echo "OK '$choice' chosen.";;
   1)
     echo "Cancel pressed.";;
+  2)
+    echo "HELP '$choice' chosen.";;
   255)
     echo "ESC pressed.";;
   *)

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.77 2004/11/19 01:49:04 tom Exp $
+ *  $Id: menubox.c,v 1.78 2004/12/19 22:56:29 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -236,7 +236,7 @@ handle_button(int code, char **items, int choice)
 	dlg_add_result("HELP ");
 	if (USE_ITEM_HELP(ItemHelp(choice))) {
 	    dlg_add_result(ItemHelp(choice));
-	    code = DLG_EXIT_OK;	/* this is inconsistent */
+	    code = DLG_EXIT_ITEM_HELP;
 	} else {
 	    dlg_add_result(ItemName(choice));
 	}

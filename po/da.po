@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2004-07-31 22:53+0200\n"
 "Last-Translator: Morten Brix Pedersen <morten@wtf.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -51,7 +51,7 @@ msgstr "Måned"
 msgid "Year"
 msgstr "År"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr "Omdøb"
 
@@ -62,3 +62,8 @@ msgstr "Kataloger"
 #: fselect.c:427
 msgid "Files"
 msgstr "Filer"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

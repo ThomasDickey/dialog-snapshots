@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.139 2004/11/19 02:30:13 tom Exp $
+ *  $Id: util.c,v 1.140 2004/12/19 23:34:03 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1023,12 +1023,13 @@ dlg_exit(int code)
 	int code;
 	const char *name;
     } table[] = {
-	{ DLG_EXIT_CANCEL, "DIALOG_CANCEL" },
-	{ DLG_EXIT_ERROR,  "DIALOG_ERROR" },
-	{ DLG_EXIT_ESC,	   "DIALOG_ESC" },
-	{ DLG_EXIT_EXTRA,  "DIALOG_EXTRA" },
-	{ DLG_EXIT_HELP,   "DIALOG_HELP" },
-	{ DLG_EXIT_OK,	   "DIALOG_OK" },
+	{ DLG_EXIT_CANCEL, 	"DIALOG_CANCEL" },
+	{ DLG_EXIT_ERROR,  	"DIALOG_ERROR" },
+	{ DLG_EXIT_ESC,	   	"DIALOG_ESC" },
+	{ DLG_EXIT_EXTRA,  	"DIALOG_EXTRA" },
+	{ DLG_EXIT_HELP,   	"DIALOG_HELP" },
+	{ DLG_EXIT_OK,	   	"DIALOG_OK" },
+	{ DLG_EXIT_ITEM_HELP,	"DIALOG_ITEM_HELP" },
     };
     /* *INDENT-ON* */
 
@@ -1036,16 +1037,30 @@ dlg_exit(int code)
     char *name;
     char *temp;
     long value;
+    bool overridden = FALSE;
 
+  retry:
     for (n = 0; n < sizeof(table) / sizeof(table[0]); n++) {
 	if (table[n].code == code) {
 	    if ((name = getenv(table[n].name)) != 0) {
 		value = strtol(name, &temp, 0);
-		if (temp != 0 && temp != name && *temp == '\0')
+		if (temp != 0 && temp != name && *temp == '\0') {
 		    code = value;
+		    overridden = TRUE;
+		}
 	    }
 	    break;
 	}
+    }
+
+    /*
+     * Prior to 2004/12/19, a widget using --item-help would exit with "OK"
+     * if the help button were selected.  Now we want to exit with "HELP",
+     * but allow the environment variable to override.
+     */
+    if (code == DLG_EXIT_ITEM_HELP && !overridden) {
+	code = DLG_EXIT_HELP;
+	goto retry;
     }
 #ifdef NO_LEAKS
     _dlg_inputstr_leaks();

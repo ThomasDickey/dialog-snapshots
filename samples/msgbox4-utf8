@@ -1,12 +1,11 @@
 #!/bin/sh
-# $Id: msgbox4-utf8,v 1.5 2004/11/18 21:56:52 tom Exp $
+# $Id: msgbox4-utf8,v 1.6 2004/12/19 16:27:15 tom Exp $
 : ${DIALOG=dialog}
 
 : ${DIALOG_OK=0}
 : ${DIALOG_CANCEL=1}
 : ${DIALOG_ESC=255}
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 case none"$LANG$LC_ALL$LC_CTYPE" in
 *UTF-8*)
 	;;

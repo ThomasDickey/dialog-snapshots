@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.54 2004/11/18 22:47:15 tom Exp $
+ *  $Id: textbox.c,v 1.56 2004/12/19 19:53:48 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -422,17 +422,28 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 }
 
 /*
- * Display a dialog box and get the search term from user
+ * Display a dialog box and get the search term from user.
  */
 static int
 get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
     attr_t save = getattrs(dialog);
-    int box_x, box_y, key = 0, box_height = 3, box_width = 30;
+    int box_x, box_y, key = 0;
+    int box_height, box_width;
     int offset = 0;
     int fkey = 0;
     bool first = TRUE;
     int result = DLG_EXIT_UNKNOWN;
+    const char *caption = _("Search");
+    int len_caption = dlg_count_columns(caption);
+    const int *indx;
+    int limit;
+
+    box_height = 1 + (2 * MARGIN);
+    box_width = len_caption + (2 * (MARGIN + 2));
+    box_width = MAX(box_width, 30);
+    box_width = MIN(box_width, getmaxx(dialog) - 2 * MARGIN);
+    len_caption = MIN(len_caption, box_width - (2 * (MARGIN + 1)));
 
     box_x = (width - box_width) / 2;
     box_y = (height - box_height) / 2;
@@ -444,8 +455,11 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 		 searchbox_attr,
 		 searchbox_border_attr);
     wattrset(dialog, searchbox_title_attr);
-    (void) wmove(dialog, box_y, box_x + box_width / 2 - 4);
-    (void) waddstr(dialog, " Search ");
+    (void) wmove(dialog, box_y, (width - len_caption) / 2);
+
+    indx = dlg_index_wchars(caption);
+    limit = dlg_limit_columns(caption, len_caption, 0);
+    (void) waddnstr(dialog, caption + indx[0], indx[limit] - indx[0]);
 
     box_y++;
     box_x++;

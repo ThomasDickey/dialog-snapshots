@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.9 2004/09/19 21:20:35 tom Exp $
-.TH DIALOG 3 "" "$Date: 2004/09/19 21:20:35 $"
+.\" $Id: dialog.3,v 1.11 2004/12/20 01:24:08 tom Exp $
+.TH DIALOG 3 "" "$Date: 2004/12/20 01:24:08 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -644,6 +644,21 @@ With an "OK" button, it is denoted a "msgbox",
 without an "OK" button, it is denoted an "infobox".
 .RE
 .\" ************************************************************************
+.IP dialog_pause
+implements the "\fB--pause\fP option.
+.RS
+.IP title
+is the title on the top of the widget.
+.IP height
+is the desired height of the box.
+If zero, the height is based on the screen size.
+.IP width
+is the desired width of the box.
+If zero, the height is based on the screen size.
+.IP seconds
+is the timeout to use for the progress bar.
+.RE
+.\" ************************************************************************
 .IP dialog_tailbox
 implements the "\fB--tailbox\fP or "\fB--tailboxbg\fP option
 depending on whether \fIbg_task\fP is set.
@@ -790,6 +805,7 @@ library as a string.
 .\" dlg_mouse_region (int y, int x);
 .\" dlg_mouse_setbase (int x, int y);
 .\" dlg_mouse_wgetch (WINDOW *, int *);
+.\" dlg_mouse_wgetch_nowait (WINDOW *, int *);
 .\" dlg_new_window(int height, int width, int y, int x);
 .\" dlg_next_button(const char **labels, int button);
 .\" dlg_next_ok_buttonindex(int current, int extra);

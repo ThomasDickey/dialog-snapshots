@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2004-05-04 22:04+0200\n"
 "Last-Translator: Piarres Beobide Egaña <pi@beobide.net>\n"
 "Language-Team: Euskara <librezale@librezale.org>\n"
@@ -53,7 +53,7 @@ msgstr "Hilabetea"
 msgid "Year"
 msgstr "Urtea"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr "Izena aldatu"
 
@@ -64,3 +64,8 @@ msgstr "Direktorioak"
 #: fselect.c:427
 msgid "Files"
 msgstr "Fitxategiak"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

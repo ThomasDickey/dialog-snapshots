@@ -1,4 +1,4 @@
-.\" $Id: dialog.1,v 1.78 2004/09/21 01:43:31 tom Exp $
+.\" $Id: dialog.1,v 1.81 2004/12/20 00:42:18 tom Exp $
 .de EX
 .ne 8
 .IP
@@ -12,7 +12,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2004/09/21 01:43:31 $"
+.TH DIALOG 1 "" "$Date: 2004/12/20 00:42:18 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -44,6 +44,7 @@ These types of dialog boxes are implemented
 .BR menu ", "
 .BR msgbox " (message), "
 .BR password ", "
+.BR pause ", "
 .BR radiolist ", "
 .BR tailbox ", "
 .BR tailboxbg ", "
@@ -114,7 +115,7 @@ Override the label used for "Cancel" buttons.
 .IP "\fB--clear"
 Clears the widget screen, keeping only the screen_color background.
 Use this when you combine widgets with "\fB--and-widget\fR" to erase the
-contents of a previous widget on the screen, so it won't be seen 
+contents of a previous widget on the screen, so it won't be seen
 under the contents of a following widget.
 Understand this as the complement of "\fB--keep-window\fR".
 To compare the effects, use these:
@@ -172,7 +173,7 @@ Bold is set by 'b', reset by 'B'.
 Reverse is set by 'r', reset by 'R'.
 Underline is set by 'u', reset by 'U'.
 The settings are cumulative, e.g., "\\Zb\\Z1" makes the following text
-bright red.
+bold (perhaps bright) red.
 Restore normal settings with "\\Zn".
 .
 .IP "\fB--cr-wrap"
@@ -410,7 +411,7 @@ i.e., the cursor position helps some users.
 .IP
 When this option is given, the cursor is initially placed on the list.
 Abbreviations (the first letter of the tag) apply to the list items.
-If you tab to the button row, abbrevations apply to the buttons.
+If you tab to the button row, abbreviations apply to the buttons.
 .
 .IP "\fB--yes-label \fIstring"
 Override the label used for "Yes" buttons.
@@ -623,6 +624,15 @@ On exit, no text is written to \fBdialog\fP's output.
 Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
+.IP "\fB\-\-pause \fItext height width seconds\fR"
+A
+\fBpause\fP
+box displays a meter along the bottom of the box.
+The meter indicates how many seconds remain until the end of the pause.
+The pause exits when timeout is reached (status OK)
+or the user presses the Exit button
+(status CANCEL).
+.
 .IP "\fB--passwordbox \fItext height width [init]"
 A \fBpassword\fP box is similar to an input box,
 except that the text the user enters is not displayed.
@@ -697,13 +707,13 @@ A
 box lets you display the contents of a text file in a dialog box.
 It is like a simple text file viewer.
 The user can move through the file by using the
-cursor, \fIPGUP/PGDN\fR
+cursor, page-up, page-down
 and \fIHOME/END\fR keys available on most keyboards.
 If the lines are too long to be displayed in the box,
 the \fILEFT/RIGHT\fP
 keys can be used to scroll the text region horizontally.
 You may also use vi-style keys h, j, k, l in place of the cursor keys,
-and B or N in place of the pageup/pagedown keys.
+and B or N in place of the page-up and page-down keys.
 Scroll up/down using vi-style 'k' and 'j', or arrow-keys.
 Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
 A '0' resets the left/right scrolling.
@@ -836,6 +846,8 @@ to use.
 .TP 15
 \fBDIALOG_HELP\fP
 .TP 15
+\fBDIALOG_ITEM_HELP\fP
+.TP 15
 \fBDIALOG_OK\fP
 Define any of these variables to change the exit code on
 Cancel (1),
@@ -843,6 +855,7 @@ error (-1),
 ESC (255),
 Extra (3),
 Help (2),
+Help with --item-help (2),
 or OK (0).
 Normally shell scripts cannot distinguish between -1 and 255.
 .TP 15

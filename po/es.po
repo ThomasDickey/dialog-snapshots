@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 0.9b-20030910\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2003-09-11 11:40+0200\n"
 "Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -52,7 +52,7 @@ msgstr "Mes"
 msgid "Year"
 msgstr "Año"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr "Renombrar"
 
@@ -63,3 +63,8 @@ msgstr "Directorios"
 #: fselect.c:427
 msgid "Files"
 msgstr "Ficheros"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

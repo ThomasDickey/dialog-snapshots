@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.29 2004/11/18 21:43:03 tom Exp $
+ *  $Id: formbox.c,v 1.31 2004/12/19 22:56:29 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -62,6 +62,13 @@ ok_move(WINDOW *win, int scrollamt, int y, int x)
 	&& (wmove(win, y - scrollamt, x) != ERR);
 }
 
+static void
+move_past(WINDOW *win, int y, int x)
+{
+    if (wmove(win, y, x) == ERR)
+	wmove(win, y, getmaxx(win) - 1);
+}
+
 /*
  * Print form item
  */
@@ -75,8 +82,16 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 	len = elt->name_len;
 	len = MIN(len, getmaxx(win) - elt->name_x);
 	if (len > 0) {
-	    wattrset(win, menubox_attr);
-	    (void) wprintw(win, "%-*s", len, elt->name);
+	    dlg_show_string(win,
+			    elt->name,
+			    0,
+			    menubox_attr,
+			    elt->name_y,
+			    elt->name_x,
+			    len,
+			    FALSE,
+			    FALSE);
+	    move_past(win, elt->name_y, elt->name_x + len);
 	    count = 1;
 	}
     }
@@ -84,8 +99,16 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 	len = elt->text_flen;
 	len = MIN(len, getmaxx(win) - elt->text_x);
 	if (len > 0) {
-	    wattrset(win, choice ? form_active_text_attr : form_text_attr);
-	    (void) wprintw(win, "%-*s", len, elt->text);
+	    dlg_show_string(win,
+			    elt->text,
+			    0,
+			    choice ? form_active_text_attr : form_text_attr,
+			    elt->text_y,
+			    elt->text_x,
+			    len,
+			    FALSE,
+			    FALSE);
+	    move_past(win, elt->text_y, elt->text_x + len);
 	    count = 1;
 	}
     }
@@ -284,10 +307,6 @@ init_fe(char **items,
 	 */
 	if (text_ilen == 0)
 	    text_ilen = text_flen;
-
-	if (text_flen != 0
-	    && text_flen < text_ilen)
-	    text_ilen = MIN(text_ilen, text_flen);
 
 	min_h = MAX(min_h, name_y);
 	min_h = MAX(min_h, text_y);
@@ -654,7 +673,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	show_status = dialog_vars.help_status;
 	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
 	    dlg_add_result(ItemHelp(scrollamt + choice));
-	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	    result = DLG_EXIT_ITEM_HELP;
 	} else {
 	    dlg_add_result(ItemName(scrollamt + choice));
 	}
