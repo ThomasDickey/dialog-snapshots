@@ -26,7 +26,7 @@
 # demo of cdialog. ComeOn Linux! follows the GNU philosophy.
 # Send peacefully a mail to demarco_p@abramo.it for more info.
 
-DIALOG="`pwd`/../dialog"
+DIALOG=${DIALOG=dialog}
 
 #COMEONDIR=/usr/lib/ComeOn
 #POINTDIR=$COMEONDIR/point

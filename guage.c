@@ -20,22 +20,52 @@
 
 #include "dialog.h"
 
+#define MY_LEN (MAX_LEN)/2
+
+#define isMarker(buf) !strncmp(buf, "XXX", 3)
+
+static char *
+read_data(char *buffer, FILE * fp)
+{
+    char *result;
+    if (feof(fp)) {
+	result = 0;
+    } else if ((result = fgets(buffer, MY_LEN, fp)) != 0) {
+	unsigned len = strlen(result);
+	while (len != 0
+	    && isspace(result[len - 1])) {
+	    result[--len] = 0;
+	}
+    }
+    return result;
+}
+
+static int
+decode_percent(char *buffer)
+{
+    char *tmp = 0;
+    long value = strtol(buffer, &tmp, 10);
+    if (tmp != 0 && *tmp == 0 && value >= 0) {
+	return TRUE;
+    }
+    return FALSE;
+}
+
 /*
- * Display a gauge, or progress meter.  Starts at percent% and
- * reads stdin.  If stdin is not XXX, then it is interpreted as
- * a percentage, and the display is updated accordingly.  Otherwise
- * the next line is the percentage, and subsequent lines up to
- * another XXX are used for the new prompt.  Note that the size
- * of the window never changes, so the prompt can not get any
- * larger than the height and width specified.
+ * Display a gauge, or progress meter.  Starts at percent% and reads stdin.  If
+ * stdin is not XXX, then it is interpreted as a percentage, and the display is
+ * updated accordingly.  Otherwise the next line is the percentage, and
+ * subsequent lines up to another XXX are used for the new prompt.  Note that
+ * the size of the window never changes, so the prompt can not get any larger
+ * than the height and width specified.
  */
 int
 dialog_gauge(const char *title, const char *prompt, int height,
     int width, int percent)
 {
     int i, x, y;
-    char buf[1024];
-    char prompt_buf[1024];
+    char buf[MY_LEN];
+    char prompt_buf[MY_LEN];
     WINDOW *dialog;
 
     /* center dialog box on screen */
@@ -51,7 +81,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	print_autowrap(dialog, prompt, width - 2, 1, 2);
+	print_autowrap(dialog, prompt, width - 2, 3, 2);
 
 	draw_box(dialog, height - 4, 3, 3, width - 6, dialog_attr,
 	    border_attr);
@@ -69,29 +99,37 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	wattrset(dialog, A_REVERSE);
 	wmove(dialog, height - 3, 4);
 	for (i = 0; i < x; i++)
-	    waddch(dialog, CharOf(winch(dialog)));
+	    waddch(dialog, winch(dialog));
 
 	wrefresh(dialog);
 
-	if (feof(pipe_fp)
-	    || fgets(buf, sizeof(buf), pipe_fp) == 0)
+	if (read_data(buf, pipe_fp) == 0)
 	    break;
-	if (buf[0] == 'X') {
-	    /* Next line is percentage */
-	    if (feof(pipe_fp)
-		|| fgets(buf, sizeof(buf), pipe_fp) == 0)
+	if (isMarker(buf)) {
+	    /*
+	     * Historically, next line should be percentage, but one of the
+	     * worse-written clones of 'dialog' assumes the number is missing.
+	     * (Gresham's Law applied to software).
+	     */
+	    if (read_data(buf, pipe_fp) == 0)
 		break;
-	    percent = atoi(buf);
+	    prompt_buf[0] = '\0';
+	    if (decode_percent(buf))
+		percent = atoi(buf);
+	    else
+		strcpy(prompt_buf, buf);
 
 	    /* Rest is message text */
-	    prompt_buf[0] = '\0';
-	    while (fgets(buf, sizeof(buf), pipe_fp) != 0
-		&& strncmp(buf, "XXX", 3)
-		&& strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1)
-		strcat(prompt_buf, buf);
+	    while (read_data(buf, pipe_fp) != 0
+		&& !isMarker(buf)) {
+		if (strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1) {
+		    strcat(prompt_buf, buf);
+		}
+	    }
 	    prompt = prompt_buf;
-	} else
+	} else if (decode_percent(buf)) {
 	    percent = atoi(buf);
+	}
     } while (1);
 
     delwin(dialog);

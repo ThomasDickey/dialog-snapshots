@@ -275,47 +275,41 @@ void
 print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 {
     int first = 1, cur_x, cur_y;
-    char tempstr[MAX_LEN + 1], *word, *tempptr, *tempptr1;
+    char tempstr[MAX_LEN + 1], *word, *tempptr1, *tempptr2;
 
     strcpy(tempstr, prompt);
     if ((strstr(tempstr, "\\n") != NULL) ||
-	(strchr(tempstr, '\n') != NULL)) {	/* Prompt contains "\n" or '\n' */
+	(strchr(tempstr, '\n') != NULL)) {
+	/* Prompt contains "\n" or '\n' */
 	word = tempstr;
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
 	wmove(win, cur_y, x);
 	while (1) {
-	    tempptr = strstr(word, "\\n");
 	    tempptr1 = strchr(word, '\n');
-	    if (tempptr == NULL && tempptr1 == NULL)
+	    tempptr2 = strstr(word, "\\n");
+	    if (tempptr2 != NULL
+		&& (tempptr1 == NULL || (tempptr1 - word > tempptr2 - word))) {
+		*(tempptr1 = tempptr2) = 0;
+		tempptr1 += 2;
+	    } else if (tempptr1 != NULL) {
+		*tempptr1++ = 0;
+	    } else {
 		break;
-	    else if (tempptr == NULL) {		/* No more "\n" */
-		tempptr = tempptr1;
-		tempptr[0] = '\0';
-	    } else if (tempptr1 == NULL) {	/* No more '\n' */
-		tempptr[0] = '\0';
-		tempptr++;
-	    } else {		/* Prompt contains both "\n" and '\n' */
-		if (strlen(tempptr) <= strlen(tempptr1)) {
-		    tempptr = tempptr1;
-		    tempptr[0] = '\0';
-		} else {
-		    tempptr[0] = '\0';
-		    tempptr++;
-		}
 	    }
 
 	    waddstr(win, word);
-	    word = tempptr + 1;
+	    word = tempptr1;
 	    wmove(win, ++cur_y, x);
 	}
 	waddstr(win, word);
-    } else if ((int) strlen(tempstr) <= width - x * 2) {	/* If prompt is short */
+    } else if ((int) strlen(tempstr) <= width - x * 2) {
+	/* If prompt is short */
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
-	mvwprintw(win, 0, centered(width, tempstr), "%s", tempstr);
+	mvwprintw(win, cur_y, centered(width, tempstr), "%s", tempstr);
     } else {
 	cur_x = x;
 	cur_y = y;
@@ -325,7 +319,8 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	while ((word = strtok(first ? tempstr : NULL, " ")) != NULL) {
 	    if (first)		/* First iteration */
 		first = 0;
-	    if (cur_x + (int) strlen(word) > width - x) {	/* wrap around to next line */
+	    if (cur_x + (int) strlen(word) > width - x) {
+		/* wrap around to next line */
 		cur_y++;
 		cur_x = x;
 	    }

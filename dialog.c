@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.27 2000/04/23 19:22:24 tom Exp $
+ * $Id: dialog.c,v 1.28 2000/06/30 00:14:05 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -118,7 +118,7 @@ static Options options[] = {
     { "default-item",	o_default_item,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fullbutton",	o_fullbutton,		1, NULL },
-    { "gauge",		o_gauge,		2, "<text> <height> <width> <percent>" },
+    { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
@@ -363,7 +363,7 @@ j_gauge(JUMPARGS)
 	av[1],
 	atoi(av[2]),
 	atoi(av[3]),
-	atoi(av[4]));
+	av[4] ? atoi(av[4]) : 0);
 }
 #endif
 
@@ -435,7 +435,7 @@ static struct Mode modes[] =
     {o_inputbox, 4, 5, j_inputbox},
     {o_passwordbox, 4, 5, j_passwordbox},
 #ifdef HAVE_GAUGE
-    {o_gauge, 5, 5, j_gauge},
+    {o_gauge, 4, 5, j_gauge},
 #endif
 #ifdef HAVE_TAILBOX
     {o_tailbox, 4, 4, j_tailbox},

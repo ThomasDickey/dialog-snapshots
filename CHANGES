@@ -3,9 +3,27 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/6/29
+	+ add alternate test-script for gauge, adapted from Xdialog.
+	+ modify guage to make optional a percentage which was read at the
+	  beginning of the XXX-delimited message text, since clones of dialog
+	  are written to assume this is text.  If the line is not a simple
+	  integer, dialog will treat it as text.
+	+ make the percent parameter of gauge optional, as in Xdialog.
+	+ undo one use of CharOf() in guage.c, an error.
+	+ fix configure macro AM_WITH_NLS to refrain from attempting to make a
+	  symbolic link into/libintl.h if we are not using the bundled intl
+	  directory from gettext (reported by Julian Coleman
+	  <J.D.Coleman@newcastle.ac.uk>).
+	+ add ru.po, from Michael Sobolev <mss@transas.com>
+	+ updates for config.guess, config.sub from tin.
+	+ updates for configure script macros:  CF_MATH_LIB (improperly nested
+	  brackets/parenthesis) and CF_XOPEN_CURSES (make include of
+	  <*curses.h> depend on configure tests).
+
 2000/4/25
 	+ repaint screen when a control/L is pressed.
-	+ apply CharOf() macro to avoid sign-extension on calls to waddchr(),
+	+ apply CharOf() macro to avoid sign-extension on calls to waddch(),
 	  fixes a problem with accented characters (reported by Santiago Vila).
 	+ add es.po, from Santiago Vila <sanvila@unex.es> 
 

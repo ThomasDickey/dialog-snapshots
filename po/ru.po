@@ -1,0 +1,27 @@
+# Copyright 2000, Thomas Dickey 
+# From: Michael Sobolev <mss@transas.com> 
+# 
+#, fuzzy 
+msgid "" 
+msgstr "" 
+ 
+#: buttons.c:196 
+msgid "EXIT" 
+msgstr "Выход" 
+ 
+#: buttons.c:207 buttons.c:218 
+msgid "OK" 
+msgstr "ОК" 
+ 
+#: buttons.c:220 
+msgid "Cancel" 
+msgstr "Отказ" 
+ 
+#: buttons.c:231 
+msgid "Yes" 
+msgstr "Да" 
+ 
+#: buttons.c:232 
+msgid "No" 
+msgstr "Нет" 
+ 

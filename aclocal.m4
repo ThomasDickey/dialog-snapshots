@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.Dickey <dickey@clark.net>
-dnl $Id: aclocal.m4,v 1.6 2000/04/23 20:51:54 tom Exp $
+dnl $Id: aclocal.m4,v 1.8 2000/06/29 10:30:06 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -378,9 +378,15 @@ AC_DEFUN(AM_WITH_NLS,
     if test "$PACKAGE" = gettext; then
       USE_NLS=yes
       USE_INCLUDED_LIBINTL=yes
-
-      AC_LINK_FILES($nls_cv_header_libgt, $nls_cv_header_intl)
     fi
+
+    # If we really do not use included intl, suppress the command that
+    # would attempt to symlink the two copies of its header.
+    if test "$USE_INCLUDED_LIBINTL" != yes; then
+      nls_cv_header_libgt=
+      nls_cv_header_intl=
+    fi
+    AC_LINK_FILES($nls_cv_header_libgt, $nls_cv_header_intl)
 
     AC_OUTPUT_COMMANDS([ #(vi
       case "\$CONFIG_FILES" in
@@ -1015,12 +1021,12 @@ AC_CACHE_CHECK(if -lm needed for math functions,
 	[double x = rand(); printf("result = %g\n", ]ifelse($2,,sin(x),$2)[)],
 	[cf_cv_need_libm=no],
 	[cf_cv_need_libm=yes])])
-ifelse($1,,[
 if test "$cf_cv_need_libm" = yes
 then
+ifelse($1,,[
 	LIBS="$LIBS -lm"
-fi
 ],[$1=-lm])
+fi
 ])
 dnl ---------------------------------------------------------------------------
 dnl Look for the SVr4 curses clone 'ncurses' in the standard places, adjusting
@@ -1299,13 +1305,13 @@ AC_DEFUN([CF_XOPEN_CURSES],
 AC_CACHE_CHECK(if we must define _XOPEN_SOURCE_EXTENDED,cf_cv_need_xopen_extension,[
 AC_TRY_LINK([
 #include <stdlib.h>
-#include <curses.h>],[
+#include <${cf_cv_ncurses_header-curses.h}>],[
 	long x = winnstr(stdscr, "", 0)],
 	[cf_cv_need_xopen_extension=no],
 	[AC_TRY_LINK([
 #define _XOPEN_SOURCE_EXTENDED
 #include <stdlib.h>
-#include <curses.h>],[
+#include <${cf_cv_ncurses_header-curses.h}>],[
 	long x = winnstr(stdscr, "", 0)],
 	[cf_cv_need_xopen_extension=yes],
 	[cf_cv_need_xopen_extension=no])])])
