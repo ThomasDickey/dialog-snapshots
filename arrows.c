@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.12 2004/09/19 17:07:56 tom Exp $
+ *  $Id: arrows.c,v 1.13 2004/12/20 20:42:58 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -58,7 +58,7 @@ dlg_draw_arrows2(WINDOW *dialog,
 		 chtype attr,
 		 chtype borderattr)
 {
-    attr_t save = getattrs(dialog);
+    chtype save = getattrs(dialog);
     int cur_x, cur_y;
 
     getyx(dialog, cur_y, cur_x);

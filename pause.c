@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.2 2004/12/20 00:51:00 tom Exp $
+ *  $Id: pause.c,v 1.3 2004/12/20 23:42:34 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -73,21 +73,39 @@ dialog_pause(const char *title,
 		     dialog_attr,
 		     border_attr);
 
+	/*
+	 * Clear the area for the progress bar by filling it with spaces
+	 * in the title-attribute, and write the percentage with that
+	 * attribute.
+	 */
 	(void) wmove(dialog, height - 5, 4);
 	wattrset(dialog, title_attr);
 
 	for (i = 0; i < (width - 2 * (3 + MARGIN)); i++)
 	    (void) waddch(dialog, ' ');
 
-	wattrset(dialog, title_attr);
 	(void) wmove(dialog, height - 5, (width / 2) - 2);
 	(void) wprintw(dialog, "%3d", seconds);
 
+	/*
+	 * Now draw a bar in reverse, relative to the background.
+	 * The window attribute was useful for painting the background,
+	 * but requires some tweaks to reverse it.
+	 */
 	x = (seconds * (width - 2 * (3 + MARGIN))) / seconds_orig;
-	wattrset(dialog, A_REVERSE);
+	if ((title_attr & A_REVERSE) != 0) {
+	    wattroff(dialog, A_REVERSE);
+	} else {
+	    wattrset(dialog, A_REVERSE);
+	}
 	(void) wmove(dialog, height - 5, 4);
-	for (i = 0; i < x; i++)
-	    (void) waddch(dialog, winch(dialog));
+	for (i = 0; i < x; i++) {
+	    chtype ch = winch(dialog);
+	    if (title_attr & A_REVERSE) {
+		ch &= ~A_REVERSE;
+	    }
+	    (void) waddch(dialog, ch);
+	}
 
 	dlg_draw_bottom_box(dialog);
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.25 2003/11/26 17:22:53 tom Exp $
+ *  $Id: guage.c,v 1.26 2004/12/20 23:42:40 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -100,21 +100,39 @@ dialog_gauge(const char *title,
 		     dialog_attr,
 		     border_attr);
 
+	/*
+	 * Clear the area for the progress bar by filling it with spaces
+	 * in the title-attribute, and write the percentage with that
+	 * attribute.
+	 */
 	(void) wmove(dialog, height - 3, 4);
 	wattrset(dialog, title_attr);
 
 	for (i = 0; i < (width - 2 * (3 + MARGIN)); i++)
 	    (void) waddch(dialog, ' ');
 
-	wattrset(dialog, title_attr);
 	(void) wmove(dialog, height - 3, (width / 2) - 2);
 	(void) wprintw(dialog, "%3d%%", percent);
 
+	/*
+	 * Now draw a bar in reverse, relative to the background.
+	 * The window attribute was useful for painting the background,
+	 * but requires some tweaks to reverse it.
+	 */
 	x = (percent * (width - 2 * (3 + MARGIN))) / 100;
-	wattrset(dialog, A_REVERSE);
+	if ((title_attr & A_REVERSE) != 0) {
+	    wattroff(dialog, A_REVERSE);
+	} else {
+	    wattrset(dialog, A_REVERSE);
+	}
 	(void) wmove(dialog, height - 3, 4);
-	for (i = 0; i < x; i++)
-	    (void) waddch(dialog, winch(dialog));
+	for (i = 0; i < x; i++) {
+	    chtype ch = winch(dialog);
+	    if (title_attr & A_REVERSE) {
+		ch &= ~A_REVERSE;
+	    }
+	    (void) waddch(dialog, ch);
+	}
 
 	(void) wrefresh(dialog);
 

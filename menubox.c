@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.78 2004/12/19 22:56:29 tom Exp $
+ *  $Id: menubox.c,v 1.79 2004/12/20 20:42:58 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -104,7 +104,7 @@ print_item(WINDOW *win,
 	   int choice,
 	   Mode selected)
 {
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
     int n;
     int my_width = menu_width;
     int my_x = item_x;
@@ -175,7 +175,7 @@ print_item(WINDOW *win,
 static int
 input_menu_edit(WINDOW *win, char **items, int choice, char **resultp)
 {
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
     char *result;
     int offset = 0;
     int key = 0, fkey = 0;
