@@ -183,7 +183,7 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
       print_last_page(text, height-2-1, width-2);
       wrefresh_lock_tailbg(dialog);
     }
-    sleep(1);
+    napms(1000);
   }
 }
 /* End of dialog_tailboxbg() */

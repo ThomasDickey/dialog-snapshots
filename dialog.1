@@ -6,84 +6,207 @@ dialog \- display dialog boxes from shell scripts
 .br
 .BI "dialog --create-rc " file
 .br
+.B dialog --print-maxsize
+.br
 .B dialog
-[
-.B \-\-title
-.I title
-]
-[
-.B \-\-backtitle
-.I backtitle
-]
-[
-.B \-\-clear
-]
-[
-.B \-\-separate\-output
-]
-.B box-options
+.I common-options
+.I box-options
 .SH DESCRIPTION
 .B Dialog
 is a program that will let you to present a variety of questions or
-display messages using dialog boxes from a shell script. Currently,
-these types of dialog boxes are implemented: 
+display messages using dialog boxes from a shell script.
+Currently, these types of dialog boxes are implemented: 
 .LP
-.BR yes/no " box," " menu" " box," " input" " box,"
-.BR message " box," " text" " box," " info" " box,"
-.BR checklist " box," " radiolist" " box," " gauge" " box, and"
-.BR password " box."
+.BR checklist ", "
+.BR gauge ", "
+.BR infobox ", "
+.BR inputbox ", "
+.BR menu ", "
+.BR msgbox " (message), "
+.BR password ", "
+.BR radiolist ", "
+.BR tailbox ", "
+.BR tailboxbg ", "
+.BR textbox ", and "
+.BR yesno " (yes/no)."
+.
+.\" ************************************************************************
 .SH OPTIONS
 .TP
-.B \-\-clear
-The screen will be cleared to the
-.BR "screen attribute" " on exit."
-.TP
-.BI \-\-create-rc " file"
-.RB "Since " dialog " supports run-time configuration,"
-this can be used to dump a sample configuration file to the file specified
-by
-.IR file "."
-.TP
-.BI \-\-separate\-output
-For checklist widgets, output result one line at a time, with no
-quoting.  This facilitates parsing by another program.
-.TP
-.BI \-\-title " title"
-Specifies a
-.I title
-string to be displayed at the top of the dialog box.
-.TP
-.BI \-\-backtitle " backtitle"
+.B Common Options
+.
+.IP "\fB\-\-aspect \fIratio"
+Specify a nominal line width based on the length of the prompt string
+to use as a guide to forcibly wrapping lines that are too
+long relative to the dialog box.
+The default is 9.
+.
+.IP "\fB\-\-backtitle \fIbacktitle"
 Specifies a
 .I backtitle
 string to be displayed on the backdrop, at the top of the screen.
+.
+.IP "\fB\-\-beep"
+Beep each time the screen is refreshed.
+.
+.IP "\fB\-\-beep-after"
+Beep if input is interrupted, e.g., by a control/C.
+.
+.IP "\fB\-\-begin \fIy x"
+Specify the position of the upper left corner of a dialog box on the screen.
+.
+.IP "\fB\-\-clear"
+The screen will be cleared to the
+.B screen attribute
+on exit.
+This may be used as the only option.
+.
+.IP "\fB\-\-cr-wrap"
+Interpret embedded newlines in the dialog text as a newline on the screen.
+Otherwise, the text for each dialog will display on a single line.
+.
+.IP "\fB\-\-create-rc \fIfile"
+When
+.B dialog
+supports run-time configuration,
+this can be used to dump a sample configuration file to the file specified
+by
+.IR file "."
+.
+.IP "\fB\-\-help"
+Prints the help message to standard error.
+The help message also will be printed if no options are given.
+.
+.IP "\fB\-\-defaultno"
+Make the default value of the
+.B yes/no
+box a
+.BR No .
+.
+.IP "\fB\-\-no-kill"
+Tells
+.B dialog
+to put the
+.B tailboxbg
+box in the background,
+printing its process id to standard error.
+SIGHUP is disabled for the background process.
+.
+.IP "\fB\-\-no-shadow"
+Suppress shadows which would be drawn to the right and bottom of each dialog box.
+.
+.IP "\fB\-\-print-maxsize"
+Print the maximum size of dialog boxes, i.e., the screen size,
+to the standard error.
+This must be used as the only option.
+.
+.IP "\fB\-\-print-size"
+Prints the size of each dialog box to standard error.
+.
+.IP "\fB\-\-print-version"
+Prints dialog's version to standard error.
+This may be the only option.
+.
+.IP "\fB\-\-separate-output"
+For checklist widgets, output result one line at a time, with no
+quoting.  This facilitates parsing by another program.
+.
+.IP "\fB\-\-separate-widget "\fIstring""
+Specify a string that will separate the output on standard error from
+each widget.
+This is used to simplify parsing the result of a dialog with several widgets.
+.
+.IP "\fB\-\-shadow"
+Draw a shadow to the right and bottom of each dialog box.
+.
+.IP "\fB\-\-size-err"
+Check the resulting size of a dialog box before trying to use it,
+printing the resulting size if it is larger than the screen.
+(This option is obsolete, since all new-window calls are checked).
+.
+.IP "\fB\-\-sleep \fIsecs"
+Sleep (delay) for the given number of seconds after processing a dialog box.
+.
+.IP "\fB\-\-tab-correct"
+Convert each tab character to one or more spaces.
+Otherwise, tabs are rendered according to the curses library's interpretation.
+.
+.IP "\fB\-\-tab-len \fIn"
+Specify the number of spaces that a tab character occupies if the
+.B "\fB\-\-tab-correct"
+option is given.
+The default is 8.
+.
+.IP "\fB\-\-title \fItitle"
+Specifies a
+.I title
+string to be displayed at the top of the dialog box.
+.
+.\" ************************************************************************
 .TP
 .B Box Options
-.TP
-.BI \-\-yesno " text height width"
-.RB A " yes/no" " dialog box of size"
-.I height
-rows by
-.I width
-columns will be displayed. The string specified by
-.I text
-is displayed inside the dialog box. If this string is too long to be fitted
-in one line, it will be automatically divided into multiple lines at
-appropriate places. The
-.I text
-string may also contain the sub-string
-.I
-"\en"
-or newline characters
-.I `\en\'
-to control line breaking explicitly.  This dialog box is useful for
-asking questions that require the user to answer either yes or no.
-.RB "The dialog box has a" " Yes" " button and a " No
-button, in which the user can switch between by pressing the
-.IR TAB " key."
-.TP
-.BI \-\-msgbox " text height width"
-.RB A " message" " box is very similar to a" " yes/no" " box."
+.IP "\fB\-\-checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
+A
+.B checklist
+box is similar to a
+.B menu
+box; there are
+multiple entries presented in the form of a menu.
+Instead of choosing
+one entry among the entries, each entry can be turned on or off by the user.
+The initial on/off state of each entry is specified by
+.IR status "."
+On exit, a list of the
+.I tag
+strings of those entries that are turned on will be printed on
+.IR stderr "."
+.
+.IP "\fB\-\-gauge \fItext height width percent\fR"
+A
+.B gauge
+box displays a meter along the bottom of the box.
+The meter indicates the percentage.  New percentages are read from
+standard input, one integer per line.  The meter is updated
+to reflect each new percentage.  If stdin is XXX, then subsequent
+lines up to another XXX are used for a new prompt.
+The gauge exits when EOF is reached on stdin.
+.
+.IP \fB\-\-infobox \fItext height width"
+An
+.B info
+box is basically a
+.B message
+box.
+However, in this case,
+.B dialog
+will exit immediately after displaying the message to the user. The
+screen is not cleared when
+.B dialog
+exits, so that the message will remain on the screen until the calling
+shell script clears it later. This is useful when you want to inform
+the user that some operations are carrying on that may require some
+time to finish.
+.
+.IP "\fB\-\-inputbox \fItext height width [init]"
+An
+.B input
+box is useful when you want to ask questions that
+require the user to input a string as the answer. If init is supplied
+it is used to initialize the input string.
+When inputing the
+string, the
+.I BACKSPACE
+key can be used to correct typing errors. If the input string is longer than
+can be fitted in the dialog box, the input field will be scrolled. On exit,
+the input string will be printed on
+.IR stderr "."
+.
+.IP \fB\-\-msgbox \fItext height width"
+A
+.B message
+box is very similar to a
+.B yes/no
+box.
 The only difference between a
 .B message
 box and a
@@ -98,55 +221,62 @@ After reading the message, the user can press the
 key so that
 .B dialog
 will exit and the calling shell script can continue its operation.
-.TP
-.BI \-\-infobox " text height width"
-.RB An " info" " box is basically a" " message" " box."
-However, in this case,
-.B dialog
-will exit immediately after displaying the message to the user. The
-screen is not cleared when
-.B dialog
-exits, so that the message will remain on the screen until the calling
-shell script clears it later. This is useful when you want to inform
-the user that some operations are carrying on that may require some
-time to finish.
-.TP
-.BI \-\-inputbox " text height width [init]"
-.RB "An " input " box is useful when you want to ask questions that"
-require the user to input a string as the answer. If init is supplied
-it is used to initialize the input string.
-When inputing the
-string, the
-.I BACKSPACE
-key can be used to correct typing errors. If the input string is longer than
-can be fitted in the dialog box, the input field will be scrolled. On exit,
-the input string will be printed on
-.IR stderr "."
-.TP
-.BI \-\-passwordbox " text height width [init]"
-.RB "A " password " box is similar to an input box, except the text the user"
-enters is not displayed. This is useful when prompting for passwords or other
-sensitive information. Be aware that if anything is passed in "init", it
-will be visible in the system's process table to casual snoopers. Also, it
+.
+.IP "\fB\-\-passwordbox "\fItext height width [init]"
+A
+.B password
+box is similar to an input box, except that the text the user
+enters is not displayed.
+This is useful when prompting for passwords or other
+sensitive information.
+Be aware that if anything is passed in "init", it
+will be visible in the system's process table to casual snoopers.
+Also, it
 is very confusing to the user to provide them with a default password they
-cannot see. For these reasons, using "init" is highly discouraged.
-.TP
-.BI \-\-textbox " file height width"
-.RB A " text" " box lets you display the contents of a text file in a"
-dialog box. It is like a simple text file viewer. The user can move
-through the file by using the
+cannot see.
+For these reasons, using "init" is highly discouraged.
+.
+.IP "\fB\-\-radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
+A
+.B radiolist
+box is similar to a
+.B menu
+box.  The only difference is
+that you can indicate which entry is currently selected, by setting its
+.IR status " to " on "."
+.
+.IP "\fB\-\-tailbox " file height width"
+Display text from a file in a dialog box, as in a "tail -f" command.
+.
+.IP "\fB\-\-textboxbg " file height width"
+Display text from a file in a dialog box in a background process,
+as in a "tail -f &" command.
+.
+.IP "\fB\-\-textbox " file height width"
+A
+.B text
+box lets you display the contents of a text file in a dialog box.
+It is like a simple text file viewer.
+The user can move through the file by using the
 .IR UP/DOWN ", " PGUP/PGDN
 .RI and " HOME/END" " keys available on most keyboards."
 If the lines are too long to be displayed in the box, the
 .I LEFT/RIGHT
-keys can be used to scroll the text region horizontally. For more
-convenience, forward and backward searching functions are also provided.
+keys can be used to scroll the text region horizontally.
+For more convenience,
+forward and backward searching functions are also provided.
+.
 .IP "\fB\-\-menu \fItext height width menu-height \fR[ \fItag item \fR] \fI..."
 As its name suggests, a
 .B menu
 box is a dialog box that can be used to present a list of choices in
-the form of a menu for the user to choose. Each menu entry consists of a
-.IR tag " string and an " item " string. The"
+the form of a menu for the user to choose.
+Choices are displayed in the order given.
+Each menu entry consists of a
+.I tag
+string and an
+.I item
+string. The
 .I tag
 gives the entry a name to distinguish it from the other entries in the
 menu. The
@@ -166,30 +296,36 @@ exits, the
 .I tag
 of the chosen menu entry will be printed on
 .IR stderr "."
-.IP "\fB\-\-checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
-.RB "A " checklist " box is similar to a " menu " box in that there are"
-multiple entries presented in the form of a menu. Instead of choosing
-one entry among the entries, each entry can be turned on or off by the
-user. The initial on/off state of each entry is specified by
-.IR status "."
-On exit, a list of the
-.I tag
-strings of those entries that are turned on will be printed on
-.IR stderr "."
-
-.IP "\fB\-\-radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
-.RB "A " radiolist " box is similar to a " menu " box.  The only difference is"
-that you can indicate which entry is currently selected, by setting its
-.IR status " to " on "."
-
-.IP "\fB\-\-gauge \fItext height width percent\fR"
-.RB "A " gauge " box displays a meter along the bottom of the box.
-The meter indicates the percentage.  New percentages are read from
-standard input, one integer per line.  The meter is updated
-to reflect each new percentage.  If stdin is XXX, then subsequent
-lines up to another XXX are used for a new prompt.
-The gauge exits when EOF is reached on stdin.
-
+.
+.IP "\fB\-\-yesno \fItext height width"
+A
+.B yes/no
+dialog box of size
+.I height
+rows by
+.I width
+columns will be displayed. The string specified by
+.I text
+is displayed inside the dialog box. If this string is too long to be fitted
+in one line, it will be automatically divided into multiple lines at
+appropriate places. The
+.I text
+string may also contain the sub-string
+.I
+"\en"
+or newline characters
+.I `\en\'
+to control line breaking explicitly.
+This dialog box is useful for
+asking questions that require the user to answer either yes or no.
+The dialog box has a
+.B Yes
+button and a
+.B No
+button, in which the user can switch between by pressing the
+.IR TAB " key."
+.
+.\" ************************************************************************
 .SH "RUN-TIME CONFIGURATION"
 .TP 4
 1.
@@ -207,7 +343,7 @@ determines the settings to use as follows:
 a)
 if environment variable
 .B DIALOGRC
-is set, it's value determines the name of the configuration file.
+is set, its value determines the name of the configuration file.
 .TP 4
 b)
 if the file in (a) can't be found, use the file
@@ -222,6 +358,8 @@ if the file in (b) can't be found, use compiled in defaults.
 Edit the sample configuration file and copy it to some place that
 .B dialog
 can find, as stated in step 2 above.
+.
+.\" ************************************************************************
 .SH ENVIRONMENT
 .TP 15
 .B DIALOGRC
@@ -232,17 +370,28 @@ to use.
 .I $HOME/.dialogrc
 default configuration file
 .SH DIAGNOSTICS
-Exit status is 0 if
+Exit status is
+.TP 5
+0
+if
 .BR dialog " is exited by pressing the " Yes " or " OK
-button, and 1 if the
+button.
+.TP 5
+1
+if the
 .BR No " or " Cancel
-button is pressed. Otherwise, if errors occur inside
+button is pressed.
+.TP 5
+-1
+if errors occur inside
 .B dialog
 or
 .B dialog
 is exited by pressing the
 .I ESC
-key, the exit status is -1.
+key.
+.
+.\" ************************************************************************
 .SH BUGS
 Text files containing
 .I tab
@@ -258,3 +407,5 @@ Screen update is too slow.
 Savio Lam (lam836@cs.cuhk.hk) - version 0.3
 .LP
 Stuart Herbert (S.Herbert@sheffield.ac.uk) - patch for version 0.4
+.LP
+Thomas Dickey (updates for 0.9b)
