@@ -1,4 +1,5 @@
 # Functions that handle calling dialog(1) -*-perl-*-
+# $Id: dialog.pl,v 1.4 2001/10/13 00:40:22 tom Exp $
 
 # Return values are 1 for success and 0 for failure (or cancel)
 # Resultant text (if any) is in dialog_result
@@ -153,7 +154,7 @@ sub rhs_menu {
     if (chop($tmp) eq "\n") {
 	$message_len++;
     }
-    
+
     $height = $message_len + 6 + $numitems;
     if ($height <= $scr_lines) {
         $menuheight = $numitems;
@@ -254,7 +255,7 @@ sub rhs_checklist {
     if (chop($tmp) eq "\n") {
 	$message_len++;
     }
-    
+
     $height = $message_len + 6 + $numitems;
     if ($height <= $scr_lines) {
         $menuheight = $numitems;
@@ -287,7 +288,7 @@ sub rhs_checklistl {
     if (chop($tmp) eq "\n") {
 	$message_len++;
     }
-    
+
     $height = $message_len + 6 + $numitems;
     if ($height <= $scr_lines) {
         $menuheight = $numitems;
@@ -318,7 +319,7 @@ sub rhs_checklista {
     if (chop($tmp) eq "\n") {
 	$message_len++;
     }
-    
+
     $numitems = keys(%items);
     $height = $message_len + 6 + $numitems;
     if ($height <= $scr_lines) {
@@ -372,26 +373,32 @@ sub rhs_radiolist {
 
 sub return_output {
     local ( $listp, $command ) = @_;
-    local ( $res );
+    local ( $res ) = 1;
 
-    open(SAVESTDERR, ">&STDERR");
-    open(STDERR, ">/tmp/dialogout");
-    $res = system($command);
-    close(STDERR);
-    open(STDERR, ">&SAVESTDERR");
-    
-    open(IN, "/tmp/dialogout");
-    if ($listp) {
-	@dialog_result = ();
-	while (<IN>) {
-	    chop;
-	    $dialog_result[@dialog_result] = $_;
-	}
-    } else {
-	$dialog_result = <IN>;
+    pipe(PARENT_READER, CHILD_WRITER);
+    # We have to fork (as opposed to using "system") so that the parent
+    # process can read from the pipe to avoid deadlock.
+    my ($pid) = fork;
+    if ($pid == 0) {	# child
+	close(PARENT_READER);
+	open(STDERR, ">&CHILD_WRITER");
+	exec($command);
+	die("no exec");
     }
-    close(IN);
-    unlink("/tmp/dialogout");
+    if ($pid > 0) {	# parent
+	close( CHILD_WRITER );
+    	if ($listp) {
+	    @dialog_result = ();
+	    while (<PARENT_READER>) {
+		chop;
+		$dialog_result[@dialog_result] = $_;
+	    }
+	}
+	else { $dialog_result = <PARENT_READER>; }
+	close(PARENT_READER);
+	waitpid($pid,0);
+	$res = $?;
+    }
 
     # Again, dialog returns results backwards
     if (! $res) {

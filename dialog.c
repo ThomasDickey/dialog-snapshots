@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.68 2001/08/27 23:52:00 tom Exp $
+ * $Id: dialog.c,v 1.72 2001/10/15 01:20:42 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -50,6 +50,7 @@ typedef enum {
     ,o_fullbutton
     ,o_gauge
     ,o_help
+    ,o_ignore
     ,o_icon
     ,o_infobox
     ,o_inputbox
@@ -84,6 +85,7 @@ typedef enum {
     ,o_textbox
     ,o_timebox
     ,o_title
+    ,o_trim
     ,o_under_mouse
     ,o_wmclass
     ,o_yesno
@@ -118,7 +120,7 @@ static const Options options[] = {
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
-    { "create-rc",	o_create_rc,		1, "" },
+    { "create-rc",	o_create_rc,		1, NULL },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
     { "fb",		o_fullbutton,		1, NULL },
@@ -128,6 +130,7 @@ static const Options options[] = {
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
+    { "ignore",		o_ignore,		1, "" },
     { "icon",		o_icon,			1, NULL },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
@@ -163,6 +166,7 @@ static const Options options[] = {
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "title",		o_title,		1, "<title>" },
+    { "trim",		o_trim,			1, "" },
     { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
     { "wmclass",	o_wmclass,		1, NULL },
@@ -347,7 +351,7 @@ j_menu(JUMPARGS)
 		      numeric_arg(av, 4),
 		      tags, av + 5);
     if (ret >= 0) {
-	fprintf(dialog_vars.output, av[5 + ret * MENUBOX_TAGS]);
+	fprintf(dialog_vars.output, "%s", av[5 + ret * MENUBOX_TAGS]);
 	return 0;
     } else if (ret == -2)
 	return 1;		/* CANCEL */
@@ -631,7 +635,7 @@ Help(void)
     }
     PrintList(tbl_3);
 
-    exit(DLG_EXIT_OK);
+    dlg_exit(DLG_EXIT_OK);
 }
 
 int
@@ -641,6 +645,7 @@ main(int argc, char *argv[])
     char temp[80];
     const char *separate_str = DEFAULT_SEPARATE_STR;
     bool esc_pressed = FALSE;
+    bool ignore_unknown = FALSE;
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
@@ -679,6 +684,8 @@ main(int argc, char *argv[])
 	    refresh();
 	    endwin();
 	    break;
+	case o_ignore:
+	    break;
 	default:
 	case o_help:
 	    Help();
@@ -694,7 +701,7 @@ main(int argc, char *argv[])
     init_dialog();
 
 #ifdef HAVE_RC_FILE
-    if (!strcmp(argv[1], "--create-rc")) {
+    if (lookupOption(argv[1], 7) == o_create_rc) {
 	if (argc != 3) {
 	    sprintf(temp, "Expected a filename for %s", argv[1]);
 	    Usage(temp);
@@ -704,6 +711,7 @@ main(int argc, char *argv[])
 	return 0;
     }
 #endif
+
     while (offset < argc && !esc_pressed) {
 	memset(&dialog_vars, 0, sizeof(dialog_vars));
 	dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
@@ -755,6 +763,9 @@ main(int argc, char *argv[])
 	    case o_item_help:
 		dialog_vars.item_help = TRUE;
 		break;
+	    case o_ignore:
+		ignore_unknown = TRUE;
+		break;
 	    case o_no_shadow:
 		use_shadow = FALSE;
 		break;
@@ -782,6 +793,9 @@ main(int argc, char *argv[])
 	    case o_tab_len:
 		dialog_vars.tab_len = optionValue(argv, &offset);
 		break;
+	    case o_trim:
+		dialog_vars.trim_whitespace = TRUE;
+		break;
 	    case o_aspect:
 		dialog_vars.aspect_ratio = optionValue(argv, &offset);
 		break;
@@ -797,6 +811,10 @@ main(int argc, char *argv[])
 	    case o_fullbutton:
 		/* ignore */
 		break;
+	    case o_unknown:
+		if (ignore_unknown)
+		    break;
+		/* FALLTHRU */
 	    default:		/* no more common options */
 		done = TRUE;
 		break;
@@ -805,16 +823,24 @@ main(int argc, char *argv[])
 		offset++;
 	}
 
-	for (j = 1; j < argc; j++) {
-	    if (strncmp(argv[j - 1], "--", 2) == 0 &&
-		strcmp(argv[j - 1], "--backtitle") != 0 &&
-		strcmp(argv[j - 1], "--title") != 0) {
-		dlg_trim_string(argv[j]);
-	    }
+	if (argv[offset] == NULL) {
+	    if (ignore_unknown)
+		break;
+	    Usage("Expected a box option");
 	}
 
-	if (argv[offset] == NULL) {
-	    Usage("Expected a box option");
+	for (j = offset; j < argc; j++) {
+	    if (offset > 0) {
+		switch (lookupOption(argv[j - 1], 7)) {
+		case o_unknown:
+		case o_title:
+		case o_backtitle:
+		    break;
+		default:
+		    dlg_trim_string(argv[j]);
+		    break;
+		}
+	    }
 	}
 
 	if (lookupOption(argv[offset], 2) != o_checklist
@@ -898,5 +924,5 @@ main(int argc, char *argv[])
     killall_bg(&retval);
     (void) refresh();
     end_dialog();
-    return retval;		/* assume this is the same as exit(retval) */
+    dlg_exit(retval);
 }

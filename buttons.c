@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.22 2001/07/30 23:29:31 tom Exp $
+ *  $Id: buttons.c,v 1.23 2001/10/15 00:23:37 tom Exp $
  *
  *  buttons.c
  *
@@ -69,7 +69,9 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 	}
 	(void) waddch(win, CharOf(label[i]));
     }
-    wattrset(win, label_attr);
+    wattrset(win, selected
+	     ? button_active_attr
+	     : button_inactive_attr);
     (void) waddstr(win, ">");
     (void) wmove(win, y, x + temp + 1);
 }

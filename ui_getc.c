@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.8 2001/08/11 16:21:22 tom Exp $
+ *  $Id: ui_getc.c,v 1.9 2001/10/12 23:33:13 tom Exp $
  *
  *  ui_getc.c
  *
@@ -193,9 +193,9 @@ dlg_getc(WINDOW *win)
 }
 
 static void
-finish_bg(int sig)
+finish_bg(int sig GCC_UNUSED)
 {
-    exit(DLG_EXIT_ERROR);
+    dlg_exit(DLG_EXIT_ERROR);
 }
 
 /*

@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.31 2001/08/08 08:57:52 tom Exp $
-.TH DIALOG 1 "" "$Date: 2001/08/08 08:57:52 $"
+.\" $Id: dialog.1,v 1.34 2001/10/15 01:13:54 tom Exp $
+.TH DIALOG 1 "" "$Date: 2001/10/15 01:13:54 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -111,6 +111,11 @@ box a
 Set the default item in a menu box.
 Normally the first item in the box is the default.
 .
+.IP "\fB\-\-ignore"
+Ignore options that \fBdialog\fP does not recognize.
+Some well-known ones such as "\fB--icon\fP" are ignored anyway,
+but this is a better choice for compatibility with other implementations.
+.
 .IP "\fB\-\-item-help"
 Interpret the tags data for checklist, radiolist and menuboxes 
 adding a column which is displayed in the bottom line of the
@@ -181,7 +186,7 @@ Otherwise, tabs are rendered according to the curses library's interpretation.
 .
 .IP "\fB\-\-tab-len \fIn"
 Specify the number of spaces that a tab character occupies if the
-\fB"\fB\-\-tab-correct"\fP
+"\fB\-\-tab-correct\fP"
 option is given.
 The default is 8.
 .
@@ -189,6 +194,10 @@ The default is 8.
 Specifies a
 \fItitle\fP
 string to be displayed at the top of the dialog box.
+.
+.IP "\fB\-\-trim"
+eliminate leading blanks,
+trim literal newlines and repeated blanks from message text.
 .
 .IP "\fB\-\-version"
 Same as "\fB\-\-print-version\fP".
@@ -470,12 +479,24 @@ can find, as stated in step 2 above.
 \fBDIALOGRC\fP
 Define this variable if you want to specify the name of the configuration file
 to use.
+.TP 15
+\fBDIALOG_CANCEL\fP
+.TP 15
+\fBDIALOG_ERROR\fP
+.TP 15
+\fBDIALOG_ESC\fP
+.TP 15
+\fBDIALOG_OK\fP
+Define any of these variables to change the exit code on Cancel (1),
+error (-1), ESC (255) or Ok (0).
+Normally shell scripts cannot distinguish between -1 and 255.
 .SH FILES
 .TP 20
 \fI$HOME/.dialogrc\fP
 default configuration file
 .SH DIAGNOSTICS
-Exit status is
+Exit status is subject to being overridden by environment variables.
+Normally they are:
 .TP 5
 0
 if

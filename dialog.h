@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.76 2001/08/11 17:41:32 tom Exp $
+ *  $Id: dialog.h,v 1.78 2001/10/14 22:50:59 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -66,6 +66,14 @@
 #define _(s) s
 #endif
 
+#ifndef GCC_NORETURN
+#define GCC_NORETURN /*nothing*/
+#endif
+
+#ifndef GCC_UNUSED
+#define GCC_UNUSED /*nothing*/
+#endif
+
 /*
  * Change these if you want
  */
@@ -80,8 +88,8 @@
 #define SLINES	LINES
 #endif
 
-#define DLG_EXIT_ESC	-1	/* the shell sees this as 255 */
-#define DLG_EXIT_ERROR	-1
+#define DLG_EXIT_ESC	255
+#define DLG_EXIT_ERROR	-1	/* the shell sees this as 255 */
 #define DLG_EXIT_OK	0
 #define DLG_EXIT_CANCEL	1
 
@@ -243,6 +251,7 @@ typedef struct {
     bool begin_set;
     bool cant_kill;
     bool cr_wrap;
+    bool trim_whitespace;
     bool dlg_clear_screen;
     bool item_help;
     bool nocancel;
@@ -374,6 +383,7 @@ extern void killall_bg(int *retval);
 
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
+extern void dlg_exit(int code) GCC_NORETURN;
 extern void dlg_item_help(char *txt);
 extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
 extern void dlg_trim_string(char *src);
