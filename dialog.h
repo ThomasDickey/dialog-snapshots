@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.96 2003/03/08 16:46:43 tom Exp $
+ *  $Id: dialog.h,v 1.101 2003/07/20 19:25:19 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -228,7 +228,7 @@ typedef struct _dlg_callback {
     WINDOW *win;
     bool keep_bg;	/* keep in background, on exit */
     bool bg_task;	/* true if this is background task */
-    bool (*handle_getc)(struct _dlg_callback *p, int ch, int *result);
+    bool (*handle_getc)(struct _dlg_callback *p, int ch, int fkey, int *result);
 } DIALOG_CALLBACK;
 
 typedef struct _dlg_windows {
@@ -305,7 +305,8 @@ extern bool use_shadow;
 #define chtype long
 #endif
 
-#define UCH(ch) ((unsigned char)(ch))
+#define UCH(ch)			((unsigned char)(ch))
+#define is8bit(ch)		(((ch) >= 0) && ((ch) < 0x100))
 
 #define assert_ptr(ptr,msg) if ((ptr) == 0) exiterr("cannot allocate memory in " msg)
 
@@ -399,13 +400,13 @@ extern void dlg_button_sizes(const char **labels, int vertical, int *longest, in
 extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
 
 /* inputstr.c */
-extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
-extern int dlg_edit_offset(int offset, int x_last);
+extern bool dlg_edit_string(char *string, int *offset, int key, int fkey, bool force);
+extern int dlg_edit_offset(char *string, int offset, int x_last);
 extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
 /* ui_getc.c */
-extern int dlg_getc(WINDOW *win);
-extern int dlg_getc_callbacks(int ch, int *result);
+extern int dlg_getc(WINDOW *win, int *fkey);
+extern int dlg_getc_callbacks(int ch, int fkey, int *result);
 extern void dlg_add_callback(DIALOG_CALLBACK *p);
 extern void dlg_remove_callback(DIALOG_CALLBACK *p);
 extern void killall_bg(int *retval);
@@ -460,7 +461,7 @@ void mouse_setbase (int x, int y);
 
 extern mseRegion *mouse_region (int y, int x);
 extern mseRegion *mouse_bigregion (int y, int x);
-extern int mouse_wgetch (WINDOW *);
+extern int mouse_wgetch (WINDOW *, int *);
 
 #define mouse_mkbutton(y,x,len,code) mouse_mkregion(y,x,1,len,code);
 

@@ -1,5 +1,5 @@
 /*
- * $Id: mousewget.c,v 1.12 2003/01/24 21:50:45 tobrit Exp $
+ * $Id: mousewget.c,v 1.13 2003/07/11 22:49:50 tom Exp $
  *
  * mousewget.c - mouse_wgetch support for dialog
  *
@@ -23,7 +23,7 @@
 #include "dialog.h"
 
 int
-mouse_wgetch(WINDOW *win)
+mouse_wgetch(WINDOW *win, int *fkey)
 {
     int key;
 
@@ -31,8 +31,8 @@ mouse_wgetch(WINDOW *win)
 
     do {
 
-	key = dlg_getc(win);
-	if (key == KEY_MOUSE) {
+	key = dlg_getc(win, fkey);
+	if (fkey && (key == KEY_MOUSE)) {
 	    MEVENT event;
 	    mseRegion *p;
 
@@ -72,7 +72,7 @@ mouse_wgetch(WINDOW *win)
 #else
 
     do {
-	key = dlg_getc(win);
+	key = dlg_getc(win, fkey);
     } while (key == ERR);
 
 #endif

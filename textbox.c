@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.39 2003/03/08 16:42:03 tom Exp $
+ *  $Id: textbox.c,v 1.40 2003/07/12 14:56:22 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -404,6 +404,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
     int box_x, box_y, key = 0, box_height = 3, box_width = 30;
     int offset = 0;
+    int fkey;
     bool first = TRUE;
 
     box_x = (width - box_width) / 2;
@@ -424,18 +425,95 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 
     for (;;) {
 	if (!first) {
-	    key = dlg_getc(dialog);
+	    key = dlg_getc(dialog, &fkey);
 	    if (key == ESC)
 		return DLG_EXIT_ESC;
 	    if (key == '\n' && *input != '\0')
 		return DLG_EXIT_OK;
 	}
-	if (dlg_edit_string(input, &offset, key, first)) {
+	if (dlg_edit_string(input, &offset, key, fkey, first)) {
 	    dlg_show_string(dialog, input, offset, searchbox_attr,
 			    box_y, box_x, box_width, FALSE, first);
 	    first = FALSE;
 	}
     }
+}
+
+static bool
+perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
+{
+    int dir, tempinx;
+    long fpos;
+    bool found;
+    bool temp, temp1;
+    bool moved = FALSE;
+
+    /* set search direction */
+    dir = (key == '/' || key == 'n') ? 1 : 0;
+    if (dir ? !obj->end_reached : !obj->begin_reached) {
+	if (key == 'n' || key == 'N') {
+	    if (search_term[0] == '\0') {	/* No search term yet */
+		(void) beep();
+		return FALSE;
+	    }
+	    /* Get search term from user */
+	} else if (get_search_term(obj->text, search_term,
+				   height - 4,
+				   width - 2) == DLG_EXIT_ESC) {
+	    /* ESC pressed, reprint page to clear box */
+	    wattrset(obj->text, dialog_attr);
+	    back_lines(obj, obj->page_length);
+	    moved = TRUE;
+	    return moved;
+	}
+	/* Save variables for restoring in case search term can't be found */
+	tempinx = obj->in_buf;
+	temp = obj->begin_reached;
+	temp1 = obj->end_reached;
+	fpos = ftell_obj(obj) - obj->fd_bytes_read;
+	/* update 'in_buf' to point to next (previous) line before
+	   forward (backward) searching */
+	back_lines(obj, (dir
+			 ? obj->page_length - 1
+			 : obj->page_length + 1));
+	found = FALSE;
+	if (dir) {		/* Forward search */
+	    while ((found = match_string(obj, search_term)) == FALSE) {
+		if (obj->end_reached)
+		    break;
+	    }
+	} else {		/* Backward search */
+	    while ((found = match_string(obj, search_term)) == FALSE) {
+		if (obj->begin_reached)
+		    break;
+		back_lines(obj, 2);
+	    }
+	}
+	if (found == FALSE) {	/* not found */
+	    (void) beep();
+	    /* Restore program state to that before searching */
+	    lseek_obj(obj, fpos, SEEK_SET);
+
+	    read_high(obj, BUF_SIZE);
+
+	    obj->in_buf = tempinx;
+	    obj->begin_reached = temp;
+	    obj->end_reached = temp1;
+	    /* move 'in_buf' to point to start of current page to
+	     * re-print current page.  Note that 'in_buf' always points
+	     * to start of next page, so this is necessary
+	     */
+	    back_lines(obj, obj->page_length);
+	} else {		/* Search term found */
+	    back_lines(obj, 1);
+	}
+	/* Reprint page */
+	wattrset(obj->text, dialog_attr);
+	moved = TRUE;
+    } else {			/* no need to find */
+	(void) beep();
+    }
+    return moved;
 }
 
 /*
@@ -445,16 +523,15 @@ int
 dialog_textbox(const char *title, const char *file, int height, int width)
 {
     long fpos;
-    int x, y, cur_x, cur_y, key = 0, dir, tempinx;
+    int x, y, cur_x, cur_y;
+    int key = 0, fkey;
     int next = 0;
-    bool temp, temp1;
 #ifdef NCURSES_VERSION
     int i, passed_end;
 #endif
     char search_term[MAX_LEN + 1];
     MY_OBJ obj;
     WINDOW *dialog;
-    bool found;
     bool moved = TRUE;
     int result = DLG_EXIT_UNKNOWN;
 
@@ -564,181 +641,160 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	moved = FALSE;		/* assume we'll not move */
 	next = 0;		/* ...but not scroll by a line */
 
-	key = mouse_wgetch(dialog);
+	key = mouse_wgetch(dialog, &fkey);
 	if (dlg_char_to_button(key, obj.buttons) == 0) {
 	    key = '\n';
+	    fkey = FALSE;
 	}
-	switch (key) {
-	default:
-	    if (key >= M_EVENT)
+
+	if (!fkey) {
+	    fkey = TRUE;
+	    switch (key) {
+	    case ESC:
+		result = DLG_EXIT_ESC;
+		continue;
+	    case '\n':
+		key = KEY_ENTER;
+		break;
+	    case ' ':
+		key = KEY_NPAGE;
+		break;
+	    case '0':
+		key = KEY_BEG;
+		break;
+	    case 'B':
+	    case 'b':
+		key = KEY_PPAGE;
+		break;
+	    case 'g':
+		key = KEY_HOME;
+		break;
+	    case 'G':
+		key = KEY_END;
+		break;
+	    case 'H':
+	    case 'h':
+		key = KEY_LEFT;
+		break;
+	    case 'K':
+	    case 'k':
+		key = KEY_UP;
+		break;
+	    case 'J':
+	    case 'j':
+		key = KEY_DOWN;
+		break;
+	    case 'L':
+	    case 'l':
+		key = KEY_RIGHT;
+		break;
+	    case '/':		/* Forward search */
+	    case 'n':		/* Repeat forward search */
+	    case '?':		/* Backward search */
+	    case 'N':		/* Repeat backward search */
+		moved = perform_search(&obj, height, width, key, search_term);
+		fkey = FALSE;
+		break;
+	    default:
+		fkey = FALSE;
+		break;
+	    }
+	}
+
+	if (fkey) {
+	    switch (key) {
+	    default:
+		if (key >= M_EVENT)
+		    result = DLG_EXIT_OK;
+		break;
+	    case KEY_ENTER:
 		result = DLG_EXIT_OK;
-	    break;
-	case ESC:
-	    result = DLG_EXIT_ESC;
-	    break;
-	case '\n':
-	    result = DLG_EXIT_OK;
-	    break;
-	case 'g':		/* First page */
-	case KEY_HOME:
-	    if (!obj.begin_reached) {
-		obj.begin_reached = 1;
-		/* First page not in buffer? */
+		break;
+	    case KEY_HOME:	/* First page */
+		if (!obj.begin_reached) {
+		    obj.begin_reached = 1;
+		    /* First page not in buffer? */
+		    fpos = ftell_obj(&obj);
+
+		    if (fpos > obj.fd_bytes_read) {
+			/* Yes, we have to read it in */
+			lseek_obj(&obj, 0, SEEK_SET);
+
+			read_high(&obj, BUF_SIZE);
+		    }
+		    obj.in_buf = 0;
+		    moved = TRUE;
+		}
+		break;
+	    case KEY_END:	/* Last page */
+	    case KEY_LL:
+		obj.end_reached = TRUE;
+		/* Last page not in buffer? */
 		fpos = ftell_obj(&obj);
 
-		if (fpos > obj.fd_bytes_read) {		/* Yes, we have to read it in */
-		    lseek_obj(&obj, 0, SEEK_SET);
+		if (fpos < obj.file_size) {
+		    /* Yes, we have to read it in */
+		    lseek_obj(&obj, -BUF_SIZE, SEEK_END);
 
 		    read_high(&obj, BUF_SIZE);
 		}
-		obj.in_buf = 0;
+		obj.in_buf = obj.bytes_read;
+		back_lines(&obj, height - 4);
 		moved = TRUE;
-	    }
-	    break;
-	case 'G':		/* Last page */
-	case KEY_LL:
-	case KEY_END:
-	    obj.end_reached = TRUE;
-	    /* Last page not in buffer? */
-	    fpos = ftell_obj(&obj);
-
-	    if (fpos < obj.file_size) {		/* Yes, we have to read it in */
-		lseek_obj(&obj, -BUF_SIZE, SEEK_END);
-
-		read_high(&obj, BUF_SIZE);
-	    }
-	    obj.in_buf = obj.bytes_read;
-	    back_lines(&obj, height - 4);
-	    moved = TRUE;
-	    break;
-	case 'K':		/* Previous line */
-	case 'k':
-	case KEY_UP:
-	    if (!obj.begin_reached) {
-		back_lines(&obj, obj.page_length + 1);
-		next = 1;
-		moved = TRUE;
-	    }
-	    break;
-	case 'B':		/* Previous page */
-	case 'b':
-	case M_EVENT + KEY_PPAGE:
-	case KEY_PPAGE:
-	    if (!obj.begin_reached) {
-		back_lines(&obj, obj.page_length + height - 4);
-		moved = TRUE;
-	    }
-	    break;
-	case 'J':		/* Next line */
-	case 'j':
-	case KEY_DOWN:
-	    if (!obj.end_reached) {
-		obj.begin_reached = 0;
-		next = -1;
-		moved = TRUE;
-	    }
-	    break;
-	case ' ':		/* Next page */
-	case M_EVENT + KEY_NPAGE:
-	case KEY_NPAGE:
-	    if (!obj.end_reached) {
-		obj.begin_reached = 0;
-		moved = TRUE;
-	    }
-	    break;
-	case '0':		/* Beginning of line */
-	case 'H':		/* Scroll left */
-	case 'h':
-	case KEY_LEFT:
-	    if (obj.hscroll > 0) {
-		if (key == '0')
+		break;
+	    case KEY_UP:	/* Previous line */
+		if (!obj.begin_reached) {
+		    back_lines(&obj, obj.page_length + 1);
+		    next = 1;
+		    moved = TRUE;
+		}
+		break;
+	    case KEY_PPAGE:	/* Previous page */
+	    case M_EVENT + KEY_PPAGE:
+		if (!obj.begin_reached) {
+		    back_lines(&obj, obj.page_length + height - 4);
+		    moved = TRUE;
+		}
+		break;
+	    case KEY_DOWN:	/* Next line */
+		if (!obj.end_reached) {
+		    obj.begin_reached = 0;
+		    next = -1;
+		    moved = TRUE;
+		}
+		break;
+	    case KEY_NPAGE:	/* Next page */
+	    case M_EVENT + KEY_NPAGE:
+		if (!obj.end_reached) {
+		    obj.begin_reached = 0;
+		    moved = TRUE;
+		}
+		break;
+	    case KEY_BEG:	/* Beginning of line */
+		if (obj.hscroll > 0) {
 		    obj.hscroll = 0;
-		else
-		    obj.hscroll--;
-		/* Reprint current page to scroll horizontally */
-		back_lines(&obj, obj.page_length);
-		moved = TRUE;
-	    }
-	    break;
-	case 'L':		/* Scroll right */
-	case 'l':
-	case KEY_RIGHT:
-	    if (obj.hscroll < MAX_LEN) {
-		obj.hscroll++;
-		/* Reprint current page to scroll horizontally */
-		back_lines(&obj, obj.page_length);
-		moved = TRUE;
-	    }
-	    break;
-	case '/':		/* Forward search */
-	case 'n':		/* Repeat forward search */
-	case '?':		/* Backward search */
-	case 'N':		/* Repeat backward search */
-	    /* set search direction */
-	    dir = (key == '/' || key == 'n') ? 1 : 0;
-	    if (dir ? !obj.end_reached : !obj.begin_reached) {
-		if (key == 'n' || key == 'N') {
-		    if (search_term[0] == '\0') {	/* No search term yet */
-			(void) beep();
-			break;
-		    }
-		    /* Get search term from user */
-		} else if (get_search_term(obj.text, search_term,
-					   height - 4,
-					   width - 2) == DLG_EXIT_ESC) {
-		    /* ESC pressed, reprint page to clear box */
-		    wattrset(obj.text, dialog_attr);
+		    /* Reprint current page to scroll horizontally */
 		    back_lines(&obj, obj.page_length);
 		    moved = TRUE;
-		    break;
 		}
-		/* Save variables for restoring in case search term can't be found */
-		tempinx = obj.in_buf;
-		temp = obj.begin_reached;
-		temp1 = obj.end_reached;
-		fpos = ftell_obj(&obj) - obj.fd_bytes_read;
-		/* update 'in_buf' to point to next (previous) line before
-		   forward (backward) searching */
-		back_lines(&obj, dir ? obj.page_length - 1 : obj.page_length
-			   + 1);
-		found = FALSE;
-		if (dir) {	/* Forward search */
-		    while ((found = match_string(&obj, search_term)) == FALSE) {
-			if (obj.end_reached)
-			    break;
-		    }
-		} else {	/* Backward search */
-		    while ((found = match_string(&obj, search_term)) == FALSE) {
-			if (obj.begin_reached)
-			    break;
-			back_lines(&obj, 2);
-		    }
-		}
-		if (found == FALSE) {	/* not found */
-		    (void) beep();
-		    /* Restore program state to that before searching */
-		    lseek_obj(&obj, fpos, SEEK_SET);
-
-		    read_high(&obj, BUF_SIZE);
-
-		    obj.in_buf = tempinx;
-		    obj.begin_reached = temp;
-		    obj.end_reached = temp1;
-		    /* move 'in_buf' to point to start of current page to
-		     * re-print current page.  Note that 'in_buf' always points
-		     * to start of next page, so this is necessary
-		     */
+		break;
+	    case KEY_LEFT:	/* Scroll left */
+		if (obj.hscroll > 0) {
+		    obj.hscroll--;
+		    /* Reprint current page to scroll horizontally */
 		    back_lines(&obj, obj.page_length);
-		} else {	/* Search term found */
-		    back_lines(&obj, 1);
+		    moved = TRUE;
 		}
-		/* Reprint page */
-		wattrset(obj.text, dialog_attr);
-		moved = TRUE;
-	    } else {		/* no need to find */
-		(void) beep();
+		break;
+	    case KEY_RIGHT:	/* Scroll right */
+		if (obj.hscroll < MAX_LEN) {
+		    obj.hscroll++;
+		    /* Reprint current page to scroll horizontally */
+		    back_lines(&obj, obj.page_length);
+		    moved = TRUE;
+		}
+		break;
 	    }
-	    break;
 	}
     }
 

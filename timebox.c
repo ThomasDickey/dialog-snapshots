@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.14 2003/01/30 21:05:32 tom Exp $
+ * $Id: timebox.c,v 1.15 2003/07/12 17:12:57 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -60,16 +60,11 @@ next_or_previous(int key)
     case KEY_PPAGE:
     case KEY_PREVIOUS:
     case KEY_UP:
-    case CHR_PREVIOUS:
-    case KEY_LEFT:
-    case 8:
 	result = -1;
 	break;
     case KEY_NPAGE:
-    case KEY_DOWN:
-    case CHR_NEXT:
-    case KEY_RIGHT:
     case KEY_NEXT:
+    case KEY_DOWN:
 	result = 1;
 	break;
     default:
@@ -139,7 +134,8 @@ dialog_timebox(const char *title,
 	       int second)
 {
     BOX hr_box, mn_box, sc_box;
-    int key = 0, key2, button = DLG_EXIT_OK;
+    int key = 0, key2, fkey;
+    int button = DLG_EXIT_OK;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
@@ -224,54 +220,121 @@ dialog_timebox(const char *title,
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
 
-	key = mouse_wgetch(dialog);
+	key = mouse_wgetch(dialog, &fkey);
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
 	} else {
-	    switch (key) {
-	    case M_EVENT + 0:
-		result = DLG_EXIT_OK;
-		break;
-	    case M_EVENT + 1:
-		result = DLG_EXIT_CANCEL;
-		break;
-	    case M_EVENT + 'H':
-		state = sHR;
-		break;
-	    case M_EVENT + 'M':
-		state = sMN;
-		break;
-	    case M_EVENT + 'S':
-		state = sSC;
-		break;
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		break;
-	    case ' ':
-	    case '\n':
-		result = button;
-		break;
-	    case KEY_LEFT:
-	    case KEY_BTAB:
-		state = dlg_prev_ok_buttonindex(state, sHR);
-		break;
-	    case KEY_RIGHT:
-	    case TAB:
-		state = dlg_next_ok_buttonindex(state, sHR);
-		break;
-	    default:
-		if (obj != 0) {
-		    int step = next_or_previous(key);
-		    if (step != 0) {
-			obj->value += step;
-			while (obj->value < 0)
-			    obj->value += obj->period;
-			obj->value %= obj->period;
+	    /* handle non-functionkeys */
+	    if (!fkey) {
+		fkey = TRUE;
+		switch (key) {
+		case CHR_BACKSPACE:
+		case CHR_PREVIOUS:
+		    key = KEY_LEFT;
+		    break;
+		case CHR_NEXT:
+		    key = KEY_RIGHT;
+		    break;
+		case ' ':
+		case '\n':
+		    key = KEY_ENTER;
+		    break;
+		case TAB:
+		    key = KEY_RIGHT;
+		    break;
+		case ESC:
+		    result = DLG_EXIT_ESC;
+		    fkey = FALSE;
+		    break;
+		default:
+		    fkey = FALSE;
+		    if (isdigit(key)) {
+			if (obj != 0) {
+			    int digit = (key - '0');
+			    int value = (obj->value * 10) + digit;
+			    if (value < obj->period) {
+				obj->value = value;
+				(void) DrawObject(obj);
+			    } else {
+				beep();
+			    }
+			}
+		    } else {
+			beep();
+		    }
+		    break;
+		}
+	    }
+
+	    /* handle functionkeys */
+	    if (fkey) {
+		switch (key) {
+		case M_EVENT + 0:
+		    result = DLG_EXIT_OK;
+		    break;
+		case M_EVENT + 1:
+		    result = DLG_EXIT_CANCEL;
+		    break;
+		case M_EVENT + 'H':
+		    state = sHR;
+		    break;
+		case M_EVENT + 'M':
+		    state = sMN;
+		    break;
+		case M_EVENT + 'S':
+		    state = sSC;
+		    break;
+		case KEY_ENTER:
+		    result = button;
+		    break;
+		case KEY_LEFT:
+		case KEY_BTAB:
+		    state = dlg_prev_ok_buttonindex(state, sHR);
+		    break;
+		case KEY_RIGHT:
+		    state = dlg_next_ok_buttonindex(state, sHR);
+		    break;
+		case KEY_HOME:
+		    if (obj != 0) {
+			obj->value = 0;
 			(void) DrawObject(obj);
 		    }
+		    break;
+		case KEY_END:
+		case KEY_LL:
+		    if (obj != 0) {
+			switch (state) {
+			case sHR:
+			    obj->value = 23;
+			    break;
+			case sMN:
+			case sSC:
+			    obj->value = 59;
+			    break;
+			}
+			(void) DrawObject(obj);
+		    }
+		    break;
+		case KEY_DC:
+		    if (obj != 0) {
+			obj->value /= 10;
+			(void) DrawObject(obj);
+		    }
+		    break;
+		default:
+		    if (obj != 0) {
+			int step = next_or_previous(key);
+			if (step != 0) {
+			    obj->value += step;
+			    while (obj->value < 0)
+				obj->value += obj->period;
+			    obj->value %= obj->period;
+			    (void) DrawObject(obj);
+			}
+		    }
+		    break;
 		}
-		break;
 	    }
 	}
     }

@@ -17,6 +17,9 @@ Try it now!\n\n\
         "NetBSD" "Another free Unix Clone for 386/486 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" "Or NetBSD?" \
         "OS/2"   "IBM OS/2 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                            "aka \"Warp\"" \
         "WIN NT" "Microsoft Windows NT xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                "hmm" \
+        "WIN 2K" "Microsoft Windows 2000 xxxxxxxxxxxxxxxxxxxxxxxxxxxx"                "hmm" \
+        "WIN XP" "Microsoft Windows XP (son of Windows 95) xxxxxxxxxx"                "hmm" \
+        "WIN 95" "Microsoft Windows 95 (son of MSDOS) xxxxxxxxxxxxxxx"                "hmm" \
         "PCDOS"  "IBM PC DOS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                          "clone of a clone" \
         "MSDOS"  "Microsoft DOS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                       "DOS: Disk Operating System, originally for an IBM contract, hence using the same jargon" 2> $tempfile
 

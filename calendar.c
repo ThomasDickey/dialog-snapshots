@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.28 2003/01/30 21:05:04 tom Exp $
+ * $Id: calendar.c,v 1.30 2003/07/12 17:46:20 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -113,7 +113,7 @@ next_or_previous(int key, int two_d)
 	result = two_d ? -7 : -1;
 	break;
     case CHR_PREVIOUS:
-    case 8:
+    case CHR_BACKSPACE:
 	result = -1;
 	break;
     case M_EVENT + KEY_NPAGE:
@@ -206,10 +206,11 @@ draw_day(BOX * data, struct tm *current)
     }
     wattrset(data->window, item_attr);
 
-    week = (current->tm_yday - current->tm_mday + 6) / 7;
     mday = ((6 + current->tm_mday - current->tm_wday) % 7) - 7;
     if (mday <= -7)
 	mday += 7;
+    /* mday is now in the range -6 to 0. */
+    week = (current->tm_yday + 6 + mday - current->tm_mday) / 7;
 
     for (y = 1; mday < last; y++) {
 	wattrset(data->window, item_selected_attr);
@@ -371,7 +372,11 @@ dialog_calendar(const char *title,
 		int year)
 {
     BOX dy_box, mn_box, yr_box;
-    int key = 0, key2, step, button = 0;
+    int fkey;
+    int key = 0;
+    int key2;
+    int step;
+    int button = 0;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
@@ -479,88 +484,120 @@ dialog_calendar(const char *title,
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
 
-	key = mouse_wgetch(dialog);
+	key = mouse_wgetch(dialog, &fkey);
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
 	} else {
-	    switch (key) {
-	    case M_EVENT + 'D':
-		state = sDAY;
-		break;
-	    case M_EVENT + 'M':
-		state = sMONTH;
-		break;
-	    case M_EVENT + 'Y':
-		state = sYEAR;
-		break;
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		break;
-	    case ' ':
-	    case '\n':
-		result = dlg_ok_buttoncode(button);
-		break;
-	    case KEY_LEFT:
-	    case KEY_BTAB:
-		state = dlg_prev_ok_buttonindex(state, sMONTH);
-		break;
-	    case KEY_RIGHT:
-	    case TAB:
-		state = dlg_next_ok_buttonindex(state, sMONTH);
-		break;
-	    default:
-		step = 0;
-		key2 = -1;
-		if (key >= M_EVENT) {
-		    if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-			result = key2;
-			break;
-		    } else if (key >= (M_EVENT + KEY_MAX)) {
-			state = sDAY;
-			obj = &dy_box;
-			key2 = 1;
-			step = (key - (M_EVENT + KEY_MAX) - day_cell_number(&current));
-		    }
+	    /* handle non-functionkeys */
+	    if (!fkey) {
+		fkey = TRUE;
+		switch (key) {
+		case ' ':
+		case '\n':
+		    key = KEY_ENTER;
+		    break;
+		case TAB:
+		    key = KEY_RIGHT;
+		    break;
+		case CHR_PREVIOUS:
+		case CHR_NEXT:
+		case CHR_BACKSPACE:
+		case 'h':
+		case 'j':
+		case 'k':
+		case 'l':
+		    /* treat these as function-keys */
+		    break;
+		case ESC:
+		    result = DLG_EXIT_ESC;
+		    fkey = FALSE;
+		    break;
+		default:
+		    fkey = FALSE;
+		    break;
 		}
-		if (obj != 0) {
-		    if (key2 < 0)
-			step = next_or_previous(key, (obj == &dy_box));
-		    if (step != 0) {
-			struct tm old = current;
+	    }
 
-			/* see comment regarding mktime -TD */
-			if (obj == &dy_box) {
-			    now_time += ONE_DAY * step;
-			} else if (obj == &mn_box) {
-			    if (step > 0)
-				now_time += ONE_DAY *
-				    days_in_month(&current, 0);
-			    else
-				now_time -= ONE_DAY *
-				    days_in_month(&current, -1);
-			} else if (obj == &yr_box) {
-			    if (step > 0)
-				now_time += ONE_DAY * days_in_year(&current, 0);
-			    else
-				now_time -= ONE_DAY * days_in_year(&current, -1);
+	    /* handle functionkeys */
+	    if (fkey) {
+		switch (key) {
+		case M_EVENT + 'D':
+		    state = sDAY;
+		    break;
+		case M_EVENT + 'M':
+		    state = sMONTH;
+		    break;
+		case M_EVENT + 'Y':
+		    state = sYEAR;
+		    break;
+		case KEY_ENTER:
+		    result = dlg_ok_buttoncode(button);
+		    break;
+		case KEY_LEFT:
+		case KEY_BTAB:
+		    state = dlg_prev_ok_buttonindex(state, sMONTH);
+		    break;
+		case KEY_RIGHT:
+		    state = dlg_next_ok_buttonindex(state, sMONTH);
+		    break;
+		default:
+		    step = 0;
+		    key2 = -1;
+		    if (key >= M_EVENT) {
+			if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+			    result = key2;
+			    break;
+			} else if (key >= (M_EVENT + KEY_MAX)) {
+			    state = sDAY;
+			    obj = &dy_box;
+			    key2 = 1;
+			    step = (key
+				    - (M_EVENT + KEY_MAX)
+				    - day_cell_number(&current));
 			}
-
-			current = *localtime(&now_time);
-
-			if (obj != &dy_box
-			    && (current.tm_mday != old.tm_mday
-				|| current.tm_mon != old.tm_mon
-				|| current.tm_year != old.tm_year))
-			    DrawObject(&dy_box);
-			if (obj != &mn_box && current.tm_mon != old.tm_mon)
-			    DrawObject(&mn_box);
-			if (obj != &yr_box && current.tm_year != old.tm_year)
-			    DrawObject(&yr_box);
-			(void) DrawObject(obj);
 		    }
+		    if (obj != 0) {
+			if (key2 < 0)
+			    step = next_or_previous(key, (obj == &dy_box));
+			if (step != 0) {
+			    struct tm old = current;
+
+			    /* see comment regarding mktime -TD */
+			    if (obj == &dy_box) {
+				now_time += ONE_DAY * step;
+			    } else if (obj == &mn_box) {
+				if (step > 0)
+				    now_time += ONE_DAY *
+					days_in_month(&current, 0);
+				else
+				    now_time -= ONE_DAY *
+					days_in_month(&current, -1);
+			    } else if (obj == &yr_box) {
+				if (step > 0)
+				    now_time += (ONE_DAY
+						 * days_in_year(&current, 0));
+				else
+				    now_time -= (ONE_DAY
+						 * days_in_year(&current, -1));
+			    }
+
+			    current = *localtime(&now_time);
+
+			    if (obj != &dy_box
+				&& (current.tm_mday != old.tm_mday
+				    || current.tm_mon != old.tm_mon
+				    || current.tm_year != old.tm_year))
+				DrawObject(&dy_box);
+			    if (obj != &mn_box && current.tm_mon != old.tm_mon)
+				DrawObject(&mn_box);
+			    if (obj != &yr_box && current.tm_year != old.tm_year)
+				DrawObject(&yr_box);
+			    (void) DrawObject(obj);
+			}
+		    }
+		    break;
 		}
-		break;
 	    }
 	}
     }
