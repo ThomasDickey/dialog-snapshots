@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.62 2003/08/30 14:33:39 tom Exp $
+ *  $Id: checklist.c,v 1.64 2003/09/10 22:04:56 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -296,10 +296,9 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	 * each one as the same key is pressed repeatedly.
 	 */
 	found = FALSE;
-	if (!fkey && is8bit(key)) {
+	if (!fkey) {
 	    for (j = scrollamt + choice + 1; j < item_no; j++) {
-		if (toupper(key) ==
-		    toupper(ItemName(j)[0])) {
+		if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
@@ -307,14 +306,15 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    }
 	    if (!found) {
 		for (j = 0; j <= scrollamt + choice; j++) {
-		    if (toupper(key) ==
-			toupper(ItemName(j)[0])) {
+		    if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 			found = TRUE;
 			i = j - scrollamt;
 			break;
 		    }
 		}
 	    }
+	    if (found)
+		dlg_flush_getc();
 	}
 
 	/*

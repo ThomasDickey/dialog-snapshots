@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.13 2003/07/20 19:26:55 tom Exp $
+ *  $Id: ui_getc.c,v 1.14 2003/09/10 21:34:01 tom Exp $
  *
  *  ui_getc.c
  *
@@ -132,6 +132,38 @@ dlg_raise_window(WINDOW *win)
 }
 
 /*
+ * This is a work-around for the case where we actually need the wide-character
+ * code versus a byte stream.
+ */
+static int last_getc = ERR;
+
+#ifdef HAVE_WGET_WCH
+static char last_getc_bytes[80];
+static int have_last_getc;
+static int used_last_getc;
+#endif
+
+int
+dlg_last_getc(void)
+{
+#ifdef HAVE_WGET_WCH
+    if (used_last_getc != 1)
+	return ERR;		/* not really an error... */
+#endif
+    return last_getc;
+}
+
+void
+dlg_flush_getc(void)
+{
+    last_getc = ERR;
+#ifdef HAVE_WGET_WCH
+    have_last_getc = 0;
+    used_last_getc = 0;
+#endif
+}
+
+/*
  * Read a character from the given window.  Handle repainting here (to simplify
  * things in the calling application).  Also, if input-callback(s) are set up,
  * poll the corresponding files and handle the updates, e.g., for displaying a
@@ -156,9 +188,6 @@ dlg_getc(WINDOW *win, int *fkey)
 
     while (!done) {
 #ifdef HAVE_WGET_WCH
-	static int have = 0;
-	static int used = 0;
-	static char temp[80];
 	wchar_t wch;
 	mbstate_t state;
 
@@ -166,32 +195,35 @@ dlg_getc(WINDOW *win, int *fkey)
 	 * We get a wide character, translate it to multibyte form to avoid
 	 * having to change the rest of the code to use wide-characters.
 	 */
-	if (used >= have) {
-	    used = 0;
-	    have = 0;
+	if (used_last_getc >= have_last_getc) {
+	    used_last_getc = 0;
+	    have_last_getc = 0;
 	    ch = ERR;
 	    *fkey = 0;
 	    switch (wget_wch(win, (wint_t *) (&wch))) {
 	    case KEY_CODE_YES:
 		ch = *fkey = wch;
+		last_getc = wch;
 		break;
 	    case OK:
 		memset(&state, 0, sizeof(state));
-		if ((have = wcrtomb(temp, wch, &state)) < 0) {
-		    have = used = 0;
-		    temp[0] = wch;
-		} else {
+		have_last_getc = wcrtomb(last_getc_bytes, wch, &state);
+		if (have_last_getc < 0) {
+		    have_last_getc = used_last_getc = 0;
+		    last_getc_bytes[0] = wch;
 		}
-		ch = CharOf(temp[used++]);
+		ch = CharOf(last_getc_bytes[used_last_getc++]);
+		last_getc = wch;
 		break;
 	    case ERR:
 		ch = ERR;
+		last_getc = ERR;
 		break;
 	    default:
 		break;
 	    }
 	} else {
-	    ch = CharOf(temp[used++]);
+	    ch = CharOf(last_getc_bytes[used_last_getc++]);
 	}
 #else
 	ch = wgetch(win);

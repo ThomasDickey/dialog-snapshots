@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.36 2003/08/24 18:01:19 tom Exp $
+dnl $Id: aclocal.m4,v 1.37 2003/09/08 20:14:22 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 10 updated: 2002/11/17 17:25:28
@@ -684,7 +684,7 @@ ifelse($3,,[    :]dnl
 ])dnl
   ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BUNDLED_INTL version: 8 updated: 2003/06/16 20:36:13
+dnl CF_BUNDLED_INTL version: 9 updated: 2003/09/08 16:06:46
 dnl ---------------
 dnl Top-level macro for configuring an application with a bundled copy of
 dnl the intl and po directories for gettext.
@@ -713,7 +713,7 @@ AC_SUBST(CONFIG_H)
 
 if test -z "$VERSION" ; then
 if test -f $srcdir/VERSION ; then
-	VERSION=`head -1 $srcdir/VERSION|cut -f1`
+	VERSION=`sed -e '2,$d' $srcdir/VERSION|cut -f1`
 else
 	VERSION=unknown
 fi
@@ -1288,7 +1288,7 @@ rm -rf conftest*
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_VERSION version: 2 updated: 2003/05/24 15:01:41
+dnl CF_GCC_VERSION version: 3 updated: 2003/09/06 19:16:57
 dnl --------------
 dnl Find version of gcc
 AC_DEFUN([CF_GCC_VERSION],[
@@ -1296,7 +1296,7 @@ AC_REQUIRE([AC_PROG_CC])
 GCC_VERSION=none
 if test "$GCC" = yes ; then
 	AC_MSG_CHECKING(version of $CC)
-	GCC_VERSION="`${CC} --version|head -1 | sed -e 's/^[[^0-9.]]*//' -e 's/[[^0-9.]].*//'`"
+	GCC_VERSION="`${CC} --version|sed -e '2,$d' -e 's/^[[^0-9.]]*//' -e 's/[[^0-9.]].*//'`"
 	test -z "$GCC_VERSION" && GCC_VERSION=unknown
 	AC_MSG_RESULT($GCC_VERSION)
 fi

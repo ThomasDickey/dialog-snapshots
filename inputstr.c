@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.27 2003/08/20 23:55:14 tom Exp $
+ * $Id: inputstr.c,v 1.28 2003/09/08 23:57:57 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -251,6 +251,8 @@ dlg_index_wchars(const char *string)
 	    int width;
 	    memset(&state, 0, sizeof(state));
 	    width = mbrlen(current, strlen(current), &state);
+	    if (width <= 0)
+	    	width = 1;	/* FIXME: what if we have a control-char? */
 	    current += width;
 	    cache.list[inx] = cache.list[inx - 1] + width;
 #else
