@@ -1,7 +1,11 @@
--- T.Dickey <dickey@clark.net>
+-- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2000/12/13
+	+ correct change for create_lock(), which resulted in an infinite loop
+	  (patch by Chris Butler, <chrisb@debian.org>).
 
 2000/12/12
 	+ rewrote print_autowrap() and real_auto_size() to share common code
