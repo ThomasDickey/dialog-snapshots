@@ -1,8 +1,26 @@
--- $Id: CHANGES,v 1.87 2003/12/07 20:24:23 tom Exp $
+-- $Id: CHANGES,v 1.88 2004/03/02 01:57:24 tom Exp $
 -- T.E.Dickey <dickey@his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/03/01
+	+ improve layout of calendar widget to allow for very long button
+	  labels (report by Santiago Vila).
+	+ correct logic for $DIALOG_TTY, broken in 2003/11/30.  The environment
+	  variable must evaluate to a nonzero integer (report by Florent
+	  Rougon).
+	+ document interaction between "--default-no" and "--no-cancel" options
+	  in manpage (Debian #223488).
+	+ change configure script to use autoconf 2.52+patch, to work around
+	  issues with Estonian locale (report by Seemant Kulleen).
+	+ add uk.po (Ukrainian) (Debian #232441).
+	+ make --default-item apply to checklist widget (Debian #225255).
+	+ correct a missing check for --item-help when --help-status was given
+	  for checklist (Debian #232921).
+	+ correct a missing bounds check for mouse-clicks in checklist (Debian
+	  #233044).
+	+ update config.guess, config.sub
 
 2003/12/07
 	+ correct infinite loop in yesno widget when "--defaultno" option is
@@ -106,7 +124,7 @@ to it:
 	+ correct "RENAMED" result from inputmenu widget, which did not reset
 	  the result buffer, and did not account for scroll-offset (Debian
 	  #209336).
-	+ modify button, menu and checkbox logic that matches a character to
+	+ modify button, menu and checklist logic that matches a character to
 	  the beginning of a text field to support wide-characters (completes
 	  Debian #195674).
 	+ modify configure script to not use "head -1".
@@ -144,7 +162,7 @@ to it:
 	  development headers.  Or they may not coincide (Debian #206287).
 
 2003/08/18
-	+ modify checkbox.c and menubox.c to display tags properly if they
+	+ modify checklist.c and menubox.c to display tags properly if they
 	  contain wide-characters.
 	+ better solution for initializing curses when "--stdout" option is
 	  used, e.g., use stderr for the output if it is a tty.  Also correct
@@ -152,8 +170,8 @@ to it:
 	  find a way to do output (Debian #205509).
 	+ modify sample scripts to use consistent definition of $DIALOG
 	  (Debian #205508).
-	+ add UTF-8 examples msgbox4-utf8, inputbox6-utf8 (from Tomohiro KUBOTA
-	  as testcases for Debian #195674).
+	+ add UTF-8 examples inputbox6-utf8, inputbox6-utf8 (from Tomohiro
+	  KUBOTA as testcases for Debian #195674).
 	+ modify print_line() to work with wide-characters, e.g., so it handles
 	  wrapping for double-width characters.
 	+ cache results from multibyte character indices, speeds up cursor
@@ -280,7 +298,7 @@ to it:
 	+ implement two new functions dlg_next_ok_buttonindex() and
 	  dlg_prev_ok_buttonindex(), using these to hide details about the
 	  traversal over buttons in several widgets.
-	+ modify checkbox.c and menubox.c to verify if both --help-button and
+	+ modify checklist.c and menubox.c to verify if both --help-button and
 	  --item-help are specified before assuming that selecting the help
 	  button should cause the "HELP {item-help}" message to be printed
 	  (reported by Marcel Ritter <Marcel.Ritter@rrze.uni-erlangen.de>).
@@ -604,7 +622,7 @@ to it:
 	+ updates for configure script macros (CF_BUNDLED_INTL, CF_CURSES_LIBS,
 	  CF_GCC_ATTRIBUTES, CF_GCC_WARNINGS, CF_INCLUDE_DIRS), and scripts
 	  config.guess, config.sub
-	+ cleanup of item-help change, integrate with checkbox and radiobox.
+	+ cleanup of item-help change, integrate with checklist and radiobox.
 	+ add ja.po, from Hirofumi Takeda <takepin@turbolinux.co.jp>.
 	> patch by Marco Mariani <marcom@sferacarta.com>
 	+ add --item-help option, which makes menubox data interpreted as
@@ -612,7 +630,7 @@ to it:
 	  last line of the screen as a help/status message for the currently
 	  selected item.
 	+ add it.po, pt.po
-	+ change TAG_KEY_HL to FALSE, making unselected items in checkbox
+	+ change TAG_KEY_HL to FALSE, making unselected items in checklist
 	  easier to read on Linux console.
 
 2000/07/30
@@ -707,7 +725,7 @@ to it:
 	+ change gauge.c to show progress in reverse-video, add a check for
 	  end-of-file in the loop for reading new messages.
 	+ use curses whline() function to simplify print_arrows() logic in
-	  checkbox.c and menubox.c
+	  checklist.c and menubox.c
 	+ use curses beep() function rather than hardcoded strings.
 	+ correct several compiler warnings for gcc -pedantic (mismatch of
 	  const, signed/unsigned).

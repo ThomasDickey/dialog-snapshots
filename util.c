@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.118 2003/12/01 00:32:44 tom Exp $
+ *  $Id: util.c,v 1.119 2004/03/01 23:15:13 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -181,7 +181,7 @@ static char *
 dialog_tty(void)
 {
     char *result = getenv("DIALOG_TTY");
-    if (result != 0 && atoi(result))
+    if (result != 0 && atoi(result) == 0)
 	result = 0;
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.137 2003/11/27 00:22:55 tom Exp $
+ *  $Id: dialog.h,v 1.138 2004/03/02 00:59:18 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -466,6 +466,7 @@ extern const char ** dlg_exit_label(void);
 extern const char ** dlg_ok_label(void);
 extern const char ** dlg_ok_labels(void);
 extern const char ** dlg_yes_labels(void);
+extern int dlg_button_count(const char **labels);
 extern int dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
 extern int dlg_char_to_button(int ch, const char **labels);
 extern int dlg_match_char(int ch, const char *string);

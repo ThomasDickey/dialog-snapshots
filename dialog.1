@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.67 2003/11/26 22:40:34 tom Exp $
-.TH DIALOG 1 "" "$Date: 2003/11/26 22:40:34 $"
+.\" $Id: dialog.1,v 1.69 2004/03/01 22:56:25 tom Exp $
+.TH DIALOG 1 "" "$Date: 2004/03/01 22:56:25 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -138,16 +138,18 @@ box a
 .BR No .
 Likewise, make the default button of widgets that provide "OK" and "Cancel"
 a \fBCancel\fP.
+If \fB\-\-nocancel\fP was given that option overrides this,
+making the default button always "Yes" (internally the same as "OK").
 .
 .IP "\fB\-\-default-item \fIstring"
-Set the default item in a menu box.
+Set the default item in a checklist, form or menu box.
 Normally the first item in the box is the default.
 .
 .IP "\fB\-\-exit-label \fIstring"
 Override the label used for "EXIT" buttons.
 .
 .IP "\fB\-\-extra-button"
-Show an extra button, between "Ok" and "Cancel" buttons.
+Show an extra button, between "OK" and "Cancel" buttons.
 .
 .IP "\fB\-\-extra-label \fIstring"
 Override the label used for "Extra" buttons.
@@ -158,10 +160,10 @@ Prints the help message to dialog's output.
 The help message is printed if no options are given.
 .
 .IP "\fB\-\-help-button"
-Show a help-button after "Ok" and "Cancel" buttons,
+Show a help-button after "OK" and "Cancel" buttons,
 i.e., in checklist, radiolist and menu boxes.
 If \fB\-\-item-help\fR is also given, on exit
-the return status will be the same as for the "Ok" button,
+the return status will be the same as for the "OK" button,
 and the item-help text will be written to dialog's output after the token "HELP".
 Otherwise, the return status will indicate that the Help button was pressed,
 and no message printed.
@@ -451,7 +453,7 @@ the user that some operations are carrying on that may require some
 time to finish.
 .IP
 On exit, no text is written to dialog's output.
-Only an "Ok" button is provided for input,
+Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
 .
@@ -526,7 +528,7 @@ After reading the message, the user can press the \fIENTER\fP key so that
 \fBdialog\fP will exit and the calling shell script can continue its operation.
 .IP
 On exit, no text is written to dialog's output.
-Only an "Ok" button is provided for input,
+Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
 .IP "\fB\-\-passwordbox \fItext height width [init]"
@@ -564,7 +566,7 @@ Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
 A '0' resets the scrolling.
 .IP
 On exit, no text is written to dialog's output.
-Only an "Ok" button is provided for input,
+Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
 .
@@ -661,6 +663,9 @@ button, in which the user can switch between by pressing the
 On exit, no text is written to dialog's output.
 In addition to the "Yes" and "No" exit codes (see DIAGNOSTICS)
 an ESC exit status may be returned.
+.IP
+The codes used for "Yes" and "No" match those used for "OK" and "Cancel",
+internally no distinction is made.
 .
 .\" ************************************************************************
 .SH "RUN-TIME CONFIGURATION"
@@ -724,7 +729,7 @@ error (-1),
 ESC (255),
 Extra (3),
 Help (2),
-or Ok (0).
+or OK (0).
 Normally shell scripts cannot distinguish between -1 and 255.
 .TP 15
 \fBDIALOG_TTY\fP

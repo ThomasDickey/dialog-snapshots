@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.35 2003/11/26 18:47:49 tom Exp $
+ * $Id: calendar.c,v 1.36 2004/03/02 01:54:47 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- * Copyright 2001-2002,2003	Thomas E. Dickey
+ * Copyright 2001-2003,2004	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -25,13 +25,14 @@
 
 #define ONE_DAY  (60 * 60 * 24)
 
-#define MON_WIDE 4
-#define DAY_HIGH 5
-#define DAY_WIDE (8 * MON_WIDE)
-#define HDR_HIGH 1
-#define BTN_HIGH 2
+#define MON_WIDE 4		/* width of a month-name */
+#define DAY_HIGH 6		/* maximum lines in day-grid */
+#define DAY_WIDE (8 * MON_WIDE)	/* width of the day-grid */
+#define HDR_HIGH 1		/* height of cells with month/year */
+#define BTN_HIGH 1		/* height of button-row excluding margin */
 
-#define MIN_HIGH (DAY_HIGH + HDR_HIGH + BTN_HIGH + (6 * MARGIN))
+/* two more lines: titles for day-of-week and month/year boxes */
+#define MIN_HIGH (DAY_HIGH + 2 + HDR_HIGH + BTN_HIGH + (7 * MARGIN))
 #define MIN_WIDE (DAY_WIDE + (4 * MARGIN))
 
 typedef enum {
@@ -386,6 +387,8 @@ dialog_calendar(const char *title,
     STATES state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
+    int longest;
+    int mincols;
 
     dlg_does_output();
 
@@ -421,8 +424,12 @@ dialog_calendar(const char *title,
 	}
     }
 
-    dlg_auto_size(title, prompt, &height, &width, 0, 0);
-    height += MIN_HIGH;
+    dlg_button_sizes(buttons, FALSE, &longest, &mincols);
+    mincols += (0 * MARGIN) + (dlg_button_count(buttons) * 3) - 1;
+    if (mincols < MIN_WIDE)
+	mincols = MIN_WIDE;
+    dlg_auto_size(title, prompt, &height, &width, 0, mincols);
+    height += MIN_HIGH - 1;
     if (width < MIN_WIDE)
 	width = MIN_WIDE;
     dlg_print_size(height, width);
@@ -448,9 +455,9 @@ dialog_calendar(const char *title,
     if (init_object(&dy_box,
 		    dialog,
 		    (width - DAY_WIDE) / 2,
-		    (height - (DAY_HIGH + BTN_HIGH + (4 * MARGIN))),
+		    1 + (height - (DAY_HIGH + BTN_HIGH + (5 * MARGIN))),
 		    DAY_WIDE,
-		    DAY_HIGH + (2 * MARGIN),
+		    DAY_HIGH + 1,
 		    draw_day,
 		    'D') < 0
 	|| DrawObject(&dy_box) < 0)
