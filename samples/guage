@@ -1,0 +1,15 @@
+#!/bin/sh
+DIALOG=${DIALOG=../dialog}
+
+(echo "10" ; sleep 2 ; 
+
+echo "XXX"; 
+echo "20";
+echo "The new\n\
+message";
+echo "XXX";
+sleep 2; 
+
+echo "75" ; sleep 2) |
+
+$DIALOG --title "GUAGE" --guage "Hi, this is a guage widget" 20 70 0
