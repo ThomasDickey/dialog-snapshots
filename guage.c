@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.17 2001/04/28 23:09:27 tom Exp $
+ *  $Id: guage.c,v 1.18 2001/07/31 18:05:00 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -132,6 +132,6 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	}
     } while (1);
 
-    (void) delwin(dialog);
+    del_window(dialog);
     return (0);
 }

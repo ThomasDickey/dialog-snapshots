@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.20 2001/05/26 14:32:42 tom Exp $
+dnl $Id: aclocal.m4,v 1.22 2001/08/11 12:41:09 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -844,6 +844,44 @@ fi
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Test for the presence of <sys/wait.h>, 'union wait', arg-type of 'wait()'
+dnl and/or 'waitpid()'.
+dnl
+dnl Note that we cannot simply grep for 'union wait' in the wait.h file,
+dnl because some Posix systems turn this on only when a BSD variable is
+dnl defined.
+dnl
+dnl I don't use AC_HEADER_SYS_WAIT, because it defines HAVE_SYS_WAIT_H, which
+dnl would conflict with an attempt to test that header directly.
+dnl
+AC_DEFUN([CF_FUNC_WAIT],
+[
+AC_REQUIRE([CF_UNION_WAIT])
+if test $cf_cv_type_unionwait = yes; then
+
+	AC_MSG_CHECKING(if union wait can be used as wait-arg)
+	AC_CACHE_VAL(cf_cv_arg_union_wait,[
+		AC_TRY_COMPILE($cf_wait_headers,
+ 			[union wait x; wait(&x)],
+			[cf_cv_arg_union_wait=yes],
+			[cf_cv_arg_union_wait=no])
+		])
+	AC_MSG_RESULT($cf_cv_arg_union_wait)
+	test $cf_cv_arg_union_wait = yes && AC_DEFINE(WAIT_USES_UNION)
+
+	AC_MSG_CHECKING(if union wait can be used as waitpid-arg)
+	AC_CACHE_VAL(cf_cv_arg_union_waitpid,[
+		AC_TRY_COMPILE($cf_wait_headers,
+ 			[union wait x; waitpid(0, &x, 0)],
+			[cf_cv_arg_union_waitpid=yes],
+			[cf_cv_arg_union_waitpid=no])
+		])
+	AC_MSG_RESULT($cf_cv_arg_union_waitpid)
+	test $cf_cv_arg_union_waitpid = yes && AC_DEFINE(WAITPID_USES_UNION)
+
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Test for availability of useful gcc __attribute__ directives to quiet
 dnl compiler warnings.  Though useful, not all are supported -- and contrary
 dnl to documentation, unrecognized directives cause older compilers to barf.
@@ -1119,6 +1157,7 @@ AC_CACHE_VAL(cf_cv_makeflags,[
 	for cf_option in '-$(MAKEFLAGS)' '$(MFLAGS)'
 	do
 		cat >cf_makeflags.tmp <<CF_EOF
+SHELL = /bin/sh
 all :
 	@ echo '.$cf_option'
 CF_EOF
@@ -1363,8 +1402,10 @@ AC_DEFUN([CF_NCURSES_VERSION],
 AC_CACHE_CHECK(for ncurses version, cf_cv_ncurses_version,[
 	cf_cv_ncurses_version=no
 	cf_tempfile=out$$
+	rm -f $cf_tempfile
 	AC_TRY_RUN([
 #include <${cf_cv_ncurses_header-curses.h}>
+#include <stdio.h>
 int main()
 {
 	FILE *fp = fopen("$cf_tempfile", "w");
@@ -1383,8 +1424,7 @@ int main()
 #endif
 	exit(0);
 }],[
-	cf_cv_ncurses_version=`cat $cf_tempfile`
-	rm -f $cf_tempfile],,[
+	cf_cv_ncurses_version=`cat $cf_tempfile`],,[
 
 	# This will not work if the preprocessor splits the line after the
 	# Autoconf token.  The 'unproto' program does that.
@@ -1407,7 +1447,9 @@ EOF
 		test -n "$cf_out" && cf_cv_ncurses_version="$cf_out"
 		rm -f conftest.out
 	fi
-])])
+])
+	rm -f $cf_tempfile
+])
 test "$cf_cv_ncurses_version" = no || AC_DEFINE(NCURSES)
 ])
 dnl ---------------------------------------------------------------------------
@@ -1459,6 +1501,7 @@ cygwin*)
     ;;
 esac
 AC_SUBST(PROG_EXT)
+test -n "$PROG_EXT" && AC_DEFINE_UNQUOTED(PROG_EXT,"$PROG_EXT")
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl	Shorthand macro for substituting things that the user may override
@@ -1507,6 +1550,50 @@ if test ".$SYS_NAME" != ".$cf_cv_system_name" ; then
 	AC_ERROR("Please remove config.cache and try again.")
 fi])
 dnl ---------------------------------------------------------------------------
+dnl Check to see if the BSD-style union wait is declared.  Some platforms may
+dnl use this, though it is deprecated in favor of the 'int' type in Posix.
+dnl Some vendors provide a bogus implementation that declares union wait, but
+dnl uses the 'int' type instead; we try to spot these by checking for the
+dnl associated macros.
+dnl
+dnl Ahem.  Some implementers cast the status value to an int*, as an attempt to
+dnl use the macros for either union wait or int.  So we do a check compile to
+dnl see if the macros are defined and apply to an int.
+dnl
+dnl Sets: $cf_cv_type_unionwait
+dnl Defines: HAVE_TYPE_UNIONWAIT
+AC_DEFUN([CF_UNION_WAIT],
+[
+AC_REQUIRE([CF_WAIT_HEADERS])
+AC_MSG_CHECKING([for union wait])
+AC_CACHE_VAL(cf_cv_type_unionwait,[
+	AC_TRY_LINK($cf_wait_headers,
+	[int x;
+	 int y = WEXITSTATUS(x);
+	 int z = WTERMSIG(x);
+	 wait(&x);
+	],
+	[cf_cv_type_unionwait=no
+	 echo compiles ok w/o union wait 1>&AC_FD_CC
+	],[
+	AC_TRY_LINK($cf_wait_headers,
+	[union wait x;
+#ifdef WEXITSTATUS
+	 int y = WEXITSTATUS(x);
+#endif
+#ifdef WTERMSIG
+	 int z = WTERMSIG(x);
+#endif
+	 wait(&x);
+	],
+	[cf_cv_type_unionwait=yes
+	 echo compiles ok with union wait and possibly macros too 1>&AC_FD_CC
+	],
+	[cf_cv_type_unionwait=no])])])
+AC_MSG_RESULT($cf_cv_type_unionwait)
+test $cf_cv_type_unionwait = yes && AC_DEFINE(HAVE_TYPE_UNIONWAIT)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Make an uppercase version of a variable
 dnl $1=uppercase($2)
 AC_DEFUN([CF_UPPER],
@@ -1517,6 +1604,35 @@ dnl ---------------------------------------------------------------------------
 dnl Use AC_VERBOSE w/o the warnings
 AC_DEFUN([CF_VERBOSE],
 [test -n "$verbose" && echo "	$1" 1>&AC_FD_MSG
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Build up an expression $cf_wait_headers with the header files needed to
+dnl compile against the prototypes for 'wait()', 'waitpid()', etc.  Assume it's
+dnl Posix, which uses <sys/types.h> and <sys/wait.h>, but allow SVr4 variation
+dnl with <wait.h>.
+AC_DEFUN([CF_WAIT_HEADERS],
+[
+AC_HAVE_HEADERS(sys/wait.h)
+cf_wait_headers="#include <sys/types.h>
+"
+if test $ac_cv_header_sys_wait_h = yes; then
+cf_wait_headers="$cf_wait_headers
+#include <sys/wait.h>
+"
+else
+AC_HAVE_HEADERS(wait.h)
+AC_HAVE_HEADERS(waitstatus.h)
+if test $ac_cv_header_wait_h = yes; then
+cf_wait_headers="$cf_wait_headers
+#include <wait.h>
+"
+fi
+if test $ac_cv_header_waitstatus_h = yes; then
+cf_wait_headers="$cf_wait_headers
+#include <waitstatus.h>
+"
+fi
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl Test if we should define X/Open source for curses, needed on Digital Unix

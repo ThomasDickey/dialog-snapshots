@@ -1,5 +1,6 @@
+#define TRACE
 /*
- *  $Id: util.c,v 1.70 2001/05/27 14:43:53 tom Exp $
+ *  $Id: util.c,v 1.78 2001/08/11 00:44:07 tom Exp $
  *
  *  util.c
  *
@@ -28,7 +29,7 @@
 #include <time.h>
 
 #ifdef NCURSES_VERSION
-#ifdef HAVE_NCURSES_NCURSES_H
+#ifdef HAVE_NCURSES_TERM_H
 #include <ncurses/term.h>
 #else
 #include <term.h>
@@ -56,17 +57,10 @@
 
 /* globals */
 FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
+DIALOG_STATE dialog_state;
 DIALOG_VARS dialog_vars;
-DIALOCK lock_refresh;
-DIALOCK lock_tailbg_exit;
-DIALOCK lock_tailbg_refreshed;
 int defaultno = FALSE;
-int is_tailbg = FALSE;
 int screen_initialized = 0;
-pid_t tailbg_lastpid = 0;
-pid_t tailbg_nokill_lastpid = 0;
-pid_t tailbg_nokill_pids[MAX_TAILBG];
-pid_t tailbg_pids[MAX_TAILBG];
 static FILE *my_output;		/* prefer to stdout, to support --stdout */
 
 #ifdef HAVE_COLOR
@@ -734,187 +728,11 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
 }
 #endif
 
-/*
- * make_tmpfile()
- */
-int
-make_lock_filename(DIALOCK * dialock, const char *prefix)
-{
-    static int first = 1;
-    char *file = tempnam(DIALOG_TMPDIR, prefix);
-
-    if (first) {
-	first = 0;
-	srand(time((time_t *) 0));
-    }
-    if (file == NULL) {
-	end_dialog();
-	fprintf(stderr, "\nCan't make tempfile (%s)...\n", prefix);
-	return -1;
-    }
-    dialock->filename = file;
-    dialock->identifier = rand();
-    return 0;
-}
-/* End of make_tmpfile() */
-
-/* private function, used by wrefresh_lock() and wrefresh_lock_tailbg() */
-static void
-wrefresh_lock_sub(WINDOW *win)
-{
-    create_lock(&lock_refresh);
-    beeping();
-    (void) wrefresh(win);
-    remove_lock(&lock_refresh);
-}
-
-/*
- * Only one process at a time should call wrefresh()
- */
-
-/* called by all normal widget */
-void
-wrefresh_lock(WINDOW *win)
-{
-    wrefresh_lock_sub(win);
-
-    if (exist_lock(&lock_tailbg_refreshed))
-	remove_lock(&lock_tailbg_refreshed);
-}
-
-/* If a tailboxbg was wrefreshed, wrefresh again the principal (normal) widget.
- *
- * The important thing here was to put cursor in the principal widget,
- * but with touchwin(win) the principal widget is also rewritten. This
- * is needed if a tailboxbg has overwritten this widget.
- */
-void
-ctl_idlemsg(WINDOW *win)
-{
-    if (exist_lock(&lock_tailbg_refreshed))
-	wrefresh_lock(win);
-
-    /* if a tailboxbg exited, quit */
-    if (exist_lock(&lock_tailbg_exit)) {
-	remove_lock(&lock_tailbg_exit);
-	exiterr("ctl_idlemsg: quit");
-    }
-}
-
-/* call by tailboxbg, the resident widget */
-void
-wrefresh_lock_tailbg(WINDOW *win)
-{
-    if (!exist_lock(&lock_tailbg_refreshed))
-	create_lock(&lock_tailbg_refreshed);
-    wrefresh_lock_sub(win);
-}
-
-/* End of wrefresh functions */
-
-/*
- * To work with lock files, here are some functions
- */
-int
-exist_lock(DIALOCK * dialock)
-{
-    int fd;
-    int code = 0;
-    int check;
-    struct stat sb;
-
-    if (dialock->filename != 0
-	&& (fd = open(dialock->filename, O_RDONLY | O_BINARY)) >= 0) {
-	if (fstat(fd, &sb) >= 0
-	    && sb.st_uid == geteuid()
-	    && sb.st_gid == getegid()
-	    && (sb.st_mode & S_IFMT) == S_IFREG
-	    && (sb.st_mode & ~S_IFMT) == LOCK_PERMITS
-	    && read(fd, &check, sizeof(check)) == sizeof(check)
-	    && dialock->identifier == check) {
-	    code = 1;
-	}
-	(void) close(fd);
-    }
-    return code;
-}
-
-void
-create_lock(DIALOCK * dialock)
-{
-    int fd, i;
-
-    i = 0;
-    while ((fd = open(dialock->filename,
-		      O_WRONLY | O_CREAT | O_EXCL | O_BINARY,
-		      LOCK_PERMITS)) == -1) {
-	napms(1000);
-	if (++i == LOCK_TIMEOUT) {
-	    /* can't use exiterr here, since it attempts to use a lock
-	     * which could cause an endless loop of lock attempts :(
-	     */
-	    end_dialog();
-
-	    fprintf(stderr, "Unable to create lock %s", dialock->filename);
-
-	    if (!is_tailbg)
-		killall_bg();
-
-	    exit(-1);
-	}
-    }
-
-    ftruncate(fd, 0);
-    write(fd, &(dialock->identifier), sizeof(dialock->identifier));
-    close(fd);
-}
-
-void
-remove_lock(DIALOCK * dialock)
-{
-    (void) remove(dialock->filename);
-}
-
-/* End of functions to work with lock files */
-
-/* killall_bg: kill all tailboxbg, if any */
-void
-killall_bg(void)
-{
-    int i;
-    for (i = 0; i < tailbg_lastpid; i++)
-	(void) kill(tailbg_pids[i], SIGTERM);
-}
-
-static int
-is_nokill(int pid)
-{				/* private func for quitall_bg() */
-    int i;
-    for (i = 0; i < tailbg_nokill_lastpid; i++)
-	if (tailbg_nokill_pids[i] == pid)
-	    return 1;
-    return 0;
-}
-
-/* quitall_bg: kill all tailboxbg without --no-kill flag */
-int
-quitall_bg(void)
-{
-    int i;
-    int count = 0;
-
-    for (i = 0; i < tailbg_lastpid; i++)
-	if (is_nokill(tailbg_pids[i]))
-	    count++;
-	else
-	    (void) kill(tailbg_pids[i], SIGTERM);
-    return count;
-}
-
 /* exiterr quit program killing all tailbg */
 void
 exiterr(const char *fmt,...)
 {
+    int retval;
     va_list ap;
 
     end_dialog();
@@ -925,14 +743,11 @@ exiterr(const char *fmt,...)
     va_end(ap);
     (void) fputc('\n', stderr);
 
-    if (is_tailbg)		/* this is a child process */
-	create_lock(&lock_tailbg_exit);
-    else
-	killall_bg();
+    killall_bg(&retval);
 
     (void) fflush(stderr);
     (void) fflush(stdout);
-    exit(-1);
+    exit(DLG_EXIT_ERROR);
 }
 
 void
@@ -1073,19 +888,72 @@ draw_bottom_box(WINDOW *win)
 	(void) waddch(win, ' ');
 }
 
+/*
+ * Remove a window, repainting everything else.  This would be simpler if we
+ * used the panel library, but that is not _always_ available.
+ */
+void
+del_window(WINDOW *win)
+{
+    DIALOG_WINDOWS *p, *q, *r;
+
+    /* Leave the main window untouched if there are no background windows.
+     * We do this so the current window will not be cleared on exit, allowing
+     * things like the infobox demo to run without flicker.
+     */
+    if (dialog_state.getc_callbacks != 0) {
+	touchwin(stdscr);
+	wnoutrefresh(stdscr);
+    }
+
+    for (p = dialog_state.all_windows, r = 0; p != 0; r = p, p = q) {
+	q = p->next;
+	if (p->normal == win) {
+	    if (p->shadow != 0)
+		delwin(p->shadow);
+	    delwin(p->normal);
+	    if (r == 0) {
+		dialog_state.all_windows = q;
+	    } else {
+		r->next = q;
+	    }
+	    free(p);
+	} else {
+	    if (p->shadow != 0) {
+		touchwin(p->shadow);
+		wnoutrefresh(p->shadow);
+	    }
+	    touchwin(p->normal);
+	    wnoutrefresh(p->normal);
+	}
+    }
+    doupdate();
+}
+
+/*
+ * Create a window, optionally with a shadow.
+ */
 WINDOW *
 new_window(int height, int width, int y, int x)
 {
     WINDOW *win;
+    DIALOG_WINDOWS *p = (DIALOG_WINDOWS *) calloc(1, sizeof(DIALOG_WINDOWS));
 
 #ifdef HAVE_COLOR
-    if (use_shadow)
-	draw_shadow(stdscr, y, x, height, width);
+    if (use_shadow) {
+	if ((win = newwin(height, width, y + 1, x + 2)) != 0) {
+	    draw_shadow(win, 0, 0, height, width);
+	}
+	p->shadow = win;
+    }
 #endif
     if ((win = newwin(height, width, y, x)) == 0) {
 	exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
 		y, x, height, width);
     }
+    p->next = dialog_state.all_windows;
+    p->normal = win;
+    dialog_state.all_windows = p;
 
     (void) keypad(win, TRUE);
     return win;
@@ -1118,22 +986,6 @@ dlg_default_item(char **items, int llen)
 	}
     }
     return 0;
-}
-
-int
-dlg_getc(WINDOW *win)
-{
-    for (;;) {
-	int ch = wgetch(win);
-	switch (ch) {
-	case CHR_REPAINT:
-	    (void) touchwin(win);
-	    (void) wrefresh(curscr);
-	    break;
-	default:
-	    return ch;
-	}
-    }
 }
 
 /*
@@ -1173,6 +1025,27 @@ dlg_strcmp(char *a, char *b)
 #endif
 
 /*
+ * Returns true if 'dst' points to a blank which follows another blank which
+ * is not a leading blank on a line.
+ */
+static bool
+trim_blank(char *base, char *dst)
+{
+    int count = 0;
+
+    while (dst-- != base) {
+	if (*dst == '\n') {
+	    return FALSE;
+	} else if (*dst != ' ') {
+	    return (count > 1);
+	} else {
+	    count++;
+	}
+    }
+    return FALSE;
+}
+
+/*
  * Change embedded "\n" substrings to '\n' characters and tabs to single
  * spaces.  If there are no "\n"s, it will strip all extra spaces, for
  * justification.  If it has "\n"'s, it will preserve extra spaces.  If cr_wrap
@@ -1181,62 +1054,47 @@ dlg_strcmp(char *a, char *b)
 void
 dlg_trim_string(char *s)
 {
+    char *base = s;
     char *p1;
     char *p = s;
-    int has_newlines = 0;
-
-    if (strstr(s, "\\n"))
-	has_newlines = 1;
+    int has_newlines = (strstr(s, "\\n") != 0);
 
     while (*p != '\0') {
 	if (*p == '\t')
 	    *p = ' ';
 
-	if (*p == '\\' && *(p + 1) == 'n') {
-	    *s++ = '\n';
-	    p += 2;
-	    p1 = p;
-	    /*
-	     * Handle end of lines intelligently.  If '\n' follows "\n" then
-	     * ignore the '\n'.  This eliminates the need escape the '\n'
-	     * character (no need to use "\n\").
-	     */
-	    while (*p1 == ' ')
-		p1++;
-	    if (*p1 == '\n')
-		p = p1 + 1;
-	} else {
-	    if (has_newlines) {	/* If prompt contains "\n" strings */
-		if (*p == '\n') {
-		    if (dialog_vars.cr_wrap)
-			*s++ = *p++;
-		    else {
-			/* Replace the '\n' with a space if cr_wrap is not set */
-			if (*(s - 1) != ' ')
-			    *s++ = ' ';
-			p++;
-		    }
-		} else		/* If *p != '\n' */
+	if (has_newlines) {	/* If prompt contains "\n" strings */
+	    if (*p == '\\' && *(p + 1) == 'n') {
+		*s++ = '\n';
+		p += 2;
+		p1 = p;
+		/*
+		 * Handle end of lines intelligently.  If '\n' follows "\n"
+		 * then ignore the '\n'.  This eliminates the need to escape
+		 * the '\n' character (no need to use "\n\").
+		 */
+		while (*p1 == ' ')
+		    p1++;
+		if (*p1 == '\n')
+		    p = p1 + 1;
+	    } else if (*p == '\n') {
+		if (dialog_vars.cr_wrap)
 		    *s++ = *p++;
-	    } else {		/* If there are no "\n" strings */
-		if (*p == ' ') {
-		    if (*(s - 1) != ' ') {
+		else {
+		    /* Replace the '\n' with a space if cr_wrap is not set */
+		    if (!trim_blank(base, s))
 			*s++ = ' ';
-			p++;
-		    } else
-			p++;
-		} else if (*p == '\n') {
-		    if (dialog_vars.cr_wrap)
-			*s++ = *p++;
-		    else if (*(s - 1) != ' ') {
-			/* Strip '\n's if cr_wrap is not set. */
-			*s++ = ' ';
-			p++;
-		    } else
-			p++;
-		} else
-		    *s++ = *p++;
-	    }
+		    p++;
+		}
+	    } else		/* If *p != '\n' */
+		*s++ = *p++;
+	} else {		/* If there are no "\n" strings */
+	    if (*p == ' ') {
+		if (!trim_blank(base, s))
+		    *s++ = *p;
+		p++;
+	    } else
+		*s++ = *p++;
 	}
     }
 

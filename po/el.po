@@ -1,0 +1,46 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Dialog\n"
+"PO-Revision-Date: 2001-08-05 10:00GMT+2\n"
+"Content-Type: text/plain; charset=ISO-8859-7\n"
+"Content-Transfer-Encoding: 8-bit\n"
+"MIME-Version: 1.0\n"
+
+# please send your comments to: i18ngr@hellug.gr 
+
+#: buttons.c:257
+msgid "EXIT"
+msgstr "Έξοδος"
+
+#: buttons.c:268 buttons.c:279
+msgid "OK"
+msgstr "OK"
+
+#: buttons.c:281
+msgid "Cancel"
+msgstr "¶κυρο"
+
+#: buttons.c:292
+msgid "Yes"
+msgstr "Ναι"
+
+#: buttons.c:293
+msgid "No"
+msgstr "Όχι"
+
+#: calendar.c:261
+msgid "Month"
+msgstr "Μήνας"
+
+#: calendar.c:280
+msgid "Year"
+msgstr "Έτος"
+
+#: fselect.c:344
+msgid "Directories"
+msgstr "Φάκελοι"
+
+#: fselect.c:345
+msgid "Files"
+msgstr "Αρχεία"

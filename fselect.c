@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.21 2001/05/27 14:43:55 tom Exp $
+ * $Id: fselect.c,v 1.24 2001/08/09 00:20:35 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -336,7 +336,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     int fbox_y, fbox_x, fbox_width, fbox_height;
     int show_buttons = TRUE, first = TRUE, offset = 0;
     int key = 0, key2, button = -1;
-    char *input = (char *) dialog_input_result;
+    char *input = dialog_vars.input_result;
     char *completed;
     char current[MAX_LEN + 1];
     WINDOW *dialog, *w_text, *w_dir, *w_file;
@@ -448,7 +448,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
 
 	if (!first) {
-	    key = wgetch(dialog);
+	    key = dlg_getc(dialog);
 	} else {
 	    (void) wrefresh(dialog);
 	}
@@ -465,7 +465,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return key2;
 	}
 
@@ -520,7 +520,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    }
 	    /* FALLTHRU */
 	case '\n':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    free_list(&d_list);
 	    free_list(&f_list);
 	    return (button > 0);
@@ -531,7 +531,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
     }
 
-    (void) delwin(dialog);
+    del_window(dialog);
     free_list(&d_list);
     free_list(&f_list);
     return -1;			/* ESC pressed */

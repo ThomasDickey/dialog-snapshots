@@ -1,4 +1,6 @@
 /*
+ *  $Id: dialog.h,v 1.76 2001/08/11 17:41:32 tom Exp $
+ *
  *  dialog.h -- common declarations for all dialog modules
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -36,14 +38,23 @@
 #include <signal.h>	/* fork() etc. */
 #include <math.h>	/* sqrt() */
 
-#if defined(HAVE_NCURSES_NCURSES_H)
-#include <ncurses/ncurses.h>
+#if defined(HAVE_NCURSES_CURSES_H)
+#include <ncurses/curses.h>
 #elif defined(HAVE_NCURSES_H)
 #include <ncurses.h>
 #elif defined(ultrix)
 #include <cursesX.h>
 #else
 #include <curses.h>
+#endif
+
+/* possible conflicts with <term.h> which may be included in <curses.h> */
+#ifdef color_names
+#undef color_names
+#endif
+
+#ifdef buttons
+#undef buttons
 #endif
 
 #ifdef ENABLE_NLS
@@ -69,9 +80,10 @@
 #define SLINES	LINES
 #endif
 
-#define EXIT_ESC	-1
-#define EXIT_OK		0
-#define EXIT_CANCEL	1
+#define DLG_EXIT_ESC	-1	/* the shell sees this as 255 */
+#define DLG_EXIT_ERROR	-1
+#define DLG_EXIT_OK	0
+#define DLG_EXIT_CANCEL	1
 
 #define CHR_BACKSPACE	8
 #define CHR_REPAINT	12	/* control/L */
@@ -86,8 +98,12 @@
 
 #define MAX_LEN 2048
 #define BUF_SIZE (10*1024)
-#define MIN(x,y) (x < y ? x : y)
-#define MAX(x,y) (x > y ? x : y)
+
+#undef  MIN
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
+
+#undef  MAX
+#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
 #define MAX_TAILBG 9
 #define DEFAULT_SEPARATE_STR "\t"
@@ -191,36 +207,58 @@
 /* number of attributes */
 #define ATTRIBUTE_COUNT               30
 
-typedef struct {
-	char *filename;
-	int identifier;
-} DIALOCK;
+typedef struct _dlg_callback {
+    struct _dlg_callback *next;
+    FILE *input;
+    WINDOW *win;
+    bool keep_bg;	/* keep in background, on exit */
+    bool bg_task;	/* true if this is background task */
+    bool (*handle_getc)(struct _dlg_callback *p, int ch, int *result);
+} DIALOG_CALLBACK;
+
+typedef struct _dlg_windows {
+    struct _dlg_windows *next;
+    WINDOW *normal;
+    WINDOW *shadow;
+} DIALOG_WINDOWS;
 
 /*
- * Global variables
+ * Global variables, which are initialized as needed
  */
 typedef struct {
-	FILE *output;
-	bool beep_after_signal;
-	bool beep_signal;
-	bool begin_set;
-	bool cant_kill;
-	bool clear_screen;
-	bool cr_wrap;
-        bool item_help;
-	bool nocancel;
-	bool print_siz;
-	bool separate_output;
-	bool size_err;
-	bool tab_correct;
-	char *backtitle;
-	char *title;
-	char *default_item;
-	int aspect_ratio;
-	int begin_x;
-	int begin_y;
-	int sleep_secs;
-	int tab_len;
+    DIALOG_CALLBACK *getc_callbacks;
+    DIALOG_CALLBACK *getc_redirect;
+    DIALOG_WINDOWS *all_windows;
+} DIALOG_STATE;
+
+extern DIALOG_STATE dialog_state;
+
+/*
+ * Global variables, which dialog resets before each widget
+ */
+typedef struct {
+    FILE *output;
+    bool beep_after_signal;
+    bool beep_signal;
+    bool begin_set;
+    bool cant_kill;
+    bool cr_wrap;
+    bool dlg_clear_screen;
+    bool item_help;
+    bool nocancel;
+    bool print_siz;
+    bool separate_output;
+    bool size_err;
+    bool tab_correct;
+    char *backtitle;
+    char *default_item;
+    char *title;
+    char input_result[MAX_LEN + 1];
+    int aspect_ratio;
+    int begin_x;
+    int begin_y;
+    int sleep_secs;
+    int tab_len;
 } DIALOG_VARS;
 
 #define CHECKBOX_TAGS (dialog_vars.item_help ? 4 : 3)
@@ -242,15 +280,7 @@ extern bool use_shadow;
 extern FILE *pipe_fp;
 extern chtype attributes[];
 extern int defaultno;
-extern int is_tailbg;
 extern int screen_initialized;
-extern DIALOCK lock_refresh;
-extern DIALOCK lock_tailbg_refreshed;
-extern DIALOCK lock_tailbg_exit;
-extern pid_t tailbg_pids[MAX_TAILBG];
-extern pid_t tailbg_lastpid;
-extern pid_t tailbg_nokill_pids[MAX_TAILBG];
-extern pid_t tailbg_nokill_lastpid;
 
 /*
  * Function prototypes
@@ -269,17 +299,6 @@ void put_backtitle(void);
 void auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
-int make_lock_filename(DIALOCK *dialock, const char *prefix);
-void wrefresh_lock(WINDOW *win);
-void ctl_idlemsg(WINDOW *win);
-void wrefresh_lock_tailbg(WINDOW *win);
-
-int exist_lock(DIALOCK *dialock);
-void create_lock(DIALOCK *dialock);
-void remove_lock(DIALOCK *dialock);
-
-int quitall_bg(void);
-void killall_bg(void);
 void exiterr(const char *, ...)
 #ifdef __GNUC__
 __attribute__((format(printf,1,2)))
@@ -294,6 +313,7 @@ int calc_listw(int item_no, char **items, int group);
 char *strclone(const char *cprompt);
 int box_x_ordinate(int width);
 int box_y_ordinate(int height);
+void del_window(WINDOW *win);
 void draw_title(WINDOW *win, const char *title);
 void draw_bottom_box(WINDOW *win);
 WINDOW * new_window (int y, int x, int height, int width);
@@ -317,12 +337,11 @@ int dialog_menu (const char *title, const char *cprompt, int height, int width,
 int dialog_checklist (const char *title, const char *cprompt, int height,
 		int width, int list_height, int item_no,
 		char ** items, int flag, int separate_output);
-extern unsigned char dialog_input_result[];
 int dialog_inputbox (const char *title, const char *cprompt, int height,
 		int width, const char *init, const int password);
 int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
-int dialog_tailbox (const char *title, const char *file, int height, int width);
+int dialog_tailbox (const char *title, const char *file, int height, int width, int bg_task);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
 int dialog_fselect (const char *title, const char *path, int height, int width);
 int dialog_calendar (const char *title, const char *subtitle, int height, int width, int day, int month, int year);
@@ -346,9 +365,15 @@ extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int
 extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
 extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
+/* ui_getc.c */
+extern int dlg_getc(WINDOW *win);
+extern int dlg_getc_callbacks(int ch, int *result);
+extern void dlg_add_callback(DIALOG_CALLBACK *p);
+extern void dlg_remove_callback(DIALOG_CALLBACK *p);
+extern void killall_bg(int *retval);
+
 /* util.c */
 extern int dlg_default_item(char **items, int llen);
-extern int dlg_getc(WINDOW *win);
 extern void dlg_item_help(char *txt);
 extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
 extern void dlg_trim_string(char *src);

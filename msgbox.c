@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.16 2001/04/24 19:10:03 Vincent.Stemen Exp $
+ *  $Id: msgbox.c,v 1.18 2001/07/31 18:00:24 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -75,7 +75,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
-	wrefresh_lock(dialog);
+	wrefresh(dialog);
 
 #ifndef KEY_RESIZE
 	wtimeout(dialog, WTIMEOUT_VAL);
@@ -99,9 +99,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	}
     } else {
 	key = '\n';
-	wrefresh_lock(dialog);
+	wrefresh(dialog);
     }
 
-    (void) delwin(dialog);
+    del_window(dialog);
     return key == ESC ? -1 : 0;
 }

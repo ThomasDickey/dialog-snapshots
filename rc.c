@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.10 2000/10/28 01:02:46 tom Exp $
+ *  $Id: rc.c,v 1.12 2001/08/09 00:15:19 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -27,7 +27,7 @@
 /*
  * For matching color names with color values
  */
-static color_names_st color_names[] =
+static const color_names_st color_names[] =
 {
     {"BLACK", COLOR_BLACK},
     {"RED", COLOR_RED},
@@ -40,8 +40,6 @@ static color_names_st color_names[] =
 };				/* color names */
 
 #define DIALOGRC ".dialogrc"
-#define VAR_LEN 30
-#define COMMENT_LEN 70
 
 /* Types of values */
 #define VAL_INT  0
@@ -71,13 +69,13 @@ static color_names_st color_names[] =
  * Configuration variables
  */
 typedef struct {
-    char name[VAR_LEN];		/* name of configuration variable as in DIALOGRC */
-    void *var;			/* address of actually variable to change */
+    const char *name;		/* name of configuration variable as in DIALOGRC */
+    void *var;			/* address of actual variable to change */
     int type;			/* type of value */
-    char comment[COMMENT_LEN];	/* comment to put in "rc" file */
+    const char *comment;	/* comment to put in "rc" file */
 } vars_st;
 
-static vars_st vars[] =
+static const vars_st vars[] =
 {
     {"use_shadow",
      &use_shadow,
@@ -246,10 +244,9 @@ static vars_st vars[] =
  * "(foreground,background,highlight)"
  */
 static char *
-attr_to_str(int fg, int bg, int hl)
+attr_to_str(char *str, int fg, int bg, int hl)
 {
     int i;
-    static char str[MAX_LEN + 1];
 
     strcpy(str, "(");
     /* foreground */
@@ -431,6 +428,7 @@ void
 create_rc(const char *filename)
 {
 #ifdef HAVE_COLOR
+    char buffer[MAX_LEN + 1];
     unsigned i;
     FILE *rc_file;
 
@@ -469,7 +467,8 @@ create_rc(const char *filename)
 	    break;
 	case VAL_ATTR:
 	    fprintf(rc_file, "%s = %s\n", vars[i].name,
-		    attr_to_str(((int *) vars[i].var)[0],
+		    attr_to_str(buffer,
+				((int *) vars[i].var)[0],
 				((int *) vars[i].var)[1],
 				((int *) vars[i].var)[2]));
 	    break;
