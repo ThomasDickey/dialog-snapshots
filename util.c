@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.86 2002/06/22 16:23:32 tom Exp $
+ *  $Id: util.c,v 1.87 2002/08/13 22:43:11 tom Exp $
  *
  *  util.c
  *
@@ -161,9 +161,11 @@ put_backtitle(void)
     int i;
 
     if (dialog_vars.backtitle != NULL) {
+	chtype attr = A_NORMAL;
+
 	wattrset(stdscr, screen_attr);
 	(void) wmove(stdscr, 0, 1);
-	(void) waddstr(stdscr, dialog_vars.backtitle);
+	dlg_print_text(stdscr, dialog_vars.backtitle, COLS - 2, &attr);
 	for (i = 0; i < COLS - (int) strlen(dialog_vars.backtitle); i++)
 	    (void) waddch(stdscr, ' ');
 	(void) wmove(stdscr, 1, 1);
@@ -307,6 +309,7 @@ init_dialog(void)
 }
 
 #ifdef HAVE_COLOR
+static int defined_colors = 0;
 /*
  * Setup for color display
  */
@@ -318,14 +321,55 @@ color_setup(void)
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
 
-	/* Initialize color pairs */
-	for (i = 0; i < ATTRIBUTE_COUNT; i++)
+	for (i = 0; i < ATTRIBUTE_COUNT; i++) {
+
+	    /* Initialize color pairs */
 	    (void) init_pair(i + 1, color_table[i][0], color_table[i][1]);
 
-	/* Setup color attributes */
-	for (i = 0; i < ATTRIBUTE_COUNT; i++)
+	    /* Setup color attributes */
 	    attributes[i] = C_ATTR(color_table[i][2], i + 1);
+	}
+	defined_colors = i + 1;
     }
+}
+
+/*
+ * Reuse color pairs (they are limited), returning a COLOR_PAIR() value if we
+ * have (or can) define a pair with the given color as foreground on the
+ * window's defined background.
+ */
+static chtype
+define_color(WINDOW *win, int foreground)
+{
+    chtype result = 0;
+    chtype attrs = getattrs(win);
+    int pair;
+    short fg, bg, background;
+    bool found = FALSE;
+
+    if ((pair = PAIR_NUMBER(attrs)) != 0
+	&& pair_content(pair, &fg, &bg) != ERR
+	&& bg != foreground) {
+	background = bg;
+    } else {
+	background = COLOR_BLACK;
+    }
+
+    for (pair = 0; pair < defined_colors; ++pair) {
+	if (pair_content(pair, &fg, &bg) != ERR
+	    && fg == foreground
+	    && bg == background) {
+	    result = COLOR_PAIR(pair);
+	    found = TRUE;
+	    break;
+	}
+    }
+    if (!found && (defined_colors + 1) < COLOR_PAIRS) {
+	pair = defined_colors++;
+	(void) init_pair(pair, foreground, background);
+	result = COLOR_PAIR(pair);
+    }
+    return result;
 }
 #endif
 
@@ -343,13 +387,86 @@ end_dialog(void)
     }
 }
 
+#define isOurEscape(p) (((p)[0] == '\\') && ((p)[1] == 'Z') && ((p)[2] != 0))
+
 static int
 centered(int width, const char *string)
 {
-    int left = (width - strlen(string)) / 2 - 1;
+    int len = strlen(string);
+    int left;
+    int hide = 0;
+    int n;
+
+    if (dialog_vars.colors) {
+	for (n = 0; n < len; ++n) {
+	    if (isOurEscape(string + n)) {
+		hide += 3;
+	    }
+	}
+    }
+    left = (width - (len - hide)) / 2 - 1;
     if (left < 0)
 	left = 0;
     return left;
+}
+
+/*
+ * Print up to 'len' bytes from 'text', optionally rendering our escape
+ * sequence for attributes and color.
+ */
+void
+dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
+{
+    while (len > 0 && (*txt != '\0')) {
+	if (dialog_vars.colors) {
+	    while (isOurEscape(txt)) {
+		int code;
+
+		txt += 2;
+		switch (code = CharOf(*txt)) {
+#ifdef HAVE_COLOR
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		    *attr &= ~A_COLOR;
+		    *attr |= define_color(win, code - '0');
+		    break;
+#endif
+		case 'B':
+		    *attr &= ~A_BOLD;
+		    break;
+		case 'b':
+		    *attr = A_BOLD;
+		    break;
+		case 'R':
+		    *attr &= ~A_REVERSE;
+		    break;
+		case 'r':
+		    *attr = A_REVERSE;
+		    break;
+		case 'U':
+		    *attr &= ~A_UNDERLINE;
+		    break;
+		case 'u':
+		    *attr = A_UNDERLINE;
+		    break;
+		case 'n':
+		    *attr = A_NORMAL;
+		    break;
+		}
+		++txt;
+	    }
+	    if (*txt == '\n')
+		break;
+	}
+	(void) waddch(win, CharOf(*txt++) | *attr);
+	--len;
+    }
 }
 
 /*
@@ -359,12 +476,13 @@ centered(int width, const char *string)
  * *prompt is reached.
  */
 static const char *
-print_line(WINDOW *win, const char *prompt, int rm, int *x)
+print_line(WINDOW *win, chtype *attr, const char *prompt, int rm, int *x)
 {
     int cur_x = 2;
-    const char *wrap_ptr = prompt;
-    const char *p = prompt + 1;
-    int i = 0;
+    const char *wrap_ptr = prompt;	/* of the text (e.g. bold, reverse, */
+    const char *p = prompt + 1;	/* different colors) - default is   */
+    int i = 0;			/* normal text.                             */
+    int hidden = 0;
 
     *x = 1;
 
@@ -372,10 +490,12 @@ print_line(WINDOW *win, const char *prompt, int rm, int *x)
      * Set *p to the end of the line or the right margin (rm), whichever is
      * less, and set *wrap_ptr to the end of the last word in the line.
      */
-    while (*p != '\n' && *p != '\0' && cur_x < rm) {
+    while (*p != '\n' && *p != '\0' && cur_x < (rm + hidden)) {
 	if (*p == ' ' && *(p - 1) != ' ') {
 	    wrap_ptr = p;
 	    *x = cur_x;
+	} else if (isOurEscape(p)) {
+	    hidden += 3;
 	}
 	p++;
 	cur_x++;
@@ -386,9 +506,12 @@ print_line(WINDOW *win, const char *prompt, int rm, int *x)
      * we don't have to wrap it at a the end of the previous word.
      */
     if (*p == '\n' || *p == ' ' || *p == '\0') {
-	while (&wrap_ptr[++i] < p) ;
-	while (wrap_ptr[i - 1] == ' ')
+	while (&wrap_ptr[++i] < p) {
+	    ;
+	}
+	while (wrap_ptr[i - 1] == ' ') {
 	    i--;
+	}
 	wrap_ptr += i;
 	*x += i;
     }
@@ -406,10 +529,7 @@ print_line(WINDOW *win, const char *prompt, int rm, int *x)
      * is just being called for sizing the window.
      */
     if (win) {
-	p = prompt;
-	while (p < wrap_ptr) {
-	    (void) waddch(win, CharOf(*p++));
-	}
+	dlg_print_text(win, prompt, (wrap_ptr - prompt), attr);
     }
 
     /* *x tells the calling function how long the line was */
@@ -432,6 +552,7 @@ justify_text(WINDOW *win,
 	     int limit_x,
 	     int *high, int *wide)
 {
+    chtype attr = A_NORMAL;
     int x = 2;
     int y = 1;
     int max_x = 2;
@@ -462,7 +583,7 @@ justify_text(WINDOW *win,
 	    (void) wmove(win, y, lm);
 
 	if (*prompt)
-	    prompt = print_line(win, prompt, rm, &x);
+	    prompt = print_line(win, &attr, prompt, rm, &x);
 	if (*prompt) {
 	    ++y;
 	    if (win != 0)
@@ -913,8 +1034,14 @@ void
 draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
+	chtype attr = A_NORMAL;
+	chtype save = getattrs(win);
+	int x = centered(getmaxx(win), title);
+
 	wattrset(win, title_attr);
-	(void) mvwprintw(win, 0, centered(getmaxx(win), title), " %s ", title);
+	wmove(win, 0, x);
+	dlg_print_text(win, title, getmaxx(win) - x, &attr);
+	wattrset(win, save);
     }
 }
 
@@ -1044,10 +1171,13 @@ void
 dlg_item_help(char *txt)
 {
     if (USE_ITEM_HELP(txt)) {
+	chtype attr = A_NORMAL;
+
 	wattrset(stdscr, itemhelp_attr);
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
-	(void) wprintw(stdscr, " %.*s", COLS - 2, txt);
+	(void) addch(' ');
+	dlg_print_text(stdscr, txt, COLS - 2, &attr);
 	(void) wnoutrefresh(stdscr);
     }
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.39 2002/06/20 23:12:00 tom Exp $
+ *  $Id: menubox.c,v 1.41 2002/08/13 23:56:22 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -39,6 +39,7 @@ print_item(WINDOW *win,
 	   int choice, int selected)
 {
     int i;
+    chtype attr = A_NORMAL;
 
     /* Clear 'residue' of last item */
     wattrset(win, menubox_attr);
@@ -56,7 +57,7 @@ print_item(WINDOW *win,
 
     (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    (void) wprintw(win, "%.*s", getmaxx(win) - item_x, ItemText(0));
+    dlg_print_text(win, ItemText(0), getmaxx(win) - item_x - 1, &attr);
 
     if (selected) {
 	dlg_item_help(ItemHelp(0));
@@ -67,7 +68,8 @@ static int
 handle_button(int code, char **items, int choice)
 {
     switch (code) {
-    case DLG_EXIT_OK:
+    case DLG_EXIT_OK:		/* FALLTHRU */
+    case DLG_EXIT_EXTRA:
 	sprintf(dialog_vars.input_result, "%.*s",
 		MAX_LEN - 1,
 		ItemName(choice));

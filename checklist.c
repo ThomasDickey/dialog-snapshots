@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.49 2002/06/20 23:12:31 tom Exp $
+ *  $Id: checklist.c,v 1.51 2002/08/13 23:57:01 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -41,6 +41,7 @@ print_item(WINDOW *win, char **items, int status,
 	   int choice, int selected)
 {
     int i;
+    chtype attr = A_NORMAL;
 
     /* Clear 'residue' of last item */
     wattrset(win, menubox_attr);
@@ -64,7 +65,7 @@ print_item(WINDOW *win, char **items, int status,
 
     (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    (void) wprintw(win, "%.*s", getmaxx(win) - item_x, ItemText(0));
+    dlg_print_text(win, ItemText(0), getmaxx(win) - item_x - 1, &attr);
 
     if (selected) {
 	dlg_item_help(ItemHelp(0));
@@ -424,7 +425,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     del_window(dialog);
     switch (result) {
-    case DLG_EXIT_OK:
+    case DLG_EXIT_OK:		/* FALLTHRU */
+    case DLG_EXIT_EXTRA:
 	for (i = 0; i < item_no; i++) {
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {
