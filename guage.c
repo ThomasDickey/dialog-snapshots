@@ -69,7 +69,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	wattrset(dialog, A_REVERSE);
 	wmove(dialog, height - 3, 4);
 	for (i = 0; i < x; i++)
-	    waddch(dialog, winch(dialog));
+	    waddch(dialog, CharOf(winch(dialog)));
 
 	wrefresh(dialog);
 

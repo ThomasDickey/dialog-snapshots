@@ -66,7 +66,7 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 	} else {
 	    wattrset(win, label_attr);
 	}
-	waddch(win, label[i]);
+	waddch(win, CharOf(label[i]));
     }
     wattrset(win, label_attr);
     waddstr(win, ">");

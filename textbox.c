@@ -567,7 +567,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 
     for (;;) {
 	if (!first) {
-	    key = wgetch(dialog);
+	    key = dlg_getc(dialog);
 	    if (key == ESC)
 		return -1;
 	    if (key == '\n' && *input != '\0')

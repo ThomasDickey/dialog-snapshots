@@ -260,7 +260,8 @@ static int
 centered(int width, const char *string)
 {
     int left = (width - strlen(string)) / 2 - 1;
-    if (left < 0) left = 0;
+    if (left < 0)
+	left = 0;
     return left;
 }
 
@@ -579,11 +580,11 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
 	wattrset(win, shadow_attr);
 	wmove(win, y + height, x + 2);
 	for (i = 0; i < width; i++)
-	    waddch(win, winch(win) & A_CHARTEXT);
+	    waddch(win, CharOf(winch(win)));
 	for (i = y + 1; i < y + height + 1; i++) {
 	    wmove(win, i, x + width);
-	    waddch(win, winch(win) & A_CHARTEXT);
-	    waddch(win, winch(win) & A_CHARTEXT);
+	    waddch(win, CharOf(winch(win)));
+	    waddch(win, CharOf(winch(win)));
 	}
 	wnoutrefresh(win);
     }
@@ -925,4 +926,20 @@ dlg_default_item(char **items, int llen)
 	}
     }
     return 0;
+}
+
+int
+dlg_getc(WINDOW *win)
+{
+    for (;;) {
+	int ch = wgetch(win);
+	switch (ch) {
+	case CHR_REPAINT:
+	    touchwin(win);
+	    wrefresh(curscr);
+	    break;
+	default:
+	    return ch;
+	}
+    }
 }

@@ -3,6 +3,12 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/4/25
+	+ repaint screen when a control/L is pressed.
+	+ apply CharOf() macro to avoid sign-extension on calls to waddchr(),
+	  fixes a problem with accented characters (reported by Santiago Vila).
+	+ add es.po, from Santiago Vila <sanvila@unex.es> 
+
 2000/4/23
 	+ modified to use gettext (configure option --enable-nls).  This uses
 	  gettext 0.10.35, which must be previously installed.  (It can also

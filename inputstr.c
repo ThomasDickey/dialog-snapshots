@@ -102,7 +102,7 @@ dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
 	wattrset(win, attr);
 	wmove(win, y_base, x_base);
 	for (i = 0; i < x_last; i++)
-	    waddch(win, (i + scrollamt) < len ? string[scrollamt + i] : ' ');
+	    waddch(win, (i + scrollamt) < len ? CharOf(string[scrollamt + i]) : ' ');
 	wmove(win, y_base, x_base + input_x);
 	wrefresh_lock(win);
     }
