@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.50 2000/10/28 01:09:49 tom Exp $
+ *  $Id: util.c,v 1.56 2000/12/13 01:53:17 tom Exp $
  *
  *  util.c
  *
@@ -318,61 +318,113 @@ centered(int width, const char *string)
     return left;
 }
 
+static const char *
+skip_blanks(const char *src, int *skip_lines)
+{
+    *skip_lines = 0;
+    while (isspace(CharOf(*src))) {
+	if (*src == '\n') {
+	    *skip_lines += 1;
+	}
+	src++;
+    }
+    return src;
+}
+
+static const char *
+skip_text(const char *src)
+{
+    while (*src != 0 && !isspace(CharOf(*src)))
+	src++;
+    return src;
+}
+
+static void
+justify_text(WINDOW *win,
+	     const char *prompt,
+	     int limit_y,
+	     int limit_x,
+	     int y, int x,
+	     int *high, int *wide)
+{
+    const char *left, *right;
+    int count;
+    int first = TRUE;
+    int max_x = x;
+    int cur_x = x;
+    int cur_y = y;
+    int check = (win == 0);
+
+    if (dialog_vars.cr_wrap)
+	++cur_y;
+
+    if (prompt != 0) {
+	for (left = prompt; *left != 0;) {
+	    left = skip_blanks(left, &count);
+	    right = skip_text(left);
+
+	    if (count == 0 && ((right - left) + (cur_x - x) >= limit_x))
+		count = 1;
+
+	    if (count != 0) {
+		if ((cur_y += count) > limit_y) {
+		    cur_y = limit_y;
+		    break;
+		}
+		cur_x = x;
+	    } else if (!first) {
+		if (!check) {
+		    (void) waddch(win, ' ');
+		}
+		if (++cur_x > max_x)
+		    max_x = cur_x;
+	    }
+
+	    while (left != right) {
+		if (!check) {
+		    if (wmove(win, cur_y, cur_x) != ERR)
+			(void) waddch(win, CharOf(*left));
+		}
+		++left;
+		if (++cur_x > max_x)
+		    max_x = cur_x;
+	    }
+	    first = FALSE;
+	}
+
+	if (dialog_vars.cr_wrap) {
+	    if (++cur_y > limit_y) {
+		cur_y = limit_y;
+	    } else if (!check) {
+		(void) wmove(win, cur_y, x);
+	    }
+	}
+    } else {
+	cur_y = limit_y;
+	max_x = limit_x;
+    }
+    if (high != 0) {
+	*high = cur_y + 1;
+    }
+    if (wide != 0) {
+	*wide = max_x + 1;
+    }
+}
+
 /*
  * Print a string of text in a window, automatically wrap around to the
  * next line if the string is too long to fit on one line. Note that the
- * string may contain "\n" to represent a newline character or the real
- * newline '\n', but in that case, auto wrap around will be disabled.
+ * string may contain embedded newlines.
  */
 void
-print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
+print_autowrap(WINDOW *win, const char *prompt, int height, int width, int
+	       y, int x)
 {
-    int first = 1, cur_x, cur_y;
-    char tempstr[MAX_LEN + 1], *word, *tempptr1;
-
-    strcpy(tempstr, prompt);
-    if (strchr(tempstr, '\n') != NULL) {
-	/* Prompt contains "\n" or '\n' */
-	word = tempstr;
-	cur_y = y;
-	if (dialog_vars.cr_wrap)
-	    cur_y++;
-	(void) wmove(win, cur_y, x);
-	while ((tempptr1 = strchr(word, '\n')) != NULL) {
-	    *tempptr1++ = 0;
-	    (void) waddstr(win, word);
-	    word = tempptr1;
-	    (void) wmove(win, ++cur_y, x);
-	}
-	(void) waddstr(win, word);
-    } else if ((int) strlen(tempstr) <= width - x * 2) {
-	/* If prompt is short */
-	cur_y = y;
-	if (dialog_vars.cr_wrap)
-	    cur_y++;
-	(void) mvwprintw(win, cur_y, centered(width, tempstr), "%s", tempstr);
-    } else {
-	cur_x = x;
-	cur_y = y;
-	if (dialog_vars.cr_wrap)
-	    cur_y++;
-	/* Print prompt word by word, wrap around if necessary */
-	while ((word = strtok(first ? tempstr : NULL, " ")) != NULL) {
-	    if (first)		/* First iteration */
-		first = 0;
-	    if (cur_x + (int) strlen(word) > width - x) {
-		/* wrap around to next line */
-		cur_y++;
-		cur_x = x;
-	    }
-	    (void) wmove(win, cur_y, cur_x);
-	    (void) waddstr(win, word);
-	    getyx(win, cur_y, cur_x);
-	    cur_x++;
-	}
-    }
-    if (dialog_vars.cr_wrap)
-	(void) wmove(win, cur_y + 1, x);
+    justify_text(win, prompt,
+		 height - (2 * y),
+		 width - (2 * x),
+		 y, x,
+		 (int *) 0, (int *) 0);
 }
 
 /*
@@ -384,19 +436,18 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
  *    else
  *       calculate with aspect_ratio
  */
-static char *
-real_auto_size(const char *title, char *prompt, int *height, int *width, int
-	       boxlines, int mincols)
+static void
+real_auto_size(const char *title,
+	       char *prompt,
+	       int *height, int *width,
+	       int boxlines, int mincols)
 {
-    int count = 0;
+    int x = (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
+    int y = (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
     int len = title ? strlen(title) : 0;
-    int i;
-    int first;
     int nc = 4;
-    int numlines = 3;
-    int cur_x;
-    int text_width;
-    char *cr2, *ptr = prompt, *str, *word;
+    int high;
+    int wide;
 
     if (prompt == 0) {
 	if (*height == 0)
@@ -405,87 +456,41 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
 	    *width = -1;
     }
 
-    if (*height == -1)
-	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
-    if (*width == -1)
-	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
-
-    if ((*height != 0) && (*width != 0))
-	return prompt;
-
-    while ((cr2 = strchr(ptr, '\n')) != NULL) {
-	if ((cr2 - ptr) > len)
-	    len = cr2 - ptr;
-	ptr = cr2 + 1;
-	count++;
+    if (*height > 0) {
+	high = *height;
+    } else {
+	high = SLINES - y;
     }
 
-    if ((int) strlen(ptr) > len)
-	len = strlen(ptr);
-
-    /* now 'count' has the number of lines of text and 'len' the max length */
-
-    if (count > 0) {		/* there are any '\n' */
-	*height = count + numlines + boxlines + (dialog_vars.cr_wrap ? 2 : 0);
-	*width = MAX((len + nc), mincols);
-	return prompt;
-    } else {			/* all chars in only a line */
-	double val = dialog_vars.aspect_ratio * strlen(prompt);
-	int tmp = sqrt(val);
-	str = (char *) malloc(strlen(prompt) * 2);
-	text_width = MAX(tmp, (mincols - nc));
-	text_width = MAX(text_width, len);
-	ptr = (char *) malloc(strlen(prompt) + 1);
-
-	while (1) {
-	    i = 0;
-
-	    first = 1;
-	    cur_x = 0;
-
-	    *width = text_width + nc;
-
-	    count = 0;
-	    strcpy(ptr, prompt);
-	    while (((word = strtok(first ? ptr : NULL, " ")) != NULL)
-		   && ((int) strlen(word) <= text_width)) {
-		if (first)
-		    first = 0;
-
-		if ((cur_x + (int) strlen(word)) > text_width) {
-		    count++;
-		    cur_x = 0;
-		    str[i++] = '\n';
-		} else if (cur_x > 0)
-		    str[i++] = ' ';
-
-		strcpy(str + i, word);
-		i += strlen(word);
-
-		cur_x += strlen(word) + 1;
-	    }
-
-	    if (word == NULL)
-		break;
-	    if ((int) strlen(word) > text_width)
-		text_width = strlen(word);	/* strlen(word) is surely > (mincols-nc) */
-	    else
-		break;
+    if (*width > 0) {
+	wide = *width;
+    } else if (prompt != 0) {
+	wide = MAX(len, mincols);
+	if (strchr(prompt, '\n') == 0) {
+	    double val = dialog_vars.aspect_ratio * strlen(prompt);
+	    int tmp = sqrt(val);
+	    wide = MAX(wide, tmp);
+	} else {
+	    wide = SCOLS - x;
 	}
-	str[i] = 0;
+    } else {
+	wide = SCOLS - x;
+    }
 
-	*height = count + numlines + boxlines + (dialog_vars.cr_wrap ? 2 : 0);
-
-	return str;
+    justify_text((WINDOW *) 0, prompt, high, wide, y, x, height, width);
+    if (prompt != 0) {
+	*width += nc;
+	*height += boxlines + 2;
     }
 }
+
 /* End of auto_size() */
 
-char *
+void
 auto_size(const char *title, char *prompt, int *height, int *width, int
 	  boxlines, int mincols)
 {
-    char *s = real_auto_size(title, prompt, height, width, boxlines, mincols);
+    real_auto_size(title, prompt, height, width, boxlines, mincols);
 
     if (*width > SCOLS) {
 	(*height)++;
@@ -494,8 +499,6 @@ auto_size(const char *title, char *prompt, int *height, int *width, int
 
     if (*height > SLINES)
 	*height = SLINES;
-
-    return s;
 }
 
 /*
@@ -681,7 +684,6 @@ void
 wrefresh_lock_sub(WINDOW *win)
 {
     if (lock_refresh) {
-	while_exist_lock(lock_refresh);
 	create_lock(lock_refresh);
     }
     (void) wrefresh(win);
@@ -707,16 +709,11 @@ exist_lock(char *filename)
 }
 
 void
-while_exist_lock(char *filename)
-{
-    while (exist_lock(filename)) ;
-}
-
-void
 create_lock(char *filename)
 {
-    FILE *fil = fopen(filename, "w");
-    (void) fclose(fil);
+    int fd;
+    while ((fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0600)) == -1)
+	close(fd);
 }
 
 void

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.23 2000/10/28 00:55:13 tom Exp $
+ *  $Id: inputbox.c,v 1.24 2000/12/12 00:26:47 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -52,12 +52,13 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     tab_correct_str(prompt);
     if (init != NULL) {
-	prompt = auto_size(title, prompt, &height, &width, 5,
-			   MIN(MAX((int) strlen(init) + 7, 26),
-			       SCOLS - (dialog_vars.begin_set ?
-					dialog_vars.begin_x : 0)));
-    } else
-	prompt = auto_size(title, prompt, &height, &width, 5, 26);
+	auto_size(title, prompt, &height, &width, 5,
+		  MIN(MAX((int) strlen(init) + 7, 26),
+		      SCOLS - (dialog_vars.begin_set ?
+			       dialog_vars.begin_x : 0)));
+    } else {
+	auto_size(title, prompt, &height, &width, 5, 26);
+    }
     print_size(height, width);
     ctl_size(height, width);
 
@@ -73,7 +74,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width, 1, 2);
 
     /* Draw the input field box */
     box_width = width - 6;

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.14 2000/10/28 00:55:55 tom Exp $
+ *  $Id: guage.c,v 1.15 2000/12/12 00:26:47 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -79,7 +79,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	print_autowrap(dialog, prompt, width - 2, 3, 2);
+	print_autowrap(dialog, prompt, height, width - 2, 3, 2);
 
 	draw_box(dialog, height - 4, 3, 3, width - 6, dialog_attr,
 		 border_attr);

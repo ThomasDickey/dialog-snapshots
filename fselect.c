@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.16 2000/10/28 01:00:06 tom Exp $
+ * $Id: fselect.c,v 1.18 2000/12/13 00:32:34 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -337,7 +337,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     const char **buttons = dlg_ok_labels();
     LIST d_list, f_list;
 
-    (void) auto_size(title, (char *) 0, &height, &width, 6, 25);
+    auto_size(title, (char *) 0, &height, &width, 6, 25);
     print_size(height, width);
     ctl_size(height, width);
 
@@ -358,6 +358,9 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     tbox_x = (width - tbox_width) / 2;
 
     w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
+    if (w_text == 0)
+	return -1;
+
     (void) keypad(w_text, TRUE);
     draw_box(dialog, tbox_y - 1, tbox_x - 1, 3, tbox_width + 2,
 	     border_attr, dialog_attr);
@@ -369,6 +372,9 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dbox_x = tbox_x;
 
     w_dir = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
+    if (w_dir == 0)
+	return -1;
+
     (void) keypad(w_dir, TRUE);
     (void) mvwprintw(dialog, dbox_y - 2, dbox_x - 1, "Directories");
     draw_box(dialog, dbox_y - 1, dbox_x - 1, dbox_height + 2, dbox_width + 2,
@@ -382,6 +388,9 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     fbox_x = tbox_x + dbox_width + 2;
 
     w_file = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
+    if (w_file == 0)
+	return -1;
+
     (void) keypad(w_file, TRUE);
     (void) mvwprintw(dialog, fbox_y - 2, fbox_x - 1, "Files");
     draw_box(dialog, fbox_y - 1, fbox_x - 1, fbox_height + 2, fbox_width + 2,

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.46 2000/10/28 01:07:09 tom Exp $
+ * $Id: dialog.c,v 1.47 2000/12/08 11:45:28 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -81,8 +81,8 @@ typedef enum {
 typedef struct {
     const char *name;
     eOptions code;
-    int pass;
-    const char *help;
+    int pass;		/* 1,2,4 or combination */
+    const char *help;	/* NULL to suppress, non-empty to display params */
 } Options;
 
 typedef struct {
@@ -105,8 +105,8 @@ static Options options[] = {
     { "clear",		o_clear,		1, "" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, "" },
-    { "defaultno",	o_defaultno,		1, "" },
     { "default-item",	o_default_item,		1, "<str>" },
+    { "defaultno",	o_defaultno,		1, "" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fselect",	o_fselect,		2, "<text> <directory> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
@@ -118,9 +118,10 @@ static Options options[] = {
     { "item-help",	o_item_help,		1, "" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
+    { "no-cancel",	o_nocancel,		1, "" },
     { "no-kill",	o_no_kill,		1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
-    { "nocancel",	o_nocancel,		1, "" },
+    { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
     { "print-maxsize",	o_print_maxsize,	1, "" },

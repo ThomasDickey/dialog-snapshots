@@ -1,4 +1,6 @@
 /*
+ *  $Id: yesno.c,v 1.20 2000/12/13 01:43:44 tom Exp $
+ *
  *  yesno.c -- implements the yes/no box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -38,7 +40,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 #endif
 
     tab_correct_str(prompt);
-    prompt = auto_size(title, prompt, &height, &width, 6, 25);
+    auto_size(title, prompt, &height, &width, 2, 25);
     print_size(height, width);
     ctl_size(height, width);
 
@@ -59,7 +61,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width, 1, 2);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, dft_no, FALSE, width);
 
