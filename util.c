@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.123 2004/03/17 02:16:28 tom Exp $
+ *  $Id: util.c,v 1.126 2004/04/22 00:18:27 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -332,6 +332,9 @@ init_dialog(FILE *input, FILE *output)
 	enter_ca_mode = 0;
 	exit_ca_mode = 0;
     }
+#endif
+#ifdef HAVE_FLUSHINP
+    (void) flushinp();
 #endif
     (void) keypad(stdscr, TRUE);
     (void) cbreak();
@@ -734,7 +737,8 @@ longest_word(const char *string)
 	    string++;
 	}
 	result = MAX(result, length);
-	string++;
+	if (*string != '\0')
+	    string++;
     }
     return result;
 }
@@ -946,14 +950,16 @@ dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
     if (has_colors()) {		/* Whether terminal supports color? */
 	wattrset(win, shadow_attr);
 	for (i = y + height; i < y + height + SHADOW_ROWS; ++i) {
-	    (void) wmove(win, i, x + SHADOW_COLS);
-	    for (j = 0; j < width; ++j)
-		(void) waddch(win, CharOf(winch(win)));
+	    if (wmove(win, i, x + SHADOW_COLS) != ERR) {
+		for (j = 0; j < width; ++j)
+		    (void) waddch(win, CharOf(winch(win)));
+	    }
 	}
 	for (i = y + SHADOW_ROWS; i < y + height + SHADOW_ROWS; i++) {
-	    (void) wmove(win, i, x + width);
-	    for (j = 0; j < SHADOW_COLS; ++j)
-		(void) waddch(win, CharOf(winch(win)));
+	    if (wmove(win, i, x + width) != ERR) {
+		for (j = 0; j < SHADOW_COLS; ++j)
+		    (void) waddch(win, CharOf(winch(win)));
+	    }
 	}
 	(void) wnoutrefresh(win);
     }
@@ -1226,8 +1232,10 @@ dlg_new_window(int height, int width, int y, int x)
 
 #ifdef HAVE_COLOR
     if (dialog_state.use_shadow) {
-	if ((win = newwin(height, width, y + 1, x + 2)) != 0) {
-	    dlg_draw_shadow(win, 0, 0, height, width);
+	if ((win = newwin(height, width,
+			  y + SHADOW_ROWS,
+			  x + SHADOW_COLS)) != 0) {
+	    dlg_draw_shadow(win, -SHADOW_ROWS, -SHADOW_COLS, height, width);
 	}
 	p->shadow = win;
     }

@@ -1,8 +1,22 @@
--- $Id: CHANGES,v 1.92 2004/03/17 02:11:42 tom Exp $
+-- $Id: CHANGES,v 1.94 2004/04/22 00:20:04 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/04/21
+	+ add a call to flushinp() to init_dialog(), to discard any typeahead
+	  before dialog is invoked (Debian #244746).
+	+ correct dlg_match_char() function, which was broken during rewrite
+	  to support wide-characters (Debian #244777).
+	+ improved ru.po, uses UTF-8 charset (Leonid Kanter, Redhat Bugzilla
+	  #119200).
+	+ correct position of shadow drawn for dialogs, which appeared to work
+	  for most versions of curses (other than NetBSD) but would have been
+	  visible for certain color schemes (discussion with Julian Coleman).
+	+ correct loop-exit in longest_word() (Tomas Heredia, forwarded by
+	  Santiago Vila).   
+	+ add cy.po (Welsh) (Dafydd Harries).
 
 2004/03/16
 	+ modify quoting of results to use single-quote rather than double
