@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.52 2001/01/15 23:26:36 tom Exp $
+ * $Id: dialog.c,v 1.56 2001/04/14 16:24:29 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -38,6 +38,7 @@ typedef enum {
     ,o_beep
     ,o_beep_after
     ,o_begin
+    ,o_calendar
     ,o_checklist
     ,o_clear
     ,o_cr_wrap
@@ -74,6 +75,7 @@ typedef enum {
     ,o_tailbox
     ,o_tailboxbg
     ,o_textbox
+    ,o_timebox
     ,o_title
     ,o_yesno
 } eOptions;
@@ -101,6 +103,7 @@ static Options options[] = {
     { "beep",		o_beep,			1, "" },
     { "beep-after",	o_beep_after,		1, "" },
     { "begin",		o_begin,		1, "<y> <x>" },
+    { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
@@ -140,6 +143,7 @@ static Options options[] = {
     { "tailbox",	o_tailbox,		2, "<file> <height> <width>" },
     { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
+    { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "title",		o_title,		1, "<title>" },
     { "version",	o_print_version,	5, "" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
@@ -217,6 +221,24 @@ howmany_tags(char *argv[], int group)
     }
 
     return result;
+}
+
+static char *
+optional_str(char **av, int n, char *dft)
+{
+    char *ret = dft;
+    if (arg_rest(av) > n)
+	ret = av[n];
+    return ret;
+}
+
+static int
+optional_num(char **av, int n, int dft)
+{
+    int ret = dft;
+    if (arg_rest(av) > n)
+	ret = atoi(av[n]);
+    return ret;
 }
 
 /*
@@ -313,17 +335,13 @@ static int
 j_inputbox(JUMPARGS)
 {
     int ret;
-    char *init_inputbox = 0;
-
-    if (arg_rest(av) > 4)
-	init_inputbox = av[4];
 
     *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
 			  av[1],
 			  atoi(av[2]),
 			  atoi(av[3]),
-			  init_inputbox, 0);
+			  optional_str(av, 4, 0), 0);
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
@@ -333,23 +351,37 @@ static int
 j_passwordbox(JUMPARGS)
 {
     int ret;
-    char *init_inputbox = 0;
-
-    if (arg_rest(av) > 4)
-	init_inputbox = av[4];
 
     *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
 			  av[1],
 			  atoi(av[2]),
 			  atoi(av[3]),
-			  init_inputbox, 1);
+			  optional_str(av, 4, 0), 1);
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
 }
 
-#ifdef HAVE_FSELECT
+#ifdef HAVE_XDIALOG
+static int
+j_calendar(JUMPARGS)
+{
+    int ret;
+
+    *offset_add = arg_rest(av);
+    ret = dialog_calendar(t,
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]),
+			 atoi(av[4]),
+			 atoi(av[5]),
+			 atoi(av[6]));
+    if (ret == 0)
+	fprintf(dialog_vars.output, "%s", dialog_input_result);
+    return ret;
+}
+
 static int
 j_fselect(JUMPARGS)
 {
@@ -364,23 +396,36 @@ j_fselect(JUMPARGS)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
 }
+
+static int
+j_timebox(JUMPARGS)
+{
+    int ret;
+
+    *offset_add = arg_rest(av);
+    ret = dialog_timebox(t,
+			 av[1],
+			 atoi(av[2]),
+			 atoi(av[3]),
+			 optional_num(av, 4, -1),
+			 optional_num(av, 5, -1),
+			 optional_num(av, 6, -1));
+    if (ret == 0)
+	fprintf(dialog_vars.output, "%s", dialog_input_result);
+    return ret;
+}
 #endif
 
 #ifdef HAVE_GAUGE
 static int
 j_gauge(JUMPARGS)
 {
-    int percent = 0;
-
-    if (arg_rest(av) > 4)
-	percent = atoi(av[4]);
-
     *offset_add = arg_rest(av);
     return dialog_gauge(t,
 			av[1],
 			atoi(av[2]),
 			atoi(av[3]),
-			percent);
+			optional_num(av, 4, 0));
 }
 #endif
 
@@ -456,8 +501,10 @@ static Mode modes[] =
     {o_radiolist, 8, 0, j_radiolist},
     {o_inputbox, 4, 5, j_inputbox},
     {o_passwordbox, 4, 5, j_passwordbox},
-#ifdef HAVE_FSELECT
+#ifdef HAVE_XDIALOG
+    {o_calendar, 7, 7, j_calendar},
     {o_fselect, 4, 5, j_fselect},
+    {o_timebox, 4, 7, j_timebox},
 #endif
 #ifdef HAVE_GAUGE
     {o_gauge, 4, 5, j_gauge},

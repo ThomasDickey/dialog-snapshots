@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.18 2000/12/13 00:32:34 tom Exp $
+ * $Id: fselect.c,v 1.19 2001/04/10 20:04:51 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -416,24 +416,16 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	}
 	if (button < 0) {
-	    WINDOW *win = 0;
 	    switch (button) {
 	    case -1:
-		win = w_text;
+		dlg_set_focus(dialog, w_text);
 		break;
 	    case -2:
-		win = w_file;
+		dlg_set_focus(dialog, w_file);
 		break;
 	    case -3:
-		win = w_dir;
+		dlg_set_focus(dialog, w_dir);
 		break;
-	    }
-	    if (win != 0) {
-		(void) wmove(dialog,
-			     getpary(win) + getcury(win),
-			     getparx(win) + getcurx(win));
-		(void) wnoutrefresh(win);
-		(void) doupdate();
 	    }
 	}
 

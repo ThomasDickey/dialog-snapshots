@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.20 2000/12/08 11:48:56 Tomas.Pospisek Exp $
-.TH DIALOG 1 "" "$Date: 2000/12/08 11:48:56 $"
+.\" $Id: dialog.1,v 1.23 2001/04/15 21:57:46 tom Exp $
+.TH DIALOG 1 "" "$Date: 2001/04/15 21:57:46 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -20,6 +20,7 @@ These types of dialog boxes are implemented
 (though not all are necessarily compiled into \fBdialog\fR):
 .RS
 .LP
+.BR calendar ", "
 .BR checklist ", "
 .BR fselect ", "
 .BR gauge ", "
@@ -31,7 +32,8 @@ These types of dialog boxes are implemented
 .BR radiolist ", "
 .BR tailbox ", "
 .BR tailboxbg ", "
-.BR textbox ", and "
+.BR textbox ", "
+.BR timebox ", and "
 .BR yesno " (yes/no)."
 .RE
 .PP
@@ -182,7 +184,7 @@ Specifies a
 string to be displayed at the top of the dialog box.
 .
 .IP "\fB\-\-version"
-Same as "\fB\-\-print-version".
+Same as "\fB\-\-print-version\fP".
 .
 .\" ************************************************************************
 .TP
@@ -201,6 +203,16 @@ the width of the dialog box.
 .PP
 Other parameters depend on the box type.
 .RE
+.IP "\fB\-\-calendar \fItext height width day month year"
+A
+.B calendar
+box displays month, day and year in separately adjustable windows.
+You can increment or decrement any of those using the
+left-, up-, right- and down-arrows.
+Use tab or backtab to move between windows.
+If the year is given as zero, the current date is used as an initial value.
+On exit, the date is printed in the form day/month/year.
+.
 .IP "\fB\-\-checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
 A
 .B checklist
@@ -379,6 +391,14 @@ forward and backward searching functions are also provided.
 .IP "\fB\-\-textboxbg file height width"
 Display text from a file in a dialog box in a background process,
 as in a "tail -f &" command.
+.
+.IP "\fB\-\-timebox \fItext height [width hour minute second]"
+A dialog is displayed which allows you to select hour, minute and
+second.
+You can increment or decrement any of those using the
+left-, up-, right- and down-arrows.
+Use tab or backtab to move between windows.
+On exit, the result is printed in the form hour:minute:second.
 .
 .IP "\fB\-\-yesno \fItext height width"
 A

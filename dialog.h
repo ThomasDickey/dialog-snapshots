@@ -36,10 +36,12 @@
 #include <signal.h>	/* fork() etc. */
 #include <math.h>	/* sqrt() */
 
-#ifdef ultrix
-#include <cursesX.h>
+#if defined(HAVE_NCURSES_NCURSES_H)
+#include <ncurses/ncurses.h>
 #elif defined(HAVE_NCURSES_H)
 #include <ncurses.h>
+#elif defined(ultrix)
+#include <cursesX.h>
 #else
 #include <curses.h>
 #endif
@@ -70,12 +72,17 @@
 #define EXIT_OK		0
 #define EXIT_CANCEL	1
 
-#define CHR_BACKSPACE 8
-#define CHR_REPAINT   12	/* control/L */
-#define CHR_DELETE    127
+#define CHR_BACKSPACE	8
+#define CHR_REPAINT	12	/* control/L */
+#define CHR_DELETE	127
+#define CHR_NEXT	('n' & 0x1f)
+#define CHR_PREVIOUS	('p' & 0x1f)
 
 #define ESC 27
 #define TAB 9
+
+#define MARGIN 1
+
 #define MAX_LEN 2048
 #define BUF_SIZE (10*1024)
 #define MIN(x,y) (x < y ? x : y)
@@ -126,7 +133,7 @@
 #endif
 
 /* these definitions really would work for ncurses 1.8.6, etc. */
-#ifndef getparxy
+#ifndef getparyx
 #define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
 #endif
 
@@ -317,6 +324,8 @@ int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 int dialog_tailbox (const char *title, const char *file, int height, int width);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
 int dialog_fselect (const char *title, const char *path, int height, int width);
+int dialog_calendar (const char *title, const char *subtitle, int height, int width, int day, int month, int year);
+int dialog_timebox (const char *title, const char *subtitle, int height, int width, int hour, int minute, int second);
 
 /* arrows.c */
 void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
@@ -327,6 +336,9 @@ extern const char ** dlg_ok_label(void);
 extern const char ** dlg_ok_labels(void);
 extern const char ** dlg_yes_labels(void);
 extern int dlg_char_to_button(int ch, const char **labels);
+extern int dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
+extern void dlg_button_layout(const char **labels, int *limit);
+extern void dlg_button_sizes(const char **labels, int vertical, int *longest, int *length);
 extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
 
 /* inputstr.c */
@@ -337,6 +349,7 @@ extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, 
 extern int dlg_default_item(char **items, int llen);
 extern int dlg_getc(WINDOW *win);
 extern void dlg_item_help(char *txt);
+extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
 extern void dlg_trim_string(char *src);
 #ifdef HAVE_STRCASECMP
 #define dlg_strcmp(a,b) strcasecmp(a,b)
@@ -357,6 +370,7 @@ typedef struct mseRegion {
 #define	mouse_open() mousemask(BUTTON1_CLICKED, (mmask_t *) 0)
 #define	mouse_close() mousemask(0, (mmask_t *) 0)
 
+void mouse_free_regions (void);
 void mouse_mkregion (int y, int x, int height, int width, int code);
 void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
 void mouse_setbase (int x, int y);
@@ -367,6 +381,7 @@ void mouse_setbase (int x, int y);
 
 void mouse_open (void);
 void mouse_close (void);
+#define mouse_free_regions() /* nothing */
 void mouse_mkregion (int y, int x, int height, int width, int code);
 void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
 void mouse_setbase (int x, int y);
@@ -377,6 +392,7 @@ void mouse_setbase (int x, int y);
 
 #define	mouse_open() /*nothing*/
 #define	mouse_close() /*nothing*/
+#define mouse_free_regions() /* nothing */
 #define	mouse_mkregion(y, x, height, width, code) /*nothing*/
 #define	mouse_mkbigregion(y, x, height, width, nitems, th, mode) /*nothing*/
 #define	mouse_setbase(x, y) /*nothing*/

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.64 2001/01/16 00:44:47 tom Exp $
+ *  $Id: util.c,v 1.66 2001/04/12 23:16:52 tom Exp $
  *
  *  util.c
  *
@@ -286,7 +286,7 @@ init_dialog(void)
     (void) keypad(stdscr, TRUE);
     (void) cbreak();
     (void) noecho();
-    (void) mouse_open();
+    mouse_open();
     screen_initialized = 1;
 
 #ifdef HAVE_COLOR
@@ -329,7 +329,7 @@ end_dialog(void)
 {
     if (screen_initialized) {
 	screen_initialized = 0;
-	(void) mouse_close();
+	mouse_close();
 	(void) endwin();
 	(void) fflush(stdout);
     }
@@ -1116,4 +1116,16 @@ dlg_trim_string(char *base)
 	    *--dst = 0;
     }
     *dst = 0;
+}
+
+void
+dlg_set_focus(WINDOW *parent, WINDOW *win)
+{
+    if (win != 0) {
+	(void) wmove(parent,
+		     getpary(win) + getcury(win),
+		     getparx(win) + getcurx(win));
+	(void) wnoutrefresh(win);
+	(void) doupdate();
+    }
 }

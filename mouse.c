@@ -1,5 +1,5 @@
 /*
- * $Id: mouse.c,v 1.5 2000/10/07 21:16:19 tom Exp $
+ * $Id: mouse.c,v 1.6 2001/04/15 22:35:31 tom Exp $
  *
  * mouse.c - mouse support for cdialog
  *
@@ -39,6 +39,18 @@ static int bigregionFlag = 0;	/* no bigRegion at startup */
 
 /*=========== region related functions =============*/
 
+static mseRegion *
+find_region_by_code(int code)
+{
+    mseRegion *butPtr;
+
+    for (butPtr = regionList; butPtr; butPtr = butPtr->next) {
+	if (code == butPtr->code)
+	    break;
+    }
+    return butPtr;
+}
+
 void
 mouse_setbase(int x, int y)
 {
@@ -65,20 +77,30 @@ mouse_mkbigregion(int y, int x, int height, int width, int nitems,
 }
 
 void
+mouse_free_regions(void)
+{
+    while (regionList != 0) {
+	mseRegion *butPtr = regionList->next;
+	free(regionList);
+	regionList = butPtr;
+    }
+}
+
+void
 mouse_mkregion(int y, int x, int height, int width, int code)
 {
     mseRegion *butPtr;
 
-    butPtr = malloc(sizeof(mseRegion));
-    if (!butPtr)
-	return;			/* WARN */
-    butPtr->y = basey + y;
-    butPtr->Y = basey + y + height;
-    butPtr->x = basex + x;
-    butPtr->X = basex + x + width;
-    butPtr->code = code;
-    butPtr->next = regionList;
-    regionList = butPtr;
+    if (find_region_by_code(code) == 0
+     && (butPtr = malloc(sizeof(mseRegion))) != 0) {
+	butPtr->y = basey + y;
+	butPtr->Y = basey + y + height;
+	butPtr->x = basex + x;
+	butPtr->X = basex + x + width;
+	butPtr->code = code;
+	butPtr->next = regionList;
+	regionList = butPtr;
+    }
 }
 
 /* retrieve the frame under the pointer */

@@ -3,6 +3,21 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/04/15
+	+ fix a memory leak in mouse_region().
+	+ simplify handling of optional parameters with new functions
+	  optional_str() and optional_num().
+	+ add calendar and timebox dialogs (compatible with Xdialog).
+	+ correct typo in fallback definition for getparyx, and remove void
+	  cast for mouse_open and mouse_close which prevented build with
+	  Sun's Solaris compiler.
+	+ rename --enable-lxdialog configure option to --enable-Xdialog
+	+ modify CF_NCURSES_CPPFLAGS macro to match more variations of ncurses
+	  header files.
+	+ update config.guess, config.sub
+	+ modify some configure script macros to avoid problems with buggy
+	  autoconf 2.49c which breaks changequote().
+
 2001/01/15
 	+ small fix to revised real_auto_size() and justify_text() to avoid
 	  adding origin to box-width, which broke samples/wheel.
@@ -90,7 +105,7 @@ to it:
 	+ increase minimum height needed for autosized yesno dialog.
 	+ add --version as an alias for --print-version.
 	+ fix for build on Solaris without NLS (cannot redefine 'gettext()').
-	+ add fselect dialog (compatible with xdialog).
+	+ add fselect dialog (compatible with Xdialog).
 	+ add --enable-lxdialog configure option.
 	+ use new configure macro CF_ARG_MSG_ENABLE to show progress with
 	  enable/disable switches.
