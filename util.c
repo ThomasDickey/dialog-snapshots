@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.66 2001/04/12 23:16:52 tom Exp $
+ *  $Id: util.c,v 1.69 2001/04/28 20:55:24 tom Exp $
  *
  *  util.c
  *
@@ -28,7 +28,11 @@
 #include <time.h>
 
 #ifdef NCURSES_VERSION
+#ifdef HAVE_NCURSES_NCURSES_H
+#include <ncurses/term.h>
+#else
 #include <term.h>
+#endif
 #endif
 
 #ifndef O_BINARY
@@ -344,25 +348,77 @@ centered(int width, const char *string)
     return left;
 }
 
+/*
+ * Print one line of the prompt in the window within the limits of the
+ * specified right margin.  The line will end on a word boundary and a pointer
+ * to the start of the next line is returned, or a NULL pointer if the end of
+ * *prompt is reached.
+ */
 static const char *
-skip_blanks(const char *src, int *skip_lines)
+print_line(WINDOW *win, const char *prompt, int rm, int *x)
 {
-    *skip_lines = 0;
-    while (isspace(CharOf(*src))) {
-	if (*src == '\n') {
-	    *skip_lines += 1;
-	}
-	src++;
-    }
-    return src;
-}
+    int cur_x = 2;
+    const char *wrap_ptr = prompt;
+    const char *p = prompt + 1;
+    int i = 0;
 
-static const char *
-skip_text(const char *src)
-{
-    while (*src != 0 && !isspace(CharOf(*src)))
-	src++;
-    return src;
+    *x = 1;
+
+    /*
+     * Set *p to the end of the line or the right margin (rm), whichever is
+     * less, and set *wrap_ptr to the end of the last word in the line.
+     */
+    while (*p != '\n' && *p != '\0' && cur_x < rm) {
+	if (*p == ' ' && *(p - 1) != ' ') {
+	    wrap_ptr = p;
+	    *x = cur_x;
+	}
+	p++;
+	cur_x++;
+    }
+
+    /*
+     * If the line doesn't reach the right margin in the middle of a word, then
+     * we don't have to wrap it at a the end of the previous word.
+     */
+    if (*p == '\n' || *p == ' ' || *p == '\0') {
+	while (&wrap_ptr[++i] < p) ;
+	while (wrap_ptr[i - 1] == ' ')
+	    i--;
+	wrap_ptr += i;
+	*x += i;
+    }
+
+    /*
+     * If the line has no spaces, then wrap it anyway at the right margin
+     */
+    else if (*x == 1 && cur_x == rm) {
+	*x = rm;
+	wrap_ptr = p;
+    }
+
+    /*
+     * Print the line if we have a window pointer.  Otherwise this routine
+     * is just being called for sizing the window.
+     */
+    if (win) {
+	p = prompt;
+	while (p < wrap_ptr) {
+	    (void) waddch(win, CharOf(*p++));
+	}
+    }
+
+    /* *x tells the calling function how long the line was */
+    if (*x == 1)
+	*x = rm;
+
+    /* Find the start of the next line and return a pointer to it */
+    p = wrap_ptr;
+    while (*p == ' ')
+	p++;
+    if (*p == '\n')
+	p++;
+    return (p);
 }
 
 static void
@@ -370,75 +426,50 @@ justify_text(WINDOW *win,
 	     const char *prompt,
 	     int limit_y,
 	     int limit_x,
-	     int y, int x,
 	     int *high, int *wide)
 {
-    const char *left, *right;
-    int count;
-    int first = TRUE;
-    int max_x = x;
-    int cur_x = x;
-    int cur_y = y;
-    int check = (win == 0);
+    int x = 2;
+    int y = 1;
+    int max_x = 2;
+    int lm = 2;			/* left margin */
+    int rm = limit_x;		/* right margin */
+    int bm = limit_y;		/* bottom margin */
 
-    if (dialog_vars.cr_wrap)
-	++cur_y;
+    if (win) {
+	rm -= 4;
+	bm -= 2;
+    }
 
-    if (prompt != 0) {
-	for (left = prompt; *left != 0;) {
-	    left = skip_blanks(left, &count);
-	    right = skip_text(left);
+    while (y <= bm && *prompt) {
+	x = lm;
 
-	    if (count == 0 && ((right - left) + (cur_x - x) >= limit_x))
-		count = 1;
-
-	    if (count != 0) {
-		if ((cur_y += count) > limit_y) {
-		    cur_y = limit_y;
-		    break;
+	if (*prompt == '\n') {
+	    while (*prompt == '\n' && y < bm) {
+		if (*(prompt + 1) != '\0') {
+		    ++y;
+		    if (win != 0)
+			(void) wmove(win, y, lm);
 		}
-		cur_x = x;
-	    } else if (!first) {
-		if (!check) {
-		    (void) waddch(win, ' ');
-		}
-		if (++cur_x > max_x)
-		    max_x = cur_x;
+		prompt++;
 	    }
+	} else if (win != 0)
+	    (void) wmove(win, y, lm);
 
-	    while (left != right) {
-		if (!check) {
-		    if (wmove(win, cur_y, cur_x) != ERR)
-			(void) waddch(win, CharOf(*left));
-		}
-		++left;
-		if (++cur_x > max_x)
-		    max_x = cur_x;
-	    }
-	    first = FALSE;
+	if (*prompt)
+	    prompt = print_line(win, prompt, rm, &x);
+	if (*prompt) {
+	    ++y;
+	    if (win != 0)
+		(void) wmove(win, y, lm);
 	}
+	max_x = MAX(max_x, x);
+    }
 
-	if (dialog_vars.cr_wrap) {
-	    if (++cur_y > limit_y) {
-		cur_y = limit_y;
-	    } else if (!check) {
-		(void) wmove(win, cur_y, x);
-	    }
-	}
-	if (cur_y > limit_y)
-	    cur_y = limit_y;
-	if (max_x > limit_x)
-	    max_x = limit_x;
-    } else {
-	cur_y = limit_y;
-	max_x = limit_x;
-    }
-    if (high != 0) {
-	*high = cur_y + 1;
-    }
-    if (wide != 0) {
-	*wide = max_x + 1;
-    }
+    /* Set the final height and width for the calling function */
+    if (high != 0)
+	*high = y;
+    if (wide != 0)
+	*wide = max_x;
 }
 
 /*
@@ -447,14 +478,59 @@ justify_text(WINDOW *win,
  * string may contain embedded newlines.
  */
 void
-print_autowrap(WINDOW *win, const char *prompt, int height, int width, int
-	       y, int x)
+print_autowrap(WINDOW *win, const char *prompt, int height, int width)
 {
     justify_text(win, prompt,
-		 height - (2 * y),
-		 width - (2 * x),
-		 y, x,
+		 height,
+		 width,
 		 (int *) 0, (int *) 0);
+}
+
+/*
+ * Calculate the window size for preformatted text.  This will calculate box
+ * dimensions that are at or close to the specified aspect ratio for the prompt
+ * string with all spaces and newlines preserved and additional newlines added
+ * as necessary.
+ */
+static void
+auto_size_preformated(char *prompt, int *height, int *width)
+{
+    int high, wide;
+    float car;			/* Calculated Aspect Ratio */
+    float diff;
+    int max_y = SLINES - 1;
+    int max_x = SCOLS - 2;
+    int max_width = max_x;
+    int ar = dialog_vars.aspect_ratio;
+
+    /* Get the initial dimensions */
+    justify_text((WINDOW *) 0, prompt, max_y, max_x, &high, &wide);
+    car = (float) (wide / high);
+
+    /*
+     * If the aspect ratio is greater than it should be, then decrease the
+     * width proportionately.
+     */
+    if (car > ar) {
+	diff = car / (float) ar;
+	max_x = wide / diff + 4;
+	justify_text((WINDOW *) 0, prompt, max_y, max_x, &high, &wide);
+	car = (float) wide / high;
+    }
+
+    /*
+     * If the aspect ratio is to small after decreasing the width, then
+     * incrementally increase the width until the aspect ratio is equal to or
+     * greater than the specified aspect ratio.
+     */
+    while (car < ar && max_x < max_width) {
+	max_x += 4;
+	justify_text((WINDOW *) 0, prompt, max_y, max_x, &high, &wide);
+	car = (float) (wide / high);
+    }
+
+    *height = high;
+    *width = wide;
 }
 
 /*
@@ -467,9 +543,9 @@ real_auto_size(const char *title,
 	       int *height, int *width,
 	       int boxlines, int mincols)
 {
-    int x = (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
-    int y = (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
-    int len = title ? strlen(title) : 0;
+    int x = (dialog_vars.begin_set ? dialog_vars.begin_x : 2);
+    int y = (dialog_vars.begin_set ? dialog_vars.begin_y : 1);
+    int title_length = title ? strlen(title) : 0;
     int nc = 4;
     int high;
     int wide;
@@ -492,19 +568,25 @@ real_auto_size(const char *title,
     if (*width > 0) {
 	wide = *width;
     } else if (prompt != 0) {
-	wide = MAX(len, mincols);
+	wide = MAX(title_length, mincols);
 	if (strchr(prompt, '\n') == 0) {
 	    double val = dialog_vars.aspect_ratio * strlen(prompt);
 	    int tmp = sqrt(val);
 	    wide = MAX(wide, tmp);
+	    justify_text((WINDOW *) 0, prompt, high, wide, height, width);
 	} else {
-	    wide = SCOLS - x;
+	    auto_size_preformated(prompt, height, width);
 	}
     } else {
 	wide = SCOLS - x;
+	justify_text((WINDOW *) 0, prompt, high, wide, height, width);
     }
 
-    justify_text((WINDOW *) 0, prompt, high, wide, 0, 0, height, width);
+    if (*width < title_length) {
+	justify_text((WINDOW *) 0, prompt, high, title_length, height, width);
+	*width = title_length;
+    }
+
     if (*width < mincols && save_wide == 0)
 	*width = mincols;
     if (prompt != 0) {
@@ -517,7 +599,7 @@ real_auto_size(const char *title,
 	*width = save_wide;
 }
 
-/* End of auto_size() */
+/* End of real_auto_size() */
 
 void
 auto_size(const char *title, char *prompt, int *height, int *width, int
@@ -1089,33 +1171,74 @@ dlg_strcmp(char *a, char *b)
 #endif
 
 /*
- * Change embedded "\n" substring to '\n' character, tabs to spaces and
- * repeated spaces to a single space.  Leading/trailing blanks are discarded.
+ * Change embedded "\n" substrings to '\n' characters and tabs to single
+ * spaces.  If there are no "\n"s, it will strip all extra spaces, for
+ * justification.  If it has "\n"'s, it will preserve extra spaces.  If cr_wrap
+ * is set, it will preserve '\n's.
  */
 void
-dlg_trim_string(char *base)
+dlg_trim_string(char *s)
 {
-    char *dst = base;
-    char *src = dst;
-    char ch, ch0 = ' ';
+    char *p1;
+    char *p = s;
+    int has_newlines = 0;
 
-    while ((ch = *src++) != 0) {
-	if (ch == '\\' && *src == 'n') {
-	    ch = '\n';
-	    src++;
-	    base = dst + 1;	/* don't trim this one... */
+    if (strstr(s, "\\n"))
+	has_newlines = 1;
+
+    while (*p != '\0') {
+	if (*p == '\t')
+	    *p = ' ';
+
+	if (*p == '\\' && *(p + 1) == 'n') {
+	    *s++ = '\n';
+	    p += 2;
+	    p1 = p;
+	    /*
+	     * Handle end of lines intelligently.  If '\n' follows "\n" then
+	     * ignore the '\n'.  This eliminates the need escape the '\n'
+	     * character (no need to use "\n\").
+	     */
+	    while (*p1 == ' ')
+		p1++;
+	    if (*p1 == '\n')
+		p = p1 + 1;
+	} else {
+	    if (has_newlines) {	/* If prompt contains "\n" strings */
+		if (*p == '\n') {
+		    if (dialog_vars.cr_wrap)
+			*s++ = *p++;
+		    else {
+			/* Replace the '\n' with a space if cr_wrap is not set */
+			if (*(s - 1) != ' ')
+			    *s++ = ' ';
+			p++;
+		    }
+		} else		/* If *p != '\n' */
+		    *s++ = *p++;
+	    } else {		/* If there are no "\n" strings */
+		if (*p == ' ') {
+		    if (*(s - 1) != ' ') {
+			*s++ = ' ';
+			p++;
+		    } else
+			p++;
+		} else if (*p == '\n') {
+		    if (dialog_vars.cr_wrap)
+			*s++ = *p++;
+		    else if (*(s - 1) != ' ') {
+			/* Strip '\n's if cr_wrap is not set. */
+			*s++ = ' ';
+			p++;
+		    } else
+			p++;
+		} else
+		    *s++ = *p++;
+	    }
 	}
-	if (ch == '\t')
-	    ch = ' ';
-	if (ch != ' ' || ch0 != ' ')
-	    *dst++ = ch;
-	ch0 = (ch == '\n') ? ' ' : ch;
     }
-    if (ch0 == ' ') {
-	while (dst - 1 >= base && isspace(UCH(dst[-1])))
-	    *--dst = 0;
-    }
-    *dst = 0;
+
+    *s = '\0';
 }
 
 void

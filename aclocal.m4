@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.18 2001/04/15 21:27:34 tom Exp $
+dnl $Id: aclocal.m4,v 1.19 2001/04/24 19:01:32 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -637,7 +637,7 @@ hpux10.*|hpux11.*) #(vi
 	test -d /usr/include/curses_colr && \
 	cf_cv_curses_incdir="-I/usr/include/curses_colr"
 	;;
-sun3*|sun4*)
+sunos3*|sunos4*)
 	test -d /usr/5lib && \
 	test -d /usr/5include && \
 	cf_cv_curses_incdir="-I/usr/5include"
@@ -696,9 +696,10 @@ hpux10.*|hpux11.*) #(vi
 linux*) # Suse Linux does not follow /usr/lib convention
 	LIBS="$LIBS -L/lib"
 	;;
-sun3*|sun4*)
+sunos3*|sunos4*)
 	test -d /usr/5lib && \
-	LIBS="$LIBS -L/usr/5lib"
+	LIBS="$LIBS -L/usr/5lib -lcurses -ltermcap"
+	ac_cv_func_initscr=yes
 	;;
 esac
 
@@ -762,9 +763,7 @@ fi
 ])
 dnl ---------------------------------------------------------------------------
 dnl "dirname" is not portable, so we fake it with a shell script.
-AC_DEFUN([CF_DIRNAME],[
-$1=`echo $2 | sed -e 's:/[[^/]]*$::'`
-])dnl
+AC_DEFUN([CF_DIRNAME],[$1=`echo $2 | sed -e 's:/[[^/]]*$::'`])dnl
 dnl ---------------------------------------------------------------------------
 dnl You can always use "make -n" to see the actual options, but it's hard to
 dnl pick out/analyze warning messages when the compile-line is long.

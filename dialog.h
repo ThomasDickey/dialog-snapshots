@@ -303,7 +303,7 @@ void color_setup (void);
 void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif
 
-void print_autowrap(WINDOW *win, const char *prompt, int height, int width, int y, int x);
+void print_autowrap(WINDOW *win, const char *prompt, int height, int width);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
 		chtype borderchar);
 

@@ -3,7 +3,7 @@
 #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
 #   Free Software Foundation, Inc.
 
-timestamp='2001-02-13'
+timestamp='2001-03-16'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -408,7 +408,7 @@ EOF
 EOF
 	$CC_FOR_BUILD $dummy.c -o $dummy \
 	  && ./$dummy `echo "${UNAME_RELEASE}" | sed -n 's/\([0-9]*\).*/\1/p'` \
-	  && rm $dummy.c $dummy && exit 0
+	  && rm -f $dummy.c $dummy && exit 0
 	rm -f $dummy.c $dummy
 	echo mips-mips-riscos${UNAME_RELEASE}
 	exit 0 ;;
@@ -483,7 +483,7 @@ EOF
 			exit(0);
 			}
 EOF
-		$CC_FOR_BUILD $dummy.c -o $dummy && ./$dummy && rm $dummy.c $dummy && exit 0
+		$CC_FOR_BUILD $dummy.c -o $dummy && ./$dummy && rm -f $dummy.c $dummy && exit 0
 		rm -f $dummy.c $dummy
 		echo rs6000-ibm-aix3.2.5
 	elif grep bos324 /usr/include/stdio.h >/dev/null 2>&1; then
@@ -620,7 +620,7 @@ EOF
 	  exit (0);
 	}
 EOF
-	$CC_FOR_BUILD $dummy.c -o $dummy && ./$dummy && rm $dummy.c $dummy && exit 0
+	$CC_FOR_BUILD $dummy.c -o $dummy && ./$dummy && rm -f $dummy.c $dummy && exit 0
 	rm -f $dummy.c $dummy
 	echo unknown-hitachi-hiuxwe2
 	exit 0 ;;
@@ -750,11 +750,14 @@ EOF
     i*86:Minix:*:*)
 	echo ${UNAME_MACHINE}-pc-minix
 	exit 0 ;;
+    arm*:Linux:*:*)
+	echo ${UNAME_MACHINE}-unknown-linux-gnu
+	exit 0 ;;
     ia64:Linux:*:*)
 	echo ${UNAME_MACHINE}-unknown-linux
 	exit 0 ;;
-    s390:Linux:*:* | s390x:Linux:*:*)
-	echo ${UNAME_MACHINE}-ibm-linux
+    m68*:Linux:*:*)
+	echo ${UNAME_MACHINE}-unknown-linux-gnu
 	exit 0 ;;
     mips:Linux:*:*)
 	cat >$dummy.c <<EOF
@@ -773,11 +776,82 @@ int main (argc, argv) int argc; char *argv[]; {
   return 0;
 }
 EOF
-	$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy "${UNAME_MACHINE}" && rm $dummy.c $dummy && exit 0
+	$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy "${UNAME_MACHINE}" && rm -f $dummy.c $dummy && exit 0
 	rm -f $dummy.c $dummy
 	;;
-    x86_64:Linux:*:*)
-	echo x86_64-unknown-linux-gnu
+    ppc:Linux:*:*)
+	# Determine Lib Version
+	cat >$dummy.c <<EOF
+#include <features.h>
+#if defined(__GLIBC__)
+extern char __libc_version[];
+extern char __libc_release[];
+#endif
+main(argc, argv)
+     int argc;
+     char *argv[];
+{
+#if defined(__GLIBC__)
+  printf("%s %s\n", __libc_version, __libc_release);
+#else
+  printf("unknown\n");
+#endif
+  return 0;
+}
+EOF
+	LIBC=""
+	$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null
+	if test "$?" = 0 ; then
+		./$dummy | grep 1\.99 > /dev/null
+		if test "$?" = 0 ; then LIBC="libc1" ; fi
+	fi
+	rm -f $dummy.c $dummy
+	echo powerpc-unknown-linux-gnu${LIBC}
+	exit 0 ;;
+    alpha:Linux:*:*)
+	cat <<EOF >$dummy.s
+	  .data
+	  \$Lformat:
+		.byte 37,100,45,37,120,10,0	# "%d-%x\n"
+	   .text
+		.globl main
+		.align 4
+		.ent main
+	    main:
+		.frame \$30,16,\$26,0
+		ldgp \$29,0(\$27)
+		.prologue 1
+		.long 0x47e03d80 # implver \$0
+		lda \$2,-1
+		.long 0x47e20c21 # amask \$2,\$1
+		lda \$16,\$Lformat
+		mov \$0,\$17
+		not \$1,\$18
+		jsr \$26,printf
+		ldgp \$29,0(\$26)
+		mov 0,\$16
+		jsr \$26,exit
+		.end main
+EOF
+	LIBC=""
+	$CC_FOR_BUILD $dummy.s -o $dummy 2>/dev/null
+	if test "$?" = 0 ; then
+		case `./$dummy` in
+		0-0)	UNAME_MACHINE="alpha" ;;
+		1-0)	UNAME_MACHINE="alphaev5" ;;
+		1-1)    UNAME_MACHINE="alphaev56" ;;
+		1-101)	UNAME_MACHINE="alphapca56" ;;
+		2-303)	UNAME_MACHINE="alphaev6" ;;
+		2-307)	UNAME_MACHINE="alphaev67" ;;
+		esac
+		objdump --private-headers $dummy | \
+		  grep ld.so.1 > /dev/null
+		if test "$?" = 0 ; then
+			LIBC="libc1"
+		fi
+	fi
+	rm -f $dummy.s $dummy
+	echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC}
 	exit 0 ;;
     parisc:Linux:*:* | hppa:Linux:*:*)
 	# Look for CPU level
@@ -790,10 +864,19 @@ EOF
     parisc64:Linux:*:* | hppa64:Linux:*:*)
 	echo hppa64-unknown-linux-gnu
 	exit 0 ;;
+    s390:Linux:*:* | s390x:Linux:*:*)
+	echo ${UNAME_MACHINE}-ibm-linux
+	exit 0 ;;
     sh*:Linux:*:*)
 	echo ${UNAME_MACHINE}-unknown-linux-gnu
 	exit 0 ;;
-    *:Linux:*:*)
+    sparc:Linux:*:* | sparc64:Linux:*:*)
+	echo ${UNAME_MACHINE}-unknown-linux-gnu
+	exit 0 ;;
+    x86_64:Linux:*:*)
+	echo x86_64-unknown-linux-gnu
+	exit 0 ;;
+    i?86:Linux:*:*)
 	# The BFD linker knows what the default object file format is, so
 	# first see if it will tell us. cd to the root directory to prevent
 	# problems with other programs or directories called `ld' in the path.
@@ -815,129 +898,23 @@ EOF
 		echo "${UNAME_MACHINE}-pc-linux-gnucoff"
 		exit 0
 		;;
-	  sparclinux)
-		echo "${UNAME_MACHINE}-unknown-linux-gnuaout"
-		exit 0
-		;;
-	  elf32_sparc)
-		echo "${UNAME_MACHINE}-unknown-linux-gnu"
-		exit 0
-		;;
-	  armlinux)
-		echo "${UNAME_MACHINE}-unknown-linux-gnuaout"
-		exit 0
-		;;
-	  elf32arm*)
-		echo "${UNAME_MACHINE}-unknown-linux-gnuoldld"
-		exit 0
-		;;
-	  armelf_linux*)
-		echo "${UNAME_MACHINE}-unknown-linux-gnu"
-		exit 0
-		;;
-	  m68klinux)
-		echo "${UNAME_MACHINE}-unknown-linux-gnuaout"
-		exit 0
-		;;
-	  elf32ppc | elf32ppclinux)
-		# Determine Lib Version
-		cat >$dummy.c <<EOF
-#include <features.h>
-#if defined(__GLIBC__)
-extern char __libc_version[];
-extern char __libc_release[];
-#endif
-main(argc, argv)
-     int argc;
-     char *argv[];
-{
-#if defined(__GLIBC__)
-  printf("%s %s\n", __libc_version, __libc_release);
-#else
-  printf("unkown\n");
-#endif
-  return 0;
-}
-EOF
-		LIBC=""
-		$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null
-		if test "$?" = 0 ; then
-			./$dummy | grep 1\.99 > /dev/null
-			if test "$?" = 0 ; then
-				LIBC="libc1"
-			fi
-		fi
-		rm -f $dummy.c $dummy
-		echo powerpc-unknown-linux-gnu${LIBC}
-		exit 0
-		;;
 	esac
-
-	if test "${UNAME_MACHINE}" = "alpha" ; then
-		cat <<EOF >$dummy.s
-			.data
-		\$Lformat:
-			.byte 37,100,45,37,120,10,0	# "%d-%x\n"
-
-			.text
-			.globl main
-			.align 4
-			.ent main
-		main:
-			.frame \$30,16,\$26,0
-			ldgp \$29,0(\$27)
-			.prologue 1
-			.long 0x47e03d80 # implver \$0
-			lda \$2,-1
-			.long 0x47e20c21 # amask \$2,\$1
-			lda \$16,\$Lformat
-			mov \$0,\$17
-			not \$1,\$18
-			jsr \$26,printf
-			ldgp \$29,0(\$26)
-			mov 0,\$16
-			jsr \$26,exit
-			.end main
-EOF
-		LIBC=""
-		$CC_FOR_BUILD $dummy.s -o $dummy 2>/dev/null
-		if test "$?" = 0 ; then
-			case `./$dummy` in
-			0-0)	UNAME_MACHINE="alpha" ;;
-			1-0)	UNAME_MACHINE="alphaev5" ;;
-			1-1)    UNAME_MACHINE="alphaev56" ;;
-			1-101)	UNAME_MACHINE="alphapca56" ;;
-			2-303)	UNAME_MACHINE="alphaev6" ;;
-			2-307)	UNAME_MACHINE="alphaev67" ;;
-			esac
-
-			objdump --private-headers $dummy | \
-			  grep ld.so.1 > /dev/null
-			if test "$?" = 0 ; then
-				LIBC="libc1"
-			fi
-		fi
-		rm -f $dummy.s $dummy
-		echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC} ; exit 0
-	else
-	  # Either a pre-BFD a.out linker (linux-gnuoldld)
-	  # or one that does not give us useful --help.
-	  # GCC wants to distinguish between linux-gnuoldld and linux-gnuaout.
-	  # If ld does not provide *any* "supported emulations:"
-	  # that means it is gnuoldld.
-	  test -z "$ld_supported_emulations" \
-	    && echo "${UNAME_MACHINE}-pc-linux-gnuoldld" && exit 0
-
-	  case "${UNAME_MACHINE}" in
-	  i?86)
-	    VENDOR=pc;
-	    ;;
-	  *)
-	    VENDOR=unknown;
-	    ;;
-	  esac
-	  # Determine whether the default compiler is a.out or elf
-	  cat >$dummy.c <<EOF
+	# Either a pre-BFD a.out linker (linux-gnuoldld)
+	# or one that does not give us useful --help.
+	# GCC wants to distinguish between linux-gnuoldld and linux-gnuaout.
+	# If ld does not provide *any* "supported emulations:"
+	# that means it is gnuoldld.
+	test -z "$ld_supported_emulations" && echo "${UNAME_MACHINE}-pc-linux-gnuoldld" && exit 0
+	case "${UNAME_MACHINE}" in
+	i?86)
+	  VENDOR=pc;
+	  ;;
+	*)
+	  VENDOR=unknown;
+	  ;;
+	esac
+	# Determine whether the default compiler is a.out or elf
+	cat >$dummy.c <<EOF
 #include <features.h>
 #ifdef __cplusplus
 #include <stdio.h>  /* for printf() prototype */
@@ -961,10 +938,10 @@ EOF
   return 0;
 }
 EOF
-	  $CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy "${UNAME_MACHINE}" && rm $dummy.c $dummy && exit 0
-	  rm -f $dummy.c $dummy
-	  test x"${TENTATIVE}" != x && echo "${TENTATIVE}" && exit 0
-	fi ;;
+	$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy "${UNAME_MACHINE}" && rm -f $dummy.c $dummy && exit 0
+	rm -f $dummy.c $dummy
+	test x"${TENTATIVE}" != x && echo "${TENTATIVE}" && exit 0
+	;;
 # ptx 4.0 does uname -s correctly, with DYNIX/ptx in there.  earlier versions
 # are messed up and put the nodename in both sysname and nodename.
     i?86:DYNIX/ptx:4*:*)
@@ -1311,7 +1288,7 @@ main ()
 }
 EOF
 
-$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy && rm $dummy.c $dummy && exit 0
+$CC_FOR_BUILD $dummy.c -o $dummy 2>/dev/null && ./$dummy && rm -f $dummy.c $dummy && exit 0
 rm -f $dummy.c $dummy
 
 # Apollos put the system type in the environment.

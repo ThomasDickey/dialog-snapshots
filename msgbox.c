@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.15 2000/12/12 00:26:47 tom Exp $
+ *  $Id: msgbox.c,v 1.16 2001/04/24 19:10:03 Vincent.Stemen Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -66,7 +66,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width);
 
     if (pauseopt) {
 	bool done = FALSE;

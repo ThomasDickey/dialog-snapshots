@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.9 2001/04/15 22:39:55 tom Exp $
+ * $Id: calendar.c,v 1.10 2001/04/24 19:19:35 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -385,7 +385,7 @@ dialog_calendar(const char *title,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width, MARGIN, MARGIN);
+    print_autowrap(dialog, prompt, height, width);
 
     /* compute positions of day, month and year boxes */
     memset(&dy_box, 0, sizeof(dy_box));

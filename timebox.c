@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.4 2001/04/15 22:33:10 tom Exp $
+ * $Id: timebox.c,v 1.5 2001/04/24 19:19:46 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -205,7 +205,7 @@ dialog_timebox(const char *title,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width, MARGIN, MARGIN);
+    print_autowrap(dialog, prompt, height, width);
 
     /* compute positions of hour, month and year boxes */
     memset(&hr_box, 0, sizeof(hr_box));

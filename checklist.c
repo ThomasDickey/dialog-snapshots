@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.34 2000/12/12 00:26:47 tom Exp $
+ *  $Id: checklist.c,v 1.37 2001/04/29 16:48:23 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -27,12 +27,17 @@
 static int list_width, check_x, item_x, checkflag;
 
 #define LLEN(n) ((n) * CHECKBOX_TAGS)
+#define ItemData(i)    &items[LLEN(i)]
+#define ItemName(i)    items[LLEN(i)]
+#define ItemText(i)    items[LLEN(i) + 1]
+#define ItemStatus(i)  items[LLEN(i) + 2]
+#define ItemHelp(i)    items[LLEN(i) + 3]
 
 /*
  * Print list item
  */
 static void
-print_item(WINDOW *win, char **strings, int status,
+print_item(WINDOW *win, char **items, int status,
 	   int choice, int selected)
 {
     int i;
@@ -51,16 +56,16 @@ print_item(WINDOW *win, char **strings, int status,
     wattrset(win, menubox_attr);
     (void) waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    (void) waddch(win, CharOf(strings[0][0]));
+    (void) waddch(win, CharOf(ItemName(0)[0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    (void) wprintw(win, "%s", strings[0] + 1);
+    (void) wprintw(win, "%.*s", item_x - check_x - 6, ItemName(0) + 1);
 
     (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    (void) wprintw(win, "%s", strings[1]);
+    (void) wprintw(win, "%.*s", getmaxx(win) - item_x, ItemText(0));
 
     if (selected) {
-	dlg_item_help(strings[3]);
+	dlg_item_help(ItemHelp(0));
     }
 }
 
@@ -75,17 +80,21 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 {
     int i, j, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
+    int use_width, name_width, text_width;
     int done = FALSE, result = EXIT_OK;
     WINDOW *dialog, *list;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();
 
-    if (list_height < 1)
-	list_height = 1;
-
     tab_correct_str(prompt);
-    auto_size(title, prompt, &height, &width, 4 + list_height, 26);
-
+    if (list_height == 0) {
+	use_width = calc_listw(item_no, items, CHECKBOX_TAGS) + 10;
+	/* calculate height without items (4) */
+	auto_size(title, prompt, &height, &width, 4, MAX(26, use_width));
+	calc_listh(&height, &list_height, item_no);
+    } else {
+	auto_size(title, prompt, &height, &width, 4 + list_height, 26);
+    }
     print_size(height, width);
     ctl_size(height, width);
 
@@ -97,7 +106,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     /* Initializes status */
     for (i = 0; i < item_no; i++)
-	status[i] = !dlg_strcmp(items[LLEN(i) + 2], "on");
+	status[i] = !dlg_strcmp(ItemStatus(i), "on");
 
     max_choice = MIN(list_height, item_no);
 
@@ -113,7 +122,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width);
 
     list_width = width - 6;
     getyx(dialog, cur_y, cur_x);
@@ -126,23 +135,40 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     (void) keypad(list, TRUE);
 
     /* draw a box around the list items */
-    draw_box(dialog, box_y, box_x, list_height + 2, list_width + 2,
+    draw_box(dialog, box_y, box_x,
+	     list_height + 2 * MARGIN,
+	     list_width + 2 * MARGIN,
 	     menubox_border_attr, menubox_attr);
 
-    check_x = 0;
-    item_x = 0;
+    text_width = 0;
+    name_width = 0;
     /* Find length of longest item to center checklist */
     for (i = 0; i < item_no; i++) {
-	check_x = MAX(check_x, (int) strlen(items[LLEN(i) + 1]));
-	item_x = MAX(item_x, (int) strlen(items[LLEN(i)]));
+	text_width = MAX(text_width, (int) strlen(ItemText(i)));
+	name_width = MAX(name_width, (int) strlen(ItemName(i)));
     }
-    check_x = (list_width - check_x - item_x - 6) / 2;
-    item_x = check_x + item_x + 6;
+
+    /* If the name+text is wider than the list is allowed, then truncate
+     * one or both of them.  If the name is no wider than 1/4 of the list,
+     * leave it intact.
+     */
+    use_width = (list_width - 6);
+    if (text_width + name_width > use_width) {
+	int need = 0.25 * use_width;
+	if (name_width > need) {
+	    int want = use_width * ((double) name_width) / (text_width + name_width);
+	    name_width = (want > need) ? want : need;
+	}
+	text_width = use_width - name_width;
+    }
+
+    check_x = (use_width - (text_width + name_width)) / 2;
+    item_x = name_width + check_x + 6;
 
     /* Print the list */
     for (i = 0; i < max_choice; i++)
 	print_item(list,
-		   &items[LLEN(i)],
+		   ItemData(i),
 		   status[i], i, i == choice);
     (void) wnoutrefresh(list);
 
@@ -174,7 +200,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    if (flag == FLAG_CHECK) {	/* checklist? */
 		status[scrollamt + choice] = !status[scrollamt + choice];
 		print_item(list,
-			   &items[LLEN(scrollamt + choice)],
+			   ItemData(scrollamt + choice),
 			   status[scrollamt + choice], choice, TRUE);
 	    } else {		/* radiolist */
 		if (!status[scrollamt + choice]) {
@@ -183,7 +209,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    status[scrollamt + choice] = TRUE;
 		    for (i = 0; i < max_choice; i++)
 			print_item(list,
-				   &items[LLEN(scrollamt + i)],
+				   ItemData(scrollamt + i),
 				   status[scrollamt + i], i, i == choice);
 		}
 	    }
@@ -201,7 +227,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	found = FALSE;
 	for (j = scrollamt + choice + 1; j < item_no; j++) {
 	    if (toupper(key) ==
-		toupper(items[LLEN(j)][0])) {
+		toupper(ItemName(j)[0])) {
 		found = TRUE;
 		i = j - scrollamt;
 		break;
@@ -210,7 +236,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	if (!found) {
 	    for (j = 0; j <= scrollamt + choice; j++) {
 		if (toupper(key) ==
-		    toupper(items[LLEN(j)][0])) {
+		    toupper(ItemName(j)[0])) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
@@ -282,7 +308,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			if (list_height > 1) {
 			    /* De-highlight current first item */
 			    print_item(list,
-				       &items[LLEN(scrollamt)],
+				       ItemData(scrollamt),
 				       status[scrollamt], 0, FALSE);
 			    scrollok(list, TRUE);
 			    wscrl(list, -1);
@@ -290,13 +316,13 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			}
 			scrollamt--;
 			print_item(list,
-				   &items[LLEN(scrollamt)],
+				   ItemData(scrollamt),
 				   status[scrollamt], 0, TRUE);
 		    } else if (i == max_choice) {
 			if (list_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(list,
-				       &items[LLEN(scrollamt + max_choice - 1)],
+				       ItemData(scrollamt + max_choice - 1),
 				       status[scrollamt + max_choice - 1],
 				       max_choice - 1, FALSE);
 			    scrollok(list, TRUE);
@@ -305,7 +331,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			}
 			scrollamt++;
 			print_item(list,
-				   &items[LLEN(scrollamt + max_choice - 1)],
+				   ItemData(scrollamt + max_choice - 1),
 				   status[scrollamt + max_choice - 1],
 				   max_choice - 1, TRUE);
 		    } else
@@ -320,7 +346,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			}
 			for (i = 0; i < max_choice; i++) {
 			    print_item(list,
-				       &items[LLEN(scrollamt + i)],
+				       ItemData(scrollamt + i),
 				       status[scrollamt + i], i, i == choice);
 			}
 		    }
@@ -333,12 +359,12 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		} else {
 		    /* De-highlight current item */
 		    print_item(list,
-			       &items[LLEN(scrollamt + choice)],
+			       ItemData(scrollamt + choice),
 			       status[scrollamt + choice], choice, FALSE);
 		    /* Highlight new item */
 		    choice = i;
 		    print_item(list,
-			       &items[LLEN(scrollamt + choice)],
+			       ItemData(scrollamt + choice),
 			       status[scrollamt + choice], choice, TRUE);
 		    (void) wnoutrefresh(list);
 		    (void) wmove(dialog, cur_y, cur_x);
@@ -380,12 +406,12 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {
 		    if (separate_output) {
-			fprintf(dialog_vars.output, "%s\n", items[LLEN(i)]);
+			fprintf(dialog_vars.output, "%s\n", ItemName(i));
 		    } else {
-			fprintf(dialog_vars.output, "\"%s\" ", items[LLEN(i)]);
+			fprintf(dialog_vars.output, "\"%s\" ", ItemName(i));
 		    }
 		} else {
-		    fprintf(dialog_vars.output, "%s", items[LLEN(i)]);
+		    fprintf(dialog_vars.output, "%s", ItemName(i));
 		}
 	    }
 	}

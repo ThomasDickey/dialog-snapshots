@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.23 2001/04/15 21:57:46 tom Exp $
-.TH DIALOG 1 "" "$Date: 2001/04/15 21:57:46 $"
+.\" $Id: dialog.1,v 1.25 2001/04/28 21:15:21 tom Exp $
+.TH DIALOG 1 "" "$Date: 2001/04/28 21:15:21 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -54,10 +54,10 @@ e.g., Cancel or No.
 .B Common Options
 .
 .IP "\fB\-\-aspect \fIratio"
-Specify a nominal line width based on the length of the prompt string
-to use as a guide to forcibly wrapping lines that are too
-long relative to the dialog box.
-The default is 9.
+This gives you some control over the box dimensions when using auto
+sizing (specifying 0 for height and width).  It represents
+width / height.  The default is 9, which means 9 characters wide to
+every 1 line high.
 .
 .IP "\fB\-\-backtitle \fIbacktitle"
 Specifies a
@@ -82,7 +82,12 @@ This may be used alone, without other options.
 .
 .IP "\fB\-\-cr-wrap"
 Interpret embedded newlines in the dialog text as a newline on the screen.
-Otherwise, the text for each dialog will display on a single line.
+Otherwise, \fBdialog\fR will only wrap lines where needed to fit inside the text box.
+Even though you can control line breaks with this,
+\fBdialog\fR will still wrap any lines that are too long for the width of the box.
+Without cr-wrap, the layout of your text may be formatted to look nice
+in the source code of your script without affecting the way it will
+look in the dialog.
 .
 .IP "\fB\-\-create-rc \fIfile"
 When
@@ -137,7 +142,7 @@ This may be used alone, without other options.
 Prints the size of each dialog box to standard error.
 .
 .IP "\fB\-\-print-version"
-Prints dialog's version to standard error.
+Prints \fBdialog\fR's version to standard error.
 This may be used alone, without other options.
 .
 .IP "\fB\-\-separate-output"

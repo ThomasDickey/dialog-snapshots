@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.19 2001/04/15 21:44:16 tom Exp $
+ *  $Id: buttons.c,v 1.20 2001/04/28 23:31:46 tom Exp $
  *
  *  buttons.c
  *
@@ -138,7 +138,7 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
 	*margin = *gap * 2;
     }
     *step = *gap + (used + count - 1) / count;
-    return (*gap > 0);
+    return (*gap > 0) && (unused >= 0);
 }
 
 /*
@@ -147,15 +147,16 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
 void
 dlg_button_layout(const char **labels, int *limit)
 {
-    int width = *limit;
-    int button_gap, button_margin, button_step;
+    int width = 1;
+    int gap, margin, step;
 
-    while (!dlg_button_x_step(labels, width, &button_gap, &button_margin, &button_step))
+    while (!dlg_button_x_step(labels, width, &gap, &margin, &step))
 	++width;
-    width += (2 * MARGIN);
+    width += (4 * MARGIN);
     if (width > COLS)
-    	width = COLS;
-    *limit = width;
+	width = COLS;
+    if (width > *limit)
+	*limit = width;
 }
 
 /*

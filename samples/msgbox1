@@ -1,14 +1,29 @@
 #!/bin/sh
 DIALOG=${DIALOG=dialog}
 
-$DIALOG --aspect 9 --cr-wrap --title "MESSAGE BOX" --clear \
-        --msgbox "Hi, this is a simple message box. You can use this to \
-                  display any message you like. The box will remain until \
-                  you press the ENTER key." 0 0
+$DIALOG --title "MESSAGE BOX" --clear \
+        --msgbox "Hi, this is a simple message box. You can use this to 
+                  display any message you like. The box will remain until
+                  you press the ENTER key.  This box is being displayed 
+                  with dialogs default aspect ratio of 9." 0 0
 
-case $? in
-  0)
-    echo "OK";;
-  255)
-    echo "ESC pressed.";;
-esac
+$DIALOG --aspect 12 --title "MESSAGE BOX  aspect=12" --clear \
+        --msgbox "Hi, this is a simple message box. You can use this to 
+                  display any message you like. The box will remain until
+                  you press the ENTER key.  This box is being displayed 
+                  with an aspect ratio of 12." 0 0
+
+$DIALOG --aspect 6 --title "MESSAGE BOX  aspect=6" --clear \
+        --msgbox "Hi, this is a simple message box. You can use this to 
+                  display any message you like. The box will remain until
+                  you press the ENTER key.  This box is being displayed 
+                  with an aspect ratio of 6." 0 0
+
+$DIALOG --aspect 6 --cr-wrap --title "MESSAGE BOX aspect=6 with --cr-wrap" \
+        --clear --msgbox "\
+           Hi, this is a simple
+           message box. You can
+          use this to display any 
+             message you like.
+The box will remain until you press the ENTER key.  This box is being displayed with an aspect ratio of 6, and using --cr-wrap.\n" 0 0
+

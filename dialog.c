@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.56 2001/04/14 16:24:29 tom Exp $
+ * $Id: dialog.c,v 1.57 2001/04/24 19:37:53 Vincent.Stemen Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -22,11 +22,9 @@
 
 #include "dialog.h"
 #include <string.h>
-
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
 #endif
-
 #define JUMPARGS const char *t, char *av[], int *offset_add
 typedef int (jumperFn) (JUMPARGS);
 
@@ -83,8 +81,8 @@ typedef enum {
 typedef struct {
     const char *name;
     eOptions code;
-    int pass;		/* 1,2,4 or combination */
-    const char *help;	/* NULL to suppress, non-empty to display params */
+    int pass;			/* 1,2,4 or combination */
+    const char *help;		/* NULL to suppress, non-empty to display params */
 } Options;
 
 typedef struct {
@@ -371,12 +369,12 @@ j_calendar(JUMPARGS)
 
     *offset_add = arg_rest(av);
     ret = dialog_calendar(t,
-			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]),
-			 atoi(av[4]),
-			 atoi(av[5]),
-			 atoi(av[6]));
+			  av[1],
+			  atoi(av[2]),
+			  atoi(av[3]),
+			  atoi(av[4]),
+			  atoi(av[5]),
+			  atoi(av[6]));
     if (ret == 0)
 	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
@@ -488,7 +486,6 @@ j_tailboxbg(JUMPARGS)
     return 0;
 }
 #endif
-
 /* *INDENT-OFF* */
 static Mode modes[] =
 {
@@ -711,10 +708,6 @@ main(int argc, char *argv[])
 	return 0;
     }
 #endif
-    for (j = 1; j < argc; j++) {
-	dlg_trim_string(argv[j]);
-    }
-
     if ((make_lock_filename(&lock_refresh, "file")) < 0 ||
 	(make_lock_filename(&lock_tailbg_refreshed, "tail")) < 0 ||
 	(make_lock_filename(&lock_tailbg_exit, "exit")) < 0)
@@ -825,6 +818,12 @@ main(int argc, char *argv[])
 	    }
 	    if (!done)
 		offset++;
+	}
+
+	for (j = 1; j < argc; j++) {
+	    if (strcmp(argv[j - 1], "--backtitle") != 0 &&
+		strcmp(argv[j - 1], "--title") != 0)
+		dlg_trim_string(argv[j]);
 	}
 
 	if (argv[offset] == NULL) {
