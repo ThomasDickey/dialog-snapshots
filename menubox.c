@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.47 2003/03/08 16:40:50 tom Exp $
+ *  $Id: menubox.c,v 1.48 2003/07/12 18:13:14 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -95,7 +95,9 @@ static char *
 input_menu_edit(WINDOW *win, char **items, int choice)
 {
     char *result;
-    int offset = 0, key = 0, first = TRUE;
+    int offset = 0;
+    int key = 0, fkey;
+    int first = TRUE;
     /* see above */
     int y = dialog_vars.input_menu ? choice * INPUT_ROWS : choice - 1;
 
@@ -121,8 +123,8 @@ input_menu_edit(WINDOW *win, char **items, int choice)
     /* taken out of inputbox.c - but somewhat modified */
     while (key != '\n') {
 	if (!first)
-	    key = mouse_wgetch(win);
-	if (dlg_edit_string(result, &offset, key, first)) {
+	    key = mouse_wgetch(win, &fkey);
+	if (dlg_edit_string(result, &offset, key, fkey, first)) {
 	    /* 
 	     * menu_width - 2 ..... it's the actual number of maximal
 	     *                      possible characters could be written
@@ -170,7 +172,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int code;
-    int key = 0;
+    int key = 0, fkey;
     int button = 0;
     int choice = dlg_default_item(items, MENUBOX_TAGS);
     int result = DLG_EXIT_UNKNOWN;
@@ -282,7 +284,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
-	key = mouse_wgetch(dialog);
+	key = mouse_wgetch(dialog, &fkey);
 
 	if (key >= (M_EVENT + KEY_MAX)) {
 	    getyx(dialog, cur_y, cur_x);
@@ -299,13 +301,32 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    (void) wmove(dialog, cur_y, cur_x);
 	    wrefresh(dialog);
 	    continue;
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
+	    continue;
 	}
 
-	/* Check if key pressed matches first character of any
-	   item tag in menu */
-	for (i = 0; i < max_choice; i++)
-	    if (toupper(key) == toupper(UCH(ItemName(scrollamt + i)[0])))
+	if (!fkey) {
+	    fkey = TRUE;
+	    switch (key) {
+	    case '\n':
+		key = KEY_ENTER;
 		break;
+	    case '-':
+		key = KEY_UP;
+		break;
+	    case '+':
+		key = KEY_DOWN;
+		break;
+	    case ' ':
+	    case TAB:
+		key = KEY_RIGHT;
+		break;
+	    default:
+		fkey = FALSE;
+		break;
+	    }
+	}
 
 	/*
 	 * Check if key pressed matches first character of any item tag in
@@ -313,21 +334,23 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	 * each one as the same key is pressed repeatedly.
 	 */
 	found = FALSE;
-	for (j = scrollamt + choice + 1; j < item_no; j++) {
-	    if (toupper(key) ==
-		toupper(UCH(ItemName(j)[0]))) {
-		found = TRUE;
-		i = j - scrollamt;
-		break;
-	    }
-	}
-	if (!found) {
-	    for (j = 0; j <= scrollamt + choice; j++) {
+	if (!fkey && is8bit(key)) {
+	    for (j = scrollamt + choice + 1; j < item_no; j++) {
 		if (toupper(key) ==
 		    toupper(UCH(ItemName(j)[0]))) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
+		}
+	    }
+	    if (!found) {
+		for (j = 0; j <= scrollamt + choice; j++) {
+		    if (toupper(key) ==
+			toupper(UCH(ItemName(j)[0]))) {
+			found = TRUE;
+			i = j - scrollamt;
+			break;
+		    }
 		}
 	    }
 	}
@@ -344,7 +367,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    i = key - '1';
 	}
 
-	if (!found) {
+	if (!found && fkey) {
 	    found = TRUE;
 	    switch (key) {
 	    case KEY_HOME:
@@ -368,13 +391,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		i = MIN(choice + max_choice, item_no - scrollamt - 1);
 		break;
 	    case KEY_UP:
-	    case '-':
 		i = choice - 1;
 		if (choice == 0 && scrollamt == 0)
 		    continue;
 		break;
 	    case KEY_DOWN:
-	    case '+':
 		i = choice + 1;
 		if (scrollamt + choice >= item_no - 1)
 		    continue;
@@ -458,49 +479,48 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    continue;		/* wait for another key press */
 	}
 
-	switch (key) {
-	case ESC:
-	    result = DLG_EXIT_ESC;
-	    break;
-	case ' ':
-	case KEY_BTAB:
-	case KEY_LEFT:
-	    button = dlg_prev_button(buttons, button);
-	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	    break;
-	case TAB:
-	case KEY_RIGHT:
-	    button = dlg_next_button(buttons, button);
-	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	    break;
-	case '\n':
-	    del_window(dialog);
-	    result = handle_button(dlg_ok_buttoncode(button),
-				   items,
-				   scrollamt + choice);
+	if (fkey) {
+	    switch (key) {
+	    case KEY_BTAB:
+	    case KEY_LEFT:
+		button = dlg_prev_button(buttons, button);
+		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				 FALSE, width);
+		break;
+	    case KEY_RIGHT:
+		button = dlg_next_button(buttons, button);
+		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				 FALSE, width);
+		break;
+	    case KEY_ENTER:
+		del_window(dialog);
+		result = handle_button(dlg_ok_buttoncode(button),
+				       items,
+				       scrollamt + choice);
 
-	    if (dialog_vars.input_menu && result == DLG_EXIT_EXTRA) {
-		char *tmp;
-		tmp = input_menu_edit(menu, ItemData(scrollamt + choice),
-				      choice);
+		if (dialog_vars.input_menu && result == DLG_EXIT_EXTRA) {
+		    char *tmp;
+		    tmp = input_menu_edit(menu, ItemData(scrollamt + choice),
+					  choice);
 
-		dlg_add_result("RENAMED ");
-		dlg_add_result(ItemName(choice));
-		dlg_add_result(" ");
-		dlg_add_result(tmp);
-		free(tmp);
+		    dlg_add_result("RENAMED ");
+		    dlg_add_result(ItemName(choice));
+		    dlg_add_result(" ");
+		    dlg_add_result(tmp);
+		    free(tmp);
 
-		dlg_draw_buttons(dialog, height - 2, 0,
-				 buttons, button, FALSE, width);
+		    dlg_draw_buttons(dialog, height - 2, 0,
+				     buttons, button, FALSE, width);
+		}
+
+		break;
+	    default:
+		if (key >= M_EVENT
+		    && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		    result = handle_button(code, items, scrollamt + choice);
+		}
+		break;
 	    }
-
-	    break;
-	default:
-	    if (key >= M_EVENT
-		&& (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-		result = handle_button(code, items, scrollamt + choice);
-	    }
-	    break;
 	}
     }
 

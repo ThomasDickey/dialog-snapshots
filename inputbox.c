@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.33 2003/01/30 21:04:15 tom Exp $
+ *  $Id: inputbox.c,v 1.35 2003/07/20 18:14:59 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -32,8 +32,10 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		const char *init, const int password)
 {
     int x, y, box_y, box_x, box_width;
-    int show_buttons = TRUE, first = TRUE, offset = 0;
-    int key = 0, code;
+    int show_buttons = TRUE, first = TRUE;
+    int col_offset = 0;
+    int chr_offset = 0;
+    int key = 0, fkey = 0, code;
     int result = DLG_EXIT_UNKNOWN;
     int state = sTEXT;
     char *input = dialog_vars.input_result;
@@ -92,18 +94,19 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	 */
 	if (show_buttons) {
 	    show_buttons = FALSE;
-	    (void) wmove(dialog, box_y, box_x + dlg_edit_offset(offset, box_width));
+	    col_offset = dlg_edit_offset(input, chr_offset, box_width);
+	    (void) wmove(dialog, box_y, box_x + col_offset);
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, state, FALSE, width);
 	}
 
 	if (!first)
-	    key = mouse_wgetch(dialog);
+	    key = mouse_wgetch(dialog, &fkey);
 
 	if (state == sTEXT) {	/* Input box selected */
-	    edit = dlg_edit_string(input, &offset, key, first);
+	    edit = dlg_edit_string(input, &chr_offset, key, fkey, first);
 
 	    if (edit) {
-		dlg_show_string(dialog, input, offset, inputbox_attr,
+		dlg_show_string(dialog, input, chr_offset, inputbox_attr,
 				box_y, box_x, box_width, password, first);
 		first = FALSE;
 		continue;
@@ -116,36 +119,52 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    continue;
 	}
 
-	switch (key) {
-	case ESC:
-	    result = DLG_EXIT_ESC;
-	    break;
-	case M_EVENT + 'i':	/* mouse enter events */
-	    state = 0;
-	    /* FALLTHRU */
-	case KEY_BTAB:
-	case KEY_UP:
-	case KEY_LEFT:
-	    show_buttons = TRUE;
-	    state = dlg_prev_ok_buttonindex(state, sTEXT);
-	    break;
-	case TAB:
-	case KEY_DOWN:
-	case KEY_RIGHT:
-	    show_buttons = TRUE;
-	    state = dlg_next_ok_buttonindex(state, sTEXT);
-	    break;
-	case ' ':
-	case '\n':
-	    del_window(dialog);
-	    result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
-	    break;
-	default:
-	    if (key >= M_EVENT
-		&& (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-		result = code;
+	/* handle non-functionkeys */
+	if (!fkey) {
+	    switch (key) {
+	    case ESC:
+		result = DLG_EXIT_ESC;
+		break;
+	    case TAB:
+		key = KEY_RIGHT;
+		fkey = TRUE;
+		break;
+	    case ' ':
+	    case '\n':
+		key = KEY_ENTER;
+		fkey = TRUE;
+		break;
 	    }
-	    break;
+	}
+
+	/* handle functionkeys */
+	if (fkey) {
+	    switch (key) {
+	    case M_EVENT + 'i':	/* mouse enter events */
+		state = 0;
+		/* FALLTHRU */
+	    case KEY_BTAB:
+	    case KEY_UP:
+	    case KEY_LEFT:
+		show_buttons = TRUE;
+		state = dlg_prev_ok_buttonindex(state, sTEXT);
+		break;
+	    case KEY_DOWN:
+	    case KEY_RIGHT:
+		show_buttons = TRUE;
+		state = dlg_next_ok_buttonindex(state, sTEXT);
+		break;
+	    case KEY_ENTER:
+		del_window(dialog);
+		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+		break;
+	    default:
+		if (key >= M_EVENT
+		    && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		    result = code;
+		}
+		break;
+	    }
 	}
     }
 

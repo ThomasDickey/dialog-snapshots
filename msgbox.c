@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.22 2003/01/30 21:02:15 tom Exp $
+ *  $Id: msgbox.c,v 1.23 2003/07/12 00:22:54 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -30,7 +30,8 @@ int
 dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	      int pauseopt)
 {
-    int x, y, key = 0;
+    int x, y;
+    int key = 0, fkey;
     WINDOW *dialog = 0;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_label();
@@ -81,24 +82,29 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 	while (!done) {
-	    key = mouse_wgetch(dialog);
-	    switch (key) {
-	    case ESC:
-	    case '\n':
-	    case ' ':
-		done = TRUE;
-		break;
+	    key = mouse_wgetch(dialog, &fkey);
+	    if (fkey) {
+		switch (key) {
 #ifdef KEY_RESIZE
-	    case KEY_RESIZE:
-		dialog_clear();
-		height = req_high;
-		width = req_wide;
-		goto restart;
+		case KEY_RESIZE:
+		    dialog_clear();
+		    height = req_high;
+		    width = req_wide;
+		    goto restart;
 #endif
-	    default:
-		if (key >= M_EVENT)
+		default:
+		    if (key >= M_EVENT)
+			done = TRUE;
+		    break;
+		}
+	    } else {
+		switch (key) {
+		case ESC:
+		case '\n':
+		case ' ':
 		    done = TRUE;
-		break;
+		    break;
+		}
 	    }
 	}
     } else {

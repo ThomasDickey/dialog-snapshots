@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.11 2002/05/19 16:02:27 tom Exp $
+ *  $Id: ui_getc.c,v 1.13 2003/07/20 19:26:55 tom Exp $
  *
  *  ui_getc.c
  *
@@ -104,7 +104,7 @@ dlg_getc_ready(DIALOG_CALLBACK * p)
 }
 
 int
-dlg_getc_callbacks(int ch, int *result)
+dlg_getc_callbacks(int ch, int fkey, int *result)
 {
     DIALOG_CALLBACK *p, *q;
 
@@ -112,7 +112,7 @@ dlg_getc_callbacks(int ch, int *result)
 	do {
 	    q = p->next;
 	    if (dlg_getc_ready(p)) {
-		if (!(p->handle_getc(p, ch, result))) {
+		if (!(p->handle_getc(p, ch, fkey, result))) {
 		    dlg_remove_callback(p);
 		}
 	    }
@@ -138,7 +138,7 @@ dlg_raise_window(WINDOW *win)
  * tailbox.
  */
 int
-dlg_getc(WINDOW *win)
+dlg_getc(WINDOW *win, int *fkey)
 {
     WINDOW *save_win = win;
     int ch = ERR;
@@ -155,7 +155,48 @@ dlg_getc(WINDOW *win)
 	wtimeout(win, interval);
 
     while (!done) {
+#ifdef HAVE_WGET_WCH
+	static int have = 0;
+	static int used = 0;
+	static char temp[80];
+	wchar_t wch;
+	mbstate_t state;
+
+	/*
+	 * We get a wide character, translate it to multibyte form to avoid
+	 * having to change the rest of the code to use wide-characters.
+	 */
+	if (used >= have) {
+	    used = 0;
+	    have = 0;
+	    ch = ERR;
+	    *fkey = 0;
+	    switch (wget_wch(win, (wint_t *) (&wch))) {
+	    case KEY_CODE_YES:
+		ch = *fkey = wch;
+		break;
+	    case OK:
+		memset(&state, 0, sizeof(state));
+		if ((have = wcrtomb(temp, wch, &state)) < 0) {
+		    have = used = 0;
+		    temp[0] = wch;
+		} else {
+		}
+		ch = CharOf(temp[used++]);
+		break;
+	    case ERR:
+		ch = ERR;
+		break;
+	    default:
+		break;
+	    }
+	} else {
+	    ch = CharOf(temp[used++]);
+	}
+#else
 	ch = wgetch(win);
+	*fkey = (ch > KEY_MIN && ch < KEY_MAX);
+#endif
 	current = time((time_t *) 0);
 
 	switch (ch) {
@@ -168,7 +209,7 @@ dlg_getc(WINDOW *win)
 		&& current >= expired) {
 		exiterr("timeout");
 	    }
-	    if (dlg_getc_callbacks(ch, &result)) {
+	    if (dlg_getc_callbacks(ch, *fkey, &result)) {
 		dlg_raise_window(win);
 	    } else {
 		done = (interval <= 0);
@@ -197,7 +238,7 @@ dlg_getc(WINDOW *win)
 	    /* FALLTHRU */
 	default:
 	    if ((p = dialog_state.getc_redirect) != 0) {
-		if (!(p->handle_getc(p, ch, &result))) {
+		if (!(p->handle_getc(p, ch, *fkey, &result))) {
 		    dlg_remove_callback(p);
 		    dialog_state.getc_redirect = 0;
 		    win = save_win;
@@ -285,7 +326,8 @@ killall_bg(int *retval)
 		    (void) signal(SIGINT, finish_bg);
 		    (void) signal(SIGQUIT, finish_bg);
 		    while (dialog_state.getc_callbacks != 0) {
-			dlg_getc_callbacks(ERR, retval);
+			int fkey = 0;
+			dlg_getc_callbacks(ERR, fkey, retval);
 			napms(1000);
 		    }
 		}

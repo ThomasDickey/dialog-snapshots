@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.31 2003/03/08 16:43:35 tom Exp $
+ *  $Id: tailbox.c,v 1.33 2003/07/20 19:34:00 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -176,7 +176,7 @@ repaint_text(MY_OBJ * obj)
 }
 
 static bool
-handle_my_getc(DIALOG_CALLBACK * cb, int ch, int *result)
+handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 {
     MY_OBJ *obj = (MY_OBJ *) cb;
     bool done = FALSE;
@@ -184,41 +184,64 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int *result)
     if (dlg_char_to_button(ch, obj->buttons) == 0) {
 	ch = '\n';
     }
-    switch (ch) {
-    case ERR:
-	ch = getc(cb->input);
-	(void) ungetc(ch, cb->input);
-	if ((ch != EOF) || (obj->hscroll != obj->old_hscroll)) {
-	    repaint_text(obj);
+    if (!fkey) {
+	fkey = TRUE;
+	switch (ch) {
+	case '\n':
+	    ch = KEY_ENTER;
+	    break;
+	case 'H':
+	case 'h':
+	    ch = KEY_LEFT;
+	    break;
+	case 'L':
+	case 'l':
+	    ch = KEY_RIGHT;
+	    break;
+	default:
+	    fkey = FALSE;
+	    break;
 	}
-	break;
-    case '\n':
-	*result = DLG_EXIT_OK;
-	done = TRUE;
-	break;
-    case '0':			/* Beginning of line */
-	obj->hscroll = 0;
-	break;
-    case 'H':			/* Scroll left */
-    case 'h':
-    case KEY_LEFT:
-	if (obj->hscroll > 0) {
-	    obj->hscroll -= 1;
+    }
+    if (fkey) {
+	switch (ch) {
+	case KEY_ENTER:
+	    *result = DLG_EXIT_OK;
+	    done = TRUE;
+	    break;
+	case KEY_BEG:		/* Beginning of line */
+	    obj->hscroll = 0;
+	    break;
+	case KEY_LEFT:		/* Scroll left */
+	    if (obj->hscroll > 0) {
+		obj->hscroll -= 1;
+	    }
+	    break;
+	case KEY_RIGHT:	/* Scroll right */
+	    if (obj->hscroll < MAX_LEN)
+		obj->hscroll += 1;
+	    break;
+	default:
+	    beep();
+	    break;
 	}
-	break;
-    case 'L':			/* Scroll right */
-    case 'l':
-    case KEY_RIGHT:
-	if (obj->hscroll < MAX_LEN)
-	    obj->hscroll += 1;
-	break;
-    case ESC:
-	done = TRUE;
-	*result = DLG_EXIT_ESC;
-	break;
-    default:
-	beep();
-	break;
+    } else {
+	switch (ch) {
+	case ERR:
+	    ch = getc(cb->input);
+	    (void) ungetc(ch, cb->input);
+	    if ((ch != EOF) || (obj->hscroll != obj->old_hscroll)) {
+		repaint_text(obj);
+	    }
+	    break;
+	case ESC:
+	    done = TRUE;
+	    *result = DLG_EXIT_ESC;
+	    break;
+	default:
+	    beep();
+	    break;
+	}
     }
 
     return !done;
@@ -230,6 +253,7 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int *result)
 int
 dialog_tailbox(const char *title, const char *file, int height, int width, int bg_task)
 {
+    int fkey;
     int x, y, result, thigh;
     WINDOW *dialog, *text;
     const char **buttons = 0;
@@ -291,7 +315,10 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     if (bg_task) {
 	result = DLG_EXIT_OK;
     } else {
-	while (handle_my_getc(&(obj->obj), dlg_getc(dialog), &result)) ;
+	int ch = dlg_getc(dialog, &fkey);
+	while (handle_my_getc(&(obj->obj), ch, fkey, &result)) {
+	    ;
+	}
     }
     mouse_free_regions();
     return result;

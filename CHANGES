@@ -1,8 +1,23 @@
--- $Id: CHANGES,v 1.65 2003/03/08 16:49:44 tom Exp $
+-- $Id: CHANGES,v 1.66 2003/07/20 20:51:35 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/07/20
+	+ rewrote inputstr.c, allowing it to enter and display wide-characters.
+	  Some nonprinting characters such as control/B can be edited as well.
+	+ modify timebox to allow user to type numbers into the fields.
+	+ change interfaces of dlg_getc(), mouse_wgetch(), etc., to add
+	  parameter that returns whether the result is really a function-key. 
+	  This is needed to work with wide-character curses.
+	+ correct computation of week-number in calendar widget (report by
+	  Heiner Lamann).
+	+ updated configure script macros:
+	  + suppress -Winline with gcc 3.3, since it is broken.
+	  + fix caching bug in CF_UTF8_LIB
+	  + improved script for CF_BUNDLED_INTL.
+	+ update config.guess, config.sub
 
 2003/03/08
 	+ add null-pointer checks to some malloc calls which were overlooked.

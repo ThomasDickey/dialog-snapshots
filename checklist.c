@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.56 2003/03/08 16:40:13 tom Exp $
+ *  $Id: checklist.c,v 1.57 2003/07/12 11:44:18 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -82,7 +82,11 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		 int separate_output)
 {
     int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
-    int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
+    int key = 0, fkey;
+    int button = 0;
+    int choice = 0;
+    int scrollamt = 0;
+    int max_choice, *status;
     int use_width, name_width, text_width;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog, *list;
@@ -189,9 +193,9 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
-	key = mouse_wgetch(dialog);
+	key = mouse_wgetch(dialog, &fkey);
 
-	if (key >= (M_EVENT + KEY_MAX)) {
+	if (fkey && (key >= (M_EVENT + KEY_MAX))) {
 	    getyx(dialog, cur_y, cur_x);
 	    /* De-highlight current item */
 	    print_item(list,
@@ -206,6 +210,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    (void) wmove(dialog, cur_y, cur_x);
 
 	    key = ' ';		/* force the selected item to toggle */
+	    fkey = FALSE;
 	}
 
 	/*
@@ -235,6 +240,30 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    (void) wmove(dialog, cur_y, cur_x);
 	    wrefresh(dialog);
 	    continue;		/* wait for another key press */
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
+	    continue;
+	}
+
+	if (!fkey) {
+	    fkey = TRUE;
+	    switch (key) {
+	    case '\n':
+		key = KEY_ENTER;
+		break;
+	    case '-':
+		key = KEY_UP;
+		break;
+	    case '+':
+		key = KEY_DOWN;
+		break;
+	    case TAB:
+		key = KEY_RIGHT;
+		break;
+	    default:
+		fkey = FALSE;
+		break;
+	    }
 	}
 
 	/*
@@ -243,21 +272,23 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	 * each one as the same key is pressed repeatedly.
 	 */
 	found = FALSE;
-	for (j = scrollamt + choice + 1; j < item_no; j++) {
-	    if (toupper(key) ==
-		toupper(ItemName(j)[0])) {
-		found = TRUE;
-		i = j - scrollamt;
-		break;
-	    }
-	}
-	if (!found) {
-	    for (j = 0; j <= scrollamt + choice; j++) {
+	if (!fkey && is8bit(key)) {
+	    for (j = scrollamt + choice + 1; j < item_no; j++) {
 		if (toupper(key) ==
 		    toupper(ItemName(j)[0])) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
+		}
+	    }
+	    if (!found) {
+		for (j = 0; j <= scrollamt + choice; j++) {
+		    if (toupper(key) ==
+			toupper(ItemName(j)[0])) {
+			found = TRUE;
+			i = j - scrollamt;
+			break;
+		    }
 		}
 	    }
 	}
@@ -275,43 +306,43 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 
 	if (!found) {
-	    found = TRUE;
-	    switch (key) {
-	    case KEY_HOME:
-		i = -scrollamt;
-		break;
-	    case KEY_LL:
-	    case KEY_END:
-		i = item_no - 1 - scrollamt;
-		break;
-	    case M_EVENT + KEY_PPAGE:
-	    case KEY_PPAGE:
-		if (choice)
-		    i = 0;
-		else if (scrollamt != 0)
-		    i = -MIN(scrollamt, max_choice);
-		else
-		    continue;
-		break;
-	    case M_EVENT + KEY_NPAGE:
-	    case KEY_NPAGE:
-		i = MIN(choice + max_choice, item_no - scrollamt - 1);
-		break;
-	    case KEY_UP:
-	    case '-':
-		i = choice - 1;
-		if (choice == 0 && scrollamt == 0)
-		    continue;
-		break;
-	    case KEY_DOWN:
-	    case '+':
-		i = choice + 1;
-		if (scrollamt + choice >= item_no - 1)
-		    continue;
-		break;
-	    default:
-		found = FALSE;
-		break;
+	    if (fkey) {
+		found = TRUE;
+		switch (key) {
+		case KEY_HOME:
+		    i = -scrollamt;
+		    break;
+		case KEY_LL:
+		case KEY_END:
+		    i = item_no - 1 - scrollamt;
+		    break;
+		case M_EVENT + KEY_PPAGE:
+		case KEY_PPAGE:
+		    if (choice)
+			i = 0;
+		    else if (scrollamt != 0)
+			i = -MIN(scrollamt, max_choice);
+		    else
+			continue;
+		    break;
+		case M_EVENT + KEY_NPAGE:
+		case KEY_NPAGE:
+		    i = MIN(choice + max_choice, item_no - scrollamt - 1);
+		    break;
+		case KEY_UP:
+		    i = choice - 1;
+		    if (choice == 0 && scrollamt == 0)
+			continue;
+		    break;
+		case KEY_DOWN:
+		    i = choice + 1;
+		    if (scrollamt + choice >= item_no - 1)
+			continue;
+		    break;
+		default:
+		    found = FALSE;
+		    break;
+		}
 	    }
 	}
 
@@ -394,32 +425,33 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    continue;		/* wait for another key press */
 	}
 
-	switch (key) {
-	case '\n':
-	    result = dlg_ok_buttoncode(button);
-	    break;
-	case ' ':
-	case KEY_BTAB:
-	case KEY_LEFT:
-	    button = dlg_prev_button(buttons, button);
-	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	    break;
-	case TAB:
-	case KEY_RIGHT:
-	    button = dlg_next_button(buttons, button);
-	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	    break;
-	case ESC:
-	    result = DLG_EXIT_ESC;
-	    break;
-	default:
-	    if (key >= M_EVENT) {
-		if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-		    result = key2;
-		    break;
+	if (fkey) {
+	    switch (key) {
+	    case KEY_ENTER:
+		result = dlg_ok_buttoncode(button);
+		break;
+	    case KEY_BTAB:
+	    case KEY_LEFT:
+		button = dlg_prev_button(buttons, button);
+		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				 FALSE, width);
+		break;
+	    case KEY_RIGHT:
+		button = dlg_next_button(buttons, button);
+		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				 FALSE, width);
+		break;
+	    default:
+		if (key >= M_EVENT) {
+		    if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+			result = key2;
+			break;
+		    }
+		    beep();
 		}
-		beep();
 	    }
+	} else {
+	    beep();
 	}
     }
 

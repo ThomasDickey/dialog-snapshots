@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.34 2003/03/08 16:44:38 tom Exp $
+ * $Id: fselect.c,v 1.35 2003/07/12 18:40:12 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -410,7 +410,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     int dbox_y, dbox_x, dbox_width, dbox_height;
     int fbox_y, fbox_x, fbox_width, fbox_height;
     int show_buttons = TRUE, first = TRUE, offset = 0;
-    int key = 0, code;
+    int key = 0, fkey = FALSE, code;
     int result = DLG_EXIT_UNKNOWN;
     int state = sTEXT;
     int button = sTEXT;
@@ -535,13 +535,13 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	if (!first) {
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
-	    key = mouse_wgetch(dialog);
+	    key = mouse_wgetch(dialog, &fkey);
 	} else {
 	    (void) wrefresh(dialog);
 	}
 
 	if (state == sTEXT) {	/* Input box selected */
-	    edit = dlg_edit_string(input, &offset, key, first);
+	    edit = dlg_edit_string(input, &offset, key, fkey, first);
 
 	    if (edit) {
 		dlg_show_string(w_text, input, offset, inputbox_attr,
@@ -556,98 +556,119 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    break;
 	}
 
-	switch (key) {
-	case ESC:
-	    result = DLG_EXIT_ESC;
-	    break;
-	case M_EVENT + KEY_PREVIOUS:
-	    state = sDIRS;
-	    scroll_list(-1, which_list());
-	    break;
-	case M_EVENT + KEY_NEXT:
-	    state = sDIRS;
-	    scroll_list(1, which_list());
-	    break;
-	case M_EVENT + KEY_PPAGE:
-	    state = sFILES;
-	    scroll_list(-1, which_list());
-	    break;
-	case M_EVENT + KEY_NPAGE:
-	    state = sFILES;
-	    scroll_list(1, which_list());
-	    break;
-	case KEY_PPAGE:
-	    scroll_list(-1, which_list());
-	    break;
-	case KEY_NPAGE:
-	    scroll_list(1, which_list());
-	    break;
-	case KEY_UP:
-	    if (change_list(-1, which_list()))
+	if (!fkey) {
+	    fkey = TRUE;
+	    switch (key) {
+	    case ESC:
+		result = DLG_EXIT_ESC;
+		fkey = FALSE;
 		break;
-	    /* FALLTHRU */
-	case KEY_LEFT:
-	case KEY_BTAB:
-	    show_buttons = TRUE;
-	    do {
-		state = dlg_prev_ok_buttonindex(state, sDIRS);
-	    } while (!usable_state(state, &d_list, &f_list));
-	    break;
-	case KEY_DOWN:
-	    if (change_list(1, which_list()))
+	    case '\n':
+		key = KEY_ENTER;
 		break;
-	    /* FALLTHRU */
-	case KEY_RIGHT:
-	case TAB:
-	    show_buttons = TRUE;
-	    do {
-		state = dlg_next_ok_buttonindex(state, sDIRS);
-	    } while (!usable_state(state, &d_list, &f_list));
-	    break;
-	case ' ':
-	    completed = 0;
-	    if (state == sFILES) {
-		completed = data_of(&f_list);
-	    } else if (state == sDIRS) {
-		completed = data_of(&d_list);
-	    }
-	    if (completed != 0) {
-		state = sTEXT;
-		show_buttons = TRUE;
-		strcpy(leaf_of(input), completed);
-		offset = strlen(input);
-		dlg_show_string(w_text, input, offset, inputbox_attr,
-				0, 0, tbox_width, 0, first);
+	    case ' ':
+		key = KEY_SELECT;
 		break;
-	    } else if (state < sTEXT) {
-		(void) beep();
+	    case TAB:
+		key = KEY_RIGHT;
 		break;
-	    }
-	    /* FALLTHRU */
-	case '\n':
-	    result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
-	    break;
-	default:
-	    if (key >= M_EVENT + MOUSE_T) {
-		state = sTEXT;
-	    } else if (key >= M_EVENT + MOUSE_F) {
-		state = sFILES;
-		f_list.choice = (key - (M_EVENT + MOUSE_F)) + f_list.offset;
-		display_list(&f_list);
-	    } else if (key >= M_EVENT + MOUSE_D) {
-		state = sDIRS;
-		d_list.choice = (key - (M_EVENT + MOUSE_D)) + d_list.offset;
-		display_list(&d_list);
-	    } else if (key >= M_EVENT
-		       && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-		result = code;
-	    } else if (key < KEY_MIN) {
+	    case 0:
+		break;
+	    default:
+		fkey = FALSE;
 		(void) ungetch(key);
 		state = sTEXT;
-	    } else {
-		(void) beep();
+		break;
 	    }
-	    break;
+	}
+
+	if (fkey) {
+	    switch (key) {
+	    case M_EVENT + KEY_PREVIOUS:
+		state = sDIRS;
+		scroll_list(-1, which_list());
+		break;
+	    case M_EVENT + KEY_NEXT:
+		state = sDIRS;
+		scroll_list(1, which_list());
+		break;
+	    case M_EVENT + KEY_PPAGE:
+		state = sFILES;
+		scroll_list(-1, which_list());
+		break;
+	    case M_EVENT + KEY_NPAGE:
+		state = sFILES;
+		scroll_list(1, which_list());
+		break;
+	    case KEY_PPAGE:
+		scroll_list(-1, which_list());
+		break;
+	    case KEY_NPAGE:
+		scroll_list(1, which_list());
+		break;
+	    case KEY_UP:
+		if (change_list(-1, which_list()))
+		    break;
+		/* FALLTHRU */
+	    case KEY_LEFT:
+	    case KEY_BTAB:
+		show_buttons = TRUE;
+		do {
+		    state = dlg_prev_ok_buttonindex(state, sDIRS);
+		} while (!usable_state(state, &d_list, &f_list));
+		break;
+	    case KEY_DOWN:
+		if (change_list(1, which_list()))
+		    break;
+		/* FALLTHRU */
+	    case KEY_RIGHT:
+		show_buttons = TRUE;
+		do {
+		    state = dlg_next_ok_buttonindex(state, sDIRS);
+		} while (!usable_state(state, &d_list, &f_list));
+		break;
+	    case KEY_SELECT:
+		completed = 0;
+		if (state == sFILES) {
+		    completed = data_of(&f_list);
+		} else if (state == sDIRS) {
+		    completed = data_of(&d_list);
+		}
+		if (completed != 0) {
+		    state = sTEXT;
+		    show_buttons = TRUE;
+		    strcpy(leaf_of(input), completed);
+		    offset = strlen(input);
+		    dlg_show_string(w_text, input, offset, inputbox_attr,
+				    0, 0, tbox_width, 0, first);
+		    break;
+		} else if (state < sTEXT) {
+		    (void) beep();
+		    break;
+		}
+		/* FALLTHRU */
+	    case KEY_ENTER:
+		result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+		break;
+	    default:
+		if (key >= M_EVENT + MOUSE_T) {
+		    state = sTEXT;
+		} else if (key >= M_EVENT + MOUSE_F) {
+		    state = sFILES;
+		    f_list.choice = (key - (M_EVENT + MOUSE_F)) + f_list.offset;
+		    display_list(&f_list);
+		} else if (key >= M_EVENT + MOUSE_D) {
+		    state = sDIRS;
+		    d_list.choice = (key - (M_EVENT + MOUSE_D)) + d_list.offset;
+		    display_list(&d_list);
+		} else if (key >= M_EVENT
+			   && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		    result = code;
+		} else {
+		    (void) beep();
+		}
+		break;
+	    }
 	}
     }
 

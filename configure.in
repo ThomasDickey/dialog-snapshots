@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.25 2003/01/27 01:30:24 tom Exp $
+dnl $Id: configure.in,v 1.26 2003/06/28 17:36:57 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20000819)
@@ -31,6 +31,7 @@ CF_MAKE_TAGS
 CF_DISABLE_ECHO
 CF_PROG_EXT
 CF_LIB_PREFIX
+CF_GNU_SOURCE
 
 AC_ARG_WITH(warnings,
 [  --with-warnings         turn on gcc warnings, for debugging ],[
@@ -110,6 +111,10 @@ AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(\
 strcasecmp \
 waitpid \
+)
+
+CF_CURSES_FUNCS(\
+wget_wch \
 )
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
