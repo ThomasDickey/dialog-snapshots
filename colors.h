@@ -149,7 +149,6 @@
 /* End of default color definitions */
 
 #define C_ATTR(x,y)                  (((x) != 0 ? A_BOLD : 0) | COLOR_PAIR((y)))
-#define COLOR_NAME_LEN               10
 #define COLOR_COUNT                  8
 
 /*
@@ -157,7 +156,7 @@
  */
 
 typedef struct {
-    char name[COLOR_NAME_LEN];
+    const char *name;
     int value;
 } color_names_st;
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.25 2001/04/24 19:10:03 Vincent.Stemen Exp $
+ *  $Id: inputbox.c,v 1.27 2001/08/09 00:20:01 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -22,8 +22,6 @@
 
 #include "dialog.h"
 
-unsigned char dialog_input_result[MAX_LEN + 1];
-
 /*
  * Display a dialog box for entering a string
  */
@@ -34,18 +32,18 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     /* -1 (input)  =>  0 (Ok)     */
     /*  0 (Ok)     =>  1 (Cancel) */
     /*  1 (Cancel) => -1 (input)  */
-    static int forward[] =
+    static const int forward[] =
     {0, 1, -1};
     /* -1 (input)  =>  1 (Cancel) */
     /*  1 (Cancel) =>  0 (Ok)     */
     /*  0 (Ok)     => -1 (input)  */
-    static int backward[] =
+    static const int backward[] =
     {1, -1, 0};
 
     int x, y, box_y, box_x, box_width;
     int show_buttons = TRUE, first = TRUE, offset = 0;
     int input_x = 0, key = 0, key2, button = -1;
-    char *input = (char *) dialog_input_result;
+    char *input = dialog_vars.input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();
@@ -120,7 +118,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	}
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return key2;
 	}
 
@@ -148,11 +146,11 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    break;
 	case ' ':
 	case '\n':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return (button > 0);
 	}
     }
 
-    (void) delwin(dialog);
+    del_window(dialog);
     return -1;			/* ESC pressed */
 }

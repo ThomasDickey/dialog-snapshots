@@ -1,19 +1,19 @@
-.\" $Id: dialog.1,v 1.26 2001/05/27 15:53:44 tom Exp $
-.TH DIALOG 1 "" "$Date: 2001/05/27 15:53:44 $"
+.\" $Id: dialog.1,v 1.31 2001/08/08 08:57:52 tom Exp $
+.TH DIALOG 1 "" "$Date: 2001/08/08 08:57:52 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
-.B dialog --clear
+\fBdialog \-\-clear\fP
 .br
-.BI "dialog --create-rc " file
+.BI "dialog \-\-create-rc " file
 .br
-.B dialog --print-maxsize
+\fBdialog \-\-print-maxsize\fP
 .br
-.B dialog
-.I common-options
-.I box-options
+\fBdialog\fP
+\fIcommon-options\fP
+\fIbox-options\fP
 .SH DESCRIPTION
-.B Dialog
+\fBDialog\fP
 is a program that will let you to present a variety of questions or
 display messages using dialog boxes from a shell script.
 These types of dialog boxes are implemented
@@ -51,17 +51,17 @@ e.g., Cancel or No.
 .\" ************************************************************************
 .SH OPTIONS
 .TP
-.B Common Options
+\fBCommon Options\fP
 .
 .IP "\fB\-\-aspect \fIratio"
 This gives you some control over the box dimensions when using auto
-sizing (specifying 0 for height and width).  It represents
-width / height.  The default is 9, which means 9 characters wide to
-every 1 line high.
+sizing (specifying 0 for height and width).
+It represents width / height.
+The default is 9, which means 9 characters wide to every 1 line high.
 .
 .IP "\fB\-\-backtitle \fIbacktitle"
 Specifies a
-.I backtitle
+\fIbacktitle\fP
 string to be displayed on the backdrop, at the top of the screen.
 .
 .IP "\fB\-\-beep"
@@ -76,7 +76,7 @@ Specify the position of the upper left corner of a dialog box on the screen.
 .
 .IP "\fB\-\-clear"
 The screen will be cleared to the
-.B screen attribute
+\fBscreen attribute\fP
 on exit.
 This may be used alone, without other options.
 .
@@ -91,7 +91,7 @@ look in the dialog.
 .
 .IP "\fB\-\-create-rc \fIfile"
 When
-.B dialog
+\fBdialog\fP
 supports run-time configuration,
 this can be used to dump a sample configuration file to the file specified
 by
@@ -103,7 +103,7 @@ The help message is printed if no options are given.
 .
 .IP "\fB\-\-defaultno"
 Make the default value of the
-.B yes/no
+\fByes/no\fP
 box a
 .BR No .
 .
@@ -118,9 +118,9 @@ screen, for the currently selected item.
 .
 .IP "\fB\-\-no-kill"
 Tells
-.B dialog
+\fBdialog\fP
 to put the
-.B tailboxbg
+\fBtailboxbg\fP
 box in the background,
 printing its process id to standard error.
 SIGHUP is disabled for the background process.
@@ -146,13 +146,15 @@ Prints \fBdialog\fR's version to standard error.
 This may be used alone, without other options.
 .
 .IP "\fB\-\-separate-output"
-For checklist widgets, output result one line at a time, with no
-quoting.  This facilitates parsing by another program.
+For checklist widgets, output result one line at a time, with no quoting.
+This facilitates parsing by another program.
 .
 .IP "\fB\-\-separate-widget \fIstring"
 Specify a string that will separate the output on standard error from
 each widget.
 This is used to simplify parsing the result of a dialog with several widgets.
+If this option is not given,
+the default separator string is a tab character.
 .
 .IP "\fB\-\-shadow"
 Draw a shadow to the right and bottom of each dialog box.
@@ -179,13 +181,13 @@ Otherwise, tabs are rendered according to the curses library's interpretation.
 .
 .IP "\fB\-\-tab-len \fIn"
 Specify the number of spaces that a tab character occupies if the
-.B "\fB\-\-tab-correct"
+\fB"\fB\-\-tab-correct"\fP
 option is given.
 The default is 8.
 .
 .IP "\fB\-\-title \fItitle"
 Specifies a
-.I title
+\fItitle\fP
 string to be displayed at the top of the dialog box.
 .
 .IP "\fB\-\-version"
@@ -193,24 +195,24 @@ Same as "\fB\-\-print-version\fP".
 .
 .\" ************************************************************************
 .TP
-.B Box Options
+\fBBox Options\fP
 .RS
 All dialog boxes have at least three parameters:
 .TP 5
-.I text
+\fItext\fP
 the caption or contents of the box.
 .TP 5
-.I height
+\fIheight\fP
 the height of the dialog box.
 .TP 5
-.I width
+\fIwidth\fP
 the width of the dialog box.
 .PP
 Other parameters depend on the box type.
 .RE
 .IP "\fB\-\-calendar \fItext height width day month year"
 A
-.B calendar
+\fBcalendar\fP
 box displays month, day and year in separately adjustable windows.
 You can increment or decrement any of those using the
 left-, up-, right- and down-arrows.
@@ -220,9 +222,9 @@ On exit, the date is printed in the form day/month/year.
 .
 .IP "\fB\-\-checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
 A
-.B checklist
+\fBchecklist\fP
 box is similar to a
-.B menu
+\fBmenu\fP
 box; there are
 multiple entries presented in the form of a menu.
 Instead of choosing
@@ -230,7 +232,7 @@ one entry among the entries, each entry can be turned on or off by the user.
 The initial on/off state of each entry is specified by
 .IR status "."
 On exit, a list of the
-.I tag
+\fItag\fP
 strings of those entries that are turned on will be printed on
 .IR stderr "."
 .
@@ -240,7 +242,7 @@ a filename (or directory), and above that two windows with directory
 names and filenames.
 .sp
 Here
-.B filepath
+\fBfilepath\fP
 can be a filepath in which case the file and directory windows
 will display the contents of the path and the text-entry window will contain
 the preselected filename.
@@ -260,11 +262,14 @@ in the text-entry window, or the "Cancel" button to cancel.
 
 .IP "\fB\-\-gauge \fItext height width [percent]\fR"
 A
-.B gauge
+\fBgauge\fP
 box displays a meter along the bottom of the box.
-The meter indicates the percentage.  New percentages are read from
-standard input, one integer per line.  The meter is updated
-to reflect each new percentage.  If stdin is XXX, then subsequent
+The meter indicates the percentage.
+New percentages are read from
+standard input, one integer per line.
+The meter is updated
+to reflect each new percentage.
+If stdin is XXX, then subsequent
 lines up to another XXX are used for a new prompt.
 The gauge exits when EOF is reached on stdin.
 .sp
@@ -272,90 +277,65 @@ The \fIpercent\fR value denotes the initial percentage shown in the meter.
 If not specified, it is zero.
 .
 .IP "\fB\-\-infobox \fItext height width"
-An
-.B info
-box is basically a
-.B message
-box.
-However, in this case,
-.B dialog
-will exit immediately after displaying the message to the user. The
-screen is not cleared when
-.B dialog
+An \fBinfo\fP box is basically a \fBmessage\fP box.
+However, in this case, \fBdialog\fP
+will exit immediately after displaying the message to the user.
+The screen is not cleared when \fBdialog\fP
 exits, so that the message will remain on the screen until the calling
-shell script clears it later. This is useful when you want to inform
+shell script clears it later.
+This is useful when you want to inform
 the user that some operations are carrying on that may require some
 time to finish.
 .
 .IP "\fB\-\-inputbox \fItext height width [init]"
 An
-.B input
+\fBinput\fP
 box is useful when you want to ask questions that
-require the user to input a string as the answer. If init is supplied
+require the user to input a string as the answer.
+If init is supplied
 it is used to initialize the input string.
 When entering the
 string, the
-.I BACKSPACE
-key can be used to correct typing errors. If the input string is longer than
-can be fitted in the dialog box, the input field will be scrolled. On exit,
-the input string will be printed on
+\fIBACKSPACE\fP
+key can be used to correct typing errors.
+If the input string is longer than
+can fit in the dialog box, the input field will be scrolled.
+On exit, the input string will be printed on
 .IR stderr "."
 .
 .IP "\fB\-\-menu \fItext height width menu-height \fR[ \fItag item \fR] \fI..."
 As its name suggests, a
-.B menu
+\fBmenu\fP
 box is a dialog box that can be used to present a list of choices in
 the form of a menu for the user to choose.
 Choices are displayed in the order given.
-Each menu entry consists of a
-.I tag
-string and an
-.I item
-string. The
-.I tag
+Each menu entry consists of a \fItag\fP string and an \fIitem\fP string.
+The \fItag\fP
 gives the entry a name to distinguish it from the other entries in the
-menu. The
-.I item
-is a short description of the option that the entry represents. The
-user can move between the menu entries by pressing the
-.I UP/DOWN
-keys, the first letter of the
-.I tag
+menu.
+The \fIitem\fP is a short description of the option that the entry represents.
+The user can move between the menu entries by pressing the
+\fIUP/DOWN\fP keys, the first letter of the \fItag\fP
 as a hot-key, or the number keys
 .IR 1-9 ". There are"
-.I menu-height
+\fImenu-height\fP
 entries displayed in the menu at one time, but the menu will be
-scrolled if there are more entries than that. When
-.B dialog
-exits, the
-.I tag
+scrolled if there are more entries than that.
+When \fBdialog\fP exits, the \fItag\fP
 of the chosen menu entry will be printed on
 .IR stderr "."
 .
 .IP "\fB\-\-msgbox \fItext height width"
-A
-.B message
-box is very similar to a
-.B yes/no
-box.
-The only difference between a
-.B message
-box and a
-.B yes/no
-box is that a
-.B message
-box has only a single
-.B OK
-button. You can use this dialog box to display any message you like.
-After reading the message, the user can press the
-.I ENTER
-key so that
-.B dialog
-will exit and the calling shell script can continue its operation.
+A \fBmessage\fP box is very similar to a \fByes/no\fP box.
+The only difference between a \fBmessage\fP box and a \fByes/no\fP
+box is that a \fBmessage\fP box has only a single \fBOK\fP button.
+You can use this dialog box to display any message you like.
+After reading the message, the user can press the \fIENTER\fP key so that
+\fBdialog\fP will exit and the calling shell script can continue its operation.
 .
 .IP "\fB\-\-passwordbox \fItext height width [init]"
 A
-.B password
+\fBpassword\fP
 box is similar to an input box, except that the text the user
 enters is not displayed.
 This is useful when prompting for passwords or other
@@ -369,33 +349,52 @@ For these reasons, using "init" is highly discouraged.
 .
 .IP "\fB\-\-radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
 A
-.B radiolist
+\fBradiolist\fP
 box is similar to a
-.B menu
-box.  The only difference is
+\fBmenu\fP
+box.
+The only difference is
 that you can indicate which entry is currently selected, by setting its
 .IR status " to " on "."
 .
 .IP "\fB\-\-tailbox file height width"
 Display text from a file in a dialog box, as in a "tail -f" command.
 .
+.IP "\fB\-\-tailboxbg file height width"
+Display text from a file in a dialog box as a background task,
+as in a "tail -f &" command.
+.IP
+Dialog treats the background task specially if there are other
+widgets (\fB\-\-and-widget\fP) on the screen concurrently.
+Until those widgets are closed (e.g., an "OK"),
+dialog will perform all of the tailboxbg widgets in the same process,
+polling for updates.
+You may use a tab to traverse between the widgets on the screen,
+and close them individually, e.g., by pressing \fIENTER\fP.
+Once the non-tailboxbg widgets are closed, dialog forks a copy of itself
+into the background, and prints its process id if the \fB\-\-no-kill\fP option
+is given.
+.IP
+NOTE:
+Older versions of dialog forked immediately and attempted to
+update the screen individually.
+Besides being bad for performance,
+it was unworkable.
+Some older scripts may not work properly with the polled scheme.
+.
 .IP "\fB\-\-textbox file height width"
 A
-.B text
+\fBtext\fP
 box lets you display the contents of a text file in a dialog box.
 It is like a simple text file viewer.
 The user can move through the file by using the
 .IR UP/DOWN ", " PGUP/PGDN
 .RI and " HOME/END" " keys available on most keyboards."
 If the lines are too long to be displayed in the box, the
-.I LEFT/RIGHT
+\fILEFT/RIGHT\fP
 keys can be used to scroll the text region horizontally.
 For more convenience,
 forward and backward searching functions are also provided.
-.
-.IP "\fB\-\-textboxbg file height width"
-Display text from a file in a dialog box in a background process,
-as in a "tail -f &" command.
 .
 .IP "\fB\-\-timebox \fItext height [width hour minute second]"
 A dialog is displayed which allows you to select hour, minute and
@@ -406,31 +405,28 @@ Use tab or backtab to move between windows.
 On exit, the result is printed in the form hour:minute:second.
 .
 .IP "\fB\-\-yesno \fItext height width"
-A
-.B yes/no
-dialog box of size
-.I height
-rows by
-.I width
-columns will be displayed. The string specified by
-.I text
+A \fByes/no\fP dialog box of
+size \fIheight\fP rows by \fIwidth\fP columns will be displayed.
+The string specified by
+\fItext\fP
 is displayed inside the dialog box.
-If this string is too long to be fitted
+If this string is too long to fit
 in one line, it will be automatically divided into multiple lines at
-appropriate places. The
-.I text
+appropriate places.
+The
+\fItext\fP
 string can also contain the sub-string
 .I
 "\en"
 or newline characters
-.I `\en\'
+\fI`\en\'\fP
 to control line breaking explicitly.
 This dialog box is useful for
 asking questions that require the user to answer either yes or no.
 The dialog box has a
-.B Yes
+\fBYes\fP
 button and a
-.B No
+\fBNo\fP
 button, in which the user can switch between by pressing the
 .IR TAB " key."
 .
@@ -441,22 +437,22 @@ button, in which the user can switch between by pressing the
 Create a sample configuration file by typing:
 .LP
 .in +1i
-"dialog --create-rc <file>"
+"dialog \-\-create-rc <file>"
 .TP 4
 2.
 At start,
-.B dialog
+\fBdialog\fP
 determines the settings to use as follows:
 .RS
 .TP 4
 a)
 if environment variable
-.B DIALOGRC
+\fBDIALOGRC\fP
 is set, its value determines the name of the configuration file.
 .TP 4
 b)
 if the file in (a) is not found, use the file
-.I $HOME/.dialogrc
+\fI$HOME/.dialogrc\fP
 as the configuration file.
 .TP 4
 c)
@@ -465,18 +461,18 @@ if the file in (b) is not found, use compiled in defaults.
 .TP 4
 3.
 Edit the sample configuration file and copy it to some place that
-.B dialog
+\fBdialog\fP
 can find, as stated in step 2 above.
 .
 .\" ************************************************************************
 .SH ENVIRONMENT
 .TP 15
-.B DIALOGRC
+\fBDIALOGRC\fP
 Define this variable if you want to specify the name of the configuration file
 to use.
 .SH FILES
 .TP 20
-.I $HOME/.dialogrc
+\fI$HOME/.dialogrc\fP
 default configuration file
 .SH DIAGNOSTICS
 Exit status is
@@ -492,13 +488,8 @@ if the
 button is pressed.
 .TP 5
 -1
-if errors occur inside
-.B dialog
-or
-.B dialog
-is exited by pressing the
-.I ESC
-key.
+if errors occur inside \fBdialog\fP
+or \fBdialog\fP is exited by pressing the \fIESC\fP key.
 .
 .\" ************************************************************************
 .SH BUGS

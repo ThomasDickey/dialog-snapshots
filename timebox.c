@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.5 2001/04/24 19:19:46 tom Exp $
+ * $Id: timebox.c,v 1.9 2001/08/11 18:41:21 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -31,11 +31,11 @@
 #define MIN_WIDE ((3 * (ONE_WIDE + 2 * MARGIN)) + 2 + (2 * MARGIN))
 
 typedef enum {
-    sHR = -3,
-    sMN = -2,
-    sSC = -1,
-    sOK = 0,
-    sCANCEL = 1,
+    sHR = -3
+    ,sMN = -2
+    ,sSC = -1
+    ,sOK = 0
+    ,sCANCEL = 1
 } STATES;
 
 struct _box;
@@ -111,7 +111,7 @@ init_object(BOX * data,
     data->width = width;
     data->height = height;
     data->period = period;
-    data->value  = value % period;
+    data->value = value % period;
 
     data->window = derwin(data->parent,
 			  data->height, data->width,
@@ -167,12 +167,12 @@ prev_object(STATES now)
  */
 int
 dialog_timebox(const char *title,
-		const char *subtitle,
-		int height,
-		int width,
-		int hour,
-		int minute,
-		int second)
+	       const char *subtitle,
+	       int height,
+	       int width,
+	       int hour,
+	       int minute,
+	       int second)
 {
     BOX hr_box, mn_box, sc_box;
     int key = 0, key2, button = sOK;
@@ -267,10 +267,10 @@ dialog_timebox(const char *title,
 	} else {
 	    switch (key) {
 	    case M_EVENT + 0:
-		result = EXIT_OK;
+		result = DLG_EXIT_OK;
 		break;
 	    case M_EVENT + 1:
-		result = EXIT_CANCEL;
+		result = DLG_EXIT_CANCEL;
 		break;
 	    case M_EVENT + 'H':
 		state = sHR;
@@ -310,8 +310,8 @@ dialog_timebox(const char *title,
 	}
     }
 
-    (void) delwin(dialog);
-    sprintf((char *) dialog_input_result, "%02d:%02d:%02d\n",
+    del_window(dialog);
+    sprintf(dialog_vars.input_result, "%02d:%02d:%02d\n",
 	    hr_box.value, mn_box.value, sc_box.value);
     mouse_free_regions();
     return result;

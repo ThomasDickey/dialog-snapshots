@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.4 2000/10/28 01:04:54 tom Exp $
+ * $Id: inputstr.c,v 1.5 2001/07/27 22:15:35 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -90,7 +90,7 @@ dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
     if (hidden) {
 	if (force) {
 	    (void) wmove(win, y_base, x_base);
-	    wrefresh_lock(win);
+	    wrefresh(win);
 	}
     } else {
 	int i, input_x;
@@ -109,6 +109,6 @@ dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
 			  ? CharOf(string[scrollamt + i])
 			  : ' ');
 	(void) wmove(win, y_base, x_base + input_x);
-	wrefresh_lock(win);
+	wrefresh(win);
     }
 }

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.17 2001/04/15 21:21:02 tom Exp $
+dnl $Id: configure.in,v 1.19 2001/08/11 12:38:58 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -117,7 +117,7 @@ dnl Checks for header files.
 dnl
 AC_HEADER_STDC
 AC_HEADER_DIRENT
-AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(unistd.h ncurses/term.h)
 
 dnl
 dnl Checks for library functions.
@@ -125,10 +125,12 @@ dnl
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(\
 strcasecmp \
+waitpid \
 )
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
 CF_CURSES_CHTYPE
+CF_FUNC_WAIT
 
 AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
 

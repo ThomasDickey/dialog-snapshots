@@ -3,6 +3,35 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/08/11
+	+ porting fixes to work on AIX: flush output to work around bug in
+	  curses library, use ./killall in scripts to avoid conflict with
+	  AIX program by that name.
+	+ modify dlg_trim_string() to retain literal newlines if the string
+	  does not contain "\\n" strings, and to retain leading blanks on the
+	  resulting lines, for compatibility with older scripts (Debian
+	  #102942).
+	+ add charset specification to cs.po
+	+ change dates in CHANGES to consistent format, add el.po for Greek
+	  (patch by kromJx <kromJx@crosswinds.net>).
+	+ eliminate static globals (bss, data) from modules rc, tailbox,
+	  textbox using better parameter-passing convention, and const.
+	+ cleanup temporary files in a few of the sample scripts.
+	+ rewrote tailboxbg using select() rather than fork(), thereby
+	  eliminating lock-files.  Only one process should be trying to display
+	  on the screen at any given time.
+	+ add error check to ensure that numeric parameters are really numbers.
+	+ correct off-by-one in error messages reporting too-few or too-many
+	  tokens for a given option (reported by George Mirchev).
+	+ fix typo in manpage, "textboxbg" where "tailboxbg" was meant
+	  (reported by George Mirchev <la@mail.techno-link.com>).
+	+ use DLG_EXIT_xxx symbols consistently for all exit codes.
+	+ updated es.po (patch by Santiago Vila).
+	+ updates for some configure script macros from lynx:  CF_MAKEFLAGS,
+	  CF_NCURSES_VERSION, CF_PROG_EXT.
+	+ fixes to compile if <term.h> is included, e.g., when building with
+	  AIX curses (report by Suzi Dowson <Suzi.Dowson@capgemini.co.uk>).
+
 2001/05/27
 	+ updated dialog.pot
 	+ modify fselect.c to work with autosize, i.e., given height and width
@@ -158,7 +187,7 @@ to it:
 	+ use combination of isatty/ttyname to look for workable tty device
 	  on systems which have no /dev/tty, e.g., BeOS.
 
-2000/10/8
+2000/10/08
 	+ change exiterr() to use stdarg.h, make some messages easier to
 	  understand.
 	+ add dialog_clear()
@@ -180,7 +209,7 @@ to it:
 	+ change TAG_KEY_HL to FALSE, making unselected items in checkbox
 	  easier to read on Linux console.
 
-2000/7/30
+2000/07/30
 	+ change real_auto_size() to allow it to be used for dialogs that have
 	  no prompt, e.g., fselect.  Also, rather than requiring both height
 	  and width to be given as -1 for maximizing the dialog, allow either
@@ -193,14 +222,14 @@ to it:
 	+ use new configure macro CF_ARG_MSG_ENABLE to show progress with
 	  enable/disable switches.
 
-2000/7/2
+2000/07/02
 	+ implement --stdout and --stderr options as in Xdialog.
 	+ move logic that translates "\\n" into '\n' into main program to
 	  simplify logic that formats text.
 	+ make ifdef's for rc-file not specific to ncurses.
 	+ correct logic making percent parameter of gauge optional.
 
-2000/6/29
+2000/06/29
 	+ add alternate test-script for gauge, adapted from Xdialog.
 	+ modify guage to make optional a percentage which was read at the
 	  beginning of the XXX-delimited message text, since clones of dialog
@@ -218,13 +247,13 @@ to it:
 	  brackets/parenthesis) and CF_XOPEN_CURSES (make include of
 	  <*curses.h> depend on configure tests).
 
-2000/4/25
+2000/04/25
 	+ repaint screen when a control/L is pressed.
 	+ apply CharOf() macro to avoid sign-extension on calls to waddch(),
 	  fixes a problem with accented characters (reported by Santiago Vila).
 	+ add es.po, from Santiago Vila <sanvila@unex.es>
 
-2000/4/23
+2000/04/23
 	+ modified to use gettext (configure option --enable-nls).  This uses
 	  gettext 0.10.35, which must be previously installed.  (It can also
 	  use an included intl library, but I consider that to be a waste of
@@ -238,7 +267,7 @@ to it:
 	  CF_HEADER_PATH, CF_LIBRARY_PATH and CF_NCURSES_LIBS, as well as
 	  mkdirs.sh and config.guess.
 
-2000/2/22
+2000/02/22
 	+ add --default-item option, for menubox to set the default selection
 	  (fixes Debian #49796).
 	+ add sample scripts for --nocancel and --fb options with inputbox.
@@ -259,7 +288,7 @@ to it:
 	+ on initialization, check if standard input is from a terminal.  If
 	  not, open /dev/tty (fixes Debian #57771)
 
-2000/2/5
+2000/02/05
 	+ implement inline editing in textbox.c search dialog.
 	+ revise inputbox.c, allowing inline editing with arrow-keys.  removed
 	  redundant logic in that module.
@@ -267,7 +296,7 @@ to it:
 	+ correct ifdef's to compile/run if the curses implementation does not
 	  support color.
 
-2000/1/23
+2000/01/23
 	+ improve test-case for gauge.
 	+ change gauge.c to show progress in reverse-video, add a check for
 	  end-of-file in the loop for reading new messages.
@@ -283,7 +312,7 @@ to it:
 	  a builtin function on the m68k port (reported by Roman Hodek
 	  <Roman.Hodek@informatik.uni-erlangen.de>, this fixes Debian #55553).
 
-2000/1/18
+2000/01/18
 	+ update manpage (Debian #25648).
 	+ modify configure test for math library to avoid using a constant
 	  parameter to the test function, lest gcc optimize the call away
@@ -303,7 +332,7 @@ to it:
 	+ eliminate several places where repeated options are treated as
 	  an error, since they are really executed once anyway.
 
-2000/1/15
+2000/01/15
 	+ remove pre-autoconf Makefile
 	+ remove sleep's from a few of the sample scripts, which left users
 	  thinking that dialog was slow to complete an action.
@@ -326,15 +355,15 @@ to it:
 	+ merge changes from Debian package maintainer
 	  Santiago Vila <sanvila@ctv.es>:
 
-	  1999/10/7
+	  1999/10/07
 		+ add a password dialog box.
 		+ implement "--defaultno" option to specify if the default for
 		  the yes/no box is "No".
-	  1999/3/10
+	  1999/03/10
 		+ modify input.c to clear the input field to the right of the
 		  given string (unclear:  this seems redundant, since the
 		  dialog is drawn in a new window).
-	  1998/12/8
+	  1998/12/08
 		+ check for list_height less than one in checklist.c
 	  1998/10/21
 		+ use function wscrl() in preference to scroll() in checklist.c
@@ -343,7 +372,7 @@ to it:
 		+ remove the "-I/usr/include/ncurses" option from Makefile
 		  since Debian does not install ncurses' header files into
 		  that directory.
-	  1998/9/12
+	  1998/09/12
 		+ simplify menubox.c using new functions print_arrows() and
 		  print_items().
 		+ add logic to handle KEY_NPAGE and KEY_PPAGE.
@@ -357,8 +386,7 @@ to it:
 1999/11/27
 	+ fix some gcc warnings about ambiguous use of "else"
 
-1999/5/1
-
+1999/05/01
 	+ cleaned up some of the redundant code with new functions:
 		box_x_ordinate
 		box_y_ordinate
@@ -374,7 +402,7 @@ to it:
 The relevant portions of the Debian change log for the original version
 (dialog-0.9a-12) are abstracted here, omitting details of their packaging:
 
-1998/5/24
+1998/05/24
 
 	+ Replaced guage.c by the one in dialog 0.6z, which is known to work.
 	  Fixes Bug #18284: unstable dialog.

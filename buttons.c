@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.20 2001/04/28 23:31:46 tom Exp $
+ *  $Id: buttons.c,v 1.22 2001/07/30 23:29:31 tom Exp $
  *
  *  buttons.c
  *
@@ -212,7 +212,7 @@ dlg_draw_buttons(WINDOW *win,
 	}
     }
     (void) wmove(win, final_y, final_x);
-    wrefresh_lock(win);
+    wrefresh(win);
     free(buffer);
 }
 
@@ -224,7 +224,7 @@ dlg_draw_buttons(WINDOW *win,
 int
 dlg_char_to_button(int ch, const char **labels)
 {
-    if (ch > 0 && ch < 256) {
+    if (ch > 0 && ch < 256 && labels != 0) {
 	int n = 0;
 	const char *label;
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.29 2001/04/29 15:00:11 tom Exp $
+ *  $Id: menubox.c,v 1.31 2001/07/31 18:04:55 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -116,7 +116,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     /* create new window for the menu */
     menu = sub_window(dialog, menu_height, menu_width, y + box_y + 1,
 		      x + box_x + 1);
-    (void) keypad(menu, TRUE);
 
     /* draw a box around the menu items */
     draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
@@ -323,7 +322,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 			       choice, TRUE);
 		    (void) wnoutrefresh(menu);
 		    (void) wmove(dialog, cur_y, cur_x);
-		    wrefresh_lock(dialog);
+		    wrefresh(dialog);
 		}
 	    }
 	    continue;		/* wait for another key press */
@@ -331,10 +330,10 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
 	switch (key) {
 	case M_EVENT + 'O':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return scrollamt + choice;
 	case M_EVENT + 'C':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return -2;
 	case M_EVENT + 'o':	/* mouse enter... */
 	case M_EVENT + 'c':	/* use the code for toggling */
@@ -350,11 +349,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case '\n':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return (button ? -2 : (scrollamt + choice));
 	}
     }
 
-    (void) delwin(dialog);
+    del_window(dialog);
     return -1;			/* ESC pressed */
 }

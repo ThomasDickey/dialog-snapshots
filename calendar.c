@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.11 2001/05/26 15:22:08 Martin.Povolny Exp $
+ * $Id: calendar.c,v 1.17 2001/08/11 18:45:07 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -35,11 +35,11 @@
 #define MIN_WIDE (DAY_WIDE + (4 * MARGIN))
 
 typedef enum {
-    sDAY = -3,
-    sMONTH = -2,
-    sYEAR = -1,
-    sOK = 0,
-    sCANCEL = 1,
+    sDAY = -3
+    ,sMONTH = -2
+    ,sYEAR = -1
+    ,sOK = 0
+    ,sCANCEL = 1
 } STATES;
 
 struct _box;
@@ -59,7 +59,7 @@ typedef struct _box {
 static int
 days_in_month(struct tm *current, int offset /* -1, 0, 1 */ )
 {
-    static int nominal[] =
+    static const int nominal[] =
     {
 	31, 28, 31, 30, 31, 30,
 	31, 31, 30, 31, 30, 31
@@ -139,7 +139,7 @@ draw_day(BOX * data, struct tm *current)
 	nl_langinfo(ABDAY_7)
     };
 #else
-    static const char *of_week[] =
+    static const char *const of_week[] =
     {
 	"Sunday",
 	"Monday",
@@ -237,7 +237,7 @@ draw_month(BOX * data, struct tm *current)
 	nl_langinfo(MON_12)
     };
 #else
-    static const char *months[] =
+    static const char *const months[] =
     {
 	"January",
 	"February",
@@ -473,10 +473,10 @@ dialog_calendar(const char *title,
 	} else {
 	    switch (key) {
 	    case M_EVENT + 0:
-		result = EXIT_OK;
+		result = DLG_EXIT_OK;
 		break;
 	    case M_EVENT + 1:
-		result = EXIT_CANCEL;
+		result = DLG_EXIT_CANCEL;
 		break;
 	    case M_EVENT + 'D':
 		state = sDAY;
@@ -542,8 +542,8 @@ dialog_calendar(const char *title,
 	}
     }
 
-    (void) delwin(dialog);
-    sprintf((char *) dialog_input_result, "%02d/%02d/%0d\n",
+    del_window(dialog);
+    sprintf(dialog_vars.input_result, "%02d/%02d/%0d\n",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
     mouse_free_regions();
     return result;

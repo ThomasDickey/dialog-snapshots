@@ -1,5 +1,5 @@
 /*
- * $Id: mousewget.c,v 1.6 2000/10/28 01:06:33 tom Exp $
+ * $Id: mousewget.c,v 1.7 2001/07/27 21:39:34 tom Exp $
  *
  * mousewget.c - mouse_wgetch support for cdialog 0.9a+
  *
@@ -41,9 +41,6 @@ mouse_wgetch(WINDOW *win)
     do {
 
 	key = dlg_getc(win);
-
-	if (key == ERR)
-	    ctl_idlemsg(win);
 	if (key == KEY_MOUSE) {
 	    MEVENT event;
 	    mseRegion *p;
@@ -87,7 +84,6 @@ mouse_wgetch(WINDOW *win)
 	    gpm_timeout.tv_usec = WTIMEOUT_VAL * 10000;
 	    gpm_timeout.tv_sec = 0;
 	    flag = select(5, &selSet, (fd_set *) 0, (fd_set *) 0, &gpm_timeout);
-	    ctl_idlemsg(win);
 	    /* fprintf(stderr, "X"); */
 	} while (!flag);
 
@@ -110,12 +106,7 @@ mouse_wgetch(WINDOW *win)
        a "wtimeout(dialog, WTIMEOUT_VAL);" */
 
     do {
-
 	key = dlg_getc(win);
-
-	if (key == ERR)
-	    ctl_idlemsg(win);
-
     } while (key == ERR);
 
 #endif

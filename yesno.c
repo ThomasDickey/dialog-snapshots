@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.21 2001/04/24 19:10:03 Vincent.Stemen Exp $
+ *  $Id: yesno.c,v 1.22 2001/07/31 18:04:32 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -72,7 +72,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     while (key != ESC) {
 	key = mouse_wgetch(dialog);
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return key2;
 	}
 	switch (key) {
@@ -91,7 +91,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    /* FALLTHRU */
 	case ' ':
 	case '\n':
-	    (void) delwin(dialog);
+	    del_window(dialog);
 	    return button;
 	case ESC:
 	    break;
@@ -105,6 +105,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	}
     }
 
-    (void) delwin(dialog);
+    del_window(dialog);
     return -1;			/* ESC pressed */
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.37 2001/04/29 16:48:23 tom Exp $
+ *  $Id: checklist.c,v 1.40 2001/07/31 18:05:11 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -81,7 +81,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     int i, j, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
     int use_width, name_width, text_width;
-    int done = FALSE, result = EXIT_OK;
+    int done = FALSE, result = DLG_EXIT_OK;
     WINDOW *dialog, *list;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();
@@ -132,7 +132,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     /* create new window for the list */
     list = sub_window(dialog, list_height, list_width,
 		      y + box_y + 1, x + box_x + 1);
-    (void) keypad(list, TRUE);
 
     /* draw a box around the list items */
     draw_box(dialog, box_y, box_x,
@@ -215,7 +214,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    }
 	    (void) wnoutrefresh(list);
 	    (void) wmove(dialog, cur_y, cur_x);
-	    wrefresh_lock(dialog);
+	    wrefresh(dialog);
 	    continue;		/* wait for another key press */
 	}
 
@@ -368,7 +367,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			       status[scrollamt + choice], choice, TRUE);
 		    (void) wnoutrefresh(list);
 		    (void) wmove(dialog, cur_y, cur_x);
-		    wrefresh_lock(dialog);
+		    wrefresh(dialog);
 		}
 	    }
 	    continue;		/* wait for another key press */
@@ -380,10 +379,10 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    break;
 	case '\n':
 	    done = TRUE;
-	    result = button ? EXIT_CANCEL : EXIT_OK;
+	    result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
 	    break;
 	case M_EVENT + 1:
-	    result = EXIT_CANCEL;
+	    result = DLG_EXIT_CANCEL;
 	    done = TRUE;
 	    break;
 	case TAB:
@@ -394,14 +393,14 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case ESC:
-	    result = EXIT_ESC;
+	    result = DLG_EXIT_ESC;
 	    done = TRUE;
 	    break;
 	}
     }
 
-    (void) delwin(dialog);
-    if (result == EXIT_OK) {
+    del_window(dialog);
+    if (result == DLG_EXIT_OK) {
 	for (i = 0; i < item_no; i++) {
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {

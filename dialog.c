@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.59 2001/05/27 15:50:44 tom Exp $
+ * $Id: dialog.c,v 1.66 2001/08/11 17:40:46 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -103,9 +103,9 @@ typedef struct {
 } Mode;
 
 static const char *program = "dialog";
-static const char *and_widget = "--and-widget";
+static const char *const and_widget = "--and-widget";
 /* *INDENT-OFF* */
-static Options options[] = {
+static const Options options[] = {
     { "allow-close",	o_allow_close,		1, NULL },
     { "and-widget",	o_and_widget,		4, NULL },
     { "aspect",		o_aspect,		1, "<ratio>" },
@@ -243,6 +243,20 @@ howmany_tags(char *argv[], int group)
     return result;
 }
 
+static int
+numeric_arg(char **av, int n)
+{
+    char *last = 0;
+    int result = strtol(av[n], &last, 10);
+    char msg[80];
+
+    if (last == 0 || *last != 0) {
+	sprintf(msg, "Expected a number for token %d of %.20s", n, av[0]);
+	Usage(msg);
+    }
+    return result;
+}
+
 static char *
 optional_str(char **av, int n, char *dft)
 {
@@ -257,7 +271,22 @@ optional_num(char **av, int n, int dft)
 {
     int ret = dft;
     if (arg_rest(av) > n)
-	ret = atoi(av[n]);
+	ret = numeric_arg(av, n);
+    return ret;
+}
+
+/*
+ * On AIX 4.x, we have to flush the output right away since there is a bug in
+ * the curses package which discards stdout even though we've used newterm
+ * to redirect output to /dev/tty.
+ */
+static int
+show_result(int ret)
+{
+    if (ret == 0) {
+	fprintf(dialog_vars.output, "%s", dialog_vars.input_result);
+	fflush(dialog_vars.output);
+    }
     return ret;
 }
 
@@ -271,8 +300,8 @@ j_yesno(JUMPARGS)
     *offset_add = 4;
     return dialog_yesno(t,
 			av[1],
-			atoi(av[2]),
-			atoi(av[3]), defaultno);
+			numeric_arg(av, 2),
+			numeric_arg(av, 3), defaultno);
 }
 
 static int
@@ -281,8 +310,8 @@ j_msgbox(JUMPARGS)
     *offset_add = 4;
     return dialog_msgbox(t,
 			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]), 1);
+			 numeric_arg(av, 2),
+			 numeric_arg(av, 3), 1);
 }
 
 static int
@@ -291,8 +320,8 @@ j_infobox(JUMPARGS)
     *offset_add = 4;
     return dialog_msgbox(t,
 			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]), 0);
+			 numeric_arg(av, 2),
+			 numeric_arg(av, 3), 0);
 }
 
 static int
@@ -301,8 +330,8 @@ j_textbox(JUMPARGS)
     *offset_add = 4;
     return dialog_textbox(t,
 			  av[1],
-			  atoi(av[2]),
-			  atoi(av[3]));
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3));
 }
 
 static int
@@ -313,9 +342,9 @@ j_menu(JUMPARGS)
     *offset_add = 5 + tags * MENUBOX_TAGS;
     ret = dialog_menu(t,
 		      av[1],
-		      atoi(av[2]),
-		      atoi(av[3]),
-		      atoi(av[4]),
+		      numeric_arg(av, 2),
+		      numeric_arg(av, 3),
+		      numeric_arg(av, 4),
 		      tags, av + 5);
     if (ret >= 0) {
 	fprintf(dialog_vars.output, av[5 + ret * MENUBOX_TAGS]);
@@ -332,9 +361,9 @@ j_checklist(JUMPARGS)
     *offset_add = 5 + tags * CHECKBOX_TAGS;
     return dialog_checklist(t,
 			    av[1],
-			    atoi(av[2]),
-			    atoi(av[3]),
-			    atoi(av[4]),
+			    numeric_arg(av, 2),
+			    numeric_arg(av, 3),
+			    numeric_arg(av, 4),
 			    tags, av + 5, FLAG_CHECK, dialog_vars.separate_output);
 }
 
@@ -345,94 +374,69 @@ j_radiolist(JUMPARGS)
     *offset_add = 5 + tags * CHECKBOX_TAGS;
     return dialog_checklist(t,
 			    av[1],
-			    atoi(av[2]),
-			    atoi(av[3]),
-			    atoi(av[4]),
+			    numeric_arg(av, 2),
+			    numeric_arg(av, 3),
+			    numeric_arg(av, 4),
 			    tags, av + 5, FLAG_RADIO, dialog_vars.separate_output);
 }
 
 static int
 j_inputbox(JUMPARGS)
 {
-    int ret;
-
     *offset_add = arg_rest(av);
-    ret = dialog_inputbox(t,
-			  av[1],
-			  atoi(av[2]),
-			  atoi(av[3]),
-			  optional_str(av, 4, 0), 0);
-    if (ret == 0)
-	fprintf(dialog_vars.output, "%s", dialog_input_result);
-    return ret;
+    return show_result(dialog_inputbox(t,
+				       av[1],
+				       numeric_arg(av, 2),
+				       numeric_arg(av, 3),
+				       optional_str(av, 4, 0), 0));
 }
 
 static int
 j_passwordbox(JUMPARGS)
 {
-    int ret;
-
     *offset_add = arg_rest(av);
-    ret = dialog_inputbox(t,
-			  av[1],
-			  atoi(av[2]),
-			  atoi(av[3]),
-			  optional_str(av, 4, 0), 1);
-    if (ret == 0)
-	fprintf(dialog_vars.output, "%s", dialog_input_result);
-    return ret;
+    return show_result(dialog_inputbox(t,
+				       av[1],
+				       numeric_arg(av, 2),
+				       numeric_arg(av, 3),
+				       optional_str(av, 4, 0), 1));
 }
 
 #ifdef HAVE_XDIALOG
 static int
 j_calendar(JUMPARGS)
 {
-    int ret;
-
     *offset_add = arg_rest(av);
-    ret = dialog_calendar(t,
-			  av[1],
-			  atoi(av[2]),
-			  atoi(av[3]),
-			  atoi(av[4]),
-			  atoi(av[5]),
-			  atoi(av[6]));
-    if (ret == 0)
-	fprintf(dialog_vars.output, "%s", dialog_input_result);
-    return ret;
+    return show_result(dialog_calendar(t,
+				       av[1],
+				       numeric_arg(av, 2),
+				       numeric_arg(av, 3),
+				       numeric_arg(av, 4),
+				       numeric_arg(av, 5),
+				       numeric_arg(av, 6)));
 }
 
 static int
 j_fselect(JUMPARGS)
 {
-    int ret;
-
     *offset_add = arg_rest(av);
-    ret = dialog_fselect(t,
-			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]));
-    if (ret == 0)
-	fprintf(dialog_vars.output, "%s", dialog_input_result);
-    return ret;
+    return show_result(dialog_fselect(t,
+				      av[1],
+				      numeric_arg(av, 2),
+				      numeric_arg(av, 3)));
 }
 
 static int
 j_timebox(JUMPARGS)
 {
-    int ret;
-
     *offset_add = arg_rest(av);
-    ret = dialog_timebox(t,
-			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]),
-			 optional_num(av, 4, -1),
-			 optional_num(av, 5, -1),
-			 optional_num(av, 6, -1));
-    if (ret == 0)
-	fprintf(dialog_vars.output, "%s", dialog_input_result);
-    return ret;
+    return show_result(dialog_timebox(t,
+				      av[1],
+				      numeric_arg(av, 2),
+				      numeric_arg(av, 3),
+				      optional_num(av, 4, -1),
+				      optional_num(av, 5, -1),
+				      optional_num(av, 6, -1)));
 }
 #endif
 
@@ -443,8 +447,8 @@ j_gauge(JUMPARGS)
     *offset_add = arg_rest(av);
     return dialog_gauge(t,
 			av[1],
-			atoi(av[2]),
-			atoi(av[3]),
+			numeric_arg(av, 2),
+			numeric_arg(av, 3),
 			optional_num(av, 4, 0));
 }
 #endif
@@ -456,60 +460,24 @@ j_tailbox(JUMPARGS)
     *offset_add = 4;
     return dialog_tailbox(t,
 			  av[1],
-			  atoi(av[2]),
-			  atoi(av[3]));
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3),
+			  FALSE);
 }
 
 static int
 j_tailboxbg(JUMPARGS)
 {
-    if (tailbg_lastpid + 1 >= MAX_TAILBG) {
-	char temp[80];
-	sprintf(temp, "lastpid value %d is greater than %d",
-		(int) tailbg_lastpid, MAX_TAILBG);
-	Usage(temp);
-    }
-
     *offset_add = 4;
-
-    /*
-     * Try to avoid having stdout from the parent process's initialization of
-     * curses mess up the display from a backgrounded process.
-     */
-    if (dialog_vars.cant_kill) {
-	(void) refresh();
-	(void) fflush(stdout);
-    }
-
-    tailbg_pids[tailbg_lastpid] = fork();
-    if (dialog_vars.cant_kill)
-	tailbg_nokill_pids[tailbg_nokill_lastpid] =
-	    tailbg_pids[tailbg_lastpid];
-
-    /* warning! here are 2 processes */
-
-    if (tailbg_pids[tailbg_lastpid] == 0) {
-	if (dialog_vars.cant_kill)
-	    fprintf(dialog_vars.output, "%d", (int) getpid());
-	is_tailbg = TRUE;
-	dialog_tailboxbg(t,
-			 av[1],
-			 atoi(av[2]),
-			 atoi(av[3]),
-			 dialog_vars.cant_kill);
-
-	(void) refresh();	/* quitting for SIGHUP and --no-kill */
-	end_dialog();
-	exit(0);
-    }
-    if (dialog_vars.cant_kill)
-	tailbg_nokill_lastpid++;
-    tailbg_lastpid++;
-    return 0;
+    return dialog_tailbox(t,
+			  av[1],
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3),
+			  TRUE);
 }
 #endif
 /* *INDENT-OFF* */
-static Mode modes[] =
+static const Mode modes[] =
 {
     {o_yesno, 4, 4, j_yesno},
     {o_msgbox, 4, 4, j_msgbox},
@@ -576,7 +544,7 @@ optionValue(char **argv, int *num)
  * Print parts of a message
  */
 static void
-PrintList(const char **list)
+PrintList(const char *const *list)
 {
     const char *leaf = strrchr(program, '/');
     unsigned n = 0;
@@ -594,11 +562,12 @@ PrintList(const char **list)
     }
 }
 
-static Mode *
+static const Mode *
 lookupMode(eOptions code)
 {
-    Mode *modePtr = 0;
+    const Mode *modePtr = 0;
     unsigned n;
+
     for (n = 0; n < sizeof(modes) / sizeof(modes[0]); n++) {
 	if (modes[n].code == code) {
 	    modePtr = &modes[n];
@@ -614,7 +583,7 @@ lookupMode(eOptions code)
 static void
 Help(void)
 {
-    static const char *tbl_1[] =
+    static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
 	"",
@@ -628,7 +597,7 @@ Help(void)
 	"  [--create-rc \"Ifile\"]",
 #endif
 	0
-    }, *tbl_3[] =
+    }, *const tbl_3[] =
     {
 	"",
 	"Auto-size with height and width = 0. Maximize with height and width = -1.",
@@ -662,7 +631,7 @@ Help(void)
     }
     PrintList(tbl_3);
 
-    exit(EXIT_SUCCESS);
+    exit(DLG_EXIT_OK);
 }
 
 int
@@ -671,14 +640,14 @@ main(int argc, char *argv[])
     FILE *output = stderr;
     char temp[80];
     const char *separate_str = DEFAULT_SEPARATE_STR;
-    int esc_pressed = 0;
+    bool esc_pressed = FALSE;
     int offset = 1;
     int offset_add;
-    int retval = 0;
+    int retval = DLG_EXIT_OK;
     int done;
     int j;
     eOptions code;
-    Mode *modePtr;
+    const Mode *modePtr;
 #ifndef HAVE_COLOR
     int use_shadow = FALSE;	/* ignore corresponding option */
 #endif
@@ -730,11 +699,6 @@ main(int argc, char *argv[])
 	return 0;
     }
 #endif
-    if ((make_lock_filename(&lock_refresh, "file")) < 0 ||
-	(make_lock_filename(&lock_tailbg_refreshed, "tail")) < 0 ||
-	(make_lock_filename(&lock_tailbg_exit, "exit")) < 0)
-	exiterr("Internal error: can't make lock files.");
-
     while (offset < argc && !esc_pressed) {
 	memset(&dialog_vars, 0, sizeof(dialog_vars));
 	dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
@@ -823,12 +787,12 @@ main(int argc, char *argv[])
 		break;
 	    case o_clear:
 		if (argc == 2) {	/* we only want to clear the screen */
-		    killall_bg();
+		    killall_bg(&retval);
 		    (void) refresh();
 		    end_dialog();
 		    return 0;
 		}
-		dialog_vars.clear_screen = TRUE;
+		dialog_vars.dlg_clear_screen = TRUE;
 		break;
 	    case o_noitem:
 	    case o_fullbutton:
@@ -877,21 +841,23 @@ main(int argc, char *argv[])
 
 	if (arg_rest(&argv[offset]) < modePtr->argmin) {
 	    sprintf(temp, "Expected at least %d tokens for %.20s, have %d",
-		    modePtr->argmin, argv[offset], arg_rest(&argv[offset]));
+		    modePtr->argmin - 1, argv[offset],
+		    arg_rest(&argv[offset]) - 1);
 	    Usage(temp);
 	}
 	if (modePtr->argmax && arg_rest(&argv[offset]) > modePtr->argmax) {
 	    sprintf(temp,
 		    "Expected no more than %d tokens for %.20s, have %d",
-		    modePtr->argmax, argv[offset], arg_rest(&argv[offset]));
+		    modePtr->argmax - 1, argv[offset],
+		    arg_rest(&argv[offset]) - 1);
 	    Usage(temp);
 	}
 
 	retval = (*(modePtr->jumper)) (dialog_vars.title, argv + offset, &offset_add);
 	offset += offset_add;
 
-	if (retval == -1) {
-	    esc_pressed = 1;
+	if (retval == DLG_EXIT_ESC) {
+	    esc_pressed = TRUE;
 	} else {
 
 	    if (dialog_vars.beep_after_signal)
@@ -913,28 +879,21 @@ main(int argc, char *argv[])
 		    break;
 		default:
 		    /* if we got a cancel, etc., stop chaining */
-		    if (retval != 0)
-			esc_pressed = 2;
+		    if (retval != DLG_EXIT_OK)
+			esc_pressed = TRUE;
 		    else
-			dialog_vars.clear_screen = TRUE;
+			dialog_vars.dlg_clear_screen = TRUE;
 		    break;
 		}
 	    }
-	    if (dialog_vars.clear_screen)
+	    if (dialog_vars.dlg_clear_screen)
 		dialog_clear();
 	}
 
     }
 
-    /*
-     * If we have background processes running, avoid resetting the terminal
-     * characteristics, let them do it when they exit.
-     */
-    if (quitall_bg())
-	_exit(retval);
-
+    killall_bg(&retval);
     (void) refresh();
     end_dialog();
-    return retval;
+    return retval;		/* assume this is the same as exit(retval) */
 }
-/* End of main() */
