@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.66 2001/08/11 17:40:46 tom Exp $
+ * $Id: dialog.c,v 1.68 2001/08/27 23:52:00 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -674,6 +674,11 @@ main(int argc, char *argv[])
 	case o_print_version:
 	    fprintf(output, "Version: %s\n", VERSION);
 	    break;
+	case o_clear:
+	    initscr();
+	    refresh();
+	    endwin();
+	    break;
 	default:
 	case o_help:
 	    Help();
@@ -786,12 +791,6 @@ main(int argc, char *argv[])
 		dialog_vars.begin_x = optionValue(argv, &offset);
 		break;
 	    case o_clear:
-		if (argc == 2) {	/* we only want to clear the screen */
-		    killall_bg(&retval);
-		    (void) refresh();
-		    end_dialog();
-		    return 0;
-		}
 		dialog_vars.dlg_clear_screen = TRUE;
 		break;
 	    case o_noitem:
@@ -835,7 +834,11 @@ main(int argc, char *argv[])
 	if ((code = lookupOption(argv[offset], 2)) != o_unknown)
 	    modePtr = lookupMode(code);
 	if (modePtr == 0) {
-	    sprintf(temp, "Unknown option %.20s", argv[offset]);
+	    sprintf(temp, "%s option %.20s",
+		    lookupOption(argv[offset], 7) != o_unknown
+		    ? "Unexpected"
+		    : "Unknown",
+		    argv[offset]);
 	    Usage(temp);
 	}
 

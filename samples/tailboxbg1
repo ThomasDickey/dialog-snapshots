@@ -3,7 +3,7 @@ DIALOG=${DIALOG=dialog}
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-killall listing
+./killall listing
 ./listing >listing.out &
 
 $DIALOG --title "TAIL BOXES" \
@@ -27,4 +27,4 @@ echo "killed [$pid]"
 fi
 
 # ...and the process that is making the listing
-killall listing
+./killall listing

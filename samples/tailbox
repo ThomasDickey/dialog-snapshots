@@ -1,7 +1,7 @@
 #!/bin/sh
 DIALOG=${DIALOG=dialog}
 
-killall listing
+./killall listing
 ./listing >listing.out &
 
 $DIALOG --title "TAIL BOX" \
@@ -14,4 +14,4 @@ case $? in
     echo "ESC pressed.";;
 esac
 
-killall listing
+./killall listing

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.19 2001/08/11 12:38:58 tom Exp $
+dnl $Id: configure.in,v 1.20 2001/08/28 00:12:34 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -88,13 +88,13 @@ dnl 	 AC_DEFINE(HAVE_LIBGPM)])
 
 CF_ARG_MSG_ENABLE([if you want config-file support],
 	rc-file,
-	[  --enable-rc-file        include config-file support],
+	[  --disable-rc-file       do not include config-file support],
 	[EXTRAOBJS="$EXTRAOBJS rc.o"
 	 AC_DEFINE(HAVE_RC_FILE)],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want Xdialog-style dialogs],
 	Xdialog,
-	[  --enable-Xdialog        include Xdialog-style dialogs],
+	[  --disable-Xdialog       do not include Xdialog-style dialogs],
 	[EXTRAOBJS="$EXTRAOBJS calendar.o fselect.o timebox.o"
 	 AC_DEFINE(HAVE_XDIALOG)],,$cf_all_widgets)
 
