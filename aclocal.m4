@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.14 2000/10/27 23:22:00 tom Exp $
+dnl $Id: aclocal.m4,v 1.15 2000/12/18 00:42:34 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -172,6 +172,7 @@ dnl AM_PATH_PROG_WITH_TEST(VARIABLE, PROG-TO-CHECK-FOR,
 dnl   TEST-PERFORMED-ON-FOUND_PROGRAM [, VALUE-IF-NOT-FOUND [, PATH]])
 AC_DEFUN(AM_PATH_PROG_WITH_TEST,
 [# Extract the first word of "$2", so it can be a program name with args.
+AC_REQUIRE([CF_PATHSEP])
 set dummy $2; ac_word=[$]2
 AC_MSG_CHECKING([for $ac_word])
 AC_CACHE_VAL(ac_cv_path_$1,
@@ -180,7 +181,7 @@ AC_CACHE_VAL(ac_cv_path_$1,
   ac_cv_path_$1="[$]$1" # Let the user override the test with a path.
   ;;
   *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATHSEP}"
   for ac_dir in ifelse([$5], , $PATH, [$5]); do
     test -z "$ac_dir" && ac_dir=.
     if test -f $ac_dir/$ac_word; then
@@ -645,13 +646,13 @@ freebsd*) #(vi
 hpux10.*|hpux11.*) #(vi
 	AC_CHECK_LIB(cur_colr,initscr,[
 		LIBS="-lcur_colr $LIBS"
-		CFLAGS="-I/usr/include/curses_colr $CFLAGS"
+		CPPFLAGS="-I/usr/include/curses_colr $CPPFLAGS"
 		ac_cv_func_initscr=yes
 		],[
 	AC_CHECK_LIB(Hcurses,initscr,[
 		# HP's header uses __HP_CURSES, but user claims _HP_CURSES.
 		LIBS="-lHcurses $LIBS"
-		CFLAGS="-D__HP_CURSES -D_HP_CURSES $CFLAGS"
+		CPPFLAGS="-D__HP_CURSES -D_HP_CURSES $CPPFLAGS"
 		ac_cv_func_initscr=yes
 		])])
 	;;
@@ -1067,6 +1068,7 @@ dnl $1 = variable to set
 AC_DEFUN([CF_LIB_PREFIX],
 [
 	case $cf_cv_system_name in
+	OS/2*)	LIB_PREFIX=''     ;;
 	os2)	LIB_PREFIX=''     ;;
 	*)	LIB_PREFIX='lib'  ;;
 	esac
@@ -1375,6 +1377,17 @@ test $use_our_messages = yes && USE_OUR_MESSAGES=
 AC_SUBST(USE_OUR_MESSAGES)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Provide a value for the $PATH and similar separator
+AC_DEFUN([CF_PATHSEP],
+[
+	case $cf_cv_system_name in
+	os2)	PATHSEP=';'  ;;
+	*)	PATHSEP=':'  ;;
+	esac
+ifelse($1,,,[$1=$PATHSEP])
+	AC_SUBST(PATHSEP)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Compute $PROG_EXT, used for non-Unix ports, such as OS/2 EMX.
 AC_DEFUN([CF_PROG_EXT],
 [
@@ -1383,8 +1396,9 @@ PROG_EXT=
 case $cf_cv_system_name in
 os2*)
     # We make sure -Zexe is not used -- it would interfere with @PROG_EXT@
-    CFLAGS="$CFLAGS -Zmt -D__ST_MT_ERRNO__"
-    CXXFLAGS="$CXXFLAGS -Zmt -D__ST_MT_ERRNO__"
+    CFLAGS="$CFLAGS -Zmt"
+    CPPFLAGS="$CPPFLAGS -D__ST_MT_ERRNO__"
+    CXXFLAGS="$CXXFLAGS -Zmt"
     LDFLAGS=`echo "$LDFLAGS -Zmt -Zcrtdll" | sed "s/-Zexe//g"`
     PROG_EXT=".exe"
     ;;
