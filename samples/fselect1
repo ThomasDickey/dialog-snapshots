@@ -10,7 +10,7 @@ do
 	fi
 done
 
-FILE=`$DIALOG --stdout --title "Please choose a file" --fselect $FILE 28 48`
+FILE=`$DIALOG --stdout --title "Please choose a file" --fselect $FILE 14 48`
 
 case $? in
 	0)

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.33 2002/03/09 18:37:08 tom Exp $
+ *  $Id: menubox.c,v 1.34 2002/03/10 01:33:07 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -359,19 +359,19 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		sprintf(dialog_vars.input_result, "%.*s",
 			MAX_LEN - 1,
 			ItemName(scrollamt + choice));
-		return 0;
+		return DLG_EXIT_OK;
 	    case DLG_EXIT_CANCEL:
-		return -2;
+		return DLG_EXIT_CANCEL;
 	    default:
 		/* help */
 		sprintf(dialog_vars.input_result, "HELP %.*s",
 			MAX_LEN - 6,
 			ItemHelp(scrollamt + choice));
-		return 0;
+		return DLG_EXIT_OK;
 	    }
 	}
     }
 
     del_window(dialog);
-    return -1;			/* ESC pressed */
+    return DLG_EXIT_ESC;	/* ESC pressed */
 }
