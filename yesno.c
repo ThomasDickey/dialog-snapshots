@@ -47,9 +47,9 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 
 #ifdef KEY_RESIZE
     if (dialog != 0) {
-	wresize(dialog, height, width);
-	mvwin(dialog, y, x);
-	refresh();
+	(void) wresize(dialog, height, width);
+	(void) mvwin(dialog, y, x);
+	(void) refresh();
     } else
 #endif
 	dialog = new_window(height, width, y, x);
@@ -70,7 +70,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
     while (key != ESC) {
 	key = mouse_wgetch(dialog);
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return key2;
 	}
 	switch (key) {
@@ -89,7 +89,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	    /* FALLTHRU */
 	case ' ':
 	case '\n':
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return button;
 	case ESC:
 	    break;
@@ -103,6 +103,6 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 	}
     }
 
-    delwin(dialog);
+    (void) delwin(dialog);
     return -1;			/* ESC pressed */
 }

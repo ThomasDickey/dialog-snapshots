@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.45 2000/10/08 17:00:06 tom Exp $
+ * $Id: dialog.c,v 1.46 2000/10/28 01:07:09 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -26,7 +26,6 @@
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
 #endif
-
 
 #define JUMPARGS const char *t, char *av[], int *offset_add
 typedef int (jumperFn) (JUMPARGS);
@@ -406,7 +405,7 @@ j_tailboxbg(JUMPARGS)
     }
 
     *offset_add = 4;
-    refresh();			/* doupdate(); */
+    (void) refresh();		/* doupdate(); */
     if (dialog_vars.cant_kill)
 	tailbg_nokill_pids[tailbg_nokill_lastpid] =
 	    tailbg_pids[tailbg_lastpid] = fork();
@@ -425,8 +424,8 @@ j_tailboxbg(JUMPARGS)
 			 atoi(av[3]),
 			 dialog_vars.cant_kill);
 
-	refresh();		/* quitting for signal 15 and --no-kill */
-	endwin();
+	(void) refresh();	/* quitting for signal 15 and --no-kill */
+	(void) endwin();
 	exit(0);
     }
     if (dialog_vars.cant_kill)
@@ -512,9 +511,10 @@ PrintList(const char **list)
 	leaf = program;
 
     while (*list != 0) {
-	fprintf(dialog_vars.output, *list++, n ? leaf : VERSION);
-	fputc('\n', dialog_vars.output);
+	fprintf(dialog_vars.output, *list, n ? leaf : VERSION);
+	(void) fputc('\n', dialog_vars.output);
 	n = 1;
+	list++;
     }
 }
 
@@ -578,7 +578,7 @@ Help(void)
     }
     fprintf(dialog_vars.output, "\nBox options:\n");
     for (j = 0; j < sizeof(options) / sizeof(options[0]); j++) {
-	if ((options[j].pass & 2)
+	if ((options[j].pass & 2) != 0
 	    && options[j].help != 0
 	    && lookupMode(options[j].code))
 	    fprintf(dialog_vars.output, "  --%-12s %s\n", options[j].name,
@@ -622,9 +622,9 @@ main(int argc, char *argv[])
     if (argc == 2) {		/* if we don't want clear screen */
 	switch (lookupOption(argv[1], 7)) {
 	case o_print_maxsize:
-	    initscr();
+	    (void) initscr();
 	    fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
-	    endwin();
+	    (void) endwin();
 	    break;
 	case o_print_version:
 	    fprintf(output, "Version: %s\n", VERSION);
@@ -753,7 +753,7 @@ main(int argc, char *argv[])
 	    case o_clear:
 		if (argc == 2) {	/* we only want to clear the screen */
 		    killall_bg();
-		    refresh();
+		    (void) refresh();
 		    end_dialog();
 		    return 0;
 		}
@@ -816,15 +816,15 @@ main(int argc, char *argv[])
 	} else {
 
 	    if (dialog_vars.beep_after_signal)
-		beep();
+		(void) beep();
 
 	    if (dialog_vars.sleep_secs)
-		napms(dialog_vars.sleep_secs * 1000);
+		(void) napms(dialog_vars.sleep_secs * 1000);
 
 	    if (offset < argc) {
 		switch (lookupOption(argv[offset], 7)) {
 		case o_and_widget:
-		    fputs(separate_str, output);
+		    (void) fputs(separate_str, output);
 		    offset++;
 		    break;
 		case o_unknown:
@@ -848,7 +848,7 @@ main(int argc, char *argv[])
     }
 
     quitall_bg();		/* instead of killall_bg() */
-    refresh();
+    (void) refresh();
     end_dialog();
     return retval;
 }

@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.13 2000/10/07 16:33:34 tom Exp $
+dnl $Id: aclocal.m4,v 1.14 2000/10/27 23:22:00 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl
@@ -575,6 +575,36 @@ if test "$USE_INCLUDED_LIBINTL" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Check if we're accidentally using a cache from a different machine.
+dnl Derive the system name, as a check for reusing the autoconf cache.
+dnl
+dnl If we've packaged config.guess and config.sub, run that (since it does a
+dnl better job than uname).  Normally we'll use AC_CANONICAL_HOST, but allow
+dnl an extra parameter that we may override, e.g., for AC_CANONICAL_SYSTEM
+dnl which is useful in cross-compiles.
+AC_DEFUN([CF_CHECK_CACHE],
+[
+if test -f $srcdir/config.guess ; then
+	ifelse([$1],,[AC_CANONICAL_HOST],[$1])
+	system_name="$host_os"
+else
+	system_name="`(uname -s -r) 2>/dev/null`"
+	if test -z "$system_name" ; then
+		system_name="`(hostname) 2>/dev/null`"
+	fi
+fi
+test -n "$system_name" && AC_DEFINE_UNQUOTED(SYSTEM_NAME,"$system_name")
+AC_CACHE_VAL(cf_cv_system_name,[cf_cv_system_name="$system_name"])
+
+test -z "$system_name" && system_name="$cf_cv_system_name"
+test -n "$cf_cv_system_name" && AC_MSG_RESULT("Configuring for $cf_cv_system_name")
+
+if test ".$system_name" != ".$cf_cv_system_name" ; then
+	AC_MSG_RESULT(Cached system name ($system_name) does not agree with actual ($cf_cv_system_name))
+	AC_ERROR("Please remove config.cache and try again.")
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Test if curses defines 'chtype' (usually a 'long' type for SysV curses).
 AC_DEFUN([CF_CURSES_CHTYPE],
 [
@@ -1032,6 +1062,18 @@ $1="[$]$1 /opt/lib /opt/lib/$2 /opt/$2/lib"
 $1="[$]$1 [$]HOME/lib [$]HOME/lib/$2 [$]HOME/$2/lib"
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Compute the library-prefix for the given host system
+dnl $1 = variable to set
+AC_DEFUN([CF_LIB_PREFIX],
+[
+	case $cf_cv_system_name in
+	os2)	LIB_PREFIX=''     ;;
+	*)	LIB_PREFIX='lib'  ;;
+	esac
+ifelse($1,,,[$1=$LIB_PREFIX])
+	AC_SUBST(LIB_PREFIX)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Some 'make' programs support $(MAKEFLAGS), some $(MFLAGS), to pass 'make'
 dnl options to lower-levels.  It's very useful for "make -n" -- if we have it.
 dnl (GNU 'make' does both, something POSIX 'make', which happens to make the
@@ -1068,6 +1110,33 @@ AC_MSG_RESULT($cf_cv_makeflags)
 AC_SUBST(cf_cv_makeflags)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl Generate tags/TAGS targets for makefiles.  Do not generate TAGS if we have
+dnl a monocase filesystem.
+AC_DEFUN([CF_MAKE_TAGS],[
+AC_REQUIRE([CF_MIXEDCASE_FILENAMES])
+AC_CHECK_PROG(MAKE_LOWER_TAGS, ctags, yes, no)
+
+if test "$cf_cv_mixedcase" = yes ; then
+	AC_CHECK_PROG(MAKE_UPPER_TAGS, etags, yes, no)
+else
+	MAKE_UPPER_TAGS=no
+fi
+
+if test "$MAKE_UPPER_TAGS" = yes ; then
+	MAKE_UPPER_TAGS=
+else
+	MAKE_UPPER_TAGS="#"
+fi
+AC_SUBST(MAKE_UPPER_TAGS)
+
+if test "$MAKE_LOWER_TAGS" = yes ; then
+	MAKE_LOWER_TAGS=
+else
+	MAKE_LOWER_TAGS="#"
+fi
+AC_SUBST(MAKE_LOWER_TAGS)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl Checks for libraries.  At least one UNIX system, Apple Macintosh
 dnl Rhapsody 5.5, does not have -lm.  We cannot use the simpler
 dnl AC_CHECK_LIB(m,sin), because that fails for C++.
@@ -1089,6 +1158,23 @@ ifelse($1,,[
 ],[$1=-lm])
 fi
 ])
+dnl ---------------------------------------------------------------------------
+dnl Check if the file-system supports mixed-case filenames.  If we're able to
+dnl create a lowercase name and see it as uppercase, it doesn't support that.
+AC_DEFUN([CF_MIXEDCASE_FILENAMES],
+[
+AC_CACHE_CHECK(if filesystem supports mixed-case filenames,cf_cv_mixedcase,[
+	rm -f conftest CONFTEST
+	echo test >conftest
+	if test -f CONFTEST ; then
+		cf_cv_mixedcase=no
+	else
+		cf_cv_mixedcase=yes
+	fi
+	rm -f conftest CONFTEST
+])
+test "$cf_cv_mixedcase" = yes && AC_DEFINE(MIXEDCASE_FILENAMES)
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl Look for the SVr4 curses clone 'ncurses' in the standard places, adjusting
 dnl the CPPFLAGS variable.
@@ -1287,6 +1373,26 @@ AC_MSG_RESULT($use_our_messages)
 fi
 test $use_our_messages = yes && USE_OUR_MESSAGES=
 AC_SUBST(USE_OUR_MESSAGES)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl Compute $PROG_EXT, used for non-Unix ports, such as OS/2 EMX.
+AC_DEFUN([CF_PROG_EXT],
+[
+AC_REQUIRE([CF_CHECK_CACHE])
+PROG_EXT=
+case $cf_cv_system_name in
+os2*)
+    # We make sure -Zexe is not used -- it would interfere with @PROG_EXT@
+    CFLAGS="$CFLAGS -Zmt -D__ST_MT_ERRNO__"
+    CXXFLAGS="$CXXFLAGS -Zmt -D__ST_MT_ERRNO__"
+    LDFLAGS=`echo "$LDFLAGS -Zmt -Zcrtdll" | sed "s/-Zexe//g"`
+    PROG_EXT=".exe"
+    ;;
+cygwin*)
+    PROG_EXT=".exe"
+    ;;
+esac
+AC_SUBST(PROG_EXT)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl	Shorthand macro for substituting things that the user may override

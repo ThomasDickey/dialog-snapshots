@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.15 2000/10/18 01:02:18 tom Exp $
+ * $Id: fselect.c,v 1.16 2000/10/28 01:00:06 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -92,6 +92,7 @@ free_list(LIST * list)
 	for (n = 0; list->data[n] != 0; n++)
 	    free(list->data[n]);
 	free(list->data);
+	list->data = 0;
     }
     init_list(list, list->par, list->win);
 }
@@ -183,10 +184,10 @@ display_list(LIST * list)
 	y = n - list->offset;
 	if (y >= getmaxy(list->win))
 	    break;
-	wmove(list->win, y, 0);
+	(void) wmove(list->win, y, 0);
 	if (n == list->choice)
 	    wattrset(list->win, item_selected_attr);
-	waddstr(list->win, list->data[n]);
+	(void) waddstr(list->win, list->data[n]);
 	wattrset(list->win, item_attr);
     }
     wattrset(list->win, item_attr);
@@ -198,8 +199,8 @@ display_list(LIST * list)
 		    y - 1,
 		    y + getmaxy(list->win));
 
-    wmove(list->win, list->choice - list->offset, 0);
-    wnoutrefresh(list->win);
+    (void) wmove(list->win, list->choice - list->offset, 0);
+    (void) wnoutrefresh(list->win);
 }
 
 static int
@@ -291,13 +292,13 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 		    add_to_list(f_list, leaf);
 	    }
 	}
-	closedir(dp);
+	(void) closedir(dp);
 	/* sort the lists */
 	qsort(d_list->data, d_list->length, sizeof(d_list->data[0]), compar);
 	qsort(f_list->data, f_list->length, sizeof(f_list->data[0]), compar);
     }
 
-    show_both_lists(input, d_list, f_list, FALSE);
+    (void) show_both_lists(input, d_list, f_list, FALSE);
     d_list->offset = d_list->choice;
     f_list->offset = f_list->choice;
     return TRUE;
@@ -357,7 +358,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     tbox_x = (width - tbox_width) / 2;
 
     w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
-    keypad(w_text, TRUE);
+    (void) keypad(w_text, TRUE);
     draw_box(dialog, tbox_y - 1, tbox_x - 1, 3, tbox_width + 2,
 	     border_attr, dialog_attr);
 
@@ -368,8 +369,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dbox_x = tbox_x;
 
     w_dir = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
-    keypad(w_dir, TRUE);
-    mvwprintw(dialog, dbox_y - 2, dbox_x - 1, "Directories");
+    (void) keypad(w_dir, TRUE);
+    (void) mvwprintw(dialog, dbox_y - 2, dbox_x - 1, "Directories");
     draw_box(dialog, dbox_y - 1, dbox_x - 1, dbox_height + 2, dbox_width + 2,
 	     border_attr, dialog_attr);
     init_list(&d_list, dialog, w_dir);
@@ -381,8 +382,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     fbox_x = tbox_x + dbox_width + 2;
 
     w_file = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
-    keypad(w_file, TRUE);
-    mvwprintw(dialog, fbox_y - 2, fbox_x - 1, "Files");
+    (void) keypad(w_file, TRUE);
+    (void) mvwprintw(dialog, fbox_y - 2, fbox_x - 1, "Files");
     draw_box(dialog, fbox_y - 1, fbox_x - 1, fbox_height + 2, fbox_width + 2,
 	     border_attr, dialog_attr);
     init_list(&f_list, dialog, w_file);
@@ -419,18 +420,18 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		break;
 	    }
 	    if (win != 0) {
-		wmove(dialog,
-		      getpary(win) + getcury(win),
-		      getparx(win) + getcurx(win));
-		wnoutrefresh(win);
-		doupdate();
+		(void) wmove(dialog,
+			     getpary(win) + getcury(win),
+			     getparx(win) + getcurx(win));
+		(void) wnoutrefresh(win);
+		(void) doupdate();
 	    }
 	}
 
 	if (!first) {
 	    key = wgetch(dialog);
 	} else {
-	    wrefresh(dialog);
+	    (void) wrefresh(dialog);
 	}
 
 	if (button == -1) {	/* Input box selected */
@@ -445,7 +446,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return key2;
 	}
 
@@ -495,23 +496,23 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 				0, 0, tbox_width, 0, first);
 		break;
 	    } else if (button < -1) {
-		beep();
+		(void) beep();
 		break;
 	    }
 	    /* FALLTHRU */
 	case '\n':
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    free_list(&d_list);
 	    free_list(&f_list);
 	    return (button > 0);
 	default:
-	    ungetch(key);
+	    (void) ungetch(key);
 	    button = -1;
 	    break;
 	}
     }
 
-    delwin(dialog);
+    (void) delwin(dialog);
     free_list(&d_list);
     free_list(&f_list);
     return -1;			/* ESC pressed */

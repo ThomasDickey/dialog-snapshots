@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.3 2000/07/29 19:29:11 tom Exp $
+ * $Id: inputstr.c,v 1.4 2000/10/28 01:04:54 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -74,7 +74,7 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
 		string[*offset] = key;
 		*offset += 1;
 	    } else
-		flash();	/* Alarm user about overflow */
+		(void) flash();	/* Alarm user about overflow */
 	    break;
 	}
 	edit = 0;
@@ -85,11 +85,11 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
 
 void
 dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
-    int y_base, int x_base, int x_last, bool hidden, bool force)
+		int y_base, int x_base, int x_last, bool hidden, bool force)
 {
     if (hidden) {
 	if (force) {
-	    wmove(win, y_base, x_base);
+	    (void) wmove(win, y_base, x_base);
 	    wrefresh_lock(win);
 	}
     } else {
@@ -102,10 +102,13 @@ dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
 	input_x = offset - scrollamt;
 
 	wattrset(win, attr);
-	wmove(win, y_base, x_base);
+	(void) wmove(win, y_base, x_base);
 	for (i = 0; i < x_last; i++)
-	    waddch(win, (i + scrollamt) < len ? CharOf(string[scrollamt + i]) : ' ');
-	wmove(win, y_base, x_base + input_x);
+	    (void) waddch(win,
+			  (i + scrollamt) < len
+			  ? CharOf(string[scrollamt + i])
+			  : ' ');
+	(void) wmove(win, y_base, x_base + input_x);
 	wrefresh_lock(win);
     }
 }

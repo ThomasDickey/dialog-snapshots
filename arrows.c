@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.2 2000/07/28 10:31:02 tom Exp $
+ *  $Id: arrows.c,v 1.3 2000/10/28 01:08:07 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -24,30 +24,30 @@
 
 void
 dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int
-    top, int bottom)
+		top, int bottom)
 {
     int cur_x, cur_y;
 
     getyx(dialog, cur_y, cur_x);
 
-    wmove(dialog, top, x);
+    (void) wmove(dialog, top, x);
     if (top_arrow) {
 	wattrset(dialog, uarrow_attr);
-	waddch(dialog, ACS_UARROW);
-	waddstr(dialog, "(+)");
+	(void) waddch(dialog, ACS_UARROW);
+	(void) waddstr(dialog, "(+)");
     } else {
 	wattrset(dialog, menubox_attr);
-	whline(dialog, ACS_HLINE, 4);
+	(void) whline(dialog, ACS_HLINE, 4);
     }
-    wmove(dialog, bottom, x);
+    (void) wmove(dialog, bottom, x);
     if (bottom_arrow) {
 	wattrset(dialog, darrow_attr);
-	waddch(dialog, ACS_DARROW);
-	waddstr(dialog, "(+)");
+	(void) waddch(dialog, ACS_DARROW);
+	(void) waddstr(dialog, "(+)");
     } else {
 	wattrset(dialog, menubox_border_attr);
-	whline(dialog, ACS_HLINE, 4);
+	(void) whline(dialog, ACS_HLINE, 4);
     }
-    wmove(dialog, cur_y, cur_x);
+    (void) wmove(dialog, cur_y, cur_x);
     wrefresh_lock(dialog);
 }

@@ -3,6 +3,17 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/10/27
+	+ some lint fixes using lclint (mostly void-casts, but some
+	  sign-extension fixes e.g., for ctype.h macros, and loop in
+	  dlg_char_to_button()).
+	+ modified to build/run on OS/2 EMX with ncurses.
+	+ minor changes to po/*.po (trim trailing blanks, provide explicit
+	  translation for "OK"), to work with Solaris gettext.
+	+ modified to allow this to build with archaic version (1.8.6)
+	  of ncurses on FreeBSD 3.1 (does not run).
+	+ update config.guess, config.sub from subversions.gnu.org
+
 2000/10/17
 	+ use new function sub_window() to check success/failure of calls to
 	  subwin(), printing an error message if it fails (fixes Debian #74903).

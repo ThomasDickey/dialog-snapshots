@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.16 2000/10/07 21:26:28 tom Exp $
+ *  $Id: buttons.c,v 1.17 2000/10/28 01:08:39 tom Exp $
  *
  *  buttons.c
  *
@@ -44,34 +44,34 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 {
     int i, temp;
     chtype key_attr = (selected
-	? button_key_active_attr
-	: button_key_inactive_attr);
+		       ? button_key_active_attr
+		       : button_key_inactive_attr);
     chtype label_attr = (selected
-	? button_label_active_attr
-	: button_label_inactive_attr);
+			 ? button_label_active_attr
+			 : button_label_inactive_attr);
 
-    wmove(win, y, x);
+    (void) wmove(win, y, x);
     wattrset(win, selected
-	? button_active_attr
-	: button_inactive_attr);
-    waddstr(win, "<");
+	     ? button_active_attr
+	     : button_inactive_attr);
+    (void) waddstr(win, "<");
     temp = strspn(label, " ");
     label += temp;
     wattrset(win, label_attr);
     for (i = 0; i < temp; i++)
-	waddch(win, ' ');
-    for (i = 0; label[i] != 0; i++) {
-	if (isupper(label[i])) {
+	(void) waddch(win, ' ');
+    for (i = 0; label[i] != '\0'; i++) {
+	if (isupper(UCH(label[i]))) {
 	    wattrset(win, key_attr);
 	    key_attr = label_attr;	/* only the first is highlighted */
 	} else {
 	    wattrset(win, label_attr);
 	}
-	waddch(win, CharOf(label[i]));
+	(void) waddch(win, CharOf(label[i]));
     }
     wattrset(win, label_attr);
-    waddstr(win, ">");
-    wmove(win, y, x + temp + 1);
+    (void) waddstr(win, ">");
+    (void) wmove(win, y, x + temp + 1);
 }
 
 /*
@@ -79,7 +79,7 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
  */
 void
 dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
-    int vertical, int limit)
+		 int vertical, int limit)
 {
     int n;
     int step;
@@ -139,7 +139,7 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
 	center_label(buffer, longest, labels[n]);
 	mouse_mkbutton(y, x, strlen(buffer), n);
 	print_button(win, buffer, y, x,
-	    (selected == n) || (n == 0 && selected < 0));
+		     (selected == n) || (n == 0 && selected < 0));
 	if (!found) {
 	    found = (selected == n);
 	    getyx(win, final_y, final_x);
@@ -153,9 +153,9 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
 	}
     }
     if (found)
-	wmove(win, final_y, final_x);
+	(void) wmove(win, final_y, final_x);
     else
-	wmove(win, first_y, first_x);
+	(void) wmove(win, first_y, first_x);
     wrefresh_lock(win);
     free(buffer);
 }
@@ -174,13 +174,14 @@ dlg_char_to_button(int ch, const char **labels)
 
 	while ((label = *labels++) != 0) {
 	    while (*label != 0) {
-		if (isupper(*label)) {
+		if (isupper(UCH(*label))) {
 		    if (ch == *label
 			|| (isalpha(ch) && toupper(ch) == *label)) {
 			return n;
 		    }
 		    break;
 		}
+		label++;
 	    }
 	    n++;
 	}
