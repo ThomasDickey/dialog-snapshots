@@ -48,7 +48,7 @@ print_item(WINDOW *win, const char *tag, const char *item, int status,
     wattrset(win, menubox_attr);
     waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    waddch(win, tag[0]);
+    waddch(win, CharOf(tag[0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
     wprintw(win, "%s", tag + 1);
     wmove(win, choice, item_x);

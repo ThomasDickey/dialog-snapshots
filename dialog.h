@@ -67,6 +67,10 @@
 #define EXIT_OK		0
 #define EXIT_CANCEL	1
 
+#define CHR_BACKSPACE 8
+#define CHR_REPAINT   12	/* control/L */
+#define CHR_DELETE    127
+
 #define ESC 27
 #define TAB 9
 #define MAX_LEN 2048
@@ -81,6 +85,11 @@
 #define TAB_LEN 8
 #define WTIMEOUT_VAL        10
 
+#ifndef A_CHARTEXT
+#define A_CHARTEXT 0xff
+#endif
+
+#define CharOf(ch)  ((ch) & A_CHARTEXT)
 
 #ifndef ACS_ULCORNER
 #define ACS_ULCORNER '+'
@@ -275,8 +284,11 @@ extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int
 
 /* inputstr.c */
 extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
-extern int dlg_default_item(char **items, int llen);
 extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
+
+/* util.c */
+extern int dlg_default_item(char **items, int llen);
+extern int dlg_getc(WINDOW *win);
 
 /*
  * The following stuff is needed for mouse support

@@ -89,7 +89,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (key != ESC) {
-	key = wgetch(dialog);
+	key = dlg_getc(dialog);
 	if (dlg_char_to_button(key, buttons) == 0) {
 	    key = '\n';
 	}

@@ -40,7 +40,7 @@ int mouse_wgetch(WINDOW *win)
 
     key = 0;
 
-    if (!gpm_flag || gpm_fd==-1) return wgetch(win);
+    if (!gpm_flag || gpm_fd==-1) return dlg_getc(win);
     if (gpm_morekeys) return (*gpm_handler)(&ev,gpm_data);
 
     gpm_hflag = 0;
@@ -61,7 +61,7 @@ int mouse_wgetch(WINDOW *win)
     } while (!flag);
 
     if (FD_ISSET(fd,&selSet))
-      return wgetch(win);
+      return dlg_getc(win);
       
     if (flag == -1)
         continue;
@@ -81,7 +81,7 @@ int mouse_wgetch(WINDOW *win)
   
   do { 
 
-    key = wgetch(win);
+    key = dlg_getc(win);
 
     if (key == ERR)
         ctl_idlemsg(win);
