@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.56 2003/08/27 22:12:11 tom Exp $
-.TH DIALOG 1 "" "$Date: 2003/08/27 22:12:11 $"
+.\" $Id: dialog.1,v 1.58 2003/09/24 20:23:45 tom Exp $
+.TH DIALOG 1 "" "$Date: 2003/09/24 20:23:45 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -163,7 +163,7 @@ Override the label used for "Help" buttons.
 .
 .IP "\fB\-\-ignore"
 Ignore options that \fBdialog\fP does not recognize.
-Some well-known ones such as "\fB--icon\fP" are ignored anyway,
+Some well-known ones such as "\fB\-\-icon\fP" are ignored anyway,
 but this is a better choice for compatibility with other implementations.
 .
 .IP "\fB\-\-item-help"
@@ -483,6 +483,8 @@ Display text from a file in a dialog box, as in a "tail -f" command.
 .IP "\fB\-\-tailboxbg file height width"
 Display text from a file in a dialog box as a background task,
 as in a "tail -f &" command.
+Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
+A '0' resets the scrolling.
 .IP
 Dialog treats the background task specially if there are other
 widgets (\fB\-\-and-widget\fP) on the screen concurrently.
@@ -515,6 +517,9 @@ the \fILEFT/RIGHT\fP
 keys can be used to scroll the text region horizontally.
 You may also use vi-style keys h, j, k, l in place of the cursor keys,
 and B or N in place of the pageup/pagedown keys.
+Scroll up/down using vi-style 'k' and 'j', or arrow-keys.
+Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
+A '0' resets the left/right scrolling.
 For more convenience,
 vi-style forward and backward searching functions are also provided.
 .

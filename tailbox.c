@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.35 2003/08/30 14:34:20 tom Exp $
+ *  $Id: tailbox.c,v 1.37 2003/09/24 20:19:30 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -39,25 +39,34 @@ static char *
 get_line(MY_OBJ * obj)
 {
     FILE *fp = obj->obj.input;
-    int i = 0, j, tmpint, ch;
+    int col = -(obj->hscroll);
+    int j, tmpint, ch;
 
     do {
 	if (((ch = getc(fp)) == EOF) && !feof(fp))
 	    exiterr("Error moving file pointer in get_line().");
-	else if ((i < MAX_LEN) && !feof(fp) && (ch != '\n')) {
+	else if (!feof(fp) && (ch != '\n')) {
 	    if ((ch == TAB) && (dialog_vars.tab_correct)) {
-		tmpint = dialog_vars.tab_len - (i % dialog_vars.tab_len);
+		tmpint = dialog_vars.tab_len
+		    - ((col + obj->hscroll) % dialog_vars.tab_len);
 		for (j = 0; j < tmpint; j++) {
-		    if (i < MAX_LEN)
-			obj->line[i++] = ' ';
+		    if (col >= 0 && col < MAX_LEN)
+			obj->line[col] = ' ';
+		    ++col;
 		}
 	    } else {
-		obj->line[i++] = ch;
+		if (col >= 0)
+		    obj->line[col] = ch;
+		++col;
 	    }
+	    if (col >= MAX_LEN)
+		break;
 	}
     } while (!feof(fp) && (ch != '\n'));
 
-    obj->line[i++] = '\0';
+    if (col < 0)
+	col = 0;
+    obj->line[col] = '\0';
 
     return obj->line;
 }
@@ -69,10 +78,8 @@ static void
 print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 {
     int i, y, x;
-    char *line;
+    char *line = get_line(obj);
 
-    line = get_line(obj);
-    line += MIN((int) strlen(line), obj->hscroll);	/* Scroll horizontally */
     (void) wmove(win, row, 0);	/* move cursor to correct line */
     (void) waddch(win, ' ');
 #ifdef NCURSES_VERSION
@@ -89,55 +96,58 @@ print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 }
 
 /*
- * Go back 'n' lines in text file. BUF_SIZE has to be in 'size_t' range.
+ * Go back 'target' lines in text file.  BUFSIZ has to be in 'size_t' range.
  */
 static void
-last_lines(MY_OBJ * obj, int n)
+last_lines(MY_OBJ * obj, int target)
 {
     FILE *fp = obj->obj.input;
-    int i = 0;
-    char *ptr, buf[BUF_SIZE + 1];
+    int inx;
+    int count = 0;
+    char buf[BUFSIZ + 1];
     size_t size_to_read;
+    size_t offset = 0;
     long fpos;
 
-    if (fseek(fp, 0, SEEK_END) == -1)
+    if (fseek(fp, 0, SEEK_END) == -1
+	|| (fpos = ftell(fp)) < 0)
 	exiterr("Error moving file pointer in last_lines().");
 
-    if ((fpos = ftell(fp)) >= BUF_SIZE) {
-	if (fseek(fp, -BUF_SIZE, SEEK_END) == -1)
-	    exiterr("Error moving file pointer in last_lines().");
+    if (fpos != 0) {
+	++target;
+	for (;;) {
+	    if (fpos >= BUFSIZ) {
+		size_to_read = (size_t) BUFSIZ;
+	    } else {
+		size_to_read = ((size_t) fpos);
+	    }
+	    fpos -= size_to_read;
+	    if (fseek(fp, fpos, SEEK_SET) == -1)
+		exiterr("Error moving file pointer in last_lines().");
+	    (void) fread(buf, size_to_read, 1, fp);
+	    if (ferror(fp))
+		exiterr("Error reading file in last_lines().");
 
-	size_to_read = (size_t) BUF_SIZE;
-    } else {
-	if (fseek(fp, 0, SEEK_SET) == -1)
-	    exiterr("Error moving file pointer in last_lines().");
-
-	size_to_read = ((size_t) fpos);
-    }
-    (void) fread(buf, size_to_read, 1, fp);
-    if (ferror(fp))
-	exiterr("Error reading file in last_lines().");
-
-    ptr = buf + size_to_read;	/* here ptr points to (last char of buf)+1 = eof */
-
-    while (i++ <= n) {
-	while (*(--ptr) != '\n') {
-	    if (ptr <= buf) {
-		if (size_to_read == BUF_SIZE)	/* buffer full */
-		    exiterr("Error reading file in last_lines(): Line too long.");
-		else {
-		    ptr = buf;
-		    ptr--;
-		    i = n + 1;
-		    break;
+	    offset += size_to_read;
+	    for (inx = size_to_read - 1; inx >= 0; --inx) {
+		if (buf[inx] == '\n') {
+		    if (++count > target)
+			break;
+		    offset = inx + 1;
 		}
 	    }
-	}
-    }
-    ptr++;
 
-    if (fseek(fp, fpos - (buf + size_to_read - ptr), SEEK_SET) == -1)
-	exiterr("Error moving file pointer in last_lines().");
+	    if (count > target) {
+		break;
+	    } else if (fpos == 0) {
+		offset = 0;
+		break;
+	    }
+	}
+
+	if (fseek(fp, fpos + offset, SEEK_SET) == -1)
+	    exiterr("Error moving file pointer in last_lines().");
+    }
 }
 
 /*
@@ -199,6 +209,9 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 	case 'L':
 	case 'l':
 	    ch = KEY_RIGHT;
+	    break;
+	case '0':
+	    ch = KEY_BEG;
 	    break;
 	default:
 	    fkey = FALSE;
@@ -317,10 +330,11 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     if (bg_task) {
 	result = DLG_EXIT_OK;
     } else {
-	int ch = dlg_getc(dialog, &fkey);
-	while (handle_my_getc(&(obj->obj), ch, fkey, &result)) {
-	    ;
+	int ch;
+	do {
+	    ch = dlg_getc(dialog, &fkey);
 	}
+	while (handle_my_getc(&(obj->obj), ch, fkey, &result));
     }
     mouse_free_regions();
     return result;

@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.14 2003/09/10 21:34:01 tom Exp $
+ *  $Id: ui_getc.c,v 1.15 2003/09/24 00:25:12 tom Exp $
  *
  *  ui_getc.c
  *
@@ -66,8 +66,10 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 {
     DIALOG_CALLBACK *q;
 
-    if (p->input != 0)
+    if (p->input != 0) {
 	fclose(p->input);
+	p->input = 0;
+    }
 
     del_window(p->win);
     if ((q = dialog_state.getc_callbacks) == p) {
