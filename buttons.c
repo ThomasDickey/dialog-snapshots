@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.12 2000/07/29 19:28:50 tom Exp $
+ *  $Id: buttons.c,v 1.13 2000/07/30 03:20:46 tom Exp $
  *
  *  buttons.c
  *
@@ -195,7 +195,7 @@ dlg_exit_label(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = gettext("EXIT");
+    labels[n++] = _("EXIT");
     labels[n] = 0;
     return labels;
 }
@@ -206,7 +206,7 @@ dlg_ok_label(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = gettext("OK");
+    labels[n++] = _("OK");
     labels[n] = 0;
     return labels;
 }
@@ -217,9 +217,9 @@ dlg_ok_labels(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = gettext("OK");
+    labels[n++] = _("OK");
     if (!dialog_vars.nocancel)
-	labels[n++] = gettext("Cancel");
+	labels[n++] = _("Cancel");
     labels[n] = 0;
     return labels;
 }
@@ -230,8 +230,8 @@ dlg_yes_labels(void)
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = gettext("Yes");
-    labels[n++] = gettext("No");
+    labels[n++] = _("Yes");
+    labels[n++] = _("No");
     labels[n] = 0;
     return labels;
 }

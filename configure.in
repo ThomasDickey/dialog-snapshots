@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.10 2000/07/27 23:49:56 tom Exp $
+dnl $Id: configure.in,v 1.11 2000/07/30 03:31:41 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -63,12 +63,15 @@ fi
 
 AC_ARG_WITH(ncurses,
 	[  --with-ncurses          compile/link with ncurses library],
-	[
+	[with_ncurses=$withval],
+	[with_ncurses=no])
+if test $with_ncurses = yes ; then
 	CF_NCURSES_CPPFLAGS
 	CF_NCURSES_LIBS
-	],[
+else
+	CF_NCURSES_VERSION
 	CF_CURSES_LIBS
-])
+fi
 
 EXTRAOBJS=""
 cf_all_widgets=yes

@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.12 2000/07/29 19:06:49 tom Exp $
+ * $Id: fselect.c,v 1.14 2000/07/30 18:09:40 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -114,17 +114,29 @@ add_to_list(LIST * list, char *text)
     list->data[list->length] = 0;
 }
 
+static void
+keep_visible(LIST * list)
+{
+    int high = getmaxy(list->win);
+
+    if (list->choice < list->offset) {
+	list->offset = list->choice;
+    }
+    if (list->choice - list->offset >= high)
+	list->offset = list->choice - high + 1;
+}
+
 #define Value(c) (int)((c) & 0xff)
 
 static int
-find_offset(char *target, LIST * list)
+find_choice(char *target, LIST * list)
 {
     int n;
-    int offset = list->offset;
+    int choice = list->choice;
     int len_1, len_2, cmp_1, cmp_2;
 
     if (*target == 0) {
-	list->offset = 0;
+	list->choice = 0;
     } else {
 	/* find the match with the longest length.  If more than one has the
 	 * same length, choose the one with the closest match of the final
@@ -149,12 +161,14 @@ find_offset(char *target, LIST * list)
 		|| (len_1 == len_2 && cmp_2 < cmp_1)) {
 		len_1 = len_2;
 		cmp_1 = cmp_2;
-		list->offset = n;
+		list->choice = n;
 	    }
 	}
     }
-    list->choice = list->offset;	/* FIXME */
-    return (offset != list->offset);
+    if (choice != list->choice) {
+	keep_visible(list);
+    }
+    return (choice != list->choice);
 }
 
 static void
@@ -189,9 +203,9 @@ display_list(LIST * list)
 }
 
 static int
-show_list(char *target, LIST * list)
+show_list(char *target, LIST * list, bool keep)
 {
-    int changed = find_offset(target, list);
+    int changed = keep || find_choice(target, list);
     display_list(list);
     return changed;
 }
@@ -201,18 +215,17 @@ show_list(char *target, LIST * list)
  * to match.
  */
 static int
-show_both_lists(char *input, LIST * d_list, LIST * f_list)
+show_both_lists(char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     char *leaf = leaf_of(input);
 
-    return show_list(leaf, d_list) | show_list(leaf, f_list);
+    return show_list(leaf, d_list, keep) | show_list(leaf, f_list, keep);
 }
 
 static bool
 change_list(int choice, LIST * list)
 {
     if (data_of(list) != 0) {
-	int high = getmaxy(list->win);
 	int last = list->length - 1;
 
 	choice += list->choice;
@@ -221,11 +234,7 @@ change_list(int choice, LIST * list)
 	if (choice > last)
 	    choice = last;
 	list->choice = choice;
-	if (list->choice < list->offset) {
-	    list->offset = list->choice;
-	}
-	if (list->choice - list->offset >= high)
-	    list->offset = list->choice - high + 1;
+	keep_visible(list);
 	display_list(list);
 	return TRUE;
     }
@@ -239,7 +248,7 @@ compar(const void *a, const void *b)
 }
 
 static bool
-fill_lists(char *current, char *input, LIST * d_list, LIST * f_list)
+fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     DIR *dp;
     struct dirent *de;
@@ -257,7 +266,7 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list)
 	return FALSE;
     if (strchr(current + n, '/') == 0
 	&& strchr(input + n, '/') == 0) {
-	return show_both_lists(input, d_list, f_list);
+	return show_both_lists(input, d_list, f_list, keep);
     }
 
     strcpy(current, input);
@@ -288,7 +297,9 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list)
 	qsort(f_list->data, f_list->length, sizeof(f_list->data[0]), compar);
     }
 
-    show_both_lists(input, d_list, f_list);
+    show_both_lists(input, d_list, f_list, FALSE);
+    d_list->offset = d_list->choice;
+    f_list->offset = f_list->choice;
     return TRUE;
 }
 
@@ -325,6 +336,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     const char **buttons = dlg_ok_labels();
     LIST d_list, f_list;
 
+    (void) auto_size(title, (char *) 0, &height, &width, 6, 25);
     print_size(height, width);
     ctl_size(height, width);
 
@@ -383,7 +395,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     while (key != ESC) {
 	int edit = 0;
 
-	if (fill_lists(current, input, &d_list, &f_list))
+	if (fill_lists(current, input, &d_list, &f_list, button < -1))
 	    show_buttons = TRUE;
 
 	/*
