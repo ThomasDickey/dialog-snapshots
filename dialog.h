@@ -56,8 +56,7 @@
 #define MAX(x,y) (x > y ? x : y)
 
 #define MAX_TAILBG 9
-/* default separate_str is a Tab. It's must be a "string" */
-#define DEFAULT_SEPARATE_STR "\x9"
+#define DEFAULT_SEPARATE_STR "\t"
 #define DEFAULT_ASPECT_RATIO 9
 /* how many spaces is a tab long (default)? */
 #define TAB_LEN 8
@@ -171,7 +170,7 @@ void put_backtitle(void);
 char *auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
-char *make_lock_filename(char *filename);
+char *make_lock_filename(const char *filename);
 void wrefresh_lock(WINDOW *win);
 void ctl_idlemsg(WINDOW *win);
 void wrefresh_lock_tailbg(WINDOW *win);
@@ -184,7 +183,7 @@ void remove_lock(char *filename);
 
 void killall_bg(void);
 void quitall_bg(void);
-void exiterr(char *);
+void exiterr(const char *);
 void beeping(void);
 void print_size(int height, int width);
 void ctl_size(int height, int width);

@@ -16,6 +16,7 @@ Press SPACE to toggle an option on/off. \n\n\
         "Apple"  "It's an apple." off \
         "Dog"    "No, that's not my dog." ON \
         "Orange" "Yeah, that's juicy." off \
+        "Chicken"    "Normally not a pet." off \
         "Cat"    "No, never put a dog and a cat together!" oN \
         "Fish"   "Cats like fish." On \
         "Lemon"  "You know how it tastes." on 2> $tempfile

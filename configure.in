@@ -26,7 +26,7 @@ AC_ARG_WITH(warnings,
 dnl
 dnl Checks for libraries.
 dnl
-CF_MATH_LIB
+CF_MATH_LIB(,sqrt(x))
 
 AC_MSG_CHECKING(if you want to link with dbmalloc for testing)
 AC_ARG_WITH(dbmalloc,

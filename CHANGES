@@ -3,6 +3,22 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/1/23
+	+ improve test-case for gauge.
+	+ change gauge.c to show progress in reverse-video, add a check for
+	  end-of-file in the loop for reading new messages.
+	+ use curses whline() function to simplify print_arrows() logic in
+	  checkbox.c and menubox.c
+	+ use curses beep() function rather than hardcoded strings.
+	+ correct several compiler warnings for gcc -pedantic (mismatch of
+	  const, signed/unsigned).
+	+ modify exiterr() to avoid possible expansion of '%'.
+	+ change CF_MATH_LIB configure macro to allow specifying a particular
+	  test-function.  For dialog, this should be sqrt().  The macro was
+	  originally written for ncurses, which needs sin().  However, that is
+	  a builtin function on the m68k port (reported by Roman Hodek
+	  <Roman.Hodek@informatik.uni-erlangen.de>, this fixes Debian #55553).
+
 2000/1/18
 	+ update manpage (Debian #25648).
 	+ modify configure test for math library to avoid using a constant
