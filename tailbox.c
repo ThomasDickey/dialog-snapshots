@@ -221,7 +221,7 @@ static void last_lines(int n)
 
   while (i++ <= n)
     while ( *(--ptr) != '\n' )
-      if ( ptr <= buf )
+      if ( ptr <= buf ) {
         if ( size_to_read == BUF_SIZE ) /* buffer full */
           exiterr("\nError reading file in last_lines(): Line too long. \n");
         else {
@@ -229,6 +229,7 @@ static void last_lines(int n)
           i=n+1;
           break;
         }
+      }
   ptr++;
 
   if (fseek(fd, fpos-(buf+size_to_read-ptr), SEEK_SET) == -1)
@@ -303,13 +304,17 @@ static char *get_line(void)
   do {
     if (((ch = getc(fd)) == EOF) && !feof(fd))
       exiterr("\nError moving file pointer in get_line().\n");
-    else if ((i < MAX_LEN) && !feof(fd) && (ch != '\n'))
+    else if ((i < MAX_LEN) && !feof(fd) && (ch != '\n')) {
       if ((ch == TAB) && (tab_correct)) {
         tmpint=tab_len-(i%tab_len);
-        for (j = 0; j < tmpint; j++)
+        for (j = 0; j < tmpint; j++) {
           if (i < MAX_LEN)
             line[i++]=' ';
-      } else line[i++] = ch;
+	}
+      } else {
+	line[i++] = ch;
+      }
+    }
   } while (!feof(fd) && (ch != '\n'));
   
   line[i++]='\0';

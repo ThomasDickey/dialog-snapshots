@@ -191,7 +191,7 @@ dialog_menu (const char *title, const char *cprompt, int height, int width,
 		    continue;	/* wait for another key press */
 		} else
 		    i = choice - 1;
-	    } else if (key == KEY_DOWN || key == '+')
+	    } else if (key == KEY_DOWN || key == '+') {
 		if (choice == max_choice - 1) {
 		    if (scroll + choice < item_no - 1) {
 			/* Scroll menu up */
@@ -239,8 +239,10 @@ dialog_menu (const char *title, const char *cprompt, int height, int width,
 			wrefresh_lock (dialog);
 		    }
 		    continue;	/* wait for another key press */
-		} else
+		} else {
 		    i = choice + 1;
+		}
+	    }
 
 	    if (i != choice) {
 		/* De-highlight current item */

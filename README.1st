@@ -3,6 +3,9 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+1999/11/27
+	+ fix some gcc warnings about ambiguous use of "else"
+
 1999/5/1
 
 	+ cleaned up some of the redundant code with new functions:
