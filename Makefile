@@ -40,6 +40,7 @@ CFLAGS+=-DHAVE_LIBGPM
 OBJS+=mouse.o
 endif
 ifeq ($(HAVE_NCURSES), true)
+CFLAGS+=-DHAVE_COLOR
 LDLIBS+=-lncurses
 endif
 ifeq ($(HAVE_RC_FILE), true)
