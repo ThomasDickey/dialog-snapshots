@@ -38,6 +38,8 @@ INSTALL_DATA	= @INSTALL_DATA@
 
 EXTRAOBJS = @EXTRAOBJS@
 OBJS = $(EXTRAOBJS) \
+	arrows.o \
+	buttons.o \
 	checklist.o \
 	inputbox.o \
 	inputstr.o \

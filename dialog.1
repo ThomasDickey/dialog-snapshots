@@ -95,6 +95,10 @@ SIGHUP is disabled for the background process.
 .IP "\fB\-\-no-shadow"
 Suppress shadows which would be drawn to the right and bottom of each dialog box.
 .
+.IP "\fB\-\-nocancel"
+Suppress the "Cancel" button in checklist, inputbox and menubox modes.
+A script can still test if the user pressed the ESC key to cancel to quit.
+.
 .IP "\fB\-\-print-maxsize"
 Print the maximum size of dialog boxes, i.e., the screen size,
 to the standard error.
@@ -111,7 +115,7 @@ This may be the only option.
 For checklist widgets, output result one line at a time, with no
 quoting.  This facilitates parsing by another program.
 .
-.IP "\fB\-\-separate-widget "\fIstring""
+.IP "\fB\-\-separate-widget \fIstring"
 Specify a string that will separate the output on standard error from
 each widget.
 This is used to simplify parsing the result of a dialog with several widgets.
@@ -171,7 +175,7 @@ to reflect each new percentage.  If stdin is XXX, then subsequent
 lines up to another XXX are used for a new prompt.
 The gauge exits when EOF is reached on stdin.
 .
-.IP \fB\-\-infobox \fItext height width"
+.IP "\fB\-\-infobox \fItext height width"
 An
 .B info
 box is basically a
@@ -200,71 +204,6 @@ key can be used to correct typing errors. If the input string is longer than
 can be fitted in the dialog box, the input field will be scrolled. On exit,
 the input string will be printed on
 .IR stderr "."
-.
-.IP \fB\-\-msgbox \fItext height width"
-A
-.B message
-box is very similar to a
-.B yes/no
-box.
-The only difference between a
-.B message
-box and a
-.B yes/no
-box is that a
-.B message
-box has only a single
-.B OK
-button. You can use this dialog box to display any message you like.
-After reading the message, the user can press the
-.I ENTER
-key so that
-.B dialog
-will exit and the calling shell script can continue its operation.
-.
-.IP "\fB\-\-passwordbox "\fItext height width [init]"
-A
-.B password
-box is similar to an input box, except that the text the user
-enters is not displayed.
-This is useful when prompting for passwords or other
-sensitive information.
-Be aware that if anything is passed in "init", it
-will be visible in the system's process table to casual snoopers.
-Also, it
-is very confusing to the user to provide them with a default password they
-cannot see.
-For these reasons, using "init" is highly discouraged.
-.
-.IP "\fB\-\-radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
-A
-.B radiolist
-box is similar to a
-.B menu
-box.  The only difference is
-that you can indicate which entry is currently selected, by setting its
-.IR status " to " on "."
-.
-.IP "\fB\-\-tailbox " file height width"
-Display text from a file in a dialog box, as in a "tail -f" command.
-.
-.IP "\fB\-\-textboxbg " file height width"
-Display text from a file in a dialog box in a background process,
-as in a "tail -f &" command.
-.
-.IP "\fB\-\-textbox " file height width"
-A
-.B text
-box lets you display the contents of a text file in a dialog box.
-It is like a simple text file viewer.
-The user can move through the file by using the
-.IR UP/DOWN ", " PGUP/PGDN
-.RI and " HOME/END" " keys available on most keyboards."
-If the lines are too long to be displayed in the box, the
-.I LEFT/RIGHT
-keys can be used to scroll the text region horizontally.
-For more convenience,
-forward and backward searching functions are also provided.
 .
 .IP "\fB\-\-menu \fItext height width menu-height \fR[ \fItag item \fR] \fI..."
 As its name suggests, a
@@ -296,6 +235,71 @@ exits, the
 .I tag
 of the chosen menu entry will be printed on
 .IR stderr "."
+.
+.IP "\fB\-\-msgbox \fItext height width"
+A
+.B message
+box is very similar to a
+.B yes/no
+box.
+The only difference between a
+.B message
+box and a
+.B yes/no
+box is that a
+.B message
+box has only a single
+.B OK
+button. You can use this dialog box to display any message you like.
+After reading the message, the user can press the
+.I ENTER
+key so that
+.B dialog
+will exit and the calling shell script can continue its operation.
+.
+.IP "\fB\-\-passwordbox \fItext height width [init]"
+A
+.B password
+box is similar to an input box, except that the text the user
+enters is not displayed.
+This is useful when prompting for passwords or other
+sensitive information.
+Be aware that if anything is passed in "init", it
+will be visible in the system's process table to casual snoopers.
+Also, it
+is very confusing to the user to provide them with a default password they
+cannot see.
+For these reasons, using "init" is highly discouraged.
+.
+.IP "\fB\-\-radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
+A
+.B radiolist
+box is similar to a
+.B menu
+box.  The only difference is
+that you can indicate which entry is currently selected, by setting its
+.IR status " to " on "."
+.
+.IP "\fB\-\-tailbox file height width"
+Display text from a file in a dialog box, as in a "tail -f" command.
+.
+.IP "\fB\-\-textbox file height width"
+A
+.B text
+box lets you display the contents of a text file in a dialog box.
+It is like a simple text file viewer.
+The user can move through the file by using the
+.IR UP/DOWN ", " PGUP/PGDN
+.RI and " HOME/END" " keys available on most keyboards."
+If the lines are too long to be displayed in the box, the
+.I LEFT/RIGHT
+keys can be used to scroll the text region horizontally.
+For more convenience,
+forward and backward searching functions are also provided.
+.
+.IP "\fB\-\-textboxbg file height width"
+Display text from a file in a dialog box in a background process,
+as in a "tail -f &" command.
 .
 .IP "\fB\-\-yesno \fItext height width"
 A

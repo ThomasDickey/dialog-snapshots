@@ -192,6 +192,7 @@ mouse_handler (Gpm_Event * event, void *unused)
 		switch (event->buttons) {
 		case GPM_B_LEFT:
 		    reptkey = KEY_DOWN - KEY_UP;
+		    /* FALLTHRU */
 		case GPM_B_RIGHT:
 		    reptkey += KEY_UP;
 		    gpm_morekeys = event->y - bigRegion.y;
@@ -217,8 +218,6 @@ mouse_handler (Gpm_Event * event, void *unused)
 	    }
 	    return CURRENT_POS;
 	}
-
-	return 0;
     }
     /* smaller regions */
 

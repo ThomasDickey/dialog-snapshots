@@ -18,6 +18,9 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef DIALOG_H_included
+#define DIALOG_H_included 1
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #else
@@ -52,6 +55,16 @@
 #define SCOLS	COLS
 #define SLINES	LINES
 #endif
+
+#define LABEL_EXIT   " EXIT "
+#define LABEL_YES    " Yes "
+#define LABEL_NO     "  No  "
+#define LABEL_OK     "  OK  "
+#define LABEL_CANCEL "Cancel"
+
+#define EXIT_ESC	-1
+#define EXIT_OK		0
+#define EXIT_CANCEL	1
 
 #define ESC 27
 #define TAB 9
@@ -99,7 +112,7 @@
 #define ACS_DARROW 'v'
 #endif
 
-/* 
+/*
  * Attribute names
  */
 #define screen_attr                   attributes[0]
@@ -138,22 +151,43 @@
 /*
  * Global variables
  */
+typedef struct {
+	bool beep_after_signal;
+	bool beep_signal;
+	bool begin_set;
+	bool cant_kill;
+	bool clear_screen;
+	bool cr_wrap;
+	bool nocancel;
+	bool print_siz;
+	bool separate_output;
+	bool size_err;
+	bool tab_correct;
+	char *backtitle;
+	char *title;
+	int aspect_ratio;
+	int begin_x;
+	int begin_y;
+	int sleep_secs;
+	int tab_len;
+} DIALOG_VARS;
+
+extern DIALOG_VARS dialog_vars;
+
 #ifdef HAVE_COLOR
 extern bool use_colors;
 extern bool use_shadow;
 #endif
 
+extern FILE *pipe_fp;
+
 extern chtype attributes[];
 
-extern int is_tailbg, print_siz, tab_len, tab_correct;
+extern int is_tailbg;
 
-/* Coordinate in begin_y, begin_x  if begin_set == 1 */
-extern int begin_y, begin_x, begin_set, aspect_ratio, screen_initialized;
+extern int screen_initialized;
 
-extern char *backtitle, *lock_refresh, *lock_tailbg_refreshed,
-        *lock_tailbg_exit;
-extern int beep_signal, is_tailbg, print_siz, cr_wrap, size_err,
-        tab_len, tab_correct;
+extern char *lock_refresh, *lock_tailbg_refreshed, *lock_tailbg_exit;
 extern pid_t tailbg_pids[MAX_TAILBG], tailbg_lastpid, tailbg_nokill_pids[MAX_TAILBG], tailbg_nokill_lastpid;
 
 /*
@@ -206,7 +240,6 @@ void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif
 
 void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x);
-void print_button (WINDOW * win, const char *label, int y, int x, int selected);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
 		chtype borderchar);
 
@@ -226,6 +259,15 @@ int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
+
+/* arrows.c */
+void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
+
+/* button.c */
+extern const char ** dlg_ok_labels(void);
+extern const char ** dlg_yes_labels(void);
+extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
+extern void print_button (WINDOW * win, const char *label, int y, int x, int selected);
 
 /* inputstr.c */
 extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
@@ -274,10 +316,11 @@ int mouse_wgetch (WINDOW *);
  */
 #define M_EVENT (KEY_MAX+1)
 
-
 /*
  * The `flag' parameter in checklist is used to select between
  * radiolist and checklist
  */
 #define FLAG_CHECK 1
 #define FLAG_RADIO 0
+
+#endif /* DIALOG_H_included */

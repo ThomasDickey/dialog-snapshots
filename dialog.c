@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.22 2000/02/04 01:13:27 tom Exp $
+ * $Id: dialog.c,v 1.25 2000/02/22 01:06:14 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -28,41 +28,142 @@
 #endif
 
 /* globals */
-char *backtitle;
+DIALOG_VARS dialog_vars;
 char *lock_refresh;
 char *lock_tailbg_exit;
 char *lock_tailbg_refreshed;
-int aspect_ratio;
-int beep_signal;
-int begin_set;
-int begin_x;
-int begin_y;
-int cant_kill;
-int cr_wrap;
 int defaultno = FALSE;
-int is_tailbg = 0;
-int print_siz;
+int is_tailbg = FALSE;
 int screen_initialized = 0;
-int separate_output;		/* local file */
-int size_err;
-int tab_correct;
-int tab_len;
 pid_t tailbg_lastpid = 0;
 pid_t tailbg_nokill_lastpid = 0;
 pid_t tailbg_nokill_pids[MAX_TAILBG];
 pid_t tailbg_pids[MAX_TAILBG];
 
-#define JUMPARGS const char *t, char *av[], int offset, int *offset_add
+#define JUMPARGS const char *t, char *av[], int *offset_add
 typedef int (jumperFn) (JUMPARGS);
 
-struct Mode {
+typedef enum {
+    o_unknown = 0
+    ,o_and_widget
+    ,o_aspect
+    ,o_backtitle
+    ,o_beep
+    ,o_beep_after
+    ,o_begin
+    ,o_checklist
+    ,o_clear
+    ,o_cr_wrap
+    ,o_create_rc
+    ,o_defaultno
+    ,o_fullbutton
+    ,o_gauge
+    ,o_help
+    ,o_infobox
+    ,o_inputbox
+    ,o_menu
+    ,o_msgbox
+    ,o_no_kill
+    ,o_no_shadow
+    ,o_nocancel
+    ,o_noitem
+    ,o_passwordbox
+    ,o_print_maxsize
+    ,o_print_size
+    ,o_print_version
+    ,o_radiolist
+    ,o_separate_output
+    ,o_separate_widget
+    ,o_shadow
+    ,o_size_err
+    ,o_sleep
+    ,o_tab_correct
+    ,o_tab_len
+    ,o_tailbox
+    ,o_tailboxbg
+    ,o_textbox
+    ,o_title
+    ,o_yesno
+} eOptions;
+
+typedef struct {
     const char *name;
+    eOptions code;
+    int pass;
+    const char *help;
+} Options;
+
+struct Mode {
+    eOptions code;
     int argmin, argmax;
     jumperFn *jumper;
 };
 
 static const char *program = "dialog";
 static const char *and_widget = "--and-widget";
+/* *INDENT-OFF* */
+static Options options[] = {
+    { "and-widget",	o_and_widget,		4, NULL },
+    { "aspect",		o_aspect,		1, "<ratio>" },
+    { "backtitle",	o_backtitle,		1, "<backtitle>" },
+    { "beep",		o_beep,			1, "" },
+    { "beep-after",	o_beep_after,		1, "" },
+    { "begin",		o_begin,		1, "<y> <x>" },
+    { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
+    { "clear",		o_clear,		1, "" },
+    { "cr-wrap",	o_cr_wrap,		1, "" },
+    { "create-rc",	o_create_rc,		1, "" },
+    { "defaultno",	o_defaultno,		1, "" },
+    { "fb",		o_fullbutton,		1, NULL },
+    { "fullbutton",	o_fullbutton,		1, NULL },
+    { "gauge",		o_gauge,		2, "<text> <height> <width> <percent>" },
+    { "guage",		o_gauge,		2, NULL },
+    { "help",		o_help,			4, "" },
+    { "infobox",	o_infobox,		2, "<text> <height> <width>" },
+    { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
+    { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
+    { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
+    { "no-kill",	o_no_kill,		1, "" },
+    { "no-shadow",	o_no_shadow,		1, "" },
+    { "nocancel",	o_nocancel,		1, "" },
+    { "noitem",		o_noitem,		1, NULL },
+    { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
+    { "print-maxsize",	o_print_maxsize,	1, "" },
+    { "print-size",	o_print_size,		1, "" },
+    { "print-version",	o_print_version,	4, "" },
+    { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
+    { "separate-output",o_separate_output,	1, "" },
+    { "separate-widget",o_separate_widget,	1, "<str>" },
+    { "shadow",		o_shadow,		1, "" },
+    { "size-err",	o_size_err,		1, "" },
+    { "sleep",		o_sleep,		1, "<secs>" },
+    { "tab-correct",	o_tab_correct,		1, "" },
+    { "tab-len",	o_tab_len,		1, "<n>" },
+    { "tailbox",	o_tailbox,		2, "<file> <height> <width>" },
+    { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
+    { "textbox",	o_textbox,		2, "<file> <height> <width>" },
+    { "title",		o_title,		1, "<title>" },
+    { "yesno",		o_yesno,		2, "<text> <height> <width>" },
+};
+/* *INDENT-ON* */
+
+static eOptions
+lookupOption(const char *name, int pass)
+{
+    unsigned n;
+
+    if (name != 0
+	&& !strncmp(name, "--", 2)) {
+	name += 2;
+	for (n = 0; n < sizeof(options) / sizeof(options[0]); n++) {
+	    if ((pass & options[n].pass) != 0
+		&& !strcmp(name, options[n].name)) {
+		return options[n].code;
+	    }
+	}
+    }
+    return o_unknown;
+}
 
 static void
 Usage(char *msg)
@@ -82,9 +183,9 @@ arg_rest(char *argv[])
 {
     int i = 0;
 
-    while (argv[++i] != 0
+    while (argv[i] != 0
 	&& strcmp(argv[i], and_widget) != 0)
-	continue;
+	i++;
     return i;
 }
 
@@ -130,9 +231,9 @@ j_yesno(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_yesno(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]), defaultno);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]), defaultno);
 }
 
 static int
@@ -140,9 +241,9 @@ j_msgbox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]), 1);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]), 1);
 }
 
 static int
@@ -150,9 +251,9 @@ j_infobox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]), 0);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]), 0);
 }
 
 static int
@@ -160,25 +261,25 @@ j_textbox(JUMPARGS)
 {
     *offset_add = 4;
     return dialog_textbox(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]));
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]));
 }
 
 static int
 j_menu(JUMPARGS)
 {
     int ret;
-    int tags = howmany_tags(av + offset + 6, 2);
+    int tags = howmany_tags(av + 5, 2);
     *offset_add = 5 + tags * 2;
     ret = dialog_menu(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
-	atoi(av[offset + 5]),
-	tags, av + offset + 6);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
+	atoi(av[4]),
+	tags, av + 5);
     if (ret >= 0) {
-	fprintf(stderr, av[offset + 6 + ret * 2]);
+	fprintf(stderr, av[5 + ret * 2]);
 	return 0;
     } else if (ret == -2)
 	return 1;		/* CANCEL */
@@ -188,27 +289,27 @@ j_menu(JUMPARGS)
 static int
 j_checklist(JUMPARGS)
 {
-    int tags = howmany_tags(av + offset + 6, 3);
+    int tags = howmany_tags(av + 5, 3);
     *offset_add = 5 + tags * 3;
     return dialog_checklist(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
-	atoi(av[offset + 5]),
-	tags, av + offset + 6, FLAG_CHECK, separate_output);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
+	atoi(av[4]),
+	tags, av + 5, FLAG_CHECK, dialog_vars.separate_output);
 }
 
 static int
 j_radiolist(JUMPARGS)
 {
-    int tags = howmany_tags(av + offset + 6, 3);
+    int tags = howmany_tags(av + 5, 3);
     *offset_add = 5 + tags * 3;
     return dialog_checklist(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
-	atoi(av[offset + 5]),
-	tags, av + offset + 6, FLAG_RADIO, separate_output);
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
+	atoi(av[4]),
+	tags, av + 5, FLAG_RADIO, dialog_vars.separate_output);
 }
 
 static int
@@ -217,14 +318,14 @@ j_inputbox(JUMPARGS)
     int ret;
     char *init_inputbox = 0;
 
-    if (arg_rest(av + offset) >= 5)
-	init_inputbox = av[offset + 5];
+    if (arg_rest(av) >= 4)
+	init_inputbox = av[4];
 
     *offset_add = 4 + ((init_inputbox == NULL) ? 0 : 1);
     ret = dialog_inputbox(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
 	init_inputbox, 0);
     if (ret == 0)
 	fprintf(stderr, "%s", dialog_input_result);
@@ -237,14 +338,14 @@ j_passwordbox(JUMPARGS)
     int ret;
     char *init_inputbox = 0;
 
-    if (arg_rest(av + offset) >= 5)
-	init_inputbox = av[offset + 5];
+    if (arg_rest(av) >= 4)
+	init_inputbox = av[4];
 
     *offset_add = 4 + ((init_inputbox == NULL) ? 0 : 1);
     ret = dialog_inputbox(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
 	init_inputbox, 1);
     if (ret == 0)
 	fprintf(stderr, "%s", dialog_input_result);
@@ -257,10 +358,10 @@ j_gauge(JUMPARGS)
 {
     *offset_add = 5;
     return dialog_gauge(t,
-	av[offset + 2],
-	atoi(av[offset + 3]),
-	atoi(av[offset + 4]),
-	atoi(av[offset + 5]));
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]),
+	atoi(av[4]));
 }
 #endif
 
@@ -269,8 +370,10 @@ static int
 j_tailbox(JUMPARGS)
 {
     *offset_add = 4;
-    return dialog_tailbox(t, av[offset + 2], atoi(av[offset + 3]),
-	atoi(av[offset + 4]));
+    return dialog_tailbox(t,
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]));
 }
 
 static int
@@ -285,7 +388,7 @@ j_tailboxbg(JUMPARGS)
 
     *offset_add = 4;
     refresh();			/* doupdate(); */
-    if (cant_kill)
+    if (dialog_vars.cant_kill)
 	tailbg_nokill_pids[tailbg_nokill_lastpid] =
 	    tailbg_pids[tailbg_lastpid] = fork();
     else
@@ -294,19 +397,20 @@ j_tailboxbg(JUMPARGS)
     /* warning! here are 2 processes */
 
     if (tailbg_pids[tailbg_lastpid] == 0) {
-	if (cant_kill)
+	if (dialog_vars.cant_kill)
 	    fprintf(stderr, "%d", (int) getpid());
-	is_tailbg = 1;
+	is_tailbg = TRUE;
 	dialog_tailboxbg(t,
-	    av[offset + 2],
-	    atoi(av[offset + 3]),
-	    atoi(av[offset + 4]), cant_kill);
+	    av[1],
+	    atoi(av[2]),
+	    atoi(av[3]),
+	    dialog_vars.cant_kill);
 
 	refresh();		/* quitting for signal 15 and --no-kill */
 	endwin();
 	exit(0);
     }
-    if (cant_kill)
+    if (dialog_vars.cant_kill)
 	tailbg_nokill_lastpid++;
     tailbg_lastpid++;
     return 0;
@@ -316,47 +420,46 @@ j_tailboxbg(JUMPARGS)
 /*
  * All functions are used in the slackware root disk, apart from "gauge"
  */
-
+/* *INDENT-OFF* */
 static struct Mode modes[] =
 {
-    {"--yesno", 5, 5, j_yesno},
-    {"--msgbox", 5, 5, j_msgbox},
-    {"--infobox", 5, 5, j_infobox},
-    {"--textbox", 5, 5, j_textbox},
-    {"--menu", 8, 0, j_menu},
-    {"--checklist", 9, 0, j_checklist},
-    {"--radiolist", 9, 0, j_radiolist},
-    {"--inputbox", 5, 6, j_inputbox},
-    {"--passwordbox", 5, 6, j_passwordbox},
+    {o_yesno, 4, 4, j_yesno},
+    {o_msgbox, 4, 4, j_msgbox},
+    {o_infobox, 4, 4, j_infobox},
+    {o_textbox, 4, 4, j_textbox},
+    {o_menu, 7, 0, j_menu},
+    {o_checklist, 8, 0, j_checklist},
+    {o_radiolist, 8, 0, j_radiolist},
+    {o_inputbox, 4, 5, j_inputbox},
+    {o_passwordbox, 4, 5, j_passwordbox},
 #ifdef HAVE_GAUGE
-    {"--gauge", 6, 6, j_gauge},
-    {"--guage", 6, 6, j_gauge},	/* obsolete - for compatibility only */
+    {o_gauge, 5, 5, j_gauge},
 #endif
 #ifdef HAVE_TAILBOX
-    {"--tailbox", 5, 5, j_tailbox},
-    {"--tailboxbg", 5, 5, j_tailboxbg},
+    {o_tailbox, 4, 4, j_tailbox},
+    {o_tailboxbg, 4, 4, j_tailboxbg},
 #endif
-    {NULL, 0, 0, NULL}
 };
+/* *INDENT-ON* */
 
 static char *
 optionString(char **argv, int *num)
 {
-    int next = *num + 2;
+    int next = *num + 1;
     char *result = argv[next];
     if (result == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a string-parameter for %.20s", argv[1]);
+	sprintf(temp, "Expected a string-parameter for %.20s", argv[0]);
 	Usage(temp);
     }
-    *num = (next - 1);
+    *num = next;
     return result;
 }
 
 static int
 optionValue(char **argv, int *num)
 {
-    int next = *num + 2;
+    int next = *num + 1;
     char *src = argv[next];
     char *tmp = 0;
     int result = 0;
@@ -369,11 +472,32 @@ optionValue(char **argv, int *num)
 
     if (src == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a numeric-parameter for %.20s", argv[1]);
+	sprintf(temp, "Expected a numeric-parameter for %.20s", argv[0]);
 	Usage(temp);
     }
-    *num = (next - 1);
+    *num = next;
     return result;
+}
+
+/*
+ * Print parts of a message
+ */
+static void
+PrintList(const char **list)
+{
+    const char *leaf = strrchr(program, '/');
+    unsigned n = 0;
+
+    if (leaf != 0)
+	leaf++;
+    else
+	leaf = program;
+
+    while (*list != 0) {
+	fprintf(stderr, *list++, n ? leaf : VERSION);
+	fputc('\n', stderr);
+	n = 1;
+    }
 }
 
 /*
@@ -382,7 +506,7 @@ optionValue(char **argv, int *num)
 static void
 Help(void)
 {
-    static const char *tbl[] =
+    static const char *tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s by Pako (demarco_p@abramo.it)",
 	"originally dialog version 0.3, by Savio Lam (lam836@cs.cuhk.hk).",
@@ -395,65 +519,40 @@ Help(void)
 	"",
 #ifdef HAVE_RC_FILE
 	"Special options:",
-	" [--create-rc \"Ifile\"]",
+	"  [--create-rc \"Ifile\"]",
 #endif
-	"Common options:"
-	," "
-	" [--aspect <ratio>]"
-	" [--backtitle <backtitle>]"
-	" [--beep]"
-	" [--beep-after]"
-	," "
-	" [--begin <y> <x>]"
-	" [--clear]"
-	" [--cr-wrap]"
-	" [--defaultno]"
-	" [--no-kill]"
-	," "
-	" [--no-shadow]"
-	" [--print-maxsize]"
-	" [--print-size]"
-	" [--print-version]"
-	," "
-	" [--separate-output]"
-	" [--separate-widget \"<str>\"]"
-	" [--shadow]"
-	" [--size-err]"
-	," "
-	" [--sleep <secs>]"
-	" [--tab-correct]"
-	" [--tab-len <n>]"
-	" [--title <title>]"
-	,"",
-	"Box options:",
-	"  --checklist <text> <height> <width> <list height> <tag1> <item1> <status1>...",
-	"  --gauge     <text> <height> <width> <percent>",
-	"  --infobox   <text> <height> <width>",
-	"  --inputbox  <text> <height> <width> [<init>]",
-	"  --menu      <text> <height> <width> <menu height> <tag1> <item1>...",
-	"  --msgbox    <text> <height> <width>",
-	"  --passwordbox <text> <height> <width> [<init>]",
-	"  --radiolist <text> <height> <width> <list height> <tag1> <item1> <status1>...",
-	"  --tailboxbg <file> <height> <width>",
-	"  --tailbox   <file> <height> <width>",
-	"  --textbox   <file> <height> <width>",
-	"  --yesno     <text> <height> <width>",
+	0
+    }, *tbl_3[] =
+    {
 	"",
 	"Auto-size with height and width = 0. Maximize with height and width = -1.",
 	"Global-auto-size if also menu_height/list_height = 0.",
+	0
     };
-    unsigned n;
-    const char *leaf = strrchr(program, '/');
+    unsigned j, k;
 
-    if (leaf != 0)
-	leaf++;
-    else
-	leaf = program;
-
-    for (n = 0; n < sizeof(tbl) / sizeof(tbl[0]); n++) {
-	fprintf(stderr, tbl[n], n ? leaf : VERSION);
-	fputc('\n', stderr);
+    PrintList(tbl_1);
+    fprintf(stderr, "Common options:\n ");
+    for (j = k = 0; j < sizeof(options) / sizeof(options[0]); j++) {
+	if ((options[j].pass & 1)
+	    && options[j].help != 0) {
+	    unsigned len = 6 + strlen(options[j].name) + strlen(options[j].help);
+	    k += len;
+	    if (k > 75) {
+		fprintf(stderr, "\n ");
+		k = len;
+	    }
+	    fprintf(stderr, " [--%s%s%s]", options[j].name,
+		*(options[j].help) ? " " : "", options[j].help);
+	}
     }
+    fprintf(stderr, "\nBox options:\n");
+    for (j = 0; j < sizeof(options) / sizeof(options[0]); j++) {
+	if ((options[j].pass & 2)
+	    && options[j].help != 0)
+	    fprintf(stderr, "  --%-12s %s\n", options[j].name, options[j].help);
+    }
+    PrintList(tbl_3);
 
     exit(EXIT_SUCCESS);
 }
@@ -462,15 +561,13 @@ int
 main(int argc, char *argv[])
 {
     char temp[80];
-    char *title;
     const char *separate_str = DEFAULT_SEPARATE_STR;
-    int beep_after_signal;
-    int clear_screen;
     int esc_pressed = 0;
-    int offset = 0;
+    int offset = 1;
     int offset_add;
     int retval = 0;
-    int sleep_secs;
+    int done;
+    eOptions code;
     struct Mode *modePtr;
 #ifndef HAVE_COLOR
     int use_shadow = FALSE;	/* ignore corresponding option */
@@ -524,145 +621,167 @@ main(int argc, char *argv[])
 	(lock_tailbg_exit = make_lock_filename("/tmp/.lock_exitXXXXXX")) == NULL)
 	exiterr("Internal error: can't make lock files.");
 
-    while (offset < argc - 1 && !esc_pressed) {
-	aspect_ratio = DEFAULT_ASPECT_RATIO;
-	backtitle = NULL;
-	beep_after_signal = 0;
-	beep_signal = 0;
-	begin_set = 0;
-	begin_x = 0;
-	begin_y = 0;
-	cant_kill = 0;
-	clear_screen = 0;
-	cr_wrap = 0;
-	print_siz = 0;
-	separate_output = 0;
-	size_err = 0;
-	sleep_secs = 0;
-	tab_correct = 0;
-	tab_len = TAB_LEN;
-	title = NULL;
+    while (offset < argc && !esc_pressed) {
+	memset(&dialog_vars, 0, sizeof(dialog_vars));
+	dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
+	dialog_vars.tab_len = TAB_LEN;
+	done = FALSE;
 
-	while (offset < argc - 1) {	/* Common options */
-	    char *option = argv[offset + 1];
-	    if (!strcmp(option, "--title")) {
-		title = optionString(argv, &offset);
-	    } else if (!strcmp(option, "--backtitle")) {
-		backtitle = optionString(argv, &offset);
-	    } else if (!strcmp(option, "--separate-widget")) {
+	while (offset < argc && !done) {	/* Common options */
+	    switch (lookupOption(argv[offset], 1)) {
+	    case o_title:
+		dialog_vars.title = optionString(argv, &offset);
+		break;
+	    case o_backtitle:
+		dialog_vars.backtitle = optionString(argv, &offset);
+		break;
+	    case o_separate_widget:
 		separate_str = optionString(argv, &offset);
-	    } else if (!strcmp(option, "--separate-output")) {
-		separate_output = 1;
-	    } else if (!strcmp(option, "--cr-wrap")) {
-		cr_wrap = 1;
-	    } else if (!strcmp(option, "--no-kill")) {
-		cant_kill = 1;
-	    } else if (!strcmp(option, "--size-err")) {
-		size_err = 1;
-	    } else if (!strcmp(option, "--beep")) {
-		beep_signal = 1;
-	    } else if (!strcmp(option, "--beep-after")) {
-		beep_after_signal = 1;
-	    } else if (!strcmp(option, "--shadow")) {
+		break;
+	    case o_separate_output:
+		dialog_vars.separate_output = TRUE;
+		break;
+	    case o_cr_wrap:
+		dialog_vars.cr_wrap = TRUE;
+		break;
+	    case o_no_kill:
+		dialog_vars.cant_kill = TRUE;
+		break;
+	    case o_nocancel:
+		dialog_vars.nocancel = TRUE;
+		break;
+	    case o_size_err:
+		dialog_vars.size_err = TRUE;
+		break;
+	    case o_beep:
+		dialog_vars.beep_signal = TRUE;
+		break;
+	    case o_beep_after:
+		dialog_vars.beep_after_signal = TRUE;
+		break;
+	    case o_shadow:
 		use_shadow = TRUE;
-	    } else if (!strcmp(option, "--defaultno")) {
+		break;
+	    case o_defaultno:
 		defaultno = TRUE;
-	    } else if (!strcmp(option, "--no-shadow")) {
+		break;
+	    case o_no_shadow:
 		use_shadow = FALSE;
-	    } else if (!strcmp(option, "--print-size")) {
-		print_siz = 1;
-	    } else if (!strcmp(option, "--print-maxsize")) {
+		break;
+	    case o_print_size:
+		dialog_vars.print_siz = TRUE;
+		break;
+	    case o_print_maxsize:
 		fprintf(stderr, "MaxSize: %d, %d\n", SLINES, SCOLS);
-	    } else if (!strcmp(option, "--print-version")) {
+		break;
+	    case o_print_version:
 		fprintf(stderr, "Version: %s\n", VERSION);
-	    } else if (!strcmp(option, "--tab-correct")) {
-		tab_correct = 1;
-	    } else if (!strcmp(option, "--sleep")) {
-		sleep_secs = optionValue(argv, &offset);
-	    } else if (!strcmp(option, "--tab-len")) {
-		tab_len = optionValue(argv, &offset);
-	    } else if (!strcmp(option, "--aspect")) {
-		aspect_ratio = optionValue(argv, &offset);
-	    } else if (!strcmp(option, "--begin")) {
-		begin_set = 1;
-		begin_y = optionValue(argv, &offset);
-		begin_x = optionValue(argv, &offset);
-	    } else if (!strcmp(option, "--clear")) {
+		break;
+	    case o_tab_correct:
+		dialog_vars.tab_correct = TRUE;
+		break;
+	    case o_sleep:
+		dialog_vars.sleep_secs = optionValue(argv, &offset);
+		break;
+	    case o_tab_len:
+		dialog_vars.tab_len = optionValue(argv, &offset);
+		break;
+	    case o_aspect:
+		dialog_vars.aspect_ratio = optionValue(argv, &offset);
+		break;
+	    case o_begin:
+		dialog_vars.begin_set = TRUE;
+		dialog_vars.begin_y = optionValue(argv, &offset);
+		dialog_vars.begin_x = optionValue(argv, &offset);
+		break;
+	    case o_clear:
 		if (argc == 2) {	/* we only want to clear the screen */
 		    killall_bg();
 		    refresh();
 		    end_dialog();
 		    return 0;
-		} else {
-		    clear_screen = 1;
 		}
-	    } else {		/* no more common options */
+		dialog_vars.clear_screen = TRUE;
+		break;
+	    case o_noitem:
+	    case o_fullbutton:
+		/* ignore */
+		break;
+	    default:		/* no more common options */
+		done = TRUE;
 		break;
 	    }
-	    offset++;
+	    if (!done)
+		offset++;
 	}
 
-	/* if (separate_output==1 and no-checklist) or (no more options) ... */
+	if (argv[offset] == NULL) {
+	    Usage("Expected a box option");
+	}
 
-	if ((argv[offset + 1] != NULL
-		&& (strcmp(argv[offset + 1], "--checklist"))
-		&& (separate_output == 1))
-	    || (argc - 1 == offset)) {
-	    sprintf(temp, "Expected --checklist, not %.20s", argv[offset + 1]);
+	if (lookupOption(argv[offset], 2) != o_checklist
+	    && dialog_vars.separate_output) {
+	    sprintf(temp, "Expected --checklist, not %.20s", argv[offset]);
 	    Usage(temp);
 	}
 
-	if (aspect_ratio == 0)
-	    aspect_ratio = DEFAULT_ASPECT_RATIO;
+	if (dialog_vars.aspect_ratio == 0)
+	    dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
 
 	put_backtitle();
 
 	/* use a table to look for the requested mode, to avoid code duplication */
 
-	for (modePtr = modes; modePtr->name; modePtr++)		/* look for the mode */
-	    if (!strcmp(argv[offset + 1], modePtr->name))
-		break;
+	modePtr = 0;
+	if ((code = lookupOption(argv[offset], 2)) != o_unknown) {
+	    unsigned n;
+	    for (n = 0; n < sizeof(modes) / sizeof(modes[0]); n++) {
+		if (modes[n].code == code) {
+		    modePtr = &modes[n];
+		    break;
+		}
+	    }
+	}
 
-	if (!modePtr->name) {
-	    sprintf(temp, "Unknown option %.20s", argv[offset + 1]);
+	if (modePtr == 0) {
+	    sprintf(temp, "Unknown option %.20s", argv[offset]);
 	    Usage(temp);
 	}
+
 	if (arg_rest(&argv[offset]) < modePtr->argmin) {
 	    sprintf(temp, "Expected at least %d tokens for %.20s",
-		modePtr->argmin, argv[offset + 1]);
+		modePtr->argmin, argv[offset]);
 	    Usage(temp);
 	}
 	if (modePtr->argmax && arg_rest(&argv[offset]) > modePtr->argmax) {
 	    sprintf(temp, "Expected no more than %d tokens for %.20s",
-		modePtr->argmax, argv[offset + 1]);
+		modePtr->argmax, argv[offset]);
 	    Usage(temp);
 	}
 
-	retval = (*(modePtr->jumper)) (title, argv, offset, &offset_add);
-
-	if (retval == -1)
-	    esc_pressed = 1;
-
+	retval = (*(modePtr->jumper)) (dialog_vars.title, argv + offset, &offset_add);
 	offset += offset_add;
 
-	if (!esc_pressed) {
+	if (retval == -1) {
+	    esc_pressed = 1;
+	} else {
 
-	    if (beep_after_signal)
+	    if (dialog_vars.beep_after_signal)
 		beep();
 
-	    if (sleep_secs)
-		napms(sleep_secs * 1000);
+	    if (dialog_vars.sleep_secs)
+		napms(dialog_vars.sleep_secs * 1000);
 
-	    if (clear_screen)
+	    if (dialog_vars.clear_screen)
 		attr_clear(stdscr, LINES, COLS, screen_attr);
 
-	    if (offset + 1 < argc) {
-		if (!strcmp(argv[offset + 1], and_widget)) {
+	    if (offset < argc) {
+		if (!strcmp(argv[offset], and_widget)) {
 		    fprintf(stderr, separate_str);
 		    offset++;
 		} else {
 		    sprintf(temp, "Expected --and-widget, not %.20s",
-			    argv[offset + 1]);
+			argv[offset]);
 		    Usage(temp);
 		}
 	    }

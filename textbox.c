@@ -103,7 +103,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     draw_bottom_box(dialog);
     draw_title(dialog, title);
 
-    print_button(dialog, " EXIT ", height - 2, width / 2 - 4, TRUE);
+    print_button(dialog, LABEL_EXIT, height - 2, width / 2 - 4, TRUE);
     wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
@@ -198,6 +198,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    }
 	    break;
 	case 'G':		/* Last page */
+	case KEY_LL:
 	case KEY_END:
 	    end_reached = 1;
 	    /* Last page not in buffer? */
@@ -629,13 +630,14 @@ read_high(int my_fd, char *my_buf, size_t size_read)
 
     buftab[fd_bytes_read] = '\0';	/* mark end of valid data */
 
-    if (tab_correct) {
+    if (dialog_vars.tab_correct) {
 
 	/* calculate bytes_read by buftab and fd_bytes_read */
 	bytes_read = begin_line = 0;
 	for (j = 0; j < fd_bytes_read; j++)
 	    if (buftab[j] == TAB)
-		bytes_read += tab_len - ((bytes_read - begin_line) % tab_len);
+		bytes_read += dialog_vars.tab_len - ((bytes_read -
+			begin_line) % dialog_vars.tab_len);
 	    else if (buftab[j] == '\n') {
 		bytes_read++;
 		begin_line = bytes_read;
@@ -674,8 +676,8 @@ read_high(int my_fd, char *my_buf, size_t size_read)
     j = 0;
     begin_line = 0;
     while (j < fd_bytes_read)
-	if (((ch = buftab[j++]) == TAB) && (tab_correct)) {
-	    tmpint = tab_len - ((i - begin_line) % tab_len);
+	if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct)) {
+	    tmpint = dialog_vars.tab_len - ((i - begin_line) % dialog_vars.tab_len);
 	    for (n = 0; n < tmpint; n++)
 		my_buf[i++] = ' ';
 	} else {
@@ -698,7 +700,7 @@ tabize(int val, int pos)
     int fpos, i, count, begin_line;
     char *buftab;
 
-    if (!tab_correct)
+    if (!dialog_vars.tab_correct)
 	return val;
 
     if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
@@ -721,7 +723,7 @@ tabize(int val, int pos)
 	    break;
 	}
 	if (buftab[i] == TAB)
-	    count += tab_len - ((count - begin_line) % tab_len);
+	    count += dialog_vars.tab_len - ((count - begin_line) % dialog_vars.tab_len);
 	else if (buftab[i] == '\n') {
 	    count++;
 	    begin_line = count;
