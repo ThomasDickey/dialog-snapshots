@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.38 2001/12/02 22:25:13 tom Exp $
-.TH DIALOG 1 "" "$Date: 2001/12/02 22:25:13 $"
+.\" $Id: dialog.1,v 1.41 2002/03/09 19:14:03 tom Exp $
+.TH DIALOG 1 "" "$Date: 2002/03/09 19:14:03 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -114,6 +114,12 @@ Normally the first item in the box is the default.
 Prints the help message to standard error.
 The help message is printed if no options are given.
 .
+.IP "\fB\-\-help-button"
+Show a help-button after ok/cancel buttons.
+.
+.IP "\fB\-\-help-label \fIstring"
+Override the label used for "Help" buttons.
+.
 .IP "\fB\-\-ignore"
 Ignore options that \fBdialog\fP does not recognize.
 Some well-known ones such as "\fB--icon\fP" are ignored anyway,
@@ -124,6 +130,9 @@ Interpret the tags data for checklist, radiolist and menuboxes
 adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
+.IP "\fB\-\-max-input \fIsize"
+Limit input strings to the given size.
+If not specified, the limit is 2000.
 .IP "\fB\-\-no-kill"
 Tells
 \fBdialog\fP
@@ -196,6 +205,10 @@ Specify the number of spaces that a tab character occupies if the
 option is given.
 The default is 8.
 .
+.IP "\fB\-\-timeout \fIsecs"
+Timeout (exit with error code)
+if no user response within the given number of seconds.
+.
 .IP "\fB\-\-title \fItitle"
 Specifies a
 \fItitle\fP
@@ -229,6 +242,8 @@ Other parameters depend on the box type.
 A
 \fBcalendar\fP
 box displays month, day and year in separately adjustable windows.
+If the values for day, month or year are missing or negative,
+the current date's corresponding values are used.
 You can increment or decrement any of those using the
 left-, up-, right- and down-arrows.
 Use tab or backtab to move between windows.
@@ -339,6 +354,8 @@ scrolled if there are more entries than that.
 When \fBdialog\fP exits, the \fItag\fP
 of the chosen menu entry will be printed on
 .IR stderr "."
+If the \fB\-\-help-button\fR option is given, the corresponding help
+text will be printed if the user selects the help button.
 .
 .IP "\fB\-\-msgbox \fItext height width"
 A \fBmessage\fP box is very similar to a \fByes/no\fP box.
@@ -412,8 +429,9 @@ For more convenience,
 forward and backward searching functions are also provided.
 .
 .IP "\fB\-\-timebox \fItext height [width hour minute second]"
-A dialog is displayed which allows you to select hour, minute and
-second.
+A dialog is displayed which allows you to select hour, minute and second.
+If the values for hour, minute or second are missing or negative,
+the current date's corresponding values are used.
 You can increment or decrement any of those using the
 left-, up-, right- and down-arrows.
 Use tab or backtab to move between windows.

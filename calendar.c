@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.17 2001/08/11 18:45:07 tom Exp $
+ * $Id: calendar.c,v 1.18 2002/03/09 18:52:42 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -375,6 +375,12 @@ dialog_calendar(const char *title,
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
+    if (day < 0)
+	day = current.tm_mday;
+    if (month < 0)
+	month = current.tm_mon + 1;
+    if (year < 0)
+	year = current.tm_year + 1900;
 
     /* compute a struct tm that matches the day/month/year parameters */
     if (((year -= 1900) > 0) && (year < 200)) {

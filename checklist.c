@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.40 2001/07/31 18:05:11 tom Exp $
+ *  $Id: checklist.c,v 1.43 2002/03/09 18:30:53 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -56,9 +56,11 @@ print_item(WINDOW *win, char **items, int status,
     wattrset(win, menubox_attr);
     (void) waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    (void) waddch(win, CharOf(ItemName(0)[0]));
+    if (strlen(ItemName(0)) != 0)
+	(void) waddch(win, CharOf(ItemName(0)[0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    (void) wprintw(win, "%.*s", item_x - check_x - 6, ItemName(0) + 1);
+    if (strlen(ItemName(0)) > 1)
+	(void) wprintw(win, "%.*s", item_x - check_x - 6, ItemName(0) + 1);
 
     (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
@@ -379,17 +381,21 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    break;
 	case '\n':
 	    done = TRUE;
-	    result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
+	    result = dlg_ok_buttoncode(button);
 	    break;
 	case M_EVENT + 1:
 	    result = DLG_EXIT_CANCEL;
 	    done = TRUE;
 	    break;
-	case TAB:
+	case ' ':
+	case KEY_BTAB:
 	case KEY_LEFT:
+	    button = dlg_prev_button(buttons, button);
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
+	    break;
+	case TAB:
 	case KEY_RIGHT:
-	    if (!dialog_vars.nocancel)
-		button = !button;
+	    button = dlg_next_button(buttons, button);
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case ESC:
@@ -414,6 +420,9 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		}
 	    }
 	}
+    } else if (result == DLG_EXIT_HELP) {
+	fprintf(dialog_vars.output, "HELP %s", ItemHelp(scrollamt + choice));
+	result = 0;
     }
     free(status);
     return result;

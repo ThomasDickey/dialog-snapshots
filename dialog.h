@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.80 2001/12/02 22:10:06 tom Exp $
+ *  $Id: dialog.h,v 1.82 2002/03/09 19:12:54 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -94,6 +94,7 @@
 #define DLG_EXIT_ERROR	-1	/* the shell sees this as 255 */
 #define DLG_EXIT_OK	0
 #define DLG_EXIT_CANCEL	1
+#define DLG_EXIT_HELP	2
 
 #define CHR_BACKSPACE	8
 #define CHR_REPAINT	12	/* control/L */
@@ -256,6 +257,7 @@ typedef struct {
     bool trim_whitespace;
     bool dlg_clear_screen;
     bool item_help;
+    bool help_button;
     bool nocancel;
     bool print_siz;
     bool separate_output;
@@ -267,10 +269,13 @@ typedef struct {
     char input_result[MAX_LEN + 1];
     char *ok_label;
     char *cancel_label;
+    char *help_label;
     int aspect_ratio;
     int begin_x;
     int begin_y;
+    int max_input;
     int sleep_secs;
+    int timeout_secs;	/* nonzero if we force timeout/exit */
     int tab_len;
 } DIALOG_VARS;
 
@@ -368,8 +373,11 @@ extern const char ** dlg_exit_label(void);
 extern const char ** dlg_ok_label(void);
 extern const char ** dlg_ok_labels(void);
 extern const char ** dlg_yes_labels(void);
-extern int dlg_char_to_button(int ch, const char **labels);
 extern int dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
+extern int dlg_char_to_button(int ch, const char **labels);
+extern int dlg_next_button(const char **labels, int button);
+extern int dlg_ok_buttoncode(int button);
+extern int dlg_prev_button(const char **labels, int button);
 extern void dlg_button_layout(const char **labels, int *limit);
 extern void dlg_button_sizes(const char **labels, int vertical, int *longest, int *length);
 extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);

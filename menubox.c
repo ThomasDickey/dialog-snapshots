@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.31 2001/07/31 18:04:55 tom Exp $
+ *  $Id: menubox.c,v 1.33 2002/03/09 18:37:08 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -48,9 +48,11 @@ print_item(WINDOW *win,
 
     (void) wmove(win, choice, tag_x);
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    (void) waddch(win, CharOf(ItemName(0)[0]));
+    if (strlen(ItemName(0)) != 0)
+	(void) waddch(win, CharOf(ItemName(0)[0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    (void) wprintw(win, "%.*s", item_x - tag_x - 2, ItemName(0) + 1);
+    if (strlen(ItemName(0)) > 1)
+	(void) wprintw(win, "%.*s", item_x - tag_x - 2, ItemName(0) + 1);
 
     (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
@@ -341,16 +343,32 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    /* FALLTHRU */
 	case ' ':
 	case KEY_BTAB:
-	case TAB:
 	case KEY_LEFT:
+	    button = dlg_prev_button(buttons, button);
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
+	    break;
+	case TAB:
 	case KEY_RIGHT:
-	    if (!dialog_vars.nocancel)
-		button = !button;
+	    button = dlg_next_button(buttons, button);
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case '\n':
 	    del_window(dialog);
-	    return (button ? -2 : (scrollamt + choice));
+	    switch (dlg_ok_buttoncode(button)) {
+	    case DLG_EXIT_OK:
+		sprintf(dialog_vars.input_result, "%.*s",
+			MAX_LEN - 1,
+			ItemName(scrollamt + choice));
+		return 0;
+	    case DLG_EXIT_CANCEL:
+		return -2;
+	    default:
+		/* help */
+		sprintf(dialog_vars.input_result, "HELP %.*s",
+			MAX_LEN - 6,
+			ItemHelp(scrollamt + choice));
+		return 0;
+	    }
 	}
     }
 
