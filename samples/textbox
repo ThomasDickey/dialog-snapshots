@@ -30,7 +30,7 @@ The following is a sample text file:
 
 EOF
 
-TEXT=/usr/doc/copyright/GPL
+TEXT=/usr/share/common-licenses/GPL
 test -f $TEXT || TEXT=../COPYING
 
 cat $TEXT | expand >> $tempfile

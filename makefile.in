@@ -10,10 +10,10 @@ exec_prefix	= @exec_prefix@
 srcdir		= @srcdir@
 
 DESTDIR		=
-includedir	= $(DESTDIR)@includedir@
 bindir		= $(DESTDIR)@bindir@
 libdir		= $(DESTDIR)@libdir@
 mandir		= $(DESTDIR)@mandir@
+MANDIR		= $(mandir)/man1
 
 CFLAGS		= @CFLAGS@
 CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DVERSION=\"$(VERSION)\"
@@ -49,26 +49,36 @@ OBJS = $(EXTRAOBJS) \
 
 SRCS = $(OBJS:.o=.c)
 
-all: libdialog.a dialog
+LIB	= libdialog.a
+PROG	= dialog
+ALL	= $(LIB) $(PROG)
+
+DIRS	= $(bindir) $(MANDIR)
+
+all: $(ALL)
 
 $(OBJS) : $(srcdir)/dialog.h config.h
 
-libdialog.a: $(OBJS)
-	ar crv libdialog.a $(OBJS)
+$(LIB) : $(OBJS)
+	ar crv $(LIB) $(OBJS)
 	$(RANLIB) $@
 
-dialog: $(OBJS) dialog.o
+dialog: $(LIB) dialog.o
 	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
 
 clean:
-	rm -f core *.o *~ dialog libdialog.a
+	rm -f core *.o *~ $(ALL)
 
 distclean : clean
 	rm -f makefile config.h config.cache config.log config.status
 
-install: dialog
-	$(INSTALL_PROGRAM) -s dialog $(bindir)
-	$(INSTALL_DATA) dialog.1 $(mandir)
+install: $(ALL) $(DIRS)
+	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
+	$(INSTALL_DATA) dialog.1 $(MANDIR)
 
-$(includedir) \
-$(mandir) : ; $(srcdir)/mkdirs.sh $@
+uninstall:
+	rm -f $(bindir)/$(PROG)
+	rm -f $(MANDIR)/dialog.1
+
+$(bindir) \
+$(MANDIR) : ; $(srcdir)/mkdirs.sh $@

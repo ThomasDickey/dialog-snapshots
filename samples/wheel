@@ -1,5 +1,5 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
 
 TITLE="This screen was taken from ComeOn Point Installer! v0.9 by ComeOn Linux!"
 
@@ -7,6 +7,9 @@ $DIALOG --print-maxsize 2>/tmp/copi.size
 ROWS="`cut /tmp/copi.size -f1 -d, | cut -f2 -d:`"
 COLS="`cut /tmp/copi.size -f2 -d,`"
 rm /tmp/copi.size
+
+# account for widest labels
+COLS=`expr $COLS - 30`
 
 # Takes an integer, multiplies it for COLS, divides for 132
 scalex() {
@@ -55,5 +58,3 @@ $DIALOG --backtitle "$TITLE" --no-shadow \
 --beep --msgbox "ComeOn Linux! :-)" 0 0 --and-widget \
 --begin 2 0 --title "/var/adm/debug. This is running while that down runs also" --tailboxbg /var/adm/debug 6 80 --and-widget \
 --begin 8 0 --title "/var/adm/messages. It tails the file in multitasking with /var/adm/debug" --tailbox /var/adm/messages -1 -1
-
-clear

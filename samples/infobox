@@ -1,96 +1,17 @@
-#!/bin/sh
+#! /bin/sh
 DIALOG=${DIALOG=dialog}
 
-$DIALOG --title "INFO BOX" \
+left=10
+while test $left != 0
+do
+$DIALOG --sleep 1 \
+	--title "INFO BOX" \
         --infobox "Hi, this is an information box. It is
-different from a message box in that it will
+different from a message box: it will
 not pause waiting for input after displaying
 the message. The pause here is only introduced
-by the sleep command, not by dialog.
+by the sleep command within dialog.
 
-You have 10 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 9 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 8 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 7 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 6 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 5 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 4 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 3 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 2 seconds to read this..." 10 52
-
-$DIALOG --title "INFO BOX" \
-        --infobox "Hi, this is an information box. It is
-different from a message box in that it will
-not pause waiting for input after displaying
-the message. The pause here is only introduced
-by the sleep command, not by dialog.
-
-You have 1 second to read this..." 10 52
-
-stty -echo
-sleep 5
-stty echo
+You have $left seconds to read this..." 10 52
+left=`expr $left - 1`
+done

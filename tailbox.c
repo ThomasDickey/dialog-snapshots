@@ -43,7 +43,7 @@ int dialog_tailbox(const char *title, const char *file, int height, int width)
 {
   int x, y, cur_x, cur_y, key = 0;
   WINDOW *dialog, *text;
-  char ch;
+  int ch;
 
   auto_sizefile(title, file, &height, &width, 2, 12);
   print_size(height, width);
@@ -90,7 +90,7 @@ int dialog_tailbox(const char *title, const char *file, int height, int width)
       case ERR:
         ch=getc(fd);
         ungetc(ch, fd);
-        if ((ch != -1) || (hscroll != old_hscroll)) {
+        if ((ch != EOF) || (hscroll != old_hscroll)) {
           old_hscroll=hscroll;
           print_last_page(text, height-5, width-2);
           wmove(dialog, cur_y, cur_x);    /* Restore cursor position */
@@ -140,7 +140,7 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
 {
   int x, y;
   WINDOW *dialog, *text;
-  char ch;
+  int ch;
 
   auto_sizefile(title, file, &height, &width, 1, 0);
   print_size(height, width);
@@ -178,7 +178,7 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
   while (!can_quit) {
     ch=getc(fd);
     ungetc(ch, fd);
-    if ((ch != -1) || (hscroll != old_hscroll)) {
+    if ((ch != EOF) || (hscroll != old_hscroll)) {
       old_hscroll=hscroll;
       print_last_page(text, height-2-1, width-2);
       wrefresh_lock_tailbg(dialog);
@@ -296,8 +296,8 @@ static void print_line(WINDOW *win, int row, int width)
  */
 static char *get_line(void) 
 { 
-  int i = 0, j, tmpint;
-  static char line[MAX_LEN+1], ch;
+  int i = 0, j, tmpint, ch;
+  static char line[MAX_LEN+1];
 
   end_reached = 0;
 
