@@ -1,4 +1,6 @@
 /*
+ *  $Id: tailbox.c,v 1.20 2000/10/18 01:02:52 tom Exp $
+ *
  *  tailbox.c -- implements the tail box
  *
  *  AUTHOR: Pasquale De Marco (demarco_p@abramo.it)
@@ -65,7 +67,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
     mouse_setbase(x, y);
 
     /* Create window for text region, used for scrolling text */
-    text = subwin(dialog, height - 4, width - 2, y + 1, x + 1);
+    text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
     keypad(text, TRUE);
 
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -161,7 +163,7 @@ dialog_tailboxbg(const char *title, const char *file, int height, int width, int
     dialog = new_window(height, width, y, x);
 
     /* Create window for text region, used for scrolling text */
-    text = subwin(dialog, height - 2, width - 2, y + 1, x + 1);
+    text = sub_window(dialog, height - 2, width - 2, y + 1, x + 1);
     keypad(text, FALSE);
 
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);

@@ -261,6 +261,7 @@ int box_y_ordinate(int height);
 void draw_title(WINDOW *win, const char *title);
 void draw_bottom_box(WINDOW *win);
 WINDOW * new_window (int y, int x, int height, int width);
+WINDOW * sub_window (WINDOW *win, int y, int x, int height, int width);
 
 #ifdef HAVE_COLOR
 void color_setup (void);

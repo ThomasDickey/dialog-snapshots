@@ -3,6 +3,12 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/10/17
+	+ use new function sub_window() to check success/failure of calls to
+	  subwin(), printing an error message if it fails (fixes Debian #74903).
+	+ use combination of isatty/ttyname to look for workable tty device
+	  on systems which have no /dev/tty, e.g., BeOS.
+
 2000/10/8
 	+ change exiterr() to use stdarg.h, make some messages easier to
 	  understand.
