@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.46 2004/03/02 00:59:04 tom Exp $
+ *  $Id: buttons.c,v 1.48 2004/04/22 00:00:15 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -304,13 +304,12 @@ dlg_match_char(int ch, const char *string)
 	int cmp2 = string_to_char(&string);
 #ifdef USE_WIDE_CURSES
 	wint_t cmp1 = dlg_toupper(ch);
-	if (cmp2 != 0 && (wchar_t) cmp1 == cmp2) {
+	if (cmp2 != 0 && (wchar_t) cmp1 == (wchar_t) dlg_toupper(cmp2)) {
 	    return TRUE;
 	}
 #else
-	if (ch > 0 && ch < 256 && dlg_isupper(cmp2)) {
-	    int cmp1 = dlg_toupper(ch);
-	    if (cmp1 == cmp2)
+	if (ch > 0 && ch < 256) {
+	    if (dlg_toupper(ch) == dlg_toupper(cmp2))
 		return TRUE;
 	}
 #endif

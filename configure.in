@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.36 2004/03/15 00:10:56 tom Exp $
+dnl $Id: configure.in,v 1.37 2004/04/22 00:17:38 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -136,6 +136,7 @@ waitpid \
 )
 
 CF_CURSES_FUNCS(\
+flushinp \
 getbegx \
 getbegy \
 getbegyx \
