@@ -5,7 +5,7 @@ Entered-date:   Jan 15, 1996
 Description:    This is a program for displaying dialog boxes is shell script.
                 These types of dialog boxes are implemented: yes/no box,
                 menu box, input box, message box, text box, info box,
-                checklist box, radiolist box, guage box, tail box,
+                checklist box, radiolist box, gauge box, tail box,
                 background tail box. Supports Auto-sizing, Maximizing,
                 Resolution-independece, more widget on the same screen,
                 multi-tasking (tailboxbg) ...

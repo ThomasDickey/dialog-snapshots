@@ -26,55 +26,39 @@
 int
 dialog_yesno (const char *title, const char *cprompt, int height, int width)
 {
-    int i, x, y, key = 0, button = 0;
-    WINDOW *dialog;
+    int x, y, key = 0, button = 0;
+    WINDOW *dialog = 0;
     char *prompt=strclone(cprompt);
+
+#ifdef KEY_RESIZE
+    int req_high = height;
+    int req_wide = width;
+restart:
+#endif
 
     tab_correct_str(prompt);
     prompt=auto_size(title, prompt, &height, &width, 2, 25);
     print_size(height, width);
     ctl_size(height, width);
   
-    if (begin_set == 1) {
-      x = begin_x;
-      y = begin_y;
-    } else {
-      /* center dialog box on screen */
-      x = (SCOLS - width) / 2;
-      y = (SLINES - height) / 2;
-    }
+    x = box_x_ordinate(width);
+    y = box_y_ordinate(height);
 
-#ifdef HAVE_NCURSES
-    if (use_shadow)
-	draw_shadow (stdscr, y, x, height, width);
+#ifdef KEY_RESIZE
+    if (dialog != 0) {
+	wresize(dialog, height, width);
+	mvwin(dialog, y, x);
+	refresh();
+    } else
 #endif
-    dialog = newwin (height, width, y, x);
-
-    if ( dialog == 0 )
-      exiterr("\nCan't make new window.\n");
+    dialog = new_window (height, width, y, x);
 
     mouse_setbase (x, y);
-    keypad (dialog, TRUE);
 
     draw_box (dialog, 0, 0, height, width, dialog_attr, border_attr);
-    wattrset (dialog, border_attr);
-    wmove (dialog, height - 3, 0);
-    waddch (dialog, ACS_LTEE);
-    for (i = 0; i < width - 2; i++)
-	waddch (dialog, ACS_HLINE);
-    wattrset (dialog, dialog_attr);
-    waddch (dialog, ACS_RTEE);
-    wmove (dialog, height - 2, 1);
-    for (i = 0; i < width - 2; i++)
-	waddch (dialog, ' ');
+    draw_bottom_box (dialog);
+    draw_title(dialog, title);
 
-    if (title != NULL) {
-	wattrset (dialog, title_attr);
-	wmove (dialog, 0, (width - strlen (title)) / 2 - 1);
-	waddch (dialog, ' ');
-	waddstr (dialog, title);
-	waddch (dialog, ' ');
-    }
     wattrset (dialog, dialog_attr);
     print_autowrap (dialog, prompt, width, 1, 2);
 
@@ -83,7 +67,10 @@ dialog_yesno (const char *title, const char *cprompt, int height, int width)
     print_button (dialog, "  No  ", y, x + 13, FALSE);
     print_button (dialog, " Yes ", y, x, TRUE);
     wrefresh_lock (dialog);
+
+#ifndef KEY_RESIZE
     wtimeout(dialog, WTIMEOUT_VAL);
+#endif
 
     while (key != ESC) {
 	key = mouse_wgetch (dialog);
@@ -123,6 +110,13 @@ dialog_yesno (const char *title, const char *cprompt, int height, int width)
 	    return button;
 	case ESC:
 	    break;
+#ifdef KEY_RESIZE
+	case KEY_RESIZE:
+	    attr_clear (stdscr, LINES, COLS, screen_attr);
+	    height = req_high;
+	    width  = req_wide;
+	    goto restart;
+#endif
 	}
     }
 

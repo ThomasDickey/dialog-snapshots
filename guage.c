@@ -1,5 +1,5 @@
 /*
- *  guage.c -- implements the guage dialog
+ *  guage.c -- implements the gauge dialog
  *
  *  AUTHOR: Marc Ewing, Red Hat Software
  *
@@ -21,7 +21,7 @@
 #include "dialog.h"
 
 /*
- * Display a guage, or progress meter.  Starts at percent% and
+ * Display a gauge, or progress meter.  Starts at percent% and
  * reads stdin.  If stdin is not XXX, then it is interpreted as
  * a percentage, and the display is updated accordingly.  Otherwise
  * the next line is the percentage, and subsequent lines up to
@@ -30,7 +30,7 @@
  * larger than the height and width specified.
  */
 int
-dialog_guage (const char *title, const char *prompt, int height,
+dialog_gauge (const char *title, const char *prompt, int height,
 		int width, int percent)
 {
     int i, x, y;
@@ -42,24 +42,14 @@ dialog_guage (const char *title, const char *prompt, int height,
     x = (COLS - width) / 2;
     y = (LINES - height) / 2;
 
-#ifdef HAVE_NCURSES
-    if (use_shadow)
-	draw_shadow (stdscr, y, x, height, width);
-#endif
-    dialog = newwin (height, width, y, x);
-    keypad (dialog, TRUE);
+    dialog = new_window (height, width, y, x);
 
     do {
 	werase (dialog);
 	draw_box (dialog, 0, 0, height, width, dialog_attr, border_attr);
 
-	if (title != NULL) {
-	    wattrset (dialog, title_attr);
-	    wmove (dialog, 0, (width - strlen (title)) / 2 - 1);
-	    waddch (dialog, ' ');
-	    waddstr (dialog, title);
-	    waddch (dialog, ' ');
-	}
+	draw_title(dialog, title);
+
 	wattrset (dialog, dialog_attr);
 	print_autowrap (dialog, prompt, width - 2, 1, 2);
 

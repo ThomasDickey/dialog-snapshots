@@ -186,6 +186,11 @@ void tab_correct_str(char *prompt);
 void calc_listh(int *height, int *list_height, int item_no);
 int calc_listw(int item_no, const char * const * items, int group);
 char *strclone(const char *cprompt);
+int box_x_ordinate(int width);
+int box_y_ordinate(int height);
+void draw_title(WINDOW *win, const char *title);
+void draw_bottom_box(WINDOW *win);
+WINDOW * new_window (int y, int x, int height, int width);
 
 #ifdef HAVE_NCURSES
 void color_setup (void);
@@ -195,7 +200,7 @@ void print_button (WINDOW * win, const char *label, int y, int x, int selected);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype box,
 		chtype border);
 #ifdef HAVE_NCURSES
-void draw_shadow (WINDOW * win, int y, int x, int height, int width);
+void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif
 
 int dialog_yesno (const char *title, const char *cprompt, int height, int width);
@@ -210,7 +215,7 @@ int dialog_checklist (const char *title, const char *cprompt, int height,
 extern unsigned char dialog_input_result[];
 int dialog_inputbox (const char *title, const char *cprompt, int height,
 		int width, const char *init);
-int dialog_guage (const char *title, const char *cprompt, int height, int width,
+int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);

@@ -300,8 +300,8 @@ real_auto_size(const char * title, char *prompt, int *height, int *width, int bo
   char *cr1, *cr2, *ptr = prompt, *str, *word;
 
   if ((*height == -1) || (*width == -1)) {
-    *height=SLINES-(begin_set ? begin_y : 0);
-    *width=SCOLS-(begin_set ? begin_x : 0);
+    *height = SLINES - (begin_set ? begin_y : 0);
+    *width  = SCOLS  - (begin_set ? begin_x : 0);
   }
   if ((*height != 0) && (*width != 0))
     return prompt;
@@ -395,18 +395,19 @@ real_auto_size(const char * title, char *prompt, int *height, int *width, int bo
 /* End of auto_size() */
 
 char *
-auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols) {
-	char * s = real_auto_size(title, prompt, height, width, boxlines, mincols);
+auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols)
+{
+    char * s = real_auto_size(title, prompt, height, width, boxlines, mincols);
 
-	if ( *width > SCOLS ) {
-		(*height)++;
-		*width = SCOLS;
-	}
+    if ( *width > SCOLS ) {
+	(*height)++;
+	*width = SCOLS;
+    }
 
-	if ( *height > SLINES )
-		*height = SLINES;
+    if ( *height > SLINES )
+	*height = SLINES;
 
-	return s;
+    return s;
 }
 
 /*
@@ -426,8 +427,8 @@ void auto_sizefile(const char * title, const char *file, int *height, int *width
     exiterr("\nCan't open input file in auto_sizefile().\n");
 
   if ((*height == -1) || (*width == -1)) {
-    *height=SLINES-(begin_set ? begin_y : 0);
-    *width=SCOLS-(begin_set ? begin_x : 0);
+    *height = SLINES - (begin_set ? begin_y : 0);
+    *width  = SCOLS  - (begin_set ? begin_x : 0);
   }
   if ((*height != 0) && (*width != 0)) {
     fclose(fd);
@@ -712,9 +713,9 @@ void tab_correct_str(char *prompt) {
 
 void calc_listh(int *height, int *list_height, int item_no) {
     /* calculate new height and list_height */
-    int lines=SLINES-(begin_set ? begin_y : 0);
-    if (lines-(*height) > 0)
-      if (lines-(*height) > item_no)
+    int lines = SLINES - (begin_set ? begin_y : 0);
+    if (lines - (*height) > 0)
+      if (lines - (*height) > item_no)
         *list_height=item_no;
       else
         *list_height=lines-(*height);
@@ -734,4 +735,76 @@ char *strclone(const char *cprompt) {
     char *prompt=(char *) malloc(strlen(cprompt) + 1);
     strcpy(prompt, cprompt);
     return prompt;
+}
+
+int box_x_ordinate(int width)
+{
+    int x;
+
+    if (begin_set == 1) {
+      x = begin_x;
+    } else {
+      /* center dialog box on screen unless --begin-set */
+      x = (SCOLS - width)/2;
+    }
+    return x;
+}
+
+int box_y_ordinate(int height)
+{
+    int y;
+
+    if (begin_set == 1) {
+      y = begin_y;
+    } else {
+      /* center dialog box on screen unless --begin-set */
+      y = (SLINES - height)/2;
+    }
+    return y;
+}
+
+void draw_title(WINDOW *win, const char *title)
+{
+    if (title != NULL) {
+	int width = getmaxx(win);
+
+	wattrset (win, title_attr);
+	wmove    (win, 0, (width - strlen (title)) / 2 - 1);
+	waddch   (win, ' ');
+	waddstr  (win, title);
+	waddch   (win, ' ');
+    }
+}
+
+void draw_bottom_box(WINDOW *win)
+{
+    int width  = getmaxx(win);
+    int height = getmaxy(win);
+    int i;
+
+    wattrset (win, border_attr);
+    wmove (win, height - 3, 0);
+    waddch (win, ACS_LTEE);
+    for (i = 0; i < width - 2; i++)
+	waddch (win, ACS_HLINE);
+    wattrset (win, dialog_attr);
+    waddch (win, ACS_RTEE);
+    wmove (win, height - 2, 1);
+    for (i = 0; i < width - 2; i++)
+	waddch (win, ' ');
+}
+
+WINDOW * new_window (int height, int width, int y, int x)
+{
+    WINDOW *win;
+
+#ifdef HAVE_NCURSES
+    if (use_shadow)
+	draw_shadow (stdscr, y, x, height, width);
+#endif
+    if ((win = newwin (height, width, y, x)) == 0)
+	exiterr("\nCan't make new window.\n");
+
+    keypad (win, TRUE);
+    return win;
 }

@@ -12,4 +12,4 @@ sleep 2;
 
 echo "75" ; sleep 2) |
 
-$DIALOG --title "GUAGE" --guage "Hi, this is a guage widget" 20 70 0
+$DIALOG --title "GAUGE" --gauge "Hi, this is a gauge widget" 20 70 0

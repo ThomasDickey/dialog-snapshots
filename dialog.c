@@ -45,11 +45,11 @@ struct Mode {
 };
 
 jumperFn j_yesno, j_msgbox, j_infobox, j_textbox, j_menu;
-jumperFn j_checklist, j_radiolist, j_inputbox, j_guage;
+jumperFn j_checklist, j_radiolist, j_inputbox, j_gauge;
 jumperFn j_tailbox, j_tailboxbg;
 
 /*
- * All functions are used in the slackware root disk, apart from "guage"
+ * All functions are used in the slackware root disk, apart from "gauge"
  */
 
 static struct Mode modes[] =
@@ -62,8 +62,8 @@ static struct Mode modes[] =
     {"--checklist", 9, 0, j_checklist},
     {"--radiolist", 9, 0, j_radiolist},
     {"--inputbox", 5, 6, j_inputbox},
-#ifdef HAVE_GUAGE
-    {"--guage", 6, 6, j_guage},
+#ifdef HAVE_GAUGE
+    {"--gauge", 6, 6, j_gauge},
 #endif
 #ifdef HAVE_TAILBOX
     {"--tailbox", 5, 5, j_tailbox},
@@ -371,7 +371,7 @@ Usage(const char *name)
 \n  --menu      <text> <height> <width> <menu height> <tag1> <item1>...\
 \n  --checklist <text> <height> <width> <list height> <tag1> <item1> <status1>...\
 \n  --radiolist <text> <height> <width> <list height> <tag1> <item1> <status1>...\
-\n  --guage     <text> <height> <width> <percent>\
+\n  --gauge     <text> <height> <width> <percent>\
 \n  --tailbox   <file> <height> <width>\
 \n  --tailboxbg <file> <height> <width>\
 \n\
@@ -499,12 +499,12 @@ j_inputbox (const char *t, int ac, const char * const * av, int offset, int *off
     return ret;
 }
 
-#ifdef HAVE_GUAGE
+#ifdef HAVE_GAUGE
 int
-j_guage (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_gauge (const char *t, int ac, const char * const * av, int offset, int *offset_add)
 {
     *offset_add=5;
-    return dialog_guage (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
+    return dialog_gauge (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
 			 atoi (av[offset+5]));
 }
 #endif
