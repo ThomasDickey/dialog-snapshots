@@ -153,6 +153,20 @@ string to be displayed at the top of the dialog box.
 .\" ************************************************************************
 .TP
 .B Box Options
+.RS
+All dialog boxes have at least three parameters:
+.TP 5
+.I text
+the caption or contents of the box.
+.TP 5
+.I height
+the height of the dialog box.
+.TP 5
+.I width
+the width of the dialog box.
+.PP
+Other parameters depend on the box type.
+.RE
 .IP "\fB\-\-checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
 A
 .B checklist
@@ -169,7 +183,7 @@ On exit, a list of the
 strings of those entries that are turned on will be printed on
 .IR stderr "."
 .
-.IP "\fB\-\-gauge \fItext height width percent\fR"
+.IP "\fB\-\-gauge \fItext height width [percent]\fR"
 A
 .B gauge
 box displays a meter along the bottom of the box.
@@ -178,6 +192,9 @@ standard input, one integer per line.  The meter is updated
 to reflect each new percentage.  If stdin is XXX, then subsequent
 lines up to another XXX are used for a new prompt.
 The gauge exits when EOF is reached on stdin.
+.sp
+The \fIpercent\fR value denotes the initial percentage shown in the meter.
+If not specified, it is zero.
 .
 .IP "\fB\-\-infobox \fItext height width"
 An
