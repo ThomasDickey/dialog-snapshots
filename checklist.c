@@ -24,35 +24,7 @@
 
 static int list_width, check_x, item_x, checkflag;
 
-static void
-print_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int
-    top, int bottom)
-{
-    int cur_x = 0, cur_y = 0;
-
-    getyx(dialog, cur_y, cur_x);
-
-    wmove(dialog, top, x);
-    if (top_arrow) {
-	wattrset(dialog, uarrow_attr);
-	waddch(dialog, ACS_UARROW);
-	waddstr(dialog, "(+)");
-    } else {
-	wattrset(dialog, menubox_attr);
-	whline(dialog, ACS_HLINE, 4);
-    }
-    wmove(dialog, bottom, x);
-    if (bottom_arrow) {
-	wattrset(dialog, darrow_attr);
-	waddch(dialog, ACS_DARROW);
-	waddstr(dialog, "(+)");
-    } else {
-	wattrset(dialog, menubox_border_attr);
-	whline(dialog, ACS_HLINE, 4);
-    }
-    wmove(dialog, cur_y, cur_x);
-    wrefresh_lock(dialog);
-}
+#define LLEN(n) ((n) * 3)
 
 /*
  * Print list item
@@ -70,10 +42,9 @@ print_item(WINDOW *win, const char *tag, const char *item, int status,
 	waddch(win, ' ');
     wmove(win, choice, check_x);
     wattrset(win, selected ? check_selected_attr : check_attr);
-    if (checkflag == FLAG_CHECK)
-	wprintw(win, "[%c]", status ? 'X' : ' ');
-    else
-	wprintw(win, "(%c)", status ? 'X' : ' ');
+    wprintw(win,
+	(checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
+	status ? 'X' : ' ');
     wattrset(win, menubox_attr);
     waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
@@ -94,27 +65,18 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     int list_height, int item_no, char **items, int flag,
     int separate_output)
 {
-    int i, x, y, cur_x, cur_y, box_x, box_y;
+    int i, j, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
+    int done = FALSE, result = EXIT_OK;
     WINDOW *dialog, *list;
     char *prompt = strclone(cprompt);
-#if 0
-    int min_width;
-#endif
+    const char **buttons = dlg_ok_labels();
 
     if (list_height < 1)
 	list_height = 1;
 
     tab_correct_str(prompt);
-#if 0
-    if (list_height == 0) {
-	min_width = calc_listw(item_no, items, 3) + 14;
-	/* calculate height without items (4) */
-	prompt = auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
-	calc_listh(&height, &list_height, item_no);
-    } else
-#endif
-	prompt = auto_size(title, prompt, &height, &width, 4 + list_height, 26);
+    prompt = auto_size(title, prompt, &height, &width, 4 + list_height, 26);
 
     print_size(height, width);
     ctl_size(height, width);
@@ -127,7 +89,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     /* Initializes status */
     for (i = 0; i < item_no; i++)
-	status[i] = !strcasecmp(items[i * 3 + 2], "on");
+	status[i] = !strcasecmp(items[LLEN(i) + 2], "on");
 
     max_choice = MIN(list_height, item_no);
 
@@ -163,15 +125,17 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     item_x = 0;
     /* Find length of longest item in order to center checklist */
     for (i = 0; i < item_no; i++) {
-	check_x = MAX(check_x, (int) strlen(items[i * 3 + 1]));
-	item_x = MAX(item_x, (int) strlen(items[i * 3]));
+	check_x = MAX(check_x, (int) strlen(items[LLEN(i) + 1]));
+	item_x = MAX(item_x, (int) strlen(items[LLEN(i)]));
     }
     check_x = (list_width - check_x - item_x - 6) / 2;
     item_x = check_x + item_x + 6;
 
     /* Print the list */
     for (i = 0; i < max_choice; i++)
-	print_item(list, items[i * 3], items[i * 3 + 1],
+	print_item(list,
+	    items[LLEN(i)],
+	    items[LLEN(i) + 1],
 	    status[i], i, i == choice);
     wnoutrefresh(list);
 
@@ -180,205 +144,259 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	item_no, item_x,	/* the threshold */
 	0 /* normal */ );
 
-    if (list_height < item_no) {
-	wattrset(dialog, darrow_attr);
-	wmove(dialog, box_y + list_height + 1, box_x + check_x + 5);
-	waddch(dialog, ACS_DARROW);
-	wmove(dialog, box_y + list_height + 1, box_x + check_x + 6);
-	waddstr(dialog, "(+)");
-    }
-    x = width / 2 - 11;
-    y = height - 2;
-    print_button(dialog, "Cancel", y, x + 14, FALSE);
-    print_button(dialog, "  OK  ", y, x, TRUE);
-    wrefresh_lock(dialog);
+    dlg_draw_arrows(dialog, scrollamt,
+	scrollamt + choice < item_no - 1,
+	box_x + check_x + 5,
+	box_y,
+	box_y + list_height + 1);
+
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, 0, FALSE, width);
+
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (key != ESC) {
+    while (!done) {
 	key = mouse_wgetch(dialog);
-	/* Check if key pressed matches first character of
-	   any item tag in list */
-	for (i = 0; i < max_choice; i++)
-	    if (toupper(key) ==
-		toupper(items[(scrollamt + i) * 3][0]))
-		break;
 
-	if (i < max_choice ||
-	    (key >= '1' && key <= MIN('9', '0' + max_choice)) ||
-	    key == KEY_UP || key == KEY_DOWN || key == ' ' ||
-	    key == '+' || key == '-' ||
-	    (key >= M_EVENT && key - M_EVENT < ' ')) {
-	    if (key >= '1' && key <= MIN('9', '0' + max_choice))
-		i = key - '1';
-	    else if (key == KEY_UP || key == '-') {
-		if (!choice) {
-		    if (!scrollamt)
-			continue;
-		    /* Scroll list down */
-		    getyx(dialog, cur_y, cur_x);
-		    if (list_height > 1) {
-			/* De-highlight current first item */
-			print_item(list, items[scrollamt * 3],
-			    items[scrollamt * 3 + 1], status[scrollamt],
-			    0, FALSE);
-			scrollok(list, TRUE);
-			wscrl(list, -1);
-			scrollok(list, FALSE);
-		    }
-		    scrollamt--;
-		    print_item(list, items[scrollamt * 3],
-			items[scrollamt * 3 + 1],
-			status[scrollamt], 0, TRUE);
-		    wnoutrefresh(list);
-
-		    print_arrows(dialog, scrollamt, TRUE,
-			box_x + check_x + 5,
-			box_y,
-			box_y + list_height + 1);
-		    continue;	/* wait for another key press */
-		} else
-		    i = choice - 1;
-	    } else if (key == KEY_DOWN || key == '+') {
-		if (choice == max_choice - 1) {
-		    if (scrollamt + choice >= item_no - 1)
-			continue;
-		    /* Scroll list up */
-		    getyx(dialog, cur_y, cur_x);
-		    if (list_height > 1) {
-			/* De-highlight current last item before scrolling up */
-			print_item(list, items[(scrollamt + max_choice - 1)
-				* 3],
-			    items[(scrollamt + max_choice - 1) * 3 + 1],
-			    status[scrollamt + max_choice - 1],
-			    max_choice - 1, FALSE);
-			scrollok(list, TRUE);
-			wscrl(list, 1);
-			scrollok(list, FALSE);
-		    }
-		    scrollamt++;
-		    print_item(list, items[(scrollamt + max_choice - 1) * 3],
-			items[(scrollamt + max_choice - 1) * 3 + 1],
-			status[scrollamt + max_choice - 1],
-			max_choice - 1, TRUE);
-		    wnoutrefresh(list);
-
-		    print_arrows(dialog, TRUE,
-		    	scrollamt + choice < item_no - 1,
-			box_x + check_x + 5,
-			box_y,
-			box_y + list_height + 1);
-		    continue;	/* wait for another key press */
-		} else
-		    i = choice + 1;
-	    } else if (key == ' ') {	/* Toggle item status */
-		if (flag == FLAG_CHECK) {
-		    status[scrollamt + choice] = !status[scrollamt + choice];
-		    getyx(dialog, cur_y, cur_x);
-		    wmove(list, choice, check_x);
-		    wattrset(list, check_selected_attr);
-		    wprintw(list, "[%c]", status[scrollamt + choice] ? 'X' : ' ');
-		} else {
-		    if (!status[scrollamt + choice]) {
-			for (i = 0; i < item_no; i++)
-			    status[i] = 0;
-			status[scrollamt + choice] = 1;
-			getyx(dialog, cur_y, cur_x);
-			for (i = 0; i < max_choice; i++)
-			    print_item(list, items[(scrollamt + i) * 3],
-				items[(scrollamt + i) * 3 + 1],
-				status[scrollamt + i], i, i == choice);
-		    }
-		}
-		wnoutrefresh(list);
-		wmove(dialog, cur_y, cur_x);
-		wrefresh_lock(dialog);
-		continue;	/* wait for another key press */
-	    }
-	    if (i != choice) {
-		/* De-highlight current item */
-		getyx(dialog, cur_y, cur_x);
-		print_item(list, items[(scrollamt + choice) * 3],
-		    items[(scrollamt + choice) * 3 + 1],
-		    status[scrollamt + choice], choice, FALSE);
-		/* Highlight new item */
-		choice = i;
-		print_item(list, items[(scrollamt + choice) * 3],
-		    items[(scrollamt + choice) * 3 + 1],
+	/*
+	 * A space toggles the item status.  We handle either a checklist
+	 * (any number of items can be selected) or radio list (zero or one
+	 * items can be selected).
+	 */
+	if (key == ' ') {
+	    getyx(dialog, cur_y, cur_x);
+	    if (flag == FLAG_CHECK) {	/* checklist? */
+		status[scrollamt + choice] = !status[scrollamt + choice];
+		print_item(list,
+		    items[LLEN(scrollamt + choice)],
+		    items[LLEN(scrollamt + choice) + 1],
 		    status[scrollamt + choice], choice, TRUE);
-		wnoutrefresh(list);
-		wmove(dialog, cur_y, cur_x);
-		wrefresh_lock(dialog);
+	    } else {		/* radiolist */
+		if (!status[scrollamt + choice]) {
+		    for (i = 0; i < item_no; i++)
+			status[i] = FALSE;
+		    status[scrollamt + choice] = TRUE;
+		    for (i = 0; i < max_choice; i++)
+			print_item(list,
+			    items[LLEN(scrollamt + i)],
+			    items[LLEN(scrollamt + i) + 1],
+			    status[scrollamt + i], i, i == choice);
+		}
+	    }
+	    wnoutrefresh(list);
+	    wmove(dialog, cur_y, cur_x);
+	    wrefresh_lock(dialog);
+	    continue;		/* wait for another key press */
+	}
+
+	/*
+	 * Check if key pressed matches first character of any item tag in
+	 * list.  If there is more than one match, we will cycle through
+	 * each one as the same key is pressed repeatedly.
+	 */
+	found = FALSE;
+	for (j = scrollamt + choice + 1; j < item_no; j++) {
+	    if (toupper(key) ==
+		toupper(items[LLEN(j)][0])) {
+		found = TRUE;
+		i = j - scrollamt;
+		break;
+	    }
+	}
+	if (!found) {
+	    for (j = 0; j <= scrollamt + choice; j++) {
+		if (toupper(key) ==
+		    toupper(items[LLEN(j)][0])) {
+		    found = TRUE;
+		    i = j - scrollamt;
+		    break;
+		}
+	    }
+	}
+
+	/*
+	 * A single digit (1-9) positions the selection to that line in the
+	 * current screen.
+	 */
+	if (!found
+	    && (key <= '9')
+	    && (key > '0')
+	    && (key - '1' <= max_choice)) {
+	    found = TRUE;
+	    i = key - '1';
+	}
+
+	if (!found) {
+	    found = TRUE;
+	    switch (key) {
+	    case KEY_HOME:
+		i = -scrollamt;
+		break;
+	    case KEY_LL:
+	    case KEY_END:
+		i = item_no - 1 - scrollamt;
+		break;
+	    case KEY_PPAGE:
+		if (choice)
+		    i = 0;
+		else if (scrollamt != 0)
+		    i = -MIN(scrollamt, max_choice);
+		else
+		    continue;
+		break;
+	    case KEY_NPAGE:
+		i = MIN(choice + max_choice, item_no - scrollamt - 1);
+		break;
+	    case KEY_UP:
+	    case '-':
+		i = choice - 1;
+		if (choice == 0 && scrollamt == 0)
+		    continue;
+		break;
+	    case KEY_DOWN:
+	    case '+':
+		i = choice + 1;
+		if (scrollamt + choice >= item_no - 1)
+		    continue;
+		break;
+	    default:
+		found = FALSE;
+		break;
+	    }
+	}
+
+	if (found) {
+	    if (i != choice) {
+		getyx(dialog, cur_y, cur_x);
+		if (i < 0 || i >= max_choice) {
+#if defined(NCURSES_VERSION_MAJOR) && NCURSES_VERSION_MAJOR < 5
+		    /*
+		     * Using wscrl to assist ncurses scrolling is not needed
+		     * in version 5.x
+		     */
+		    if (i == -1) {
+			if (list_height > 1) {
+			    /* De-highlight current first item */
+			    print_item(list,
+				items[LLEN(scrollamt)],
+				items[LLEN(scrollamt) + 1],
+				status[scrollamt], 0, FALSE);
+			    scrollok(list, TRUE);
+			    wscrl(list, -1);
+			    scrollok(list, FALSE);
+			}
+			scrollamt--;
+			print_item(list,
+			    items[LLEN(scrollamt)],
+			    items[LLEN(scrollamt) + 1],
+			    status[scrollamt], 0, TRUE);
+		    } else if (i == max_choice) {
+			if (list_height > 1) {
+			    /* De-highlight current last item before scrolling up */
+			    print_item(list,
+				items[LLEN(scrollamt + max_choice - 1)],
+				items[LLEN(scrollamt + max_choice - 1) + 1],
+				status[scrollamt + max_choice - 1],
+				max_choice - 1, FALSE);
+			    scrollok(list, TRUE);
+			    wscrl(list, 1);
+			    scrollok(list, FALSE);
+			}
+			scrollamt++;
+			print_item(list,
+			    items[LLEN(scrollamt + max_choice - 1)],
+			    items[LLEN(scrollamt + max_choice - 1) + 1],
+			    status[scrollamt + max_choice - 1],
+			    max_choice - 1, TRUE);
+		    } else
+#endif
+		    {
+			if (i < 0) {
+			    scrollamt += i;
+			    choice = 0;
+			} else {
+			    choice = max_choice - 1;
+			    scrollamt += (i - max_choice + 1);
+			}
+			for (i = 0; i < max_choice; i++) {
+			    print_item(list,
+				items[LLEN(scrollamt + i)],
+				items[LLEN(scrollamt + i) + 1],
+				status[scrollamt + i], i, i == choice);
+			}
+		    }
+		    wnoutrefresh(list);
+		    dlg_draw_arrows(dialog, scrollamt,
+			scrollamt + choice < item_no - 1,
+			box_x + check_x + 5,
+			box_y,
+			box_y + list_height + 1);
+		} else {
+		    /* De-highlight current item */
+		    print_item(list,
+			items[LLEN(scrollamt + choice)],
+			items[LLEN(scrollamt + choice) + 1],
+			status[scrollamt + choice], choice, FALSE);
+		    /* Highlight new item */
+		    choice = i;
+		    print_item(list,
+			items[LLEN(scrollamt + choice)],
+			items[LLEN(scrollamt + choice) + 1],
+			status[scrollamt + choice], choice, TRUE);
+		    wnoutrefresh(list);
+		    wmove(dialog, cur_y, cur_x);
+		    wrefresh_lock(dialog);
+		}
 	    }
 	    continue;		/* wait for another key press */
 	}
+
 	switch (key) {
 	case 'O':
 	case 'o':
 	case M_EVENT + 'O':
-	    delwin(dialog);
-	    for (i = 0; i < item_no; i++)
-		if (status[i]) {
-		    if (flag == FLAG_CHECK) {
-			if (separate_output) {
-			    fprintf(stderr, "%s\n", items[i * 3]);
-			} else {
-			    fprintf(stderr, "\"%s\" ", items[i * 3]);
-			}
-		    } else {
-			fprintf(stderr, "%s", items[i * 3]);
-		    }
-
-		}
-	    free(status);
-	    return 0;
+	case '\n':
+	    done = TRUE;
+	    break;
 	case 'C':
 	case 'c':
 	case M_EVENT + 'C':
-	    delwin(dialog);
-	    free(status);
-	    return 1;
+	    result = EXIT_CANCEL;
+	    done = TRUE;
+	    break;
 	case M_EVENT + 'o':	/* mouse enter... */
 	case M_EVENT + 'c':	/* use the code for toggling */
 	    button = (key == M_EVENT + 'o');
+	    /* FALLTHRU */
 	case TAB:
 	case KEY_LEFT:
 	case KEY_RIGHT:
-	    if (!button) {
-		button = 1;	/* "Cancel" button selected */
-		print_button(dialog, "  OK  ", y, x, FALSE);
-		print_button(dialog, "Cancel", y, x + 14, TRUE);
-	    } else {
-		button = 0;	/* "OK" button selected */
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-	    }
-	    wrefresh_lock(dialog);
+	    if (!dialog_vars.nocancel)
+		button = !button;
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
-	case ' ':
-	case '\n':
-	    delwin(dialog);
-	    if (!button)
-		for (i = 0; i < item_no; i++)
-		    if (status[i]) {
-			if (flag == FLAG_CHECK) {
-			    if (separate_output) {
-				fprintf(stderr, "%s\n", items[i * 3]);
-			    } else {
-				fprintf(stderr, "\"%s\" ", items[i * 3]);
-			    }
-			} else {
-			    fprintf(stderr, "%s", items[i * 3]);
-			}
-
-		    }
-	    free(status);
-	    return button;
 	case ESC:
+	    result = EXIT_ESC;
+	    done = TRUE;
 	    break;
 	}
     }
 
     delwin(dialog);
+    if (result == EXIT_OK) {
+	for (i = 0; i < item_no; i++) {
+	    if (status[i]) {
+		if (flag == FLAG_CHECK) {
+		    if (separate_output) {
+			fprintf(stderr, "%s\n", items[LLEN(i)]);
+		    } else {
+			fprintf(stderr, "\"%s\" ", items[LLEN(i)]);
+		    }
+		} else {
+		    fprintf(stderr, "%s", items[LLEN(i)]);
+		}
+	    }
+	}
+    }
     free(status);
-    return -1;			/* ESC pressed */
+    return result;
 }

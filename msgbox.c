@@ -68,7 +68,7 @@ restart:
 
 	draw_bottom_box (dialog);
 	mouse_mkbutton (height - 2, width / 2 - 4, 6, '\n');
-	print_button (dialog, "  OK  ", height - 2, width / 2 - 4, TRUE);
+	print_button (dialog, LABEL_OK, height - 2, width / 2 - 4, TRUE);
 
 	wrefresh_lock(dialog);
 

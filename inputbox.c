@@ -23,34 +23,36 @@
 unsigned char dialog_input_result[MAX_LEN + 1];
 
 /*
- * Display a dialog box for inputing a string
+ * Display a dialog box for entering a string
  */
 int
 dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     const char *init, const int password)
 {
-    /* -1 (input)  =>  1 (Ok)     */
-    /*  0 (Ok)     => -1 (input)  */
-    /*  1 (Cancel) =>  0 (Cancel) */
-    static int forward[] =
-    {1, -1, 0};
-    /* -1 (input)  =>  0 (Cancel) */
-    /*  0 (Ok)     =>  1 (Ok)     */
+    /* -1 (input)  =>  0 (Ok)     */
+    /*  0 (Ok)     =>  1 (Cancel) */
     /*  1 (Cancel) => -1 (input)  */
-    static int backward[] =
+    static int forward[] =
     {0, 1, -1};
+    /* -1 (input)  =>  1 (Cancel) */
+    /*  1 (Cancel) =>  0 (Ok)     */
+    /*  0 (Ok)     => -1 (input)  */
+    static int backward[] =
+    {1, -1, 0};
 
     int x, y, box_y, box_x, box_width;
-    int show_buttons = 1, first = 1, offset = 0;
+    int show_buttons = TRUE, first = TRUE, offset = 0;
     int input_x = 0, key = 0, button = -1;
     unsigned char *input = dialog_input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
+    const char **buttons = dlg_ok_labels();
 
     tab_correct_str(prompt);
     if (init != NULL) {
-	prompt = auto_size(title, prompt, &height, &width, 5, MIN(MAX((int)
-		    strlen(init) + 7, 26), SCOLS - (begin_set ? begin_x : 0)));
+	prompt = auto_size(title, prompt, &height, &width, 5,
+	    MIN(MAX((int) strlen(init) + 7, 26),
+		SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0)));
     } else
 	prompt = auto_size(title, prompt, &height, &width, 5, 26);
     print_size(height, width);
@@ -79,9 +81,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     draw_box(dialog, y + 1, box_x - 1, 3, box_width + 2,
 	border_attr, dialog_attr);
 
-    x = width / 2 - 11;
-    y = height - 2;
-
     /* Set up the initial value */
     if (!init)
 	input[0] = '\0';
@@ -97,17 +96,9 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	 * The last field drawn determines where the cursor is shown:
 	 */
 	if (show_buttons) {
-	    show_buttons = 0;
-	    if (button != 0) {
-		print_button(dialog, "Cancel", y, x + 14, FALSE);
-		print_button(dialog, "  OK  ", y, x, TRUE);
-		if (button == -1)
-		    wmove(dialog, box_y, box_x + input_x);
-	    } else {
-		print_button(dialog, "  OK  ", y, x, FALSE);
-		print_button(dialog, "Cancel", y, x + 14, TRUE);
-	    }
-	    wrefresh_lock(dialog);
+	    show_buttons = FALSE;
+	    wmove(dialog, box_y, box_x + input_x);
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	}
 
 	if (!first)
@@ -119,7 +110,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    if (edit) {
 		dlg_show_string(dialog, input, offset, inputbox_attr,
 		    box_y, box_x, box_width, password, first);
-		first = 0;
+		first = FALSE;
 		continue;
 	    }
 	}
@@ -138,21 +129,26 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	case M_EVENT + 'c':
 	    button = (key == M_EVENT + 'o') - (key == M_EVENT + 'c');
 	    /* FALLTHRU */
+	case KEY_BTAB:
 	case KEY_UP:
 	case KEY_LEFT:
-	    show_buttons = 1;
+	    show_buttons = TRUE;
 	    button = backward[button + 1];
+	    if (dialog_vars.nocancel && button > 0)
+		button = backward[button + 1];
 	    break;
 	case TAB:
 	case KEY_DOWN:
 	case KEY_RIGHT:
-	    show_buttons = 1;
+	    show_buttons = TRUE;
 	    button = forward[button + 1];
+	    if (dialog_vars.nocancel && button > 0)
+		button = forward[button + 1];
 	    break;
 	case ' ':
 	case '\n':
 	    delwin(dialog);
-	    return (button == -1 ? 0 : button);
+	    return (button > 0);
 	case ESC:
 	    break;
 	}

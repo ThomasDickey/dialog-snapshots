@@ -71,7 +71,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
     draw_bottom_box(dialog);
     draw_title(dialog, title);
 
-    print_button(dialog, " EXIT ", height - 2, width / 2 - 4, TRUE);
+    print_button(dialog, LABEL_EXIT, height - 2, width / 2 - 4, TRUE);
 
     wmove(dialog, height - 4, 2);
 
@@ -311,8 +311,8 @@ get_line(void)
 	if (((ch = getc(fd)) == EOF) && !feof(fd))
 	    exiterr("Error moving file pointer in get_line().");
 	else if ((i < MAX_LEN) && !feof(fd) && (ch != '\n')) {
-	    if ((ch == TAB) && (tab_correct)) {
-		tmpint = tab_len - (i % tab_len);
+	    if ((ch == TAB) && (dialog_vars.tab_correct)) {
+		tmpint = dialog_vars.tab_len - (i % dialog_vars.tab_len);
 		for (j = 0; j < tmpint; j++) {
 		    if (i < MAX_LEN)
 			line[i++] = ' ';

@@ -24,23 +24,24 @@
  * Display a dialog box with two buttons - Yes and No
  */
 int
-dialog_yesno (const char *title, const char *cprompt, int height, int width, int defaultno)
+dialog_yesno(const char *title, const char *cprompt, int height, int width, int defaultno)
 {
     int x, y, key = 0, button = defaultno;
     WINDOW *dialog = 0;
-    char *prompt=strclone(cprompt);
+    char *prompt = strclone(cprompt);
+    const char **buttons = dlg_yes_labels();
 
 #ifdef KEY_RESIZE
     int req_high = height;
     int req_wide = width;
-restart:
+  restart:
 #endif
 
     tab_correct_str(prompt);
-    prompt=auto_size(title, prompt, &height, &width, 2, 25);
+    prompt = auto_size(title, prompt, &height, &width, 2, 25);
     print_size(height, width);
     ctl_size(height, width);
-  
+
     x = box_x_ordinate(width);
     y = box_y_ordinate(height);
 
@@ -51,78 +52,65 @@ restart:
 	refresh();
     } else
 #endif
-    dialog = new_window (height, width, y, x);
+	dialog = new_window(height, width, y, x);
 
-    mouse_setbase (x, y);
+    mouse_setbase(x, y);
 
-    draw_box (dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box (dialog);
+    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    draw_bottom_box(dialog);
     draw_title(dialog, title);
 
-    wattrset (dialog, dialog_attr);
-    print_autowrap (dialog, prompt, width, 1, 2);
+    wattrset(dialog, dialog_attr);
+    print_autowrap(dialog, prompt, width, 1, 2);
 
-    x = width / 2 - 10;
-    y = height - 2;
-    if (! defaultno)
-    	print_button (dialog, "  No  ", y, x + 13, FALSE);
-    print_button (dialog, " Yes ", y, x, !defaultno);
-    if (defaultno)
-    	print_button (dialog, "  No  ", y, x + 13, TRUE);
-    wrefresh_lock (dialog);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, defaultno, FALSE, width);
 
 #ifndef KEY_RESIZE
     wtimeout(dialog, WTIMEOUT_VAL);
 #endif
 
     while (key != ESC) {
-	key = mouse_wgetch (dialog);
+	key = mouse_wgetch(dialog);
 	switch (key) {
 	case 'Y':
 	case 'y':
-	    delwin (dialog);
+	    delwin(dialog);
 	    return 0;
 	case 'N':
 	case 'n':
-	    delwin (dialog);
+	    delwin(dialog);
 	    return 1;
 
 	case M_EVENT + 'y':	/* mouse enter... */
 	case M_EVENT + 'n':	/* use the code for toggling */
 	    button = (key == M_EVENT + 'y');
+	    /* FALLTHRU */
 
+	case KEY_BTAB:
 	case TAB:
 	case KEY_UP:
 	case KEY_DOWN:
 	case KEY_LEFT:
 	case KEY_RIGHT:
-	    if (!button) {
-		button = 1;	/* "No" button selected */
-		print_button (dialog, " Yes ", y, x, FALSE);
-		print_button (dialog, "  No  ", y, x + 13, TRUE);
-	    } else {
-		button = 0;	/* "Yes" button selected */
-		print_button (dialog, "  No  ", y, x + 13, FALSE);
-		print_button (dialog, " Yes ", y, x, TRUE);
-	    }
-	    wrefresh_lock (dialog);
+	    button = !button;
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case ' ':
 	case '\n':
-	    delwin (dialog);
+	    delwin(dialog);
 	    return button;
 	case ESC:
 	    break;
 #ifdef KEY_RESIZE
 	case KEY_RESIZE:
-	    attr_clear (stdscr, LINES, COLS, screen_attr);
+	    attr_clear(stdscr, LINES, COLS, screen_attr);
 	    height = req_high;
-	    width  = req_wide;
+	    width = req_wide;
 	    goto restart;
 #endif
 	}
     }
 
-    delwin (dialog);
+    delwin(dialog);
     return -1;			/* ESC pressed */
 }

@@ -24,6 +24,8 @@
 #include <term.h>
 #endif
 
+FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
+
 #ifdef HAVE_COLOR
 /* use colors by default? */
 bool use_colors = USE_COLORS;
@@ -120,11 +122,11 @@ put_backtitle(void)
 {
     int i;
 
-    if (backtitle != NULL) {
+    if (dialog_vars.backtitle != NULL) {
 	wattrset(stdscr, screen_attr);
 	wmove(stdscr, 0, 1);
-	waddstr(stdscr, backtitle);
-	for (i = 0; i < COLS - (int) strlen(backtitle); i++)
+	waddstr(stdscr, dialog_vars.backtitle);
+	for (i = 0; i < COLS - (int) strlen(dialog_vars.backtitle); i++)
 	    waddch(stdscr, ' ');
 	wmove(stdscr, 1, 1);
 	for (i = 0; i < COLS - 2; i++)
@@ -177,6 +179,23 @@ init_dialog(void)
 #endif
 #endif
 
+    /* 
+     * Some widgets (such as gauge) may read from the standard input.
+     * That would get in the way of curses' normal reading stdin for getch.
+     * If we're not reading from a tty, see if we can open /dev/tty.
+     */
+    pipe_fp = stdin;
+    if (!isatty(fileno(stdin))) {
+	int fd1, fd2;
+	const char *device = "/dev/tty";
+	if ((fd1 = open(device, O_RDONLY)) >= 0
+	    && (fd2 = dup(fileno(stdin))) >= 0) {
+	    pipe_fp = fdopen(fd2, "r");
+	    *stdin = *freopen(device, "r", stdin);
+	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
+		dup2(fileno(stdin), 0);
+	}
+    }
     initscr();			/* Init curses */
 #ifdef NCURSES_VERSION
     /*
@@ -254,7 +273,7 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	(strchr(tempstr, '\n') != NULL)) {	/* Prompt contains "\n" or '\n' */
 	word = tempstr;
 	cur_y = y;
-	if (cr_wrap)
+	if (dialog_vars.cr_wrap)
 	    cur_y++;
 	wmove(win, cur_y, x);
 	while (1) {
@@ -285,14 +304,14 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	waddstr(win, word);
     } else if ((int) strlen(tempstr) <= width - x * 2) {	/* If prompt is short */
 	cur_y = y;
-	if (cr_wrap)
+	if (dialog_vars.cr_wrap)
 	    cur_y++;
 	wmove(win, cur_y, (width - strlen(tempstr)) / 2);
 	waddstr(win, tempstr);
     } else {
 	cur_x = x;
 	cur_y = y;
-	if (cr_wrap)
+	if (dialog_vars.cr_wrap)
 	    cur_y++;
 	/* Print prompt word by word, wrap around if necessary */
 	while ((word = strtok(first ? tempstr : NULL, " ")) != NULL) {
@@ -308,7 +327,7 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	    cur_x++;
 	}
     }
-    if (cr_wrap)
+    if (dialog_vars.cr_wrap)
 	wmove(win, cur_y + 1, x);
 }
 
@@ -337,8 +356,8 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
     char *cr1, *cr2, *ptr = prompt, *str, *word;
 
     if ((*height == -1) || (*width == -1)) {
-	*height = SLINES - (begin_set ? begin_y : 0);
-	*width = SCOLS - (begin_set ? begin_x : 0);
+	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
+	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
     }
     if ((*height != 0) && (*width != 0))
 	return prompt;
@@ -379,11 +398,11 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
     /* now 'count' has the number of lines of text and 'len' the max lenght */
 
     if (count > 0) {		/* there are any '\n' or "\\n" */
-	*height = count + numlines + boxlines + (cr_wrap ? 2 : 0);
+	*height = count + numlines + boxlines + (dialog_vars.cr_wrap ? 2 : 0);
 	*width = MAX((len + nc), mincols);
 	return prompt;
     } else {			/* all chars in only a line */
-	double val = aspect_ratio * strlen(prompt);
+	double val = dialog_vars.aspect_ratio * strlen(prompt);
 	int tmp = sqrt(val);
 	str = (char *) malloc(strlen(prompt) * 2);
 	text_width = MAX(tmp, (mincols - nc));
@@ -427,7 +446,7 @@ real_auto_size(const char *title, char *prompt, int *height, int *width, int
 	}
 	str[i] = 0;
 
-	*height = count + numlines + boxlines + (cr_wrap ? 2 : 0);
+	*height = count + numlines + boxlines + (dialog_vars.cr_wrap ? 2 : 0);
 
 	return str;
     }
@@ -471,8 +490,8 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 	exiterr("Can't open input file in auto_sizefile().");
 
     if ((*height == -1) || (*width == -1)) {
-	*height = SLINES - (begin_set ? begin_y : 0);
-	*width = SCOLS - (begin_set ? begin_x : 0);
+	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
+	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
     }
     if ((*height != 0) && (*width != 0)) {
 	fclose(fd);
@@ -482,8 +501,8 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
     while (!feof(fd)) {
 	offset = 0;
 	while (((ch = getc(fd)) != '\n') && !feof(fd))
-	    if ((ch == TAB) && (tab_correct))
-		offset += tab_len - (offset % tab_len);
+	    if ((ch == TAB) && (dialog_vars.tab_correct))
+		offset += dialog_vars.tab_len - (offset % dialog_vars.tab_len);
 	    else
 		offset++;
 
@@ -504,38 +523,6 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
     fclose(fd);
 }
 /* End of auto_sizefile() */
-
-/*
- * Print a button
- */
-void
-print_button(WINDOW *win, const char *label, int y, int x, int selected)
-{
-    int i, temp;
-
-    wmove(win, y, x);
-    wattrset(win, selected ? button_active_attr : button_inactive_attr);
-    waddstr(win, "<");
-    temp = strspn(label, " ");
-    mouse_mkbutton(y, x, strlen(label) + 2, tolower(label[temp]));
-    label += temp;
-    wattrset(win, selected
-	? button_label_active_attr
-	: button_label_inactive_attr);
-    for (i = 0; i < temp; i++)
-	waddch(win, ' ');
-    wattrset(win, selected
-	? button_key_active_attr
-	: button_key_inactive_attr);
-    waddch(win, label[0]);
-    wattrset(win, selected
-	? button_label_active_attr
-	: button_label_inactive_attr);
-    waddstr(win, label + 1);
-    wattrset(win, selected ? button_active_attr : button_inactive_attr);
-    waddstr(win, ">");
-    wmove(win, y, x + temp + 1);
-}
 
 /*
  * Draw a rectangular box with line drawing characters
@@ -749,22 +736,24 @@ exiterr(const char *str)
     else
 	killall_bg();
 
+    fflush(stderr);
+    fflush(stdout);
     exit(-1);
 }
 
 void
 beeping()
 {
-    if (beep_signal) {
+    if (dialog_vars.beep_signal) {
 	beep();
-	beep_signal = 0;
+	dialog_vars.beep_signal = 0;
     }
 }
 
 void
 print_size(int height, int width)
 {
-    if (print_siz)
+    if (dialog_vars.print_siz)
 	fprintf(stderr, "Size: %d, %d\n", height, width);
 }
 
@@ -773,7 +762,7 @@ ctl_size(int height, int width)
 {
     char tempstr[MAX_LEN];
 
-    if (size_err) {
+    if (dialog_vars.size_err) {
 	if ((width > COLS) || (height > LINES)) {
 	    sprintf(tempstr,
 		"\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
@@ -796,7 +785,7 @@ tab_correct_str(char *prompt)
 {
     char *ptr;
 
-    if (!tab_correct)
+    if (!dialog_vars.tab_correct)
 	return;
 
     while ((ptr = strchr(prompt, TAB)) != NULL) {
@@ -809,7 +798,7 @@ void
 calc_listh(int *height, int *list_height, int item_no)
 {
     /* calculate new height and list_height */
-    int rows = SLINES - (begin_set ? begin_y : 0);
+    int rows = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
     if (rows - (*height) > 0) {
 	if (rows - (*height) > item_no)
 	    *list_height = item_no;
@@ -845,8 +834,8 @@ box_x_ordinate(int width)
 {
     int x;
 
-    if (begin_set == 1) {
-	x = begin_x;
+    if (dialog_vars.begin_set == 1) {
+	x = dialog_vars.begin_x;
     } else {
 	/* center dialog box on screen unless --begin-set */
 	x = (SCOLS - width) / 2;
@@ -859,8 +848,8 @@ box_y_ordinate(int height)
 {
     int y;
 
-    if (begin_set == 1) {
-	y = begin_y;
+    if (dialog_vars.begin_set == 1) {
+	y = dialog_vars.begin_y;
     } else {
 	/* center dialog box on screen unless --begin-set */
 	y = (SLINES - height) / 2;
@@ -919,4 +908,18 @@ new_window(int height, int width, int y, int x)
 
     keypad(win, TRUE);
     return win;
+}
+
+int
+dlg_default_item(char **items)
+{
+    if (dialog_vars.default_item != 0) {
+	int count = 0;
+	while (*items != 0) {
+	    if (!strcmp(dialog_vars.default_item, *items))
+		return count;
+	    count++;
+	}
+    }
+    return 0;
 }

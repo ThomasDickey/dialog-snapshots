@@ -73,19 +73,19 @@ dialog_gauge(const char *title, const char *prompt, int height,
 
 	wrefresh(dialog);
 
-	if (feof(stdin)
-	    || fgets(buf, sizeof(buf), stdin) == 0)
+	if (feof(pipe_fp)
+	    || fgets(buf, sizeof(buf), pipe_fp) == 0)
 	    break;
 	if (buf[0] == 'X') {
 	    /* Next line is percentage */
-	    if (feof(stdin)
-		|| fgets(buf, sizeof(buf), stdin) == 0)
+	    if (feof(pipe_fp)
+		|| fgets(buf, sizeof(buf), pipe_fp) == 0)
 		break;
 	    percent = atoi(buf);
 
 	    /* Rest is message text */
 	    prompt_buf[0] = '\0';
-	    while (fgets(buf, sizeof(buf), stdin) != 0
+	    while (fgets(buf, sizeof(buf), pipe_fp) != 0
 		&& strncmp(buf, "XXX", 3)
 		&& strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1)
 		strcat(prompt_buf, buf);

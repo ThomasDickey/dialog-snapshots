@@ -3,6 +3,25 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/2/21
+	+ add sample scripts for --nocancel and --fb options with inputbox.
+	+ modify inputbox* sample scripts to show application errors, if any.
+	+ add --nocancel option, and ignore --noitem, --fb, --fullbutton, to
+	  make this compatible with whiptail scripts.  (whiptail does not
+	  handle many dialog scripts however).
+	+ modify checklist/radiobox to handle home, end, nextpage, prevpage
+	  keys, as well as make the abbreviation search work for the whole
+	  list, not only the current page.
+	+ treat KEY_LL the same as KEY_END in checklist and textbox.
+	+ add logic for KEY_BTAB.
+	+ use new function dlg_draw_buttons() to better manage the layout of
+	  yes/no/ok/cancel buttons.
+	+ another pass of cleanup of dialog.c, makes it use a single table for
+	  lookup of option names and help-message.  Eliminated numerous
+	  adjustments to 'offset' variable.
+	+ on initialization, check if standard input is from a terminal.  If
+	  not, open /dev/tty (fixes Debian #57771)
+
 2000/2/5
 	+ implement inline editing in textbox.c search dialog.
 	+ revise inputbox.c, allowing inline editing with arrow-keys.  removed
