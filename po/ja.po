@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-
 "Project-Id-Version: dialog 0.9a\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-06-06 11:07-0400\n"
 "PO-Revision-Date: 2000-10-06 18:02+09:00\n"
 "Last-Translator: Hirofumi Takeda <takepin@turbolinux.co.jp>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -14,22 +14,50 @@ msgstr ""
 "Content-Type: text/plain; charset=EUC-JP\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:196
-msgid "EXIT"
-msgstr "終了"
-
-#: buttons.c:207 buttons.c:218
-msgid "OK"
-msgstr "了解"
-
-#: buttons.c:220
-msgid "Cancel"
-msgstr "取消"
-
-#: buttons.c:231
+#: buttons.c:354
 msgid "Yes"
 msgstr "はい"
 
-#: buttons.c:232
+#: buttons.c:362
 msgid "No"
 msgstr "いいえ"
+
+#: buttons.c:370
+msgid "OK"
+msgstr "了解"
+
+#: buttons.c:378
+msgid "Cancel"
+msgstr "取消"
+
+#: buttons.c:386
+msgid "EXIT"
+msgstr "終了"
+
+#: buttons.c:394
+msgid "Extra"
+msgstr ""
+
+#: buttons.c:402
+msgid "Help"
+msgstr ""
+
+#: calendar.c:301
+msgid "Month"
+msgstr ""
+
+#: calendar.c:320
+msgid "Year"
+msgstr ""
+
+#: dialog.c:670
+msgid "Rename"
+msgstr ""
+
+#: fselect.c:426
+msgid "Directories"
+msgstr ""
+
+#: fselect.c:427
+msgid "Files"
+msgstr ""

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.116 2004/03/15 00:01:10 tom Exp $
+ * $Id: dialog.c,v 1.123 2004/06/05 23:56:24 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -97,6 +97,7 @@ typedef enum {
     ,o_separate_widget
     ,o_separator
     ,o_shadow
+    ,o_single_quoted
     ,o_size_err
     ,o_sleep
     ,o_smooth
@@ -111,6 +112,7 @@ typedef enum {
     ,o_timeout
     ,o_title
     ,o_trim
+    ,o_visit_items
     ,o_under_mouse
     ,o_wmclass
     ,o_yes_label
@@ -139,6 +141,8 @@ typedef struct {
 
 static bool *dialog_opts;
 static char **dialog_argv;
+
+static bool ignore_unknown = FALSE;
 
 static const char *program = "dialog";
 static const char *const and_widget = "--and-widget";
@@ -214,6 +218,7 @@ static const Options options[] = {
     { "separate-widget",o_separate_widget,	1, "<str>" },
     { "separator",	o_separator,		1, NULL },
     { "shadow",		o_shadow,		1, "" },
+    { "single-quoted",	o_single_quoted,	1, "" },
     { "size-err",	o_size_err,		1, "" },
     { "sleep",		o_sleep,		1, "<secs>" },
     { "smooth",		o_smooth,		1, NULL },
@@ -228,6 +233,7 @@ static const Options options[] = {
     { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
     { "trim",		o_trim,			1, "" },
+    { "visit-items", 	o_visit_items,		1, "" },
     { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
     { "wmclass",	o_wmclass,		1, NULL },
@@ -235,6 +241,97 @@ static const Options options[] = {
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
 };
 /* *INDENT-ON* */
+
+/*
+ * Convert a string to an argv[], returning a char** index (which must be
+ * freed by the caller).  The string is modified (replacing gaps between
+ * tokens with nulls).
+ */
+static char **
+string_to_argv(char *blob)
+{
+    int n;
+    int pass;
+    int length = strlen(blob);
+    char **result = 0;
+
+    for (pass = 0; pass < 2; ++pass) {
+	bool inparm = FALSE;
+	bool quoted = FALSE;
+	char *param = blob;
+	int count = 0;
+
+	for (n = 0; n < length; ++n) {
+	    if (quoted && blob[n] == '"') {
+		quoted = FALSE;
+	    } else if (blob[n] == '"') {
+		quoted = TRUE;
+		if (!inparm) {
+		    if (pass)
+			result[count] = param;
+		    ++count;
+		    inparm = TRUE;
+		}
+	    } else if (blob[n] == '\\') {
+		if (quoted && !isspace(CharOf(blob[n + 1]))) {
+		    if (!inparm) {
+			if (pass)
+			    result[count] = param;
+			++count;
+			inparm = TRUE;
+		    }
+		    if (pass) {
+			*param++ = blob[n];
+			*param++ = blob[n + 1];
+		    }
+		}
+		++n;
+	    } else if (!quoted && isspace(CharOf(blob[n]))) {
+		inparm = FALSE;
+		if (pass) {
+		    *param++ = '\0';
+		}
+	    } else {
+		if (!inparm) {
+		    if (pass)
+			result[count] = param;
+		    ++count;
+		    inparm = TRUE;
+		}
+		if (pass) {
+		    *param++ = blob[n];
+		}
+	    }
+	}
+
+	if (!pass) {
+	    if (count) {
+		result = calloc(count + 1, sizeof(char *));
+		assert_ptr(result, "unescape_argv");
+	    } else {
+		break;		/* no tokens found */
+	    }
+	} else {
+	    *param = '\0';
+	}
+    }
+    return result;
+}
+
+/*
+ * Count the entries in an argv list.
+ */
+static int
+count_argv(char **argv)
+{
+    int result = 0;
+
+    if (argv != 0) {
+	while (argv[result] != 0)
+	    ++result;
+    }
+    return result;
+}
 
 /*
  * Make an array showing which argv[] entries are options.  Use "--" as a
@@ -250,8 +347,11 @@ static void
 unescape_argv(int *argcp, char ***argvp)
 {
     int j, k;
+    int limit_includes = 20 + *argcp;
+    int count_includes = 0;
     bool changed = FALSE;
     bool doalloc = FALSE;
+    char *filename;
 
     dialog_opts = calloc(*argcp + 1, sizeof(bool));
     assert_ptr(dialog_opts, "unescape_argv");
@@ -265,14 +365,17 @@ unescape_argv(int *argcp, char ***argvp)
 	    for (k = j; k <= *argcp; k++)
 		(*argvp)[k] = (*argvp)[k + 1];
 	} else if (!strcmp((*argvp)[j], "--file")) {
-	    char *filename = (*argvp)[j + 1];
-	    if (filename != 0) {
+	    if (++count_includes > limit_includes)
+		dlg_exiterr("Too many --file options");
+
+	    if ((filename = (*argvp)[j + 1]) != 0) {
 		FILE *fp;
-		struct stat sb;
+		char **list;
 		char *blob;
-		int pass;
-		int n;
+		int added;
 		int length;
+		int n;
+		struct stat sb;
 
 		if (stat(filename, &sb) == 0
 		    && (sb.st_mode & S_IFMT) == S_IFREG
@@ -290,83 +393,35 @@ unescape_argv(int *argcp, char ***argvp)
 		    }
 		    blob[length] = '\0';
 
-		    for (pass = 0; pass < 2; ++pass) {
-			bool inparm = FALSE;
-			bool quoted = FALSE;
-			char *param = blob;
-			int added = 0;
-
-			for (n = 0; n < length; ++n) {
-			    if (quoted && blob[n] == '"') {
-				quoted = FALSE;
-			    } else if (blob[n] == '"') {
-				quoted = TRUE;
-				if (!inparm) {
-				    if (pass)
-					(*argvp)[j + added] = param;
-				    ++added;
-				    inparm = TRUE;
-				}
-			    } else if (blob[n] == '\\') {
-				if (quoted && !isspace(CharOf(blob[n + 1]))) {
-				    if (!inparm) {
-					if (pass)
-					    (*argvp)[j + added] = param;
-					++added;
-					inparm = TRUE;
-				    }
-				    if (pass) {
-					*param++ = blob[n];
-					*param++ = blob[n + 1];
-				    }
-				}
-				++n;
-			    } else if (!quoted && isspace(CharOf(blob[n]))) {
-				inparm = FALSE;
-				if (pass) {
-				    *param++ = '\0';
-				}
+		    list = string_to_argv(blob);
+		    if ((added = count_argv(list)) != 0) {
+			if (added > 2) {
+			    size_t need = sizeof(char *) * (*argcp + added + 1);
+			    if (doalloc) {
+				*argvp = realloc(*argvp, need);
+				assert_ptr(*argvp, "unescape_argv");
 			    } else {
-				if (!inparm) {
-				    if (pass)
-					(*argvp)[j + added] = param;
-				    ++added;
-				    inparm = TRUE;
+				char **newp = malloc(need);
+				assert_ptr(newp, "unescape_argv");
+				for (n = 0; n < *argcp; ++n) {
+				    newp[n] = (*argvp)[n];
 				}
-				if (pass) {
-				    *param++ = blob[n];
-				}
+				*argvp = newp;
+				doalloc = TRUE;
 			    }
+			    dialog_opts = realloc(dialog_opts, *argcp + added);
+			    assert_ptr(dialog_opts, "unescape_argv");
 			}
-
-			if (!pass) {
-			    if (added) {
-				if (added > 2) {
-				    size_t need = sizeof(char *) * (*argcp + added);
-				    if (doalloc) {
-					*argvp = realloc(*argvp, need);
-					assert_ptr(*argvp, "unescape_argv");
-				    } else {
-					char **newp = malloc(need);
-					assert_ptr(newp, "unescape_argv");
-					for (n = 0; n < *argcp; ++n) {
-					    newp[n] = (*argvp)[n];
-					}
-					*argvp = newp;
-					doalloc = TRUE;
-				    }
-				    dialog_opts = realloc(dialog_opts,
-							  *argcp + added);
-				    assert_ptr(dialog_opts, "unescape_argv");
-				}
-				for (n = *argcp; n >= j + 2; --n) {
-				    (*argvp)[n + added - 2] = (*argvp)[n];
-				    dialog_opts[n + added - 2] = dialog_opts[n];
-				}
-				*argcp += added - 2;
-			    }
-			} else
-			    *param = '\0';
+			for (n = *argcp; n >= j + 2; --n) {
+			    (*argvp)[n + added - 2] = (*argvp)[n];
+			    dialog_opts[n + added - 2] = dialog_opts[n];
+			}
+			for (n = 0; n < added; ++n) {
+			    (*argvp)[n + j] = list[n];
+			    dialog_opts[n + j] = FALSE;
+			}
+			*argcp += added - 2;
+			free(list);
 		    }
 		}
 		(*argvp)[*argcp] = 0;
@@ -928,14 +983,232 @@ Help(void)
     dlg_exit(DLG_EXIT_OK);
 }
 
+/*
+ * "Common" options apply to all widgets more/less.  Most of the common options
+ * set values in dialog_vars, a few set dialog_state and a couple write to the
+ * output stream.
+ */
+static int
+process_common_options(int argc, char **argv, int offset, bool output)
+{
+    bool done = FALSE;
+
+    while (offset < argc && !done) {	/* Common options */
+	switch (lookupOption(argv[offset], 1)) {
+	case o_title:
+	    dialog_vars.title = optionString(argv, &offset);
+	    break;
+	case o_backtitle:
+	    dialog_vars.backtitle = optionString(argv, &offset);
+	    break;
+	case o_separator:
+	case o_separate_widget:
+	    dialog_state.separate_str = optionString(argv, &offset);
+	    break;
+	case o_separate_output:
+	    dialog_vars.separate_output = TRUE;
+	    break;
+	case o_colors:
+	    dialog_vars.colors = TRUE;
+	    break;
+	case o_cr_wrap:
+	    dialog_vars.cr_wrap = TRUE;
+	    break;
+	case o_no_collapse:
+	    dialog_vars.nocollapse = TRUE;
+	    break;
+	case o_no_kill:
+	    dialog_vars.cant_kill = TRUE;
+	    break;
+	case o_nocancel:
+	    dialog_vars.nocancel = TRUE;
+	    break;
+	case o_single_quoted:
+	    dialog_vars.single_quoted = TRUE;
+	    break;
+	case o_size_err:
+	    dialog_vars.size_err = TRUE;
+	    break;
+	case o_beep:
+	    dialog_vars.beep_signal = TRUE;
+	    break;
+	case o_beep_after:
+	    dialog_vars.beep_after_signal = TRUE;
+	    break;
+	case o_shadow:
+	    dialog_state.use_shadow = TRUE;
+	    break;
+	case o_defaultno:
+	    dialog_vars.defaultno = TRUE;
+	    break;
+	case o_default_item:
+	    dialog_vars.default_item = optionString(argv, &offset);
+	    break;
+	case o_insecure:
+	    dialog_vars.insecure = TRUE;
+	    break;
+	case o_item_help:
+	    dialog_vars.item_help = TRUE;
+	    break;
+	case o_help_button:
+	    dialog_vars.help_button = TRUE;
+	    break;
+	case o_help_status:
+	    dialog_vars.help_status = TRUE;
+	    break;
+	case o_extra_button:
+	    dialog_vars.extra_button = TRUE;
+	    break;
+	case o_ignore:
+	    ignore_unknown = TRUE;
+	    break;
+	case o_keep_window:
+	    dialog_vars.keep_window = TRUE;
+	    break;
+	case o_no_shadow:
+	    dialog_state.use_shadow = FALSE;
+	    break;
+	case o_print_size:
+	    dialog_vars.print_siz = TRUE;
+	    break;
+	case o_print_maxsize:
+	    if (output) {
+		/*
+		 * If this is the last option, we do not want any error
+		 * messages - just our output.  Calling end_dialog() cancels
+		 * the refresh() at the end of the program as well.
+		 */
+		if (argv[offset + 1] == 0) {
+		    ignore_unknown = TRUE;
+		    end_dialog();
+		}
+		fflush(dialog_state.output);
+		fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
+	    }
+	    break;
+	case o_print_version:
+	    if (output) {
+		fprintf(dialog_state.output, "Version: %s\n", dialog_version());
+	    }
+	    break;
+	case o_tab_correct:
+	    dialog_vars.tab_correct = TRUE;
+	    break;
+	case o_sleep:
+	    dialog_vars.sleep_secs = optionValue(argv, &offset);
+	    break;
+	case o_timeout:
+	    dialog_vars.timeout_secs = optionValue(argv, &offset);
+	    break;
+	case o_max_input:
+	    dialog_vars.max_input = optionValue(argv, &offset);
+	    break;
+	case o_tab_len:
+	    dialog_state.tab_len = optionValue(argv, &offset);
+	    break;
+	case o_trim:
+	    dialog_vars.trim_whitespace = TRUE;
+	    break;
+	case o_visit_items:
+	    dialog_state.visit_items = TRUE;
+	    break;
+	case o_aspect:
+	    dialog_state.aspect_ratio = optionValue(argv, &offset);
+	    break;
+	case o_begin:
+	    dialog_vars.begin_set = TRUE;
+	    dialog_vars.begin_y = optionValue(argv, &offset);
+	    dialog_vars.begin_x = optionValue(argv, &offset);
+	    break;
+	case o_clear:
+	    dialog_vars.dlg_clear_screen = TRUE;
+	    break;
+	case o_yes_label:
+	    dialog_vars.yes_label = optionString(argv, &offset);
+	    break;
+	case o_no_label:
+	    dialog_vars.no_label = optionString(argv, &offset);
+	    break;
+	case o_ok_label:
+	    dialog_vars.ok_label = optionString(argv, &offset);
+	    break;
+	case o_cancel_label:
+	    dialog_vars.cancel_label = optionString(argv, &offset);
+	    break;
+	case o_extra_label:
+	    dialog_vars.extra_label = optionString(argv, &offset);
+	    break;
+	case o_exit_label:
+	    dialog_vars.exit_label = optionString(argv, &offset);
+	    break;
+	case o_help_label:
+	    dialog_vars.help_label = optionString(argv, &offset);
+	    break;
+	case o_noitem:
+	case o_fullbutton:
+	    /* ignore */
+	    break;
+	    /* options of Xdialog which we ignore */
+	case o_icon:
+	case o_wmclass:
+	    (void) optionString(argv, &offset);
+	    /* FALLTHRU */
+	case o_allow_close:
+	case o_auto_placement:
+	case o_fixed_font:
+	case o_keep_colors:
+	case o_no_close:
+	case o_no_cr_wrap:
+	case o_screen_center:
+	case o_smooth:
+	case o_under_mouse:
+	    break;
+	case o_unknown:
+	    if (ignore_unknown)
+		break;
+	    /* FALLTHRU */
+	default:		/* no more common options */
+	    done = TRUE;
+	    break;
+	}
+	if (!done)
+	    offset++;
+    }
+    return offset;
+}
+
+/*
+ * Initialize options at the start of a series of common options culminating
+ * in a widget.
+ */
 static void
 init_result(char *buffer)
 {
+    static bool first = TRUE;
+    static char **special_argv = 0;
+    static int special_argc = 0;
+
     /* clear everything we do not save for the next widget */
     memset(&dialog_vars, 0, sizeof(dialog_vars));
 
     dialog_vars.input_result = buffer;
     dialog_vars.input_result[0] = '\0';
+
+    /*
+     * The first time this is called, check for common options given by an
+     * environment variable.
+     */
+    if (first) {
+	char *env = getenv("DIALOGOPTS");
+	if (env != 0)
+	    env = dlg_strclone(env);
+	if (env != 0) {
+	    special_argv = string_to_argv(env);
+	    special_argc = count_argv(special_argv);
+	}
+    }
+    if (special_argv != 0)
+	process_common_options(special_argc, special_argv, 0, FALSE);
 }
 
 int
@@ -944,11 +1217,9 @@ main(int argc, char *argv[])
     FILE *input = stdin;
     char temp[256];
     bool esc_pressed = FALSE;
-    bool ignore_unknown = FALSE;
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
-    int done;
     int j;
     eOptions code;
     const Mode *modePtr;
@@ -1056,179 +1327,8 @@ main(int argc, char *argv[])
 
     while (offset < argc && !esc_pressed) {
 	init_result(my_buffer);
-	done = FALSE;
 
-	while (offset < argc && !done) {	/* Common options */
-	    switch (lookupOption(argv[offset], 1)) {
-	    case o_title:
-		dialog_vars.title = optionString(argv, &offset);
-		break;
-	    case o_backtitle:
-		dialog_vars.backtitle = optionString(argv, &offset);
-		break;
-	    case o_separator:
-	    case o_separate_widget:
-		dialog_state.separate_str = optionString(argv, &offset);
-		break;
-	    case o_separate_output:
-		dialog_vars.separate_output = TRUE;
-		break;
-	    case o_colors:
-		dialog_vars.colors = TRUE;
-		break;
-	    case o_cr_wrap:
-		dialog_vars.cr_wrap = TRUE;
-		break;
-	    case o_no_collapse:
-		dialog_vars.nocollapse = TRUE;
-		break;
-	    case o_no_kill:
-		dialog_vars.cant_kill = TRUE;
-		break;
-	    case o_nocancel:
-		dialog_vars.nocancel = TRUE;
-		break;
-	    case o_size_err:
-		dialog_vars.size_err = TRUE;
-		break;
-	    case o_beep:
-		dialog_vars.beep_signal = TRUE;
-		break;
-	    case o_beep_after:
-		dialog_vars.beep_after_signal = TRUE;
-		break;
-	    case o_shadow:
-		dialog_state.use_shadow = TRUE;
-		break;
-	    case o_defaultno:
-		dialog_vars.defaultno = TRUE;
-		break;
-	    case o_default_item:
-		dialog_vars.default_item = optionString(argv, &offset);
-		break;
-	    case o_insecure:
-		dialog_vars.insecure = TRUE;
-		break;
-	    case o_item_help:
-		dialog_vars.item_help = TRUE;
-		break;
-	    case o_help_button:
-		dialog_vars.help_button = TRUE;
-		break;
-	    case o_help_status:
-		dialog_vars.help_status = TRUE;
-		break;
-	    case o_extra_button:
-		dialog_vars.extra_button = TRUE;
-		break;
-	    case o_ignore:
-		ignore_unknown = TRUE;
-		break;
-	    case o_keep_window:
-		dialog_vars.keep_window = TRUE;
-		break;
-	    case o_no_shadow:
-		dialog_state.use_shadow = FALSE;
-		break;
-	    case o_print_size:
-		dialog_vars.print_siz = TRUE;
-		break;
-	    case o_print_maxsize:
-		/*
-		 * If this is the last option, we do not want any error
-		 * messages - just our output.  Calling end_dialog() cancels
-		 * the refresh() at the end of the program as well.
-		 */
-		if (argv[offset + 1] == 0) {
-		    ignore_unknown = TRUE;
-		    end_dialog();
-		}
-		fflush(dialog_state.output);
-		fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
-		break;
-	    case o_print_version:
-		fprintf(dialog_state.output, "Version: %s\n", dialog_version());
-		break;
-	    case o_tab_correct:
-		dialog_vars.tab_correct = TRUE;
-		break;
-	    case o_sleep:
-		dialog_vars.sleep_secs = optionValue(argv, &offset);
-		break;
-	    case o_timeout:
-		dialog_vars.timeout_secs = optionValue(argv, &offset);
-		break;
-	    case o_max_input:
-		dialog_vars.max_input = optionValue(argv, &offset);
-		break;
-	    case o_tab_len:
-		dialog_state.tab_len = optionValue(argv, &offset);
-		break;
-	    case o_trim:
-		dialog_vars.trim_whitespace = TRUE;
-		break;
-	    case o_aspect:
-		dialog_state.aspect_ratio = optionValue(argv, &offset);
-		break;
-	    case o_begin:
-		dialog_vars.begin_set = TRUE;
-		dialog_vars.begin_y = optionValue(argv, &offset);
-		dialog_vars.begin_x = optionValue(argv, &offset);
-		break;
-	    case o_clear:
-		dialog_vars.dlg_clear_screen = TRUE;
-		break;
-	    case o_yes_label:
-		dialog_vars.yes_label = optionString(argv, &offset);
-		break;
-	    case o_no_label:
-		dialog_vars.no_label = optionString(argv, &offset);
-		break;
-	    case o_ok_label:
-		dialog_vars.ok_label = optionString(argv, &offset);
-		break;
-	    case o_cancel_label:
-		dialog_vars.cancel_label = optionString(argv, &offset);
-		break;
-	    case o_extra_label:
-		dialog_vars.extra_label = optionString(argv, &offset);
-		break;
-	    case o_exit_label:
-		dialog_vars.exit_label = optionString(argv, &offset);
-		break;
-	    case o_help_label:
-		dialog_vars.help_label = optionString(argv, &offset);
-		break;
-	    case o_noitem:
-	    case o_fullbutton:
-		/* ignore */
-		break;
-		/* options of Xdialog which we ignore */
-	    case o_icon:
-	    case o_wmclass:
-		(void) optionString(argv, &offset);
-		/* FALLTHRU */
-	    case o_allow_close:
-	    case o_auto_placement:
-	    case o_fixed_font:
-	    case o_keep_colors:
-	    case o_no_close:
-	    case o_no_cr_wrap:
-	    case o_screen_center:
-	    case o_smooth:
-	    case o_under_mouse:
-		break;
-	    case o_unknown:
-		if (ignore_unknown)
-		    break;
-		/* FALLTHRU */
-	    default:		/* no more common options */
-		done = TRUE;
-		break;
-	    }
-	    if (!done)
-		offset++;
-	}
+	offset = process_common_options(argc, argv, offset, TRUE);
 
 	if (argv[offset] == NULL) {
 	    if (ignore_unknown)
@@ -1329,7 +1429,6 @@ main(int argc, char *argv[])
 	    if (dialog_vars.dlg_clear_screen)
 		dlg_clear();
 	}
-
     }
 
     dlg_killall_bg(&retval);

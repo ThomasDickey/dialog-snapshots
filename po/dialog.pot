@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-04-21 20:24-0400\n"
+"POT-Creation-Date: 2004-06-06 11:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,31 +14,31 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:352
+#: buttons.c:354
 msgid "Yes"
 msgstr ""
 
-#: buttons.c:360
+#: buttons.c:362
 msgid "No"
 msgstr ""
 
-#: buttons.c:368
+#: buttons.c:370
 msgid "OK"
 msgstr ""
 
-#: buttons.c:376
+#: buttons.c:378
 msgid "Cancel"
 msgstr ""
 
-#: buttons.c:384
+#: buttons.c:386
 msgid "EXIT"
 msgstr ""
 
-#: buttons.c:392
+#: buttons.c:394
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:400
+#: buttons.c:402
 msgid "Help"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: dialog.c:615
+#: dialog.c:670
 msgid "Rename"
 msgstr ""
 

@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.34 2003/11/26 22:21:36 tom Exp $
+ * $Id: inputstr.c,v 1.35 2004/06/06 13:51:55 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -601,3 +601,19 @@ dlg_show_string(WINDOW *win,
 	wrefresh(win);
     }
 }
+
+#ifdef NO_LEAKS
+void
+_dlg_inputstr_leaks(void)
+{
+    while (cache_list != 0) {
+	CACHE *next = cache_list->next;
+	if (cache_list->string != 0)
+	    free(cache_list->string);
+	if (cache_list->list != 0)
+	    free(cache_list->list);
+	free(cache_list);
+	cache_list = next;
+    }
+}
+#endif

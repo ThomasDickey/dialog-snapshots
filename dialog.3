@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.6 2004/03/14 23:06:28 tom Exp $
-.TH DIALOG 3 "" "$Date: 2004/03/14 23:06:28 $"
+.\" $Id: dialog.3,v 1.8 2004/06/06 01:07:58 tom Exp $
+.TH DIALOG 3 "" "$Date: 2004/06/06 01:07:58 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -42,7 +42,7 @@ The \fBdialog\fP application passes its command-line parameters
 to the widget functions.  Some of those parameters are single values,
 but some of the widgets accept data as an array of values.
 Those include checklist/radiobox, menubox and formbox.
-When the \fB\-\-item-help\fP option is given, an extra column
+When the \fB--item-help\fP option is given, an extra column
 of data is expected.
 The USE_ITEM_HELP(), CHECKBOX_TAGS, MENUBOX_TAGS and FORMBOX_TAGS
 macros are used to hide this difference from the calling application.
@@ -71,7 +71,7 @@ The \fBdlg_del_window\fP function uses this to locate windows which
 may be redrawn after deleting a window.
 .
 .IP \fIDIALOG_STATE.aspect_ratio
-This corresponds to the command-line option "\fB\-\-aspect-ratio\fP".
+This corresponds to the command-line option "\fB--aspect-ratio\fP".
 The value gives the application
 some control over the box dimensions when using auto
 sizing (specifying 0 for height and width).
@@ -95,7 +95,7 @@ Normally that is the standard error,
 since the curses library prefers to write its data to the standard output.
 Some scripts, trading portability for convenience,
 prefer to write results to the standard output,
-e.g., by using the "\fB\-\-stdout\fP" option.
+e.g., by using the "\fB--stdout\fP" option.
 .
 .IP \fIDIALOG_STATE.output_count
 This is incremented by \fIdlg_does_output\fP,
@@ -110,7 +110,7 @@ This is set in \fIinit_dialog\fP to a stream which can be used by the
 \fBgauge\fP widget, which must be the application's standard input.
 The \fBdialog\fP application calls \fIinit_dialog\fP normally with
 \fIinput\fP set to the standard input, but optionally based on the
-"\fB\-\-input-fd\fP" option.
+"\fB--input-fd\fP" option.
 Since the application cannot read from
 a pipe (standard input) and at the same time read 
 the curses input from the standard input,
@@ -133,7 +133,7 @@ unless that happens to not be a terminal (and if \fIinit_dialog\fP can
 successfully open the terminal directly).
 .
 .IP \fIDIALOG_STATE.separate_str
-This corresponds to the command-line option "\fB\-\-separate-widget\fP".
+This corresponds to the command-line option "\fB--separate-widget\fP".
 The given string
 specifies a string that will separate the output on \fBdialog\fP's output from
 each widget.
@@ -142,9 +142,9 @@ If this option is not given,
 the default separator string is a tab character.
 .
 .IP \fIDIALOG_STATE.tab_len
-This corresponds to the command-line option "\fB\-\-tab-len\fP \fInumber\fP".
+This corresponds to the command-line option "\fB--tab-len\fP \fInumber\fP".
 Specify the number of spaces that a tab character occupies if the
-"\fB\-\-tab-correct\fP"
+"\fB--tab-correct\fP"
 option is given.
 The default is 8.
 .
@@ -152,14 +152,14 @@ The default is 8.
 This is set in \fIinit_dialog\fP if the curses implementation supports color.
 .
 .IP \fIDIALOG_STATE.use_shadow
-This corresponds to the command-line option "\fB\-\-no-shadow\fP".
+This corresponds to the command-line option "\fB--no-shadow\fP".
 This is set in \fIinit_dialog\fP if the curses implementation supports color.
 If true,
 suppress shadows that would be drawn to the right and bottom of each dialog box.
 .
 .\" not implemented
 .\" .IP \fIDIALOG_STATE.visit_items
-.\" This corresponds to the command-line option "\fB\-\-visit-items\fP".
+.\" This corresponds to the command-line option "\fB--visit-items\fP".
 .
 .PP
 The \fBdialog\fP application resets the \fIdialog_vars\fP data before
@@ -168,38 +168,38 @@ Most of the \fIDIALOG_VARS\fP members are set directly from \fBdialog\fP's
 command-line options:
 .
 .IP \fIDIALOG_VARS.backtitle
-This corresponds to the command-line option "\fB\-\-backtitle\fP \fIbacktitle\fP".
+This corresponds to the command-line option "\fB--backtitle\fP \fIbacktitle\fP".
 It specifies a
 \fIbacktitle\fP
 string to be displayed on the backdrop, at the top of the screen.
 .
 .IP \fIDIALOG_VARS.beep_after_signal
-This corresponds to the command-line option "\fB\-\-beep-after\fP".
+This corresponds to the command-line option "\fB--beep-after\fP".
 If true, beep if input is interrupted, e.g., by a control/C.
 .
 .IP \fIDIALOG_VARS.beep_signal
-This corresponds to the command-line option "\fB\-\-beep\fP".
+This corresponds to the command-line option "\fB--beep\fP".
 If true, sound the audible alarm
 each time the screen is refreshed.
 .
 .IP \fIDIALOG_VARS.begin_set
-This is true if the command-line option "\fB\-\-begin y x\fP" was used.
+This is true if the command-line option "\fB--begin y x\fP" was used.
 It specifies the position of the upper left corner of a dialog box on the screen.
 .
 .IP \fIDIALOG_VARS.begin_x
 This corresponds to the \fIx\fP value from
-the command-line option "\fB\-\-begin\fP \fIy x\fP" (second value).
+the command-line option "\fB--begin\fP \fIy x\fP" (second value).
 .
 .IP \fIDIALOG_VARS.begin_y
 This corresponds to the \fIy\fP value from
-the command-line option "\fB\-\-begin\fP \fIy x\fP" (first value).
+the command-line option "\fB--begin\fP \fIy x\fP" (first value).
 .
 .IP \fIDIALOG_VARS.cancel_label
-This corresponds to the command-line option "\fB\-\-cancel-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--cancel-label\fP \fIstring\fP".
 The given \fIstring\fP overrides the label used for "Cancel" buttons.
 .
 .IP \fIDIALOG_VARS.cant_kill
-This corresponds to the command-line option "\fB\-\-no-kill\fP".
+This corresponds to the command-line option "\fB--no-kill\fP".
 If true, this tells
 \fBdialog\fP
 to put the
@@ -209,7 +209,7 @@ printing its process id to \fBdialog\fP's output.
 SIGHUP is disabled for the background process.
 .
 .IP \fIDIALOG_VARS.colors
-This corresponds to the command-line option "\fB\-\-colors\fP".
+This corresponds to the command-line option "\fB--colors\fP".
 If true, interpret embedded "\\Z" sequences in the dialog text
 by the following character,
 which tells dialog to set colors or video attributes:
@@ -230,7 +230,7 @@ bright red.
 Restore normal settings with "\\Zn".
 .
 .IP \fIDIALOG_VARS.cr_wrap
-This corresponds to the command-line option "\fB\-\-cr-wrap\fP".
+This corresponds to the command-line option "\fB--cr-wrap\fP".
 If true,
 interpret embedded newlines in the dialog text as a newline on the screen.
 Otherwise, \fBdialog\fR will only wrap lines where needed to fit inside the text box.
@@ -241,12 +241,12 @@ in the source code of your script without affecting the way it will
 look in the dialog.
 .
 .IP \fIDIALOG_VARS.default_item
-This corresponds to the command-line option "\fB\-\-default-item\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--default-item\fP \fIstring\fP".
 The given string is used as
 the default item in a checklist, form or menu box.
 Normally the first item in the box is the default.
 .IP \fIDIALOG_VARS.defaultno
-This corresponds to the command-line option "\fB\-\-defaultno\fP".
+This corresponds to the command-line option "\fB--defaultno\fP".
 If true,
 make the default value of the
 \fByes/no\fP
@@ -254,46 +254,46 @@ box a
 .BR No .
 Likewise, make the default button of widgets that provide "OK" and "Cancel"
 a \fBCancel\fP.
-If \fB\-\-nocancel\fP was given that option overrides this,
+If \fB--nocancel\fP was given that option overrides this,
 making the default button always "Yes" (internally the same as "OK").
 .
 .IP \fIDIALOG_VARS.dlg_clear_screen
-This corresponds to the command-line option "\fB\-\-clear\fP".
+This corresponds to the command-line option "\fB--clear\fP".
 This option is implemented in the main program, not the library.
 If true,
 the screen will be cleared on exit.
 This may be used alone, without other options.
 .
 .IP \fIDIALOG_VARS.exit_label
-This corresponds to the command-line option "\fB\-\-exit-label string\fP".
+This corresponds to the command-line option "\fB--exit-label string\fP".
 The given string overrides the label used for "EXIT" buttons.
 .
 .IP \fIDIALOG_VARS.extra_button
-This corresponds to the command-line option "\fB\-\-extra-button\fP".
+This corresponds to the command-line option "\fB--extra-button\fP".
 If true, some widgets show an extra button,
 between "OK" and "Cancel" buttons.
 .
 .IP \fIDIALOG_VARS.extra_label
-This corresponds to the command-line option "\fB\-\-extra-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--extra-label\fP \fIstring\fP".
 The given string overrides the label used for "Extra" buttons.
 Note: for inputmenu widgets, this defaults to "Rename".
 .
 .IP \fIDIALOG_VARS.help_button
-This corresponds to the command-line option "\fB\-\-help-button\fP".
+This corresponds to the command-line option "\fB--help-button\fP".
 If true, some widgets show a help-button after "OK" and "Cancel" buttons,
 i.e., in checklist, radiolist and menu boxes.
-If \fB\-\-item-help\fR is also given, on exit
+If \fB--item-help\fR is also given, on exit
 the return status will be the same as for the "OK" button,
 and the item-help text will be written to \fBdialog\fP's output after the token "HELP".
 Otherwise, the return status will indicate that the Help button was pressed,
 and no message printed.
 .
 .IP \fIDIALOG_VARS.help_label
-This corresponds to the command-line option "\fB\-\-help-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--help-label\fP \fIstring\fP".
 The given string overrides the label used for "Help" buttons.
 .
 .IP \fIDIALOG_VARS.help_status
-This corresponds to the command-line option "\fB\-\-help-status\fP".
+This corresponds to the command-line option "\fB--help-status\fP".
 If true, and the the help-button is selected,
 writes the checklist or radiolist information
 after the item-help "HELP" information.
@@ -313,97 +313,112 @@ This is a dynamically-allocated buffer used by the widgets to return
 printable results to the calling application.
 .
 .IP \fIDIALOG_VARS.insecure
-This corresponds to the command-line option "\fB\-\-insecure\fP".
+This corresponds to the command-line option "\fB--insecure\fP".
 If true, make the password widget friendlier but less secure,
 by echoing asterisks for each character.
 .
 .IP \fIDIALOG_VARS.item_help
-This corresponds to the command-line option "\fB\-\-item-help\fP".
+This corresponds to the command-line option "\fB--item-help\fP".
 If true,
 interpret the tags data for checklist, radiolist and menu boxes
 adding a column whose text is displayed in the bottom line of the
 screen, for the currently selected item.
 .
 .IP \fIDIALOG_VARS.keep_window
-This corresponds to the command-line option "\fB\-\-keep-window\fP".
+This corresponds to the command-line option "\fB--keep-window\fP".
 If true, do not remove/repaint the window on exit.
 This is useful for keeping the window contents visible when several
 widgets are run in the same process.
 Note that curses will clear the screen when starting a new process.
 .
 .IP \fIDIALOG_VARS.max_input
-This corresponds to the command-line option "\fB\-\-max-input\fP \fIsize\fP".
+This corresponds to the command-line option "\fB--max-input\fP \fIsize\fP".
 Limit input strings to the given size.
 If not specified, the limit is 2048.
 .
 .IP \fIDIALOG_VARS.no_label
-This corresponds to the command-line option "\fB\-\-no-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--no-label\fP \fIstring\fP".
 The given string overrides the label used for "No" buttons.
 .
 .IP \fIDIALOG_VARS.nocancel
-This corresponds to the command-line option "\fB\-\-no-cancel\fP".
+This corresponds to the command-line option "\fB--no-cancel\fP".
 If true,
 suppress the "Cancel" button in checklist, inputbox and menu box modes.
 A script can still test if the user pressed the ESC key to cancel to quit.
 .
 .IP \fIDIALOG_VARS.nocollapse
-This corresponds to the command-line option "\fB\-\-no-collapse\fP".
+This corresponds to the command-line option "\fB--no-collapse\fP".
 Normally \fBdialog\fR converts tabs to spaces and reduces multiple
 spaces to a single space for text which is displayed in a message boxes, etc.
 It true, that feature is disabled.
-Note that \fBdialog\fR will still wrap text, subject to the \fB\-\-cr\-wrap\fR
+Note that \fBdialog\fR will still wrap text, subject to the \fB--cr-wrap\fR
 option.
 .
 .IP \fIDIALOG_VARS.ok_label
-This corresponds to the command-line option "\fB\-\-ok-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--ok-label\fP \fIstring\fP".
 The given string overrides the label used for "OK" buttons.
 .
 .IP \fIDIALOG_VARS.print_siz
-This corresponds to the command-line option "\fB\-\-print-size\fP".
+This corresponds to the command-line option "\fB--print-size\fP".
 If true,
 each widget prints its size to \fBdialog\fP's output when it is invoked.
 .
 .IP \fIDIALOG_VARS.separate_output
-This corresponds to the command-line option "\fB\-\-separate-output\fP".
+This corresponds to the command-line option "\fB--separate-output\fP".
 If true,
 checklist widgets output result one line at a time, with no quoting.
 This facilitates parsing by another program.
 .
+.IP \fIDIALOG_VARS.single_quoted
+This corresponds to the command-line option "\fB--single-quoted\fP".
+If true,
+Use single-quoting as needed (and no quotes if unneeded) for the
+output of checklist's as well as the item-help text.
+If this option is not set, \fBdialog\fP uses double quotes around each item.
+That requires occasional use of backslashes to make the output useful in
+shell scripts.
 .IP \fIDIALOG_VARS.size_err
-This corresponds to the command-line option "\fB\-\-size-err\fP".
+This corresponds to the command-line option "\fB--size-err\fP".
 If true,
 check the resulting size of a dialog box before trying to use it,
 printing the resulting size if it is larger than the screen.
 (This option is obsolete, since all new-window calls are checked).
 .
 .IP \fIDIALOG_VARS.sleep_secs
-This corresponds to the command-line option "\fB\-\-sleep\fP \fIsecs\fP".
+This corresponds to the command-line option "\fB--sleep\fP \fIsecs\fP".
 This option is implemented in the main program, not the library.
 If nonzero, this is the number of seconds after to delay after processing a dialog box.
 .
 .IP \fIDIALOG_VARS.tab_correct
-This corresponds to the command-line option "\fB\-\-tab-correct\fP".
+This corresponds to the command-line option "\fB--tab-correct\fP".
 If true, convert each tab character of the text to one or more spaces.
 Otherwise, tabs are rendered according to the curses library's interpretation.
 .
 .IP \fIDIALOG_VARS.timeout_secs
-This corresponds to the command-line option "\fB\-\-timeout\fP \fIsecs\fP".
+This corresponds to the command-line option "\fB--timeout\fP \fIsecs\fP".
 If nonzero, timeout input requests (exit with error code)
 if no user response within the given number of seconds.
 .
 .IP \fIDIALOG_VARS.title
-This corresponds to the command-line option "\fB\-\-title\fP \fItitle\fP".
+This corresponds to the command-line option "\fB--title\fP \fItitle\fP".
 Specifies a
 \fItitle\fP
 string to be displayed at the top of the dialog box.
 .
 .IP \fIDIALOG_VARS.trim_whitespace
-This corresponds to the command-line option "\fB\-\-trim\fP".
+This corresponds to the command-line option "\fB--trim\fP".
 If true, eliminate leading blanks,
 trim literal newlines and repeated blanks from message text.
 .
+.IP \fIDIALOG_VARS.visit_items
+This corresponds to the command-line option "\fB--visit-items\fP".
+Modify the tab-traversal of checklist, radiobox, menubox and inputmenu
+to include the list of items as one of the states.
+This is useful as a visual aid,
+i.e., the cursor position helps some users.
+.
 .IP \fIDIALOG_VARS.yes_label
-This corresponds to the command-line option "\fB\-\-yes-label\fP \fIstring\fP".
+This corresponds to the command-line option "\fB--yes-label\fP \fIstring\fP".
 The given string overrides the label used for "Yes" buttons.
 .
 .\" ************************************************************************
@@ -427,7 +442,7 @@ Other parameters depend on the box type.
 .
 .\" ************************************************************************
 .IP dialog_calendar
-implements the "\fB\-\-calendar\fP option.
+implements the "\fB--calendar\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -455,7 +470,7 @@ the current year is used.
 .RE
 .\" ************************************************************************
 .IP dialog_checklist
-implements the "\fB\-\-checklist\fP and "\fB\-\-radiolist\fP options
+implements the "\fB--checklist\fP and "\fB--radiolist\fP options
 depending on the \fIflag\fP parameter. 
 .RS
 .IP title
@@ -491,7 +506,7 @@ or \fIFLAG_RADIO\fP for radiolists.
 .RE
 .\" ************************************************************************
 .IP dialog_form
-implements the "\fB\-\-form\fP option.
+implements the "\fB--form\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -523,7 +538,7 @@ depending on whether \fIdialog_vars.item_help\fP is set.
 .RE
 .\" ************************************************************************
 .IP dialog_fselect
-implements the "\fB\-\-fselect\fP option.
+implements the "\fB--fselect\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -539,7 +554,7 @@ If zero, the height is based on the screen size.
 .RE
 .\" ************************************************************************
 .IP dialog_gauge
-implements the "\fB\-\-gauge\fP option.
+implements the "\fB--gauge\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -556,8 +571,8 @@ is the percentage to show in the progress bar.
 .RE
 .\" ************************************************************************
 .IP dialog_inputbox
-implements the "\fB\-\-inputbox\fP or 
-"\fB\-\-password\fP option, depending on the value of \fIpassword\fP.
+implements the "\fB--inputbox\fP or 
+"\fB--password\fP option, depending on the value of \fIpassword\fP.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -577,7 +592,7 @@ if true, causes typed input to be echoed as asterisks.
 .RE
 .\" ************************************************************************
 .IP dialog_menu
-implements the "\fB\-\-menu\fP or "\fB\-\-inputmenu\fP option
+implements the "\fB--menu\fP or "\fB--inputmenu\fP option
 depending on whether \fIdialog_vars.input_menu\fP is set.
 .RS
 .IP title
@@ -610,7 +625,7 @@ depending on whether \fIdialog_vars.item_help\fP is set.
 .RE
 .\" ************************************************************************
 .IP dialog_msgbox
-implements the "\fB\-\-msgbox\fP or "\fB\-\-infobox\fP option
+implements the "\fB--msgbox\fP or "\fB--infobox\fP option
 depending on whether \fIpauseopt\fP is set.
 .RS
 .IP title
@@ -631,7 +646,7 @@ without an "OK" button, it is denoted an "infobox".
 .RE
 .\" ************************************************************************
 .IP dialog_tailbox
-implements the "\fB\-\-tailbox\fP or "\fB\-\-tailboxbg\fP option
+implements the "\fB--tailbox\fP or "\fB--tailboxbg\fP option
 depending on whether \fIbg_task\fP is set.
 .RS
 .IP title
@@ -653,7 +668,7 @@ and it will be closed when the button is activated.
 .RE
 .\" ************************************************************************
 .IP dialog_textbox
-implements the "\fB\-\-textbox\fP option. 
+implements the "\fB--textbox\fP option. 
 .RS
 .IP title
 is the title on the top of the widget.
@@ -668,7 +683,7 @@ If zero, the height is based on the screen size.
 .RE
 .\" ************************************************************************
 .IP dialog_timebox
-implements the "\fB\-\-timebox\fP option. 
+implements the "\fB--timebox\fP option. 
 .RS
 .IP title
 is the title on the top of the widget.
@@ -695,7 +710,7 @@ the current second is used.
 .RE
 .\" ************************************************************************
 .IP dialog_yesno
-implements the "\fB\-\-yesno\fP option. 
+implements the "\fB--yesno\fP option. 
 .RS
 .IP title
 is the title on the top of the widget.

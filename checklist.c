@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.72 2004/03/17 01:10:50 tom Exp $
+ *  $Id: checklist.c,v 1.73 2004/06/06 00:42:41 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -218,6 +218,9 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	if (button < 0)		/* --visit-items */
+	    wmove(dialog, box_y + choice + 1, box_x + check_x + 2);
+
 	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if (fkey && (key >= (M_EVENT + KEY_MAX))) {

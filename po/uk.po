@@ -6,60 +6,60 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: uk\n"
-"POT-Creation-Date: 2003-01-30 21:05-0500\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"PO-Revision-Date: 2004-02-12 20:17+0200\n"
+"Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
+"Language-Team: Ukrainian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
-"PO-Revision-Date: 2004-02-12 20:17+0200\n"
-"Language-Team: Ukrainian\n"
 "X-Generator: KBabel 1.0.2\n"
 
-#: buttons.c:255
-msgid "OK"
-msgstr "Гаразд"
-
-#: buttons.c:263
-msgid "Cancel"
-msgstr "Скасувати"
-
-#: buttons.c:271
-msgid "EXIT"
-msgstr "ВИЙТИ"
-
-#: buttons.c:279
-msgid "Extra"
-msgstr "Додатково"
-
-#: buttons.c:287
-msgid "Help"
-msgstr "Допомога"
-
-#: buttons.c:391
+#: buttons.c:354
 msgid "Yes"
 msgstr "Так"
 
-#: buttons.c:392
+#: buttons.c:362
 msgid "No"
 msgstr "Ні"
 
-#: calendar.c:297
+#: buttons.c:370
+msgid "OK"
+msgstr "Гаразд"
+
+#: buttons.c:378
+msgid "Cancel"
+msgstr "Скасувати"
+
+#: buttons.c:386
+msgid "EXIT"
+msgstr "ВИЙТИ"
+
+#: buttons.c:394
+msgid "Extra"
+msgstr "Додатково"
+
+#: buttons.c:402
+msgid "Help"
+msgstr "Допомога"
+
+#: calendar.c:301
 msgid "Month"
 msgstr "Місяць"
 
-#: calendar.c:316
+#: calendar.c:320
 msgid "Year"
 msgstr "Рік"
 
-#: dialog.c:465
+#: dialog.c:670
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: fselect.c:421
+#: fselect.c:426
 msgid "Directories"
 msgstr "Каталоги"
 
-#: fselect.c:422
+#: fselect.c:427
 msgid "Files"
 msgstr "Файли"
-

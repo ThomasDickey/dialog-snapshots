@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.126 2004/04/22 00:18:27 tom Exp $
+ *  $Id: util.c,v 1.131 2004/06/06 14:14:45 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -619,6 +619,7 @@ justify_text(WINDOW *win,
     int lm = (2 * MARGIN);	/* left margin */
     int rm = limit_x;		/* right margin */
     int bm = limit_y;		/* bottom margin */
+    int last_y = 0, last_x = 0;
 
     if (win) {
 	rm -= (2 * MARGIN);
@@ -627,6 +628,8 @@ justify_text(WINDOW *win,
     if (prompt == 0)
 	prompt = "";
 
+    if (win != 0)
+	getyx(win, last_y, last_x);
     while (y <= bm && *prompt) {
 	x = lm;
 
@@ -642,8 +645,11 @@ justify_text(WINDOW *win,
 	} else if (win != 0)
 	    (void) wmove(win, y, lm);
 
-	if (*prompt)
+	if (*prompt) {
 	    prompt = print_line(win, &attr, prompt, lm, rm, &x);
+	    if (win != 0)
+		getyx(win, last_y, last_x);
+	}
 	if (*prompt) {
 	    ++y;
 	    if (win != 0)
@@ -651,6 +657,9 @@ justify_text(WINDOW *win,
 	}
 	max_x = MAX(max_x, x);
     }
+    /* Move back to the last position after drawing prompt, for msgbox. */
+    if (win != 0)
+	(void) wmove(win, last_y, last_x);
 
     /* Set the final height and width for the calling function */
     if (high != 0)
@@ -660,9 +669,9 @@ justify_text(WINDOW *win,
 }
 
 /*
- * Print a string of text in a window, automatically wrap around to the
- * next line if the string is too long to fit on one line. Note that the
- * string may contain embedded newlines.
+ * Print a string of text in a window, automatically wrap around to the next
+ * line if the string is too long to fit on one line.  Note that the string may
+ * contain embedded newlines.
  */
 void
 dlg_print_autowrap(WINDOW *win, const char *prompt, int height, int width)
@@ -1002,6 +1011,12 @@ dlg_exit(int code)
 	    break;
 	}
     }
+#ifdef NO_LEAKS
+    _dlg_inputstr_leaks();
+#ifdef NCURSES_VERSION
+    _nc_free_and_exit(code);
+#endif
+#endif
     exit(code);
 }
 
@@ -1456,6 +1471,9 @@ dlg_add_result(char *string)
     strcat(dialog_vars.input_result, string);
 }
 
+#define FIX_SINGLE "\n\\'"
+#define FIX_DOUBLE "\n\\\"[]{}?*;`~#$^&()|<>\t "
+
 /*
  * Add a quoted string to the result buffer.
  */
@@ -1463,20 +1481,25 @@ void
 dlg_add_quoted(char *string)
 {
     char temp[2];
+    char *my_quote = dialog_vars.single_quoted ? "'" : "\"";
+    char *must_fix = (dialog_vars.single_quoted
+		      ? FIX_SINGLE
+		      : FIX_DOUBLE);
 
-    if (strlen(string) != 0
-	&& strcspn(string, " \n\t\\\"[]{}?*;`'~#$^&()|<>") == strlen(string)) {
+    if (dialog_vars.single_quoted
+	&& strlen(string) != 0
+	&& strcspn(string, FIX_DOUBLE FIX_SINGLE) == strlen(string)) {
 	dlg_add_result(string);
     } else {
 	temp[1] = '\0';
-	dlg_add_result("'");
+	dlg_add_result(my_quote);
 	while (*string != '\0') {
 	    temp[0] = *string++;
-	    if (*temp == '\\' || *temp == '\'')
+	    if (strchr(must_fix, *temp) != 0)
 		dlg_add_result("\\");
 	    dlg_add_result(temp);
 	}
-	dlg_add_result("'");
+	dlg_add_result(my_quote);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.48 2004/04/22 00:00:15 tom Exp $
+ *  $Id: buttons.c,v 1.49 2004/06/06 00:44:34 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -30,6 +30,8 @@
 #define dlg_toupper(ch) toupper(ch)
 #define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
 #endif
+
+#define MIN_BUTTON (dialog_state.visit_items ? -1 : 0)
 
 static void
 center_label(char *buffer, int longest, const char *label)
@@ -454,7 +456,7 @@ dlg_ok_buttoncode(int button)
     int result = DLG_EXIT_ERROR;
     int n = 1;
 
-    if (button == 0) {
+    if (button <= 0) {
 	result = DLG_EXIT_OK;
     } else if (dialog_vars.extra_button && (button == n++)) {
 	result = DLG_EXIT_EXTRA;
@@ -539,7 +541,7 @@ dlg_next_button(const char **labels, int button)
     if (labels[button + 1] != 0)
 	++button;
     else
-	button = 0;
+	button = MIN_BUTTON;
     return button;
 }
 
@@ -549,7 +551,7 @@ dlg_next_button(const char **labels, int button)
 int
 dlg_prev_button(const char **labels, int button)
 {
-    if (button > 0)
+    if (button > MIN_BUTTON)
 	--button;
     else {
 	while (labels[button + 1] != 0)
