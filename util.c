@@ -256,6 +256,14 @@ end_dialog(void)
     endwin();
 }
 
+static int
+centered(int width, const char *string)
+{
+    int left = (width - strlen(string)) / 2 - 1;
+    if (left < 0) left = 0;
+    return left;
+}
+
 /*
  * Print a string of text in a window, automatically wrap around to the
  * next line if the string is too long to fit on one line. Note that the
@@ -306,8 +314,7 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
-	wmove(win, cur_y, (width - strlen(tempstr)) / 2);
-	waddstr(win, tempstr);
+	mvwprintw(win, 0, centered(width, tempstr), "%s", tempstr);
     } else {
 	cur_x = x;
 	cur_y = y;
@@ -861,13 +868,8 @@ void
 draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
-	int width = getmaxx(win);
-
 	wattrset(win, title_attr);
-	wmove(win, 0, (width - strlen(title)) / 2 - 1);
-	waddch(win, ' ');
-	waddstr(win, title);
-	waddch(win, ' ');
+	mvwprintw(win, 0, centered(getmaxx(win), title), " %s ", title);
     }
 }
 
@@ -911,13 +913,14 @@ new_window(int height, int width, int y, int x)
 }
 
 int
-dlg_default_item(char **items)
+dlg_default_item(char **items, int llen)
 {
     if (dialog_vars.default_item != 0) {
 	int count = 0;
 	while (*items != 0) {
 	    if (!strcmp(dialog_vars.default_item, *items))
 		return count;
+	    items += llen;
 	    count++;
 	}
     }

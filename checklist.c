@@ -50,10 +50,10 @@ print_item(WINDOW *win, const char *tag, const char *item, int status,
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
     waddch(win, tag[0]);
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    waddstr(win, tag + 1);
+    wprintw(win, "%s", tag + 1);
     wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    waddstr(win, item);
+    wprintw(win, "%s", item);
 }
 
 /*
@@ -354,8 +354,11 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	case 'O':
 	case 'o':
 	case M_EVENT + 'O':
+	    done = TRUE;
+	    break;
 	case '\n':
 	    done = TRUE;
+	    result = button ? EXIT_CANCEL : EXIT_OK;
 	    break;
 	case 'C':
 	case 'c':

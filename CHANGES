@@ -3,7 +3,9 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2000/2/21
+2000/2/22
+	+ add --default-item option, for menubox to set the default selection
+	  (fixes Debian #49796).
 	+ add sample scripts for --nocancel and --fb options with inputbox.
 	+ modify inputbox* sample scripts to show application errors, if any.
 	+ add --nocancel option, and ignore --noitem, --fb, --fullbutton, to
