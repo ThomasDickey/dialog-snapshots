@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.26 2000/02/22 11:16:12 tom Exp $
+ * $Id: dialog.c,v 1.27 2000/04/23 19:22:24 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -575,7 +575,12 @@ main(int argc, char *argv[])
     int use_shadow = FALSE;	/* ignore corresponding option */
 #endif
 
-#ifdef HAVE_SETLOCALE
+#if defined(ENABLE_NLS)
+    /* initialize locale support */
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
+#elif defined(HAVE_SETLOCALE)
     (void) setlocale(LC_ALL, "");
 #endif
 

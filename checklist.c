@@ -351,8 +351,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 
 	switch (key) {
-	case 'O':
-	case 'o':
 	case M_EVENT + 'O':
 	    done = TRUE;
 	    break;
@@ -360,8 +358,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    done = TRUE;
 	    result = button ? EXIT_CANCEL : EXIT_OK;
 	    break;
-	case 'C':
-	case 'c':
 	case M_EVENT + 'C':
 	    result = EXIT_CANCEL;
 	    done = TRUE;

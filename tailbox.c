@@ -47,6 +47,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
     int x, y, cur_x, cur_y, key = 0;
     WINDOW *dialog, *text;
     int ch;
+    const char **buttons = dlg_exit_label();
 
     auto_sizefile(title, file, &height, &width, 2, 12);
     print_size(height, width);
@@ -71,7 +72,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
     draw_bottom_box(dialog);
     draw_title(dialog, title);
 
-    print_button(dialog, LABEL_EXIT, height - 2, width / 2 - 4, TRUE);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
     wmove(dialog, height - 4, 2);
 
@@ -89,6 +90,9 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 
     while (key != ESC) {
 	key = wgetch(dialog);
+	if (dlg_char_to_button(key, buttons) == 0) {
+	    key = '\n';
+	}
 	switch (key) {
 	case ERR:
 	    ch = getc(fd);
@@ -101,8 +105,6 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 	    }
 	    ctl_idlemsg(dialog);
 	    break;
-	case 'E':		/* Exit */
-	case 'e':
 	case '\n':
 	    delwin(dialog);
 	    fclose(fd);

@@ -42,6 +42,13 @@
 #include <curses.h>
 #endif
 
+#ifdef ENABLE_NLS
+#include <libintl.h>
+#else
+#undef gettext
+#define gettext(s) s
+#endif
+
 /*
  * Change these if you want
  */
@@ -55,12 +62,6 @@
 #define SCOLS	COLS
 #define SLINES	LINES
 #endif
-
-#define LABEL_EXIT   " EXIT "
-#define LABEL_YES    " Yes "
-#define LABEL_NO     "  No  "
-#define LABEL_OK     "  OK  "
-#define LABEL_CANCEL "Cancel"
 
 #define EXIT_ESC	-1
 #define EXIT_OK		0
@@ -265,16 +266,17 @@ void dialog_tailboxbg (const char *title, const char *file, int height, int widt
 void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
 
 /* button.c */
+extern const char ** dlg_exit_label(void);
+extern const char ** dlg_ok_label(void);
 extern const char ** dlg_ok_labels(void);
 extern const char ** dlg_yes_labels(void);
+extern int dlg_char_to_button(int ch, const char **labels);
 extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
-extern void print_button (WINDOW * win, const char *label, int y, int x, int selected);
 
 /* inputstr.c */
 extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
-extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
-
 extern int dlg_default_item(char **items, int llen);
+extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
 /*
  * The following stuff is needed for mouse support

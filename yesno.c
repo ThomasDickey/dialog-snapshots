@@ -26,7 +26,7 @@
 int
 dialog_yesno(const char *title, const char *cprompt, int height, int width, int defaultno)
 {
-    int x, y, key = 0, button = defaultno;
+    int x, y, key = 0, key2, button = defaultno;
     WINDOW *dialog = 0;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_yes_labels();
@@ -71,21 +71,15 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width, int 
 
     while (key != ESC) {
 	key = mouse_wgetch(dialog);
+	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
+	    delwin(dialog);
+	    return key2;
+	}
 	switch (key) {
-	case 'Y':
-	case 'y':
-	    delwin(dialog);
-	    return 0;
-	case 'N':
-	case 'n':
-	    delwin(dialog);
-	    return 1;
-
 	case M_EVENT + 'y':	/* mouse enter... */
 	case M_EVENT + 'n':	/* use the code for toggling */
 	    button = (key == M_EVENT + 'y');
 	    /* FALLTHRU */
-
 	case KEY_BTAB:
 	case TAB:
 	case KEY_UP:

@@ -1,3 +1,4 @@
+# $Id: makefile.in,v 1.13 2000/04/24 01:01:42 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -8,6 +9,7 @@ prefix		= @prefix@
 exec_prefix	= @exec_prefix@
 
 srcdir		= @srcdir@
+top_builddir	= .
 
 DESTDIR		=
 bindir		= $(DESTDIR)@bindir@
@@ -15,12 +17,15 @@ libdir		= $(DESTDIR)@libdir@
 mandir		= $(DESTDIR)@mandir@
 MANDIR		= $(mandir)/man1
 
+# see po/makefile
+localedir       = $(prefix)/@DATADIRNAME@/locale
+
 CFLAGS		= @CFLAGS@
-CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DVERSION=\"$(VERSION)\"
+CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DLOCALEDIR=\"$(localedir)\" -DVERSION=\"$(VERSION)\"
 EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 CC		= @CC@
 LDFLAGS		= @LDFLAGS@
-LIBS		= @LIBS@
+LIBS		= @LIBS@ @INTLDIR_MAKE@ @INTLLIBS@
 RANLIB		= @RANLIB@
 
 RM		= rm -f
@@ -58,7 +63,11 @@ ALL	= $(LIB) $(PROG)
 
 DIRS	= $(bindir) $(MANDIR)
 
-all: $(ALL)
+all	:: $(ALL)
+
+@INTLLIBS@:
+	@echo "Building GNU gettext library..."
+	@cd intl && $(MAKE) @cf_cv_makeflags@
 
 $(OBJS) : $(srcdir)/dialog.h config.h
 
@@ -66,20 +75,29 @@ $(LIB) : $(OBJS)
 	ar crv $(LIB) $(OBJS)
 	$(RANLIB) $@
 
-dialog: $(LIB) dialog.o
+dialog: $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
 	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
 
-clean:
+clean	::
+@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
+@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f core *.o *~ $(ALL)
 
-distclean : clean
+distclean :: clean
+@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
+@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
+	rm -f intl/libintl.h intl/po2tbl.sed
 	rm -f makefile config.h config.cache config.log config.status
 
-install: $(ALL) $(DIRS)
+install :: $(ALL) $(DIRS)
+@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
+@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
 	$(INSTALL_DATA) dialog.1 $(MANDIR)
 
-uninstall:
+uninstall ::
+@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
+@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f $(bindir)/$(PROG)
 	rm -f $(MANDIR)/dialog.1
 
