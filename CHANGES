@@ -1,8 +1,23 @@
--- $Id: CHANGES,v 1.97 2004/07/21 22:49:52 tom Exp $
+-- $Id: CHANGES,v 1.99 2004/07/29 00:40:04 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/07/28
+	+ remove redundant calls to wtimeout() from widgets since wtimeout()
+	  is properly called from ui_getc() where it is controlled by the
+	  --timeout option (bug report by juanjo).
+	+ add limit checks in checklist.c and menubox.c for very narrow screens
+	  (prompted by Steve Grubb patch).
+	+ initialize step in dlg_draw_buttons() in case it is used to draw
+	  a vertical list of buttons (prompted by Steve Grubb patch).
+	> fixes by Steve Grubb:
+	+ correct logic in checklist.c (cf: 2003/11/26 changes) which turned
+	  quoting on unnecessarily for radiobox, breaking some old scripts.
+	+ increase size of array in dlg_ok_labels() to avoid overrun if extra
+	  and help buttons are used (cf: 2002/6/12 changes).
+	+ initialize fkey variable in menubox.c and textbox.c (cf: 2003/7/12).
 
 2004/07/21 - release 1.0
 	+ minor updates for configure script (CF_XOPEN_SOURCE, CF_NCURSES_LIBS)

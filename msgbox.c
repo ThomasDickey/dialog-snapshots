@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.30 2004/06/06 14:47:27 tom Exp $
+ *  $Id: msgbox.c,v 1.31 2004/07/29 00:17:37 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -125,9 +125,6 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
-#ifndef KEY_RESIZE
-	wtimeout(dialog, WTIMEOUT_VAL);
-#endif
 	while (!done) {
 	    if (show) {
 		getyx(dialog, y, x);

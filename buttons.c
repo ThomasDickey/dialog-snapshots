@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.49 2004/06/06 00:44:34 tom Exp $
+ *  $Id: buttons.c,v 1.51 2004/07/28 23:49:15 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -248,7 +248,7 @@ dlg_draw_buttons(WINDOW *win,
 		 int limit)
 {
     int n;
-    int step;
+    int step = 0;
     int length;
     int longest;
     int final_x;
@@ -265,6 +265,7 @@ dlg_draw_buttons(WINDOW *win,
 
     if (vertical) {
 	y += 1;
+	step = 1;
     } else {
 	dlg_button_x_step(labels, limit, &gap, &margin, &step);
 	x += margin;
@@ -433,7 +434,7 @@ dlg_ok_label(void)
 const char **
 dlg_ok_labels(void)
 {
-    static const char *labels[4];
+    static const char *labels[5];
     int n = 0;
 
     labels[n++] = my_ok_label();
