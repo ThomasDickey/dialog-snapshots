@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.35 2004/09/19 22:52:32 tom Exp $
+ *  $Id: msgbox.c,v 1.36 2004/11/18 00:37:54 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -42,24 +42,43 @@ show_message(WINDOW *dialog,
 #ifdef NCURSES_VERSION
     if (pauseopt) {
 	int wide = width - (2 * MARGIN);
+	int high = LINES;
 	int y, x;
 	int len;
 	int percent;
 	WINDOW *dummy;
 	char buffer[5];
 
-	dummy = newwin(LINES, width, 0, 0);
+#if defined(NCURSES_VERSION_PATCH) && NCURSES_VERSION_PATCH >= 20040417
+	/*
+	 * If we're not limited by the screensize, allow text to possibly be
+	 * one character per line.
+	 */
+	if ((len = strlen(prompt)) > high)
+	    high = len;
+#endif
+	dummy = newwin(high, width, 0, 0);
 	wbkgdset(dummy, dialog_attr);
 	wattrset(dummy, dialog_attr);
 	werase(dummy);
-	dlg_print_autowrap(dummy, prompt, LINES, wide);
+	dlg_print_autowrap(dummy, prompt, high, wide);
 	getyx(dummy, y, x);
-	copywin(dummy, dialog, offset, MARGIN, MARGIN, MARGIN, page, wide, FALSE);
+
+	copywin(dummy,		/* srcwin */
+		dialog,		/* dstwin */
+		offset + MARGIN,	/* sminrow */
+		MARGIN,		/* smincol */
+		MARGIN,		/* dminrow */
+		MARGIN,		/* dmincol */
+		page,		/* dmaxrow */
+		wide,		/* dmaxcol */
+		FALSE);
+
 	delwin(dummy);
 
 	/* if the text is incomplete, or we have scrolled, show the percentage */
 	if (y > 0 && wide > 4) {
-	    percent = ((page + offset - 1) * 100.0 / y);
+	    percent = ((page + offset) * 100.0 / y);
 	    if (percent < 0)
 		percent = 0;
 	    if (percent > 100)
@@ -75,7 +94,7 @@ show_message(WINDOW *dialog,
 		}
 	    }
 	}
-	return (1 + y - page);
+	return (y - page);
     }
 #endif
     (void) offset;
