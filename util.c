@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.80 2001/10/15 00:49:16 tom Exp $
+ *  $Id: util.c,v 1.81 2001/11/11 22:44:30 tom Exp $
  *
  *  util.c
  *
@@ -60,7 +60,7 @@ DIALOG_STATE dialog_state;
 DIALOG_VARS dialog_vars;
 int defaultno = FALSE;
 int screen_initialized = 0;
-static FILE *my_output;		/* prefer to stdout, to support --stdout */
+static FILE *my_output = 0;	/* prefer to stdout, to support --stdout */
 
 #ifdef HAVE_COLOR
 /* use colors by default? */
@@ -267,6 +267,7 @@ init_dialog(void)
 	    exiterr("cannot initialize curses");
 	}
     } else {
+	my_output = stdout;
 	(void) initscr();
     }
 #ifdef NCURSES_VERSION

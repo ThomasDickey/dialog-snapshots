@@ -3,6 +3,21 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/11/11
+	+ modify command-line parsing to allow a "--" argument to act as an
+	  escape, so the next argument is not recognized as an option if it
+	  begins with "--".  This is apparently one of popt's undocumented
+	  features, upon which some Debian scripts depend (Debian #116642).
+	+ add da.po (Morten Brix Pedersen <morten@wtf.dk>).
+	+ add an install-strip rule to makefile, changing the normal install
+	  rule to not strip the installed executable (based on discussion with
+	  Santiago Vila).
+	+ initialize my_output variable if user cannot open /dev/tty, e.g., if
+	  su'd to another user (patch by Richard Braakman <dark@ssh.com> Debian
+	  #117177).
+	+ add configure option --with-ncursesw, to allow configure/build with
+	  wide-character version of ncurses.
+
 2001/10/14
 	+ add option --ignore, to make dialog be ignore options that it does
 	  not recognize.
