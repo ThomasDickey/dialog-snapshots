@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.55 2003/01/30 23:54:35 tom Exp $
+ *  $Id: checklist.c,v 1.56 2003/03/08 16:40:13 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -104,8 +104,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     checkflag = flag;
 
     /* Allocate space for storing item on/off status */
-    if ((status = malloc(sizeof(int) * item_no)) == NULL)
-	  exiterr("Can't allocate memory in dialog_checklist().");
+    status = malloc(sizeof(int) * item_no);
+    assert_ptr(status, "dialog_checklist");
 
     /* Initializes status */
     for (i = 0; i < item_no; i++)

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.38 2002/06/22 12:14:40 tom Exp $
+ *  $Id: textbox.c,v 1.39 2003/03/08 16:42:03 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -72,8 +72,7 @@ static char *
 xalloc(long size)
 {
     char *result = malloc(size);
-    if (result == 0)
-	exiterr("Can not allocate %ld bytes", size);
+    assert_ptr(result, "xalloc");
     return result;
 }
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.31 2003/01/27 01:41:07 tom Exp $
+ *  $Id: buttons.c,v 1.32 2003/03/08 16:39:35 tom Exp $
  *
  *  buttons.c
  *
@@ -196,6 +196,7 @@ dlg_draw_buttons(WINDOW *win,
     }
 
     buffer = malloc((unsigned) longest + 1);
+    assert_ptr(buffer, "dlg_draw_buttons");
 
     for (n = 0; labels[n] != 0; n++) {
 	center_label(buffer, longest, labels[n]);

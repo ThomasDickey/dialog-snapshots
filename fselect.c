@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.33 2003/01/30 20:59:49 tom Exp $
+ * $Id: fselect.c,v 1.34 2003/03/08 16:44:38 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -133,6 +133,7 @@ add_to_list(LIST * list, char *text)
 	} else {
 	    list->data = (char **) realloc(list->data, sizeof(char *) * list->allocd);
 	}
+	assert_ptr(list->data, "add_to_list");
     }
     list->data[list->length++] = strclone(text);
     list->data[list->length] = 0;

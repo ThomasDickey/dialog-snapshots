@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.30 2003/01/30 22:10:41 tom Exp $
+ *  $Id: tailbox.c,v 1.31 2003/03/08 16:43:35 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -273,6 +273,8 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     (void) wnoutrefresh(dialog);
 
     obj = (MY_OBJ *) calloc(1, sizeof(MY_OBJ));
+    assert_ptr(obj, "dialog_tailbox");
+
     obj->obj.input = fd;
     obj->obj.win = dialog;
     obj->obj.handle_getc = handle_my_getc;

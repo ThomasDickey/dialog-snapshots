@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.92 2003/03/02 17:30:13 tom Exp $
+ *  $Id: util.c,v 1.93 2003/03/08 16:52:58 tom Exp $
  *
  *  util.c
  *
@@ -991,6 +991,7 @@ char *
 strclone(const char *cprompt)
 {
     char *prompt = (char *) malloc(strlen(cprompt) + 1);
+    assert_ptr(prompt, "strclone");
     strcpy(prompt, cprompt);
     return prompt;
 }
@@ -1315,13 +1316,18 @@ dlg_add_result(char *string)
 
     if (want >= MAX_LEN) {
 	if (dialog_vars.input_length == 0) {
+	    char *save = dialog_vars.input_result;
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = malloc(dialog_vars.input_length);
+	    assert_ptr(dialog_vars.input_result, "dlg_add_result malloc");
 	    dialog_vars.input_result[0] = 0;
+	    if (save != 0)
+		strcpy(dialog_vars.input_result, save);
 	} else if (want >= dialog_vars.input_length) {
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = realloc(dialog_vars.input_result,
 					       dialog_vars.input_length);
+	    assert_ptr(dialog_vars.input_result, "dlg_add_result realloc");
 	}
     }
     strcat(dialog_vars.input_result, string);

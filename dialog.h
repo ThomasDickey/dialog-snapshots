@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.95 2003/01/29 01:40:07 tom Exp $
+ *  $Id: dialog.h,v 1.96 2003/03/08 16:46:43 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -306,6 +306,8 @@ extern bool use_shadow;
 #endif
 
 #define UCH(ch) ((unsigned char)(ch))
+
+#define assert_ptr(ptr,msg) if ((ptr) == 0) exiterr("cannot allocate memory in " msg)
 
 extern FILE *pipe_fp;
 extern chtype attributes[];

@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.64 2003/03/02 17:34:17 tom Exp $
+-- $Id: CHANGES,v 1.65 2003/03/08 16:49:44 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/03/08
+	+ add null-pointer checks to some malloc calls which were overlooked.
+	+ correct logic in dlg_add_result(), which did not copy content of
+	  non-allocated buffer to the first allocation (report by Daniel Dupont
+	  <daniel.dupont@dldt.net>).
 
 2003/03/02
 	+ correct an uninitialized value in dlg_add_result() (Debian #182683).

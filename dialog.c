@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.90 2003/01/30 23:07:40 tom Exp $
+ * $Id: dialog.c,v 1.91 2003/03/08 16:42:55 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -218,6 +218,8 @@ unescape_argv(int *argcp, char **argv)
     bool changed = FALSE;
 
     dialog_opts = calloc(*argcp + 1, sizeof(bool));
+    assert_ptr(dialog_opts, "unescape_argv");
+
     dialog_argv = argv;
 
     for (j = 1; j < *argcp; j++) {
