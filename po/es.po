@@ -1,17 +1,17 @@
-msgid "" 
-msgstr "" 
- 
-msgid "EXIT" 
-msgstr "Salir" 
- 
-msgid "OK" 
-msgstr "Aceptar" 
- 
-msgid "Cancel" 
-msgstr "Cancelar" 
- 
-msgid "Yes" 
-msgstr "Sí" 
- 
-msgid "No" 
-msgstr "No" 
+msgid ""
+msgstr ""
+
+msgid "EXIT"
+msgstr "Salir"
+
+msgid "OK"
+msgstr "Aceptar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "No"
+msgstr "No"

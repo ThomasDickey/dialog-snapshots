@@ -38,6 +38,8 @@
 
 #ifdef ultrix
 #include <cursesX.h>
+#elif defined(HAVE_NCURSES_H)
+#include <ncurses.h>
 #else
 #include <curses.h>
 #endif
@@ -123,6 +125,27 @@
 #define ACS_DARROW 'v'
 #endif
 
+/* these definitions really would work for ncurses 1.8.6, etc. */
+#ifndef getparxy
+#define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
+#endif
+
+#ifndef getparx
+#define getparx(win)		((win)?(win)->_parx:ERR)
+#endif
+
+#ifndef getpary
+#define getpary(win)		((win)?(win)->_pary:ERR)
+#endif
+
+#ifndef getcurx
+#define getcurx(win)		((win)?(win)->_curx:ERR)
+#endif
+
+#ifndef getcury
+#define getcury(win)		((win)?(win)->_cury:ERR)
+#endif
+
 /*
  * Attribute names
  */
@@ -200,6 +223,8 @@ extern bool use_shadow;
 #ifndef HAVE_TYPE_CHTYPE
 #define chtype long
 #endif
+
+#define UCH(ch) ((unsigned char)(ch))
 
 extern FILE *pipe_fp;
 extern chtype attributes[];
@@ -310,6 +335,11 @@ extern int dlg_default_item(char **items, int llen);
 extern int dlg_getc(WINDOW *win);
 extern void dlg_item_help(char *txt);
 extern void dlg_trim_string(char *src);
+#ifdef HAVE_STRCASECMP
+#define dlg_strcmp(a,b) strcasecmp(a,b)
+#else
+extern int dlg_strcmp(char *a, char *b);
+#endif
 
 /*
  * The following stuff is needed for mouse support

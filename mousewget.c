@@ -1,5 +1,5 @@
 /*
- * $Id: mousewget.c,v 1.5 2000/10/07 20:52:08 tom Exp $
+ * $Id: mousewget.c,v 1.6 2000/10/28 01:06:33 tom Exp $
  *
  * mousewget.c - mouse_wgetch support for cdialog 0.9a+
  *
@@ -48,11 +48,11 @@ mouse_wgetch(WINDOW *win)
 	    MEVENT event;
 	    mseRegion *p;
 
-	    getmouse(&event);
-	    if ((p = mouse_region(event.y, event.x)) != 0) {
+	    if (getmouse(&event) != ERR
+		&& (p = mouse_region(event.y, event.x)) != 0) {
 		key = M_EVENT + p->code;
 	    } else {
-		beep();
+		(void) beep();
 		key = ERR;
 	    }
 	}

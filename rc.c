@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.8 2000/10/07 16:20:29 tom Exp $
+ *  $Id: rc.c,v 1.10 2000/10/28 01:02:46 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -80,164 +80,164 @@ typedef struct {
 static vars_st vars[] =
 {
     {"use_shadow",
-	&use_shadow,
-	VAL_BOOL,
-	"Shadow dialog boxes? This also turns on color."},
+     &use_shadow,
+     VAL_BOOL,
+     "Shadow dialog boxes? This also turns on color."},
 
     {"use_colors",
-	&use_colors,
-	VAL_BOOL,
-	"Turn color support ON or OFF"},
+     &use_colors,
+     VAL_BOOL,
+     "Turn color support ON or OFF"},
 
     {"screen_color",
-	color_table[0],
-	VAL_ATTR,
-	"Screen color"},
+     color_table[0],
+     VAL_ATTR,
+     "Screen color"},
 
     {"shadow_color",
-	color_table[1],
-	VAL_ATTR,
-	"Shadow color"},
+     color_table[1],
+     VAL_ATTR,
+     "Shadow color"},
 
     {"dialog_color",
-	color_table[2],
-	VAL_ATTR,
-	"Dialog box color"},
+     color_table[2],
+     VAL_ATTR,
+     "Dialog box color"},
 
     {"title_color",
-	color_table[3],
-	VAL_ATTR,
-	"Dialog box title color"},
+     color_table[3],
+     VAL_ATTR,
+     "Dialog box title color"},
 
     {"border_color",
-	color_table[4],
-	VAL_ATTR,
-	"Dialog box border color"},
+     color_table[4],
+     VAL_ATTR,
+     "Dialog box border color"},
 
     {"button_active_color",
-	color_table[5],
-	VAL_ATTR,
-	"Active button color"},
+     color_table[5],
+     VAL_ATTR,
+     "Active button color"},
 
     {"button_inactive_color",
-	color_table[6],
-	VAL_ATTR,
-	"Inactive button color"},
+     color_table[6],
+     VAL_ATTR,
+     "Inactive button color"},
 
     {"button_key_active_color",
-	color_table[7],
-	VAL_ATTR,
-	"Active button key color"},
+     color_table[7],
+     VAL_ATTR,
+     "Active button key color"},
 
     {"button_key_inactive_color",
-	color_table[8],
-	VAL_ATTR,
-	"Inactive button key color"},
+     color_table[8],
+     VAL_ATTR,
+     "Inactive button key color"},
 
     {"button_label_active_color",
-	color_table[9],
-	VAL_ATTR,
-	"Active button label color"},
+     color_table[9],
+     VAL_ATTR,
+     "Active button label color"},
 
     {"button_label_inactive_color",
-	color_table[10],
-	VAL_ATTR,
-	"Inactive button label color"},
+     color_table[10],
+     VAL_ATTR,
+     "Inactive button label color"},
 
     {"inputbox_color",
-	color_table[11],
-	VAL_ATTR,
-	"Input box color"},
+     color_table[11],
+     VAL_ATTR,
+     "Input box color"},
 
     {"inputbox_border_color",
-	color_table[12],
-	VAL_ATTR,
-	"Input box border color"},
+     color_table[12],
+     VAL_ATTR,
+     "Input box border color"},
 
     {"searchbox_color",
-	color_table[13],
-	VAL_ATTR,
-	"Search box color"},
+     color_table[13],
+     VAL_ATTR,
+     "Search box color"},
 
     {"searchbox_title_color",
-	color_table[14],
-	VAL_ATTR,
-	"Search box title color"},
+     color_table[14],
+     VAL_ATTR,
+     "Search box title color"},
 
     {"searchbox_border_color",
-	color_table[15],
-	VAL_ATTR,
-	"Search box border color"},
+     color_table[15],
+     VAL_ATTR,
+     "Search box border color"},
 
     {"position_indicator_color",
-	color_table[16],
-	VAL_ATTR,
-	"File position indicator color"},
+     color_table[16],
+     VAL_ATTR,
+     "File position indicator color"},
 
     {"menubox_color",
-	color_table[17],
-	VAL_ATTR,
-	"Menu box color"},
+     color_table[17],
+     VAL_ATTR,
+     "Menu box color"},
 
     {"menubox_border_color",
-	color_table[18],
-	VAL_ATTR,
-	"Menu box border color"},
+     color_table[18],
+     VAL_ATTR,
+     "Menu box border color"},
 
     {"item_color",
-	color_table[19],
-	VAL_ATTR,
-	"Item color"},
+     color_table[19],
+     VAL_ATTR,
+     "Item color"},
 
     {"item_selected_color",
-	color_table[20],
-	VAL_ATTR,
-	"Selected item color"},
+     color_table[20],
+     VAL_ATTR,
+     "Selected item color"},
 
     {"tag_color",
-	color_table[21],
-	VAL_ATTR,
-	"Tag color"},
+     color_table[21],
+     VAL_ATTR,
+     "Tag color"},
 
     {"tag_selected_color",
-	color_table[22],
-	VAL_ATTR,
-	"Selected tag color"},
+     color_table[22],
+     VAL_ATTR,
+     "Selected tag color"},
 
     {"tag_key_color",
-	color_table[23],
-	VAL_ATTR,
-	"Tag key color"},
+     color_table[23],
+     VAL_ATTR,
+     "Tag key color"},
 
     {"tag_key_selected_color",
-	color_table[24],
-	VAL_ATTR,
-	"Selected tag key color"},
+     color_table[24],
+     VAL_ATTR,
+     "Selected tag key color"},
 
     {"check_color",
-	color_table[25],
-	VAL_ATTR,
-	"Check box color"},
+     color_table[25],
+     VAL_ATTR,
+     "Check box color"},
 
     {"check_selected_color",
-	color_table[26],
-	VAL_ATTR,
-	"Selected check box color"},
+     color_table[26],
+     VAL_ATTR,
+     "Selected check box color"},
 
     {"uarrow_color",
-	color_table[27],
-	VAL_ATTR,
-	"Up arrow color"},
+     color_table[27],
+     VAL_ATTR,
+     "Up arrow color"},
 
     {"darrow_color",
-	color_table[28],
-	VAL_ATTR,
-	"Down arrow color"},
+     color_table[28],
+     VAL_ATTR,
+     "Down arrow color"},
 
     {"itemhelp_color",
-	color_table[29],
-	VAL_ATTR,
-	"Item help-text color"}
+     color_table[29],
+     VAL_ATTR,
+     "Item help-text color"}
 };				/* vars */
 
 /*
@@ -298,7 +298,7 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 
 	/* find end of fg/bg string */
 	while (!whitespace(tempstr[i]) && tempstr[i] != ','
-	    && tempstr[i] != '\0')
+	       && tempstr[i] != '\0')
 	    i++;
 
 	if (tempstr[i] == '\0')
@@ -314,8 +314,8 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 		return -1;	/* invalid representation */
 	}
 	tempstr[i++] = '\0';	/* skip the ',' */
-	for (j = 0; j < COLOR_COUNT && strcasecmp(part, color_names[j].name);
-	    j++) ;
+	for (j = 0; j < COLOR_COUNT && dlg_strcmp(part, color_names[j].name);
+	     j++) ;
 	if (j == COLOR_COUNT)	/* invalid color name */
 	    return -1;
 	if (get_fg) {
@@ -342,9 +342,9 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 	i--;
     part[i + 1] = '\0';
 
-    if (!strcasecmp(part, "ON"))
+    if (!dlg_strcmp(part, "ON"))
 	*hl = TRUE;
-    else if (!strcasecmp(part, "OFF"))
+    else if (!dlg_strcmp(part, "OFF"))
 	*hl = FALSE;
     else
 	return -1;		/* invalid highlight value */
@@ -457,25 +457,26 @@ create_rc(const char *filename)
 	switch (vars[i].type) {
 	case VAL_INT:
 	    fprintf(rc_file, "%s = %d\n", vars[i].name,
-		*((int *) vars[i].var));
+		    *((int *) vars[i].var));
 	    break;
 	case VAL_STR:
 	    fprintf(rc_file, "%s = \"%s\"\n", vars[i].name,
-		(char *) vars[i].var);
+		    (char *) vars[i].var);
 	    break;
 	case VAL_BOOL:
 	    fprintf(rc_file, "%s = %s\n", vars[i].name,
-		*((bool *) vars[i].var) ? "ON" : "OFF");
+		    *((bool *) vars[i].var) ? "ON" : "OFF");
 	    break;
 	case VAL_ATTR:
 	    fprintf(rc_file, "%s = %s\n", vars[i].name,
-		attr_to_str(((int *) vars[i].var)[0],
-		    ((int *) vars[i].var)[1], ((int *) vars[i].var)[2]));
+		    attr_to_str(((int *) vars[i].var)[0],
+				((int *) vars[i].var)[1],
+				((int *) vars[i].var)[2]));
 	    break;
 	}
     }
 
-    fclose(rc_file);
+    (void) fclose(rc_file);
 #endif
 }
 
@@ -489,7 +490,7 @@ parse_rc(void)
     unsigned i;
     int l = 1, parse, fg, bg, hl;
     char str[MAX_LEN + 1], *var, *value, *tempptr;
-    FILE *rc_file;
+    FILE *rc_file = 0;
 
     /*
      *  At start, 'dialog' determines the settings to use as follows:
@@ -525,8 +526,8 @@ parse_rc(void)
 	if (lastch(str) != '\n') {
 	    /* ignore rest of file if line too long */
 	    fprintf(stderr, "\nParse error: line %d of configuration"
-		" file too long.\n", l);
-	    fclose(rc_file);
+		    " file too long.\n", l);
+	    (void) fclose(rc_file);
 	    return -1;		/* parse aborted */
 	} else {
 	    lastch(str) = '\0';
@@ -542,7 +543,7 @@ parse_rc(void)
 
 		if (i == VAR_COUNT) {	/* no match */
 		    fprintf(stderr, "\nParse error: unknown variable "
-			"at line %d of configuration file.\n", l);
+			    "at line %d of configuration file.\n", l);
 		    return -1;	/* parse aborted */
 		} else {	/* variable found in table, set run time variables */
 		    switch (vars[i].type) {
@@ -553,8 +554,8 @@ parse_rc(void)
 			if (!isquote(value[0]) || !isquote(lastch(value))
 			    || strlen(value) < 2) {
 			    fprintf(stderr, "\nParse error: string value "
-				"expected at line %d of configuration "
-				"file.\n", l);
+				    "expected at line %d of configuration "
+				    "file.\n", l);
 			    return -1;	/* parse aborted */
 			} else {
 			    /* remove the (") quotes */
@@ -564,22 +565,22 @@ parse_rc(void)
 			}
 			break;
 		    case VAL_BOOL:
-			if (!strcasecmp(value, "ON"))
+			if (!dlg_strcmp(value, "ON"))
 			    *((bool *) vars[i].var) = TRUE;
-			else if (!strcasecmp(value, "OFF"))
+			else if (!dlg_strcmp(value, "OFF"))
 			    *((bool *) vars[i].var) = FALSE;
 			else {
 			    fprintf(stderr, "\nParse error: boolean value "
-				"expected at line %d of configuration "
-				"file.\n", l);
+				    "expected at line %d of configuration "
+				    "file.\n", l);
 			    return -1;	/* parse aborted */
 			}
 			break;
 		    case VAL_ATTR:
 			if (str_to_attr(value, &fg, &bg, &hl) == -1) {
 			    fprintf(stderr, "\nParse error: attribute "
-				"value expected at line %d of configuration "
-				"file.\n", l);
+				    "value expected at line %d of configuration "
+				    "file.\n", l);
 			    return -1;	/* parse aborted */
 			}
 			((int *) vars[i].var)[0] = fg;
@@ -591,14 +592,14 @@ parse_rc(void)
 		break;
 	    case LINE_ERROR:
 		fprintf(stderr, "\nParse error: syntax error at line %d of "
-		    "configuration file.\n", l);
+			"configuration file.\n", l);
 		return -1;	/* parse aborted */
 	    }
 	}
 	l++;			/* next line */
     }
 
-    fclose(rc_file);
+    (void) fclose(rc_file);
 #endif
     return 0;			/* parse successful */
 }

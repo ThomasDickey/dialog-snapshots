@@ -8,7 +8,7 @@ msgid "EXIT"
 msgstr "Uscita"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Cancel"
 msgstr "Annulla"

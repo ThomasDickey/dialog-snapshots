@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.31 2000/10/18 01:02:36 tom Exp $
+ *  $Id: checklist.c,v 1.33 2000/10/28 01:09:15 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -39,25 +39,25 @@ print_item(WINDOW *win, char **strings, int status,
 
     /* Clear 'residue' of last item */
     wattrset(win, menubox_attr);
-    wmove(win, choice, 0);
+    (void) wmove(win, choice, 0);
     for (i = 0; i < list_width; i++)
-	waddch(win, ' ');
+	(void) waddch(win, ' ');
 
-    wmove(win, choice, check_x);
+    (void) wmove(win, choice, check_x);
     wattrset(win, selected ? check_selected_attr : check_attr);
-    wprintw(win,
-	    (checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
-	    status ? 'X' : ' ');
+    (void) wprintw(win,
+		   (checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
+		   status ? 'X' : ' ');
     wattrset(win, menubox_attr);
-    waddch(win, ' ');
+    (void) waddch(win, ' ');
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    waddch(win, CharOf(strings[0][0]));
+    (void) waddch(win, CharOf(strings[0][0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    wprintw(win, "%s", strings[0] + 1);
+    (void) wprintw(win, "%s", strings[0] + 1);
 
-    wmove(win, choice, item_x);
+    (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    wprintw(win, "%s", strings[1]);
+    (void) wprintw(win, "%s", strings[1]);
 
     if (selected) {
 	dlg_item_help(strings[3]);
@@ -97,7 +97,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     /* Initializes status */
     for (i = 0; i < item_no; i++)
-	status[i] = !strcasecmp(items[LLEN(i) + 2], "on");
+	status[i] = !dlg_strcmp(items[LLEN(i) + 2], "on");
 
     max_choice = MIN(list_height, item_no);
 
@@ -123,7 +123,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     /* create new window for the list */
     list = sub_window(dialog, list_height, list_width,
 		      y + box_y + 1, x + box_x + 1);
-    keypad(list, TRUE);
+    (void) keypad(list, TRUE);
 
     /* draw a box around the list items */
     draw_box(dialog, box_y, box_x, list_height + 2, list_width + 2,
@@ -144,7 +144,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	print_item(list,
 		   &items[LLEN(i)],
 		   status[i], i, i == choice);
-    wnoutrefresh(list);
+    (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(box_y, box_x, list_height + 2, list_width + 2,
@@ -187,8 +187,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 				   status[scrollamt + i], i, i == choice);
 		}
 	    }
-	    wnoutrefresh(list);
-	    wmove(dialog, cur_y, cur_x);
+	    (void) wnoutrefresh(list);
+	    (void) wmove(dialog, cur_y, cur_x);
 	    wrefresh_lock(dialog);
 	    continue;		/* wait for another key press */
 	}
@@ -324,7 +324,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 				       status[scrollamt + i], i, i == choice);
 			}
 		    }
-		    wnoutrefresh(list);
+		    (void) wnoutrefresh(list);
 		    dlg_draw_arrows(dialog, scrollamt,
 				    scrollamt + choice < item_no - 1,
 				    box_x + check_x + 5,
@@ -340,8 +340,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    print_item(list,
 			       &items[LLEN(scrollamt + choice)],
 			       status[scrollamt + choice], choice, TRUE);
-		    wnoutrefresh(list);
-		    wmove(dialog, cur_y, cur_x);
+		    (void) wnoutrefresh(list);
+		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh_lock(dialog);
 		}
 	    }
@@ -374,7 +374,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
     }
 
-    delwin(dialog);
+    (void) delwin(dialog);
     if (result == EXIT_OK) {
 	for (i = 0; i < item_no; i++) {
 	    if (status[i]) {

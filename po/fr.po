@@ -6,7 +6,7 @@ msgid "EXIT"
 msgstr "Sortie"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Cancel"
 msgstr "Annul"

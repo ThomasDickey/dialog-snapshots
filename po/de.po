@@ -6,7 +6,7 @@ msgid "EXIT"
 msgstr "Verlassen"
 
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgid "Cancel"
 msgstr "Absagen"

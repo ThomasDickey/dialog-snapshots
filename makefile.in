@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.19 2000/10/08 18:18:14 tom Exp $
+# $Id: makefile.in,v 1.21 2000/10/28 00:01:35 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -10,6 +10,8 @@ exec_prefix	= @exec_prefix@
 
 srcdir		= @srcdir@
 top_builddir	= .
+
+x		= @PROG_EXT@
 
 DESTDIR		=
 bindir		= $(DESTDIR)@bindir@
@@ -30,6 +32,7 @@ LIBS		= @LIBS@ @INTLDIR_MAKE@ @INTLLIBS@
 RANLIB		= @RANLIB@
 
 RM		= rm -f
+LINT		= lint
 
 INSTALL		= @INSTALL@
 INSTALL_PROGRAM	= @INSTALL_PROGRAM@
@@ -38,7 +41,7 @@ INSTALL_DATA	= @INSTALL_DATA@
 #
 # Standard .c to .o compile line.
 #
-.c.o:
+.c.o :
 @RULE_CC@
 	@ECHO_CC@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
 
@@ -63,8 +66,8 @@ HDRS = \
 	config.h \
 	dialog.h
 
-LIB	= libdialog.a
-PROG	= dialog
+LIB	= @LIB_PREFIX@dialog.a
+PROG	= dialog$x
 ALL	= $(LIB) $(PROG)
 
 BIN_DIRS	= $(bindir) $(MANDIR)
@@ -72,7 +75,7 @@ LIB_DIRS	= $(libdir) $(includedir)
 
 all	:: $(ALL)
 
-@INTLLIBS@:
+@INTLLIBS@ :
 	@echo "Building GNU gettext library..."
 	@cd intl && $(MAKE) @cf_cv_makeflags@
 
@@ -83,7 +86,7 @@ $(LIB) : $(OBJS)
 	ar crv $(LIB) $(OBJS)
 	$(RANLIB) $@
 
-dialog: $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
+dialog$x : $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
 	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
 
 clean	::
@@ -122,8 +125,11 @@ uninstall-lib :: $(LIB_DIRS)
 $(bindir) \
 $(MANDIR) : ; $(srcdir)/mkdirs.sh $@
 
-tags:
-	ctags $(SRCS) $(HDRS)
+@MAKE_LOWER_TAGS@tags :
+@MAKE_LOWER_TAGS@	ctags $(SRCS) $(HDRS)
 
-TAGS:
-	etags $(SRCS) $(HDRS)
+@MAKE_LOWER_TAGS@TAGS :
+@MAKE_LOWER_TAGS@	etags $(SRCS) $(HDRS)
+
+lint:
+	$(LINT) $(CPPFLAGS) *.c

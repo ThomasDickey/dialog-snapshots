@@ -1,4 +1,6 @@
 /*
+ *  $Id: msgbox.c,v 1.14 2000/10/28 00:52:54 tom Exp $
+ *
  *  msgbox.c -- implements the message box and info box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -25,8 +27,8 @@
  * if the parameter 'pauseopt' is non-zero.
  */
 int
-dialog_msgbox (const char *title, const char *cprompt, int height, int width,
-		int pauseopt)
+dialog_msgbox(const char *title, const char *cprompt, int height, int width,
+	      int pauseopt)
 {
     int x, y, key = 0;
     WINDOW *dialog = 0;
@@ -36,11 +38,13 @@ dialog_msgbox (const char *title, const char *cprompt, int height, int width,
 #ifdef KEY_RESIZE
     int req_high = height;
     int req_wide = width;
-restart:
+  restart:
 #endif
 
     tab_correct_str(prompt);
-    prompt = auto_size(title, prompt, &height, &width, (pauseopt == 1 ? 2 : 0), (pauseopt == 1 ? 12 : 0));
+    prompt = auto_size(title, prompt, &height, &width,
+		       (pauseopt == 1 ? 2 : 0),
+		       (pauseopt == 1 ? 12 : 0));
     print_size(height, width);
     ctl_size(height, width);
 
@@ -49,26 +53,26 @@ restart:
 
 #ifdef KEY_RESIZE
     if (dialog != 0) {
-	wresize(dialog, height, width);
-	mvwin(dialog, y, x);
-	refresh();
+	(void) wresize(dialog, height, width);
+	(void) mvwin(dialog, y, x);
+	(void) refresh();
     } else
 #endif
-    dialog = new_window (height, width, y, x);
+	dialog = new_window(height, width, y, x);
 
-    mouse_setbase (x, y);
+    mouse_setbase(x, y);
 
-    draw_box (dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_title (dialog, title);
+    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    draw_title(dialog, title);
 
-    wattrset (dialog, dialog_attr);
-    print_autowrap (dialog, prompt, width, 1, 2);
+    wattrset(dialog, dialog_attr);
+    print_autowrap(dialog, prompt, width, 1, 2);
 
     if (pauseopt) {
 	bool done = FALSE;
 
-	draw_bottom_box (dialog);
-	mouse_mkbutton (height - 2, width / 2 - 4, 6, '\n');
+	draw_bottom_box(dialog);
+	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
 	wrefresh_lock(dialog);
@@ -88,7 +92,7 @@ restart:
 	    case KEY_RESIZE:
 		dialog_clear();
 		height = req_high;
-		width  = req_wide;
+		width = req_wide;
 		goto restart;
 #endif
 	    }
@@ -98,6 +102,6 @@ restart:
 	wrefresh_lock(dialog);
     }
 
-    delwin (dialog);
+    (void) delwin(dialog);
     return key == ESC ? -1 : 0;
 }

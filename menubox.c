@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.25 2000/10/18 01:03:21 tom Exp $
+ *  $Id: menubox.c,v 1.26 2000/10/28 01:02:08 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -38,19 +38,19 @@ print_item(WINDOW *win,
 
     /* Clear 'residue' of last item */
     wattrset(win, menubox_attr);
-    wmove(win, choice, 0);
+    (void) wmove(win, choice, 0);
     for (i = 0; i < menu_width; i++)
-	waddch(win, ' ');
+	(void) waddch(win, ' ');
 
-    wmove(win, choice, tag_x);
+    (void) wmove(win, choice, tag_x);
     wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    waddch(win, CharOf(strings[0][0]));
+    (void) waddch(win, CharOf(strings[0][0]));
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    wprintw(win, "%s", strings[0] + 1);
+    (void) wprintw(win, "%s", strings[0] + 1);
 
-    wmove(win, choice, item_x);
+    (void) wmove(win, choice, item_x);
     wattrset(win, selected ? item_selected_attr : item_attr);
-    wprintw(win, "%s", strings[1]);
+    (void) wprintw(win, "%s", strings[1]);
 
     if (selected) {
 	dlg_item_help(strings[2]);
@@ -110,7 +110,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     /* create new window for the menu */
     menu = sub_window(dialog, menu_height, menu_width, y + box_y + 1,
 		      x + box_x + 1);
-    keypad(menu, TRUE);
+    (void) keypad(menu, TRUE);
 
     /* draw a box around the menu items */
     draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
@@ -134,7 +134,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     /* Print the menu */
     for (i = 0; i < max_choice; i++)
 	print_item(menu, &items[LLEN(i + scrollamt)], i, i == choice);
-    wnoutrefresh(menu);
+    (void) wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(box_y, box_x, menu_height + 2, menu_width + 2,
@@ -156,7 +156,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	/* Check if key pressed matches first character of any
 	   item tag in menu */
 	for (i = 0; i < max_choice; i++)
-	    if (toupper(key) == toupper(items[LLEN(scrollamt + i)][0]))
+	    if (toupper(key) == toupper(UCH(items[LLEN(scrollamt + i)][0])))
 		break;
 
 	/*
@@ -167,7 +167,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	found = FALSE;
 	for (j = scrollamt + choice + 1; j < item_no; j++) {
 	    if (toupper(key) ==
-		toupper(items[LLEN(j)][0])) {
+		toupper(UCH(items[LLEN(j)][0]))) {
 		found = TRUE;
 		i = j - scrollamt;
 		break;
@@ -176,7 +176,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	if (!found) {
 	    for (j = 0; j <= scrollamt + choice; j++) {
 		if (toupper(key) ==
-		    toupper(items[LLEN(j)][0])) {
+		    toupper(UCH(items[LLEN(j)][0]))) {
 		    found = TRUE;
 		    i = j - scrollamt;
 		    break;
@@ -284,7 +284,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 				       i, i == choice);
 			}
 		    }
-		    wnoutrefresh(menu);
+		    (void) wnoutrefresh(menu);
 		    dlg_draw_arrows(dialog, scrollamt,
 				    scrollamt + choice < item_no - 1,
 				    box_x + tag_x + 1,
@@ -300,8 +300,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		    print_item(menu,
 			       &items[LLEN(scrollamt + choice)],
 			       choice, TRUE);
-		    wnoutrefresh(menu);
-		    wmove(dialog, cur_y, cur_x);
+		    (void) wnoutrefresh(menu);
+		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh_lock(dialog);
 		}
 	    }
@@ -310,10 +310,10 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
 	switch (key) {
 	case M_EVENT + 'O':
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return scrollamt + choice;
 	case M_EVENT + 'C':
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return -2;
 	case M_EVENT + 'o':	/* mouse enter... */
 	case M_EVENT + 'c':	/* use the code for toggling */
@@ -329,11 +329,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	    break;
 	case '\n':
-	    delwin(dialog);
+	    (void) delwin(dialog);
 	    return (button ? -2 : (scrollamt + choice));
 	}
     }
 
-    delwin(dialog);
+    (void) delwin(dialog);
     return -1;			/* ESC pressed */
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.20 2000/10/18 01:02:52 tom Exp $
+ *  $Id: tailbox.c,v 1.22 2000/10/28 01:03:37 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -68,7 +68,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 
     /* Create window for text region, used for scrolling text */
     text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
-    keypad(text, TRUE);
+    (void) keypad(text, TRUE);
 
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     draw_bottom_box(dialog);
@@ -76,15 +76,15 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 
-    wmove(dialog, height - 4, 2);
+    (void) wmove(dialog, height - 4, 2);
 
-    wnoutrefresh(dialog);
+    (void) wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
     /* Print last page of text */
     attr_clear(text, height - 4, width - 2, dialog_attr);
     print_last_page(text, height - 5, width - 2);
-    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
+    (void) wmove(dialog, cur_y, cur_x);		/* Restore cursor position */
     wrefresh_lock(dialog);
 
     /* nodelay(dialog, TRUE);  with this it takes much more cpu time */
@@ -98,18 +98,18 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 	switch (key) {
 	case ERR:
 	    ch = getc(fd);
-	    ungetc(ch, fd);
+	    (void) ungetc(ch, fd);
 	    if ((ch != EOF) || (hscroll != old_hscroll)) {
 		old_hscroll = hscroll;
 		print_last_page(text, height - 5, width - 2);
-		wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
+		(void) wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
 		wrefresh_lock(dialog);
 	    }
 	    ctl_idlemsg(dialog);
 	    break;
 	case '\n':
-	    delwin(dialog);
-	    fclose(fd);
+	    (void) delwin(dialog);
+	    (void) fclose(fd);
 	    return 0;
 	case '0':		/* Beginning of line */
 	case 'H':		/* Scroll left */
@@ -133,8 +133,8 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
 	}
     }
 
-    delwin(dialog);
-    fclose(fd);
+    (void) delwin(dialog);
+    (void) fclose(fd);
     return -1;			/* ESC pressed */
 }
 /* End of dialog_tailbox() */
@@ -164,15 +164,15 @@ dialog_tailboxbg(const char *title, const char *file, int height, int width, int
 
     /* Create window for text region, used for scrolling text */
     text = sub_window(dialog, height - 2, width - 2, y + 1, x + 1);
-    keypad(text, FALSE);
+    (void) keypad(text, FALSE);
 
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
 
     draw_title(dialog, title);
 
-    wmove(dialog, height - 2, 2);
+    (void) wmove(dialog, height - 2, 2);
 
-    wnoutrefresh(dialog);
+    (void) wnoutrefresh(dialog);
 
     /* Print last page of text */
     attr_clear(text, height - 2, width - 2, dialog_attr);
@@ -180,19 +180,20 @@ dialog_tailboxbg(const char *title, const char *file, int height, int width, int
     wrefresh_lock_tailbg(dialog);
 
     if (cant_kill)
-	signal(15, &signal_tailbg);
+	(void) signal(15, &signal_tailbg);
 
     while (!can_quit) {
 	ch = getc(fd);
-	ungetc(ch, fd);
+	(void) ungetc(ch, fd);
 	if ((ch != EOF) || (hscroll != old_hscroll)) {
 	    old_hscroll = hscroll;
 	    print_last_page(text, height - 2 - 1, width - 2);
 	    wrefresh_lock_tailbg(dialog);
 	}
-	napms(1000);
+	(void) napms(1000);
     }
 }
+
 /* End of dialog_tailboxbg() */
 
 /*
@@ -220,7 +221,7 @@ last_lines(int n)
 
 	size_to_read = ((size_t) fpos);
     }
-    fread(buf, size_to_read, 1, fd);
+    (void) fread(buf, size_to_read, 1, fd);
     if (ferror(fd))
 	exiterr("Error reading file in last_lines().");
 
@@ -260,8 +261,9 @@ print_page(WINDOW *win, int height, int width)
 	if (end_reached && !passed_end)
 	    passed_end = 1;
     }
-    wnoutrefresh(win);
+    (void) wnoutrefresh(win);
 }
+
 /* End of print_page() */
 
 static void
@@ -282,20 +284,21 @@ print_line(WINDOW *win, int row, int width)
 
     line = get_line();
     line += MIN((int) strlen(line), hscroll);	/* Scroll horizontally */
-    wmove(win, row, 0);		/* move cursor to correct line */
-    waddch(win, ' ');
+    (void) wmove(win, row, 0);	/* move cursor to correct line */
+    (void) waddch(win, ' ');
 #ifdef NCURSES_VERSION
-    waddnstr(win, line, MIN((int) strlen(line), width - 2));
+    (void) waddnstr(win, line, MIN((int) strlen(line), width - 2));
 #else
-    line[MIN(strlen(line), width - 2)] = '\0';
+    line[MIN((int) strlen(line), width - 2)] = '\0';
     waddstr(win, line);
 #endif
 
     getyx(win, y, x);
     /* Clear 'residue' of previous line */
     for (i = 0; i < width - x; i++)
-	waddch(win, ' ');
+	(void) waddch(win, ' ');
 }
+
 /* End of print_line() */
 
 /*

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.48 2000/10/18 01:02:18 tom Exp $
+ *  $Id: util.c,v 1.50 2000/10/28 01:09:49 tom Exp $
  *
  *  util.c
  *
@@ -143,16 +143,16 @@ put_backtitle(void)
 
     if (dialog_vars.backtitle != NULL) {
 	wattrset(stdscr, screen_attr);
-	wmove(stdscr, 0, 1);
-	waddstr(stdscr, dialog_vars.backtitle);
+	(void) wmove(stdscr, 0, 1);
+	(void) waddstr(stdscr, dialog_vars.backtitle);
 	for (i = 0; i < COLS - (int) strlen(dialog_vars.backtitle); i++)
-	    waddch(stdscr, ' ');
-	wmove(stdscr, 1, 1);
+	    (void) waddch(stdscr, ' ');
+	(void) wmove(stdscr, 1, 1);
 	for (i = 0; i < COLS - 2; i++)
-	    waddch(stdscr, ACS_HLINE);
+	    (void) waddch(stdscr, ACS_HLINE);
     }
 
-    wnoutrefresh(stdscr);
+    (void) wnoutrefresh(stdscr);
 }
 
 /*
@@ -166,11 +166,11 @@ attr_clear(WINDOW *win, int height, int width, chtype attr)
 
     wattrset(win, attr);
     for (i = 0; i < height; i++) {
-	wmove(win, i, 0);
+	(void) wmove(win, i, 0);
 	for (j = 0; j < width; j++)
-	    waddch(win, ' ');
+	    (void) waddch(win, ' ');
     }
-    touchwin(win);
+    (void) touchwin(win);
 }
 
 void
@@ -215,7 +215,6 @@ init_dialog(void)
 {
     int fd1, fd2;
     char *device = 0;
-    char *name;
 
 #ifdef HAVE_RC_FILE
     if (parse_rc() == -1)	/* Read the configuration file */
@@ -234,7 +233,7 @@ init_dialog(void)
 	    pipe_fp = fdopen(fd2, "r");
 	    *stdin = *freopen(device, "r", stdin);
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
-		dup2(fileno(stdin), 0);
+		(void) dup2(fileno(stdin), 0);
 	}
     }
 
@@ -249,24 +248,23 @@ init_dialog(void)
 	    exiterr("cannot initialize curses");
 	}
     } else {
-	initscr();
+	(void) initscr();
     }
 #ifdef NCURSES_VERSION
     /*
      * Cancel xterm's alternate-screen mode.
      */
-    name = getenv("TERM");
     if (key_mouse != 0		/* xterm and kindred */
 	&& isprivate(enter_ca_mode)
 	&& isprivate(exit_ca_mode)) {
-	tputs(exit_ca_mode, 0, my_putc);
-	tputs(clear_screen, 0, my_putc);
+	(void) tputs(exit_ca_mode, 0, my_putc);
+	(void) tputs(clear_screen, 0, my_putc);
     }
 #endif
-    keypad(stdscr, TRUE);
-    cbreak();
-    noecho();
-    mouse_open();
+    (void) keypad(stdscr, TRUE);
+    (void) cbreak();
+    (void) noecho();
+    (void) mouse_open();
     screen_initialized = 1;
 
 #ifdef HAVE_COLOR
@@ -288,11 +286,11 @@ color_setup(void)
     int i;
 
     if (has_colors()) {		/* Terminal supports color? */
-	start_color();
+	(void) start_color();
 
 	/* Initialize color pairs */
 	for (i = 0; i < ATTRIBUTE_COUNT; i++)
-	    init_pair(i + 1, color_table[i][0], color_table[i][1]);
+	    (void) init_pair(i + 1, color_table[i][0], color_table[i][1]);
 
 	/* Setup color attributes */
 	for (i = 0; i < ATTRIBUTE_COUNT; i++)
@@ -307,8 +305,8 @@ color_setup(void)
 void
 end_dialog(void)
 {
-    mouse_close();
-    endwin();
+    (void) mouse_close();
+    (void) endwin();
 }
 
 static int
@@ -339,20 +337,20 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
-	wmove(win, cur_y, x);
+	(void) wmove(win, cur_y, x);
 	while ((tempptr1 = strchr(word, '\n')) != NULL) {
 	    *tempptr1++ = 0;
-	    waddstr(win, word);
+	    (void) waddstr(win, word);
 	    word = tempptr1;
-	    wmove(win, ++cur_y, x);
+	    (void) wmove(win, ++cur_y, x);
 	}
-	waddstr(win, word);
+	(void) waddstr(win, word);
     } else if ((int) strlen(tempstr) <= width - x * 2) {
 	/* If prompt is short */
 	cur_y = y;
 	if (dialog_vars.cr_wrap)
 	    cur_y++;
-	mvwprintw(win, cur_y, centered(width, tempstr), "%s", tempstr);
+	(void) mvwprintw(win, cur_y, centered(width, tempstr), "%s", tempstr);
     } else {
 	cur_x = x;
 	cur_y = y;
@@ -367,14 +365,14 @@ print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
 		cur_y++;
 		cur_x = x;
 	    }
-	    wmove(win, cur_y, cur_x);
-	    waddstr(win, word);
+	    (void) wmove(win, cur_y, cur_x);
+	    (void) waddstr(win, word);
 	    getyx(win, cur_y, cur_x);
 	    cur_x++;
 	}
     }
     if (dialog_vars.cr_wrap)
-	wmove(win, cur_y + 1, x);
+	(void) wmove(win, cur_y + 1, x);
 }
 
 /*
@@ -524,7 +522,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 	*width = SCOLS - (dialog_vars.begin_set ? dialog_vars.begin_x : 0);
     }
     if ((*height != 0) && (*width != 0)) {
-	fclose(fd);
+	(void) fclose(fd);
 	return;
     }
 
@@ -550,8 +548,9 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
        textbox-like widgets don't put all <file> on the screen.
        Msgbox-like widget instead have to put all <text> correctly. */
 
-    fclose(fd);
+    (void) fclose(fd);
 }
+
 /* End of auto_sizefile() */
 
 /*
@@ -566,26 +565,26 @@ draw_box(WINDOW *win, int y, int x, int height, int width,
 
     wattrset(win, 0);
     for (i = 0; i < height; i++) {
-	wmove(win, y + i, x);
+	(void) wmove(win, y + i, x);
 	for (j = 0; j < width; j++)
 	    if (!i && !j)
-		waddch(win, borderchar | ACS_ULCORNER);
+		(void) waddch(win, borderchar | ACS_ULCORNER);
 	    else if (i == height - 1 && !j)
-		waddch(win, borderchar | ACS_LLCORNER);
+		(void) waddch(win, borderchar | ACS_LLCORNER);
 	    else if (!i && j == width - 1)
-		waddch(win, boxchar | ACS_URCORNER);
+		(void) waddch(win, boxchar | ACS_URCORNER);
 	    else if (i == height - 1 && j == width - 1)
-		waddch(win, boxchar | ACS_LRCORNER);
+		(void) waddch(win, boxchar | ACS_LRCORNER);
 	    else if (!i)
-		waddch(win, borderchar | ACS_HLINE);
+		(void) waddch(win, borderchar | ACS_HLINE);
 	    else if (i == height - 1)
-		waddch(win, boxchar | ACS_HLINE);
+		(void) waddch(win, boxchar | ACS_HLINE);
 	    else if (!j)
-		waddch(win, borderchar | ACS_VLINE);
+		(void) waddch(win, borderchar | ACS_VLINE);
 	    else if (j == width - 1)
-		waddch(win, boxchar | ACS_VLINE);
+		(void) waddch(win, boxchar | ACS_VLINE);
 	    else
-		waddch(win, boxchar | ' ');
+		(void) waddch(win, boxchar | ' ');
     }
     wattrset(win, save);
 }
@@ -602,15 +601,15 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
 
     if (has_colors()) {		/* Whether terminal supports color? */
 	wattrset(win, shadow_attr);
-	wmove(win, y + height, x + 2);
+	(void) wmove(win, y + height, x + 2);
 	for (i = 0; i < width; i++)
-	    waddch(win, CharOf(winch(win)));
+	    (void) waddch(win, CharOf(winch(win)));
 	for (i = y + 1; i < y + height + 1; i++) {
-	    wmove(win, i, x + width);
-	    waddch(win, CharOf(winch(win)));
-	    waddch(win, CharOf(winch(win)));
+	    (void) wmove(win, i, x + width);
+	    (void) waddch(win, CharOf(winch(win)));
+	    (void) waddch(win, CharOf(winch(win)));
 	}
-	wnoutrefresh(win);
+	(void) wnoutrefresh(win);
     }
 }
 #endif
@@ -624,7 +623,7 @@ make_lock_filename(const char *filename)
     char *file = (char *) malloc(30);
     strcpy(file, filename);
     if (mktemp(file) == NULL) {
-	endwin();
+	(void) endwin();
 	fprintf(stderr, "\nCan't make tempfile...\n");
 	return NULL;
     }
@@ -685,9 +684,9 @@ wrefresh_lock_sub(WINDOW *win)
 	while_exist_lock(lock_refresh);
 	create_lock(lock_refresh);
     }
-    wrefresh(win);
+    (void) wrefresh(win);
     beeping();
-    wrefresh(win);
+    (void) wrefresh(win);
     remove_lock(lock_refresh);
 }
 
@@ -701,7 +700,7 @@ exist_lock(char *filename)
 {
     FILE *fil;
     if ((fil = fopen(filename, "r")) != NULL) {
-	fclose(fil);
+	(void) fclose(fil);
 	return 1;
     }
     return 0;
@@ -717,13 +716,13 @@ void
 create_lock(char *filename)
 {
     FILE *fil = fopen(filename, "w");
-    fclose(fil);
+    (void) fclose(fil);
 }
 
 void
 remove_lock(char *filename)
 {
-    remove(filename);
+    (void) remove(filename);
 }
 
 /* End of functions to work with lock files */
@@ -734,7 +733,7 @@ killall_bg(void)
 {
     int i;
     for (i = 0; i < tailbg_lastpid; i++)
-	kill(tailbg_pids[i], 15);
+	(void) kill(tailbg_pids[i], 15);
 }
 
 static int
@@ -753,7 +752,7 @@ quitall_bg(void)
     int i;
     for (i = 0; i < tailbg_lastpid; i++)
 	if (!is_nokill(tailbg_pids[i]))
-	    kill(tailbg_pids[i], 15);
+	    (void) kill(tailbg_pids[i], 15);
 }
 
 /* exiterr quit program killing all tailbg */
@@ -763,21 +762,21 @@ exiterr(const char *fmt,...)
     va_list ap;
 
     if (screen_initialized)
-	endwin();
+	(void) endwin();
 
-    fputc('\n', stderr);
+    (void) fputc('\n', stderr);
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
+    (void) vfprintf(stderr, fmt, ap);
     va_end(ap);
-    fputc('\n', stderr);
+    (void) fputc('\n', stderr);
 
     if (is_tailbg)		/* this is a child process */
 	create_lock(lock_tailbg_exit);
     else
 	killall_bg();
 
-    fflush(stderr);
-    fflush(stdout);
+    (void) fflush(stderr);
+    (void) fflush(stdout);
     exit(-1);
 }
 
@@ -785,7 +784,7 @@ void
 beeping(void)
 {
     if (dialog_vars.beep_signal) {
-	beep();
+	(void) beep();
 	dialog_vars.beep_signal = 0;
     }
 }
@@ -896,7 +895,7 @@ draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
 	wattrset(win, title_attr);
-	mvwprintw(win, 0, centered(getmaxx(win), title), " %s ", title);
+	(void) mvwprintw(win, 0, centered(getmaxx(win), title), " %s ", title);
     }
 }
 
@@ -908,15 +907,15 @@ draw_bottom_box(WINDOW *win)
     int i;
 
     wattrset(win, border_attr);
-    wmove(win, height - 3, 0);
-    waddch(win, ACS_LTEE);
+    (void) wmove(win, height - 3, 0);
+    (void) waddch(win, ACS_LTEE);
     for (i = 0; i < width - 2; i++)
-	waddch(win, ACS_HLINE);
+	(void) waddch(win, ACS_HLINE);
     wattrset(win, dialog_attr);
-    waddch(win, ACS_RTEE);
-    wmove(win, height - 2, 1);
+    (void) waddch(win, ACS_RTEE);
+    (void) wmove(win, height - 2, 1);
     for (i = 0; i < width - 2; i++)
-	waddch(win, ' ');
+	(void) waddch(win, ' ');
 }
 
 WINDOW *
@@ -933,7 +932,7 @@ new_window(int height, int width, int y, int x)
 		y, x, height, width);
     }
 
-    keypad(win, TRUE);
+    (void) keypad(win, TRUE);
     return win;
 }
 
@@ -947,7 +946,7 @@ sub_window(WINDOW *parent, int height, int width, int y, int x)
 		y, x, height, width);
     }
 
-    keypad(win, TRUE);
+    (void) keypad(win, TRUE);
     return win;
 }
 
@@ -973,8 +972,8 @@ dlg_getc(WINDOW *win)
 	int ch = wgetch(win);
 	switch (ch) {
 	case CHR_REPAINT:
-	    touchwin(win);
-	    wrefresh(curscr);
+	    (void) touchwin(win);
+	    (void) wrefresh(curscr);
 	    break;
 	default:
 	    return ch;
@@ -990,12 +989,33 @@ dlg_item_help(char *txt)
 {
     if (dialog_vars.item_help && txt) {
 	wattrset(stdscr, itemhelp_attr);
-	wmove(stdscr, LINES - 1, 0);
-	wclrtoeol(stdscr);
-	wprintw(stdscr, " %.*s", COLS - 2, txt);
-	wnoutrefresh(stdscr);
+	(void) wmove(stdscr, LINES - 1, 0);
+	(void) wclrtoeol(stdscr);
+	(void) wprintw(stdscr, " %.*s", COLS - 2, txt);
+	(void) wnoutrefresh(stdscr);
     }
 }
+
+#ifndef HAVE_STRCASECMP
+int
+dlg_strcmp(char *a, char *b)
+{
+    int ac, bc, cmp;
+
+    for (;;) {
+	ac = *a++ & 0xff;
+	bc = *b++ & 0xff;
+	if (isalpha(ac) && islower(ac))
+	    ac = _toupper(ac);
+	if (isalpha(bc) && islower(bc))
+	    bc = _toupper(bc);
+	cmp = ac - bc;
+	if (ac == 0 || bc == 0 || cmp != 0)
+	    break;
+    }
+    return cmp;
+}
+#endif
 
 /*
  * Change embedded "\n" substring to '\n' character, tabs to spaces and
@@ -1006,7 +1026,7 @@ dlg_trim_string(char *base)
 {
     char *dst = base;
     char *src = dst;
-    int ch, ch0 = ' ';
+    char ch, ch0 = ' ';
 
     while ((ch = *src++) != 0) {
 	if (ch == '\\' && *src == 'n') {
@@ -1021,7 +1041,7 @@ dlg_trim_string(char *base)
 	ch0 = (ch == '\n') ? ' ' : ch;
     }
     if (ch0 == ' ') {
-	while (dst - 1 >= base && isspace(dst[-1]))
+	while (dst - 1 >= base && isspace(UCH(dst[-1])))
 	    *--dst = 0;
     }
     *dst = 0;

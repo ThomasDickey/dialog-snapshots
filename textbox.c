@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.23 2000/10/18 01:11:42 tom Exp $
+ *  $Id: textbox.c,v 1.25 2000/10/28 00:57:11 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -32,11 +32,11 @@ static void print_line(WINDOW *win, int row, int width);
 static void print_page(WINDOW *win, int height, int width);
 static void print_position(WINDOW *win, int height, int width);
 
-static int begin_reached = 1;
-static int buffer_first = 1;
+static bool begin_reached = TRUE;
+static bool buffer_first = TRUE;
+static bool end_reached = FALSE;
 static int buffer_len = 0;
 static int bytes_read;
-static int end_reached = 0;
 static int fd;
 static int fd_bytes_read;
 static int file_size;
@@ -52,10 +52,11 @@ static char *page;
 int
 dialog_textbox(const char *title, const char *file, int height, int width)
 {
-    int i, x, y, cur_x, cur_y, fpos, key = 0, dir, temp, temp1;
+    int x, y, cur_x, cur_y, fpos, key = 0, dir;
     int next = 0;
+    bool temp, temp1;
 #ifdef NCURSES_VERSION
-    int passed_end;
+    int i, passed_end;
 #endif
     char search_term[MAX_LEN + 1], *tempptr;
     WINDOW *dialog, *text;
@@ -98,7 +99,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     /* Create window for text region, used for scrolling text */
     text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
 
-    keypad(text, TRUE);
+    (void) keypad(text, TRUE);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(0, 0, height - 2, width, 1, 0, 2 /* not normal */ );
@@ -107,7 +108,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     draw_title(dialog, title);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
-    wnoutrefresh(dialog);
+    (void) wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
     attr_clear(text, height - 4, width - 2, dialog_attr);
@@ -121,9 +122,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	 */
 	if (moved) {
 	    if (next < 0) {
-		scrollok(text, TRUE);
-		scroll(text);	/* Scroll text region up one line */
-		scrollok(text, FALSE);
+		(void) scrollok(text, TRUE);
+		(void) scroll(text);	/* Scroll text region up one line */
+		(void) scrollok(text, FALSE);
 		print_line(text, height - 5, width - 2);
 #ifndef NCURSES_VERSION
 		wmove(text, height - 5, 0);
@@ -131,7 +132,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		wmove(text, height - 5, width - 3);
 		waddch(text, ' ');
 #endif
-		wnoutrefresh(text);
+		(void) wnoutrefresh(text);
 	    } else if (next > 0) {
 #ifdef NCURSES_VERSION
 		/*
@@ -141,17 +142,17 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		 * point to start of next page.  This is done by calling
 		 * get_line() in the following 'for' loop.
 		 */
-		scrollok(text, TRUE);
-		wscrl(text, -1);	/* Scroll text region down one line */
-		scrollok(text, FALSE);
+		(void) scrollok(text, TRUE);
+		(void) wscrl(text, -1);		/* Scroll text region down one line */
+		(void) scrollok(text, FALSE);
 		page_length = 0;
 		passed_end = 0;
 		for (i = 0; i < height - 4; i++) {
 		    if (!i) {
 			print_line(text, 0, width - 2);		/* print first line of page */
-			wnoutrefresh(text);
+			(void) wnoutrefresh(text);
 		    } else
-			get_line();	/* Called to update 'end_reached' and 'page' */
+			(void) get_line();	/* Called to update 'end_reached' and 'page' */
 		    if (!passed_end)
 			page_length++;
 		    if (end_reached && !passed_end)
@@ -164,7 +165,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		print_page(text, height - 4, width - 2);
 	    }
 	    print_position(dialog, height, width);
-	    wmove(dialog, cur_y, cur_x);	/* Restore cursor position */
+	    (void) wmove(dialog, cur_y, cur_x);		/* Restore cursor position */
 	    wrefresh_lock(dialog);
 	}
 	moved = FALSE;		/* assume we'll not move */
@@ -204,7 +205,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	case 'G':		/* Last page */
 	case KEY_LL:
 	case KEY_END:
-	    end_reached = 1;
+	    end_reached = TRUE;
 	    /* Last page not in buffer? */
 	    if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
 		exiterr("Error moving file pointer in dialog_textbox().");
@@ -286,7 +287,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    if (dir ? !end_reached : !begin_reached) {
 		if (key == 'n' || key == 'N') {
 		    if (search_term[0] == '\0') {	/* No search term yet */
-			beep();
+			(void) beep();
 			break;
 		    }
 		    /* Get search term from user */
@@ -324,7 +325,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    }
 		}
 		if (found == FALSE) {	/* not found */
-		    beep();
+		    (void) beep();
 		    /* Restore program state to that before searching */
 		    if (lseek(fd, fpos, SEEK_SET) == -1)
 			exiterr("Error moving file pointer in dialog_textbox().");
@@ -346,15 +347,15 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		wattrset(text, dialog_attr);
 		moved = TRUE;
 	    } else {		/* no need to find */
-		beep();
+		(void) beep();
 	    }
 	    break;
 	}
     }
 
-    delwin(dialog);
+    (void) delwin(dialog);
     free(buf);
-    close(fd);
+    (void) close(fd);
     return (key == ESC) ? -1 : 0;
 }
 /* End of dialog_textbox() */
@@ -368,7 +369,7 @@ back_lines(int n)
 {
     int i, fpos, val_to_tabize;
 
-    begin_reached = 0;
+    begin_reached = FALSE;
     /* We have to distinguish between end_reached and !end_reached since at end
        of file, the line is not ended by a '\n'. The code inside 'if' basically
        does a '--page' to move one character backward so as to skip '\n' of the
@@ -405,7 +406,7 @@ back_lines(int n)
 		page = buf + tabize(val_to_tabize, 0);
 
 	    } else {		/* Beginning of file reached */
-		begin_reached = 1;
+		begin_reached = TRUE;
 		return;
 	    }
 	}
@@ -442,7 +443,7 @@ back_lines(int n)
 		    page = buf + tabize(val_to_tabize, 0);
 
 		} else {	/* Beginning of file reached */
-		    begin_reached = 1;
+		    begin_reached = TRUE;
 		    return;
 		}
 	    }
@@ -467,8 +468,9 @@ print_page(WINDOW *win, int height, int width)
 	if (end_reached && !passed_end)
 	    passed_end = 1;
     }
-    wnoutrefresh(win);
+    (void) wnoutrefresh(win);
 }
+
 /* End of print_page() */
 
 /*
@@ -481,20 +483,21 @@ print_line(WINDOW *win, int row, int width)
     char *line;
     line = get_line();
     line += MIN((int) strlen(line), hscroll);	/* Scroll horizontally */
-    wmove(win, row, 0);		/* move cursor to correct line */
-    waddch(win, ' ');
+    (void) wmove(win, row, 0);	/* move cursor to correct line */
+    (void) waddch(win, ' ');
 #ifdef NCURSES_VERSION
-    waddnstr(win, line, MIN((int) strlen(line), width - 2));
+    (void) waddnstr(win, line, MIN((int) strlen(line), width - 2));
 #else
-    line[MIN(strlen(line), width - 2)] = '\0';
+    line[MIN((int) strlen(line), width - 2)] = '\0';
     waddstr(win, line);
 #endif
 
     getyx(win, y, x);
     /* Clear 'residue' of previous line */
     for (i = 0; i < width - x; i++)
-	waddch(win, ' ');
+	(void) waddch(win, ' ');
 }
+
 /* End of print_line() */
 
 /*
@@ -508,7 +511,7 @@ get_line(void)
     int i = 0, fpos;
     static char line[MAX_LEN + 1];
 
-    end_reached = 0;
+    end_reached = FALSE;
     while (*page != '\n') {
 	if (*page == '\0') {	/* Either end of file or end of buffer reached */
 	    if ((fpos = lseek(fd, 0, SEEK_CUR)) == -1)
@@ -522,7 +525,7 @@ get_line(void)
 		page = buf;
 	    } else {
 		if (!end_reached)
-		    end_reached = 1;
+		    end_reached = TRUE;
 		break;
 	    }
 	} else if (i < MAX_LEN)
@@ -560,8 +563,8 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 #endif
     draw_box(dialog, box_y, box_x, box_height, box_width, dialog_attr, searchbox_border_attr);
     wattrset(dialog, searchbox_title_attr);
-    wmove(dialog, box_y, box_x + box_width / 2 - 4);
-    waddstr(dialog, " Search ");
+    (void) wmove(dialog, box_y, box_x + box_width / 2 - 4);
+    (void) waddstr(dialog, " Search ");
 
     box_y++;
     box_x++;
@@ -608,9 +611,10 @@ print_position(WINDOW *win, int height, int width)
 	? 100
 	: ((fpos - fd_bytes_read + tabize(page - buf, 1)) * 100)
 	/ file_size;
-    wmove(win, height - 3, width - 9);
-    wprintw(win, "(%3d%%)", percent);
+    (void) wmove(win, height - 3, width - 9);
+    (void) wprintw(win, "(%3d%%)", percent);
 }
+
 /* End of print_position() */
 
 /*
@@ -653,7 +657,7 @@ read_high(int my_fd, char *my_buf, size_t size_read)
 
 	if (bytes_read > buffer_len) {
 	    if (buffer_first)
-		buffer_first = 0;	/* disp = 0 */
+		buffer_first = FALSE;	/* disp = 0 */
 	    else {
 		disp = page - my_buf;
 		free(my_buf);
@@ -670,7 +674,7 @@ read_high(int my_fd, char *my_buf, size_t size_read)
 
     } else {
 	if (buffer_first) {
-	    buffer_first = 0;
+	    buffer_first = FALSE;
 
 	    /* Allocate space for read buffer */
 	    if ((my_buf = malloc(size_read + 1)) == NULL)
@@ -683,7 +687,7 @@ read_high(int my_fd, char *my_buf, size_t size_read)
     j = 0;
     begin_line = 0;
     while (j < fd_bytes_read)
-	if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct)) {
+	if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct != 0)) {
 	    tmpint = dialog_vars.tab_len - ((i - begin_line) % dialog_vars.tab_len);
 	    for (n = 0; n < tmpint; n++)
 		my_buf[i++] = ' ';

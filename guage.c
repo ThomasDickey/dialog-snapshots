@@ -1,4 +1,6 @@
 /*
+ *  $Id: guage.c,v 1.14 2000/10/28 00:55:55 tom Exp $
+ *
  *  guage.c -- implements the gauge dialog
  *
  *  AUTHOR: Marc Ewing, Red Hat Software
@@ -57,7 +59,7 @@ decode_percent(char *buffer)
  */
 int
 dialog_gauge(const char *title, const char *prompt, int height,
-    int width, int percent)
+	     int width, int percent)
 {
     int i, x, y;
     char buf[MY_LEN];
@@ -71,7 +73,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
     dialog = new_window(height, width, y, x);
 
     do {
-	werase(dialog);
+	(void) werase(dialog);
 	draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
 
 	draw_title(dialog, title);
@@ -80,24 +82,24 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	print_autowrap(dialog, prompt, width - 2, 3, 2);
 
 	draw_box(dialog, height - 4, 3, 3, width - 6, dialog_attr,
-	    border_attr);
+		 border_attr);
 
-	wmove(dialog, height - 3, 4);
+	(void) wmove(dialog, height - 3, 4);
 	wattrset(dialog, title_attr);
 	for (i = 0; i < (width - 8); i++)
-	    waddch(dialog, ' ');
+	    (void) waddch(dialog, ' ');
 
 	wattrset(dialog, title_attr);
-	wmove(dialog, height - 3, (width / 2) - 2);
-	wprintw(dialog, "%3d%%", percent);
+	(void) wmove(dialog, height - 3, (width / 2) - 2);
+	(void) wprintw(dialog, "%3d%%", percent);
 
 	x = (percent * (width - 8)) / 100;
 	wattrset(dialog, A_REVERSE);
-	wmove(dialog, height - 3, 4);
+	(void) wmove(dialog, height - 3, 4);
 	for (i = 0; i < x; i++)
-	    waddch(dialog, winch(dialog));
+	    (void) waddch(dialog, winch(dialog));
 
-	wrefresh(dialog);
+	(void) wrefresh(dialog);
 
 	if (read_data(buf, pipe_fp) == 0)
 	    break;
@@ -117,7 +119,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
 
 	    /* Rest is message text */
 	    while (read_data(buf, pipe_fp) != 0
-		&& !isMarker(buf)) {
+		   && !isMarker(buf)) {
 		if (strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1) {
 		    strcat(prompt_buf, buf);
 		}
@@ -128,6 +130,6 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	}
     } while (1);
 
-    delwin(dialog);
+    (void) delwin(dialog);
     return (0);
 }
