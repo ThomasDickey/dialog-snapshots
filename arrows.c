@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.7 2004/06/05 23:45:14 tom Exp $
+ *  $Id: arrows.c,v 1.12 2004/09/19 17:07:56 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- * Copyright 2000-2002,2003   Thomas E. Dickey
+ * Copyright 2000-2003,2004   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -28,6 +28,69 @@
 #define add_acs(win, code) waddch(win, code)
 #endif
 
+#ifdef HAVE_COLOR
+static chtype
+merge_colors(chtype foreground, chtype background)
+{
+    chtype result = foreground;
+    if ((foreground & A_COLOR) != (background & A_COLOR)) {
+	short fg_f, bg_f;
+	short fg_b, bg_b;
+	if (pair_content(PAIR_NUMBER(foreground), &fg_f, &bg_f) != ERR
+	    && pair_content(PAIR_NUMBER(background), &fg_b, &bg_b) != ERR) {
+	    result &= ~A_COLOR;
+	    result |= dlg_color_pair(fg_f, bg_b);
+	}
+    }
+    return result;
+}
+#else
+#define merge_colors(f,b) (f)
+#endif
+
+void
+dlg_draw_arrows2(WINDOW *dialog,
+		 int top_arrow,
+		 int bottom_arrow,
+		 int x,
+		 int top,
+		 int bottom,
+		 chtype attr,
+		 chtype borderattr)
+{
+    attr_t save = getattrs(dialog);
+    int cur_x, cur_y;
+
+    getyx(dialog, cur_y, cur_x);
+
+    (void) wmove(dialog, top, x);
+    if (top_arrow) {
+	wattrset(dialog, merge_colors(uarrow_attr, attr));
+	(void) add_acs(dialog, ACS_UARROW);
+	(void) waddstr(dialog, "(+)");
+    } else {
+	wattrset(dialog, attr);
+	(void) whline(dialog, ACS_HLINE, 4);
+    }
+    mouse_mkbutton(top, x - 1, 6, KEY_PPAGE);
+
+    (void) wmove(dialog, bottom, x);
+    if (bottom_arrow) {
+	wattrset(dialog, merge_colors(darrow_attr, attr));
+	(void) add_acs(dialog, ACS_DARROW);
+	(void) waddstr(dialog, "(+)");
+    } else {
+	wattrset(dialog, borderattr);
+	(void) whline(dialog, ACS_HLINE, 4);
+    }
+    mouse_mkbutton(bottom, x - 1, 6, KEY_NPAGE);
+
+    (void) wmove(dialog, cur_y, cur_x);
+    wrefresh(dialog);
+
+    wattrset(dialog, save);
+}
+
 void
 dlg_draw_arrows(WINDOW *dialog,
 		int top_arrow,
@@ -36,32 +99,12 @@ dlg_draw_arrows(WINDOW *dialog,
 		int top,
 		int bottom)
 {
-    int cur_x, cur_y;
-
-    getyx(dialog, cur_y, cur_x);
-
-    (void) wmove(dialog, top, x);
-    if (top_arrow) {
-	wattrset(dialog, uarrow_attr);
-	(void) add_acs(dialog, ACS_UARROW);
-	(void) waddstr(dialog, "(+)");
-    } else {
-	wattrset(dialog, menubox_attr);
-	(void) whline(dialog, ACS_HLINE, 4);
-    }
-    mouse_mkbutton(top, x - 1, 6, KEY_PPAGE);
-
-    (void) wmove(dialog, bottom, x);
-    if (bottom_arrow) {
-	wattrset(dialog, darrow_attr);
-	(void) add_acs(dialog, ACS_DARROW);
-	(void) waddstr(dialog, "(+)");
-    } else {
-	wattrset(dialog, menubox_border_attr);
-	(void) whline(dialog, ACS_HLINE, 4);
-    }
-    mouse_mkbutton(bottom, x - 1, 6, KEY_NPAGE);
-
-    (void) wmove(dialog, cur_y, cur_x);
-    wrefresh(dialog);
+    dlg_draw_arrows2(dialog,
+		     top_arrow,
+		     bottom_arrow,
+		     x,
+		     top,
+		     bottom,
+		     menubox_attr,
+		     menubox_border_attr);
 }

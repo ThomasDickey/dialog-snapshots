@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.142 2004/06/06 15:02:58 tom Exp $
+ *  $Id: dialog.h,v 1.145 2004/09/19 15:49:23 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -190,6 +190,10 @@
 #ifndef HAVE_GETPARYX
 #undef  getparyx
 #define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /* these definitions may be needed for bleeding-edge curses implementations */
@@ -464,6 +468,7 @@ extern int dialog_yesno(const char *title, const char *cprompt, int height, int 
 
 /* arrows.c */
 extern void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
+extern void dlg_draw_arrows2(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom, chtype attr, chtype borderattr);
 
 /* buttons.c */
 extern const char ** dlg_exit_label(void);
@@ -550,6 +555,7 @@ __attribute__((format(printf,1,2)))
 ;
 
 #ifdef HAVE_COLOR
+extern chtype dlg_color_pair(int foreground, int background);
 extern int dlg_color_count(void);
 extern void dlg_color_setup(void);
 extern void dlg_draw_shadow(WINDOW * win, int height, int width, int y, int x);
@@ -627,6 +633,10 @@ extern void _dlg_inputstr_leaks(void);
 #ifdef NCURSES_VERSION
 extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
 #endif
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* DIALOG_H_included */

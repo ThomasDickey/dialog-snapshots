@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.131 2004/06/06 14:14:45 tom Exp $
+ *  $Id: util.c,v 1.137 2004/09/19 17:55:07 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -352,7 +352,7 @@ init_dialog(FILE *input, FILE *output)
 }
 
 #ifdef HAVE_COLOR
-static int defined_colors = 0;
+static int defined_colors = 1;	/* pair-0 is reserved */
 /*
  * Setup for color display
  */
@@ -360,6 +360,7 @@ void
 dlg_color_setup(void)
 {
     unsigned i;
+    chtype color;
 
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
@@ -368,13 +369,15 @@ dlg_color_setup(void)
 	     sizeof(dlg_color_table[0]); i++) {
 
 	    /* Initialize color pairs */
-	    (void) init_pair(i + 1, dlg_color_table[i].fg,
-			     dlg_color_table[i].bg);
+	    color = dlg_color_pair(dlg_color_table[i].fg,
+				   dlg_color_table[i].bg);
 
 	    /* Setup color attributes */
-	    dlg_color_table[i].atr = C_ATTR(dlg_color_table[i].hilite, i + 1);
+	    dlg_color_table[i].atr = ((dlg_color_table[i].hilite
+				       ? A_BOLD
+				       : 0)
+				      | color);
 	}
-	defined_colors = i + 1;
     }
 }
 
@@ -389,24 +392,15 @@ dlg_color_count(void)
  * have (or can) define a pair with the given color as foreground on the
  * window's defined background.
  */
-static chtype
-define_color(WINDOW *win, int foreground)
+chtype
+dlg_color_pair(int foreground, int background)
 {
     chtype result = 0;
-    chtype attrs = getattrs(win);
     int pair;
-    short fg, bg, background;
+    short fg, bg;
     bool found = FALSE;
 
-    if ((pair = PAIR_NUMBER(attrs)) != 0
-	&& pair_content(pair, &fg, &bg) != ERR
-	&& bg != foreground) {
-	background = bg;
-    } else {
-	background = COLOR_BLACK;
-    }
-
-    for (pair = 0; pair < defined_colors; ++pair) {
+    for (pair = 1; pair < defined_colors; ++pair) {
 	if (pair_content(pair, &fg, &bg) != ERR
 	    && fg == foreground
 	    && bg == background) {
@@ -421,6 +415,27 @@ define_color(WINDOW *win, int foreground)
 	result = COLOR_PAIR(pair);
     }
     return result;
+}
+
+/*
+ * Reuse color pairs (they are limited), returning a COLOR_PAIR() value if we
+ * have (or can) define a pair with the given color as foreground on the
+ * window's defined background.
+ */
+static chtype
+define_color(WINDOW *win, int foreground)
+{
+    attr_t attrs = getattrs(win);
+    int pair;
+    short fg, bg, background;
+
+    if ((pair = PAIR_NUMBER(attrs)) != 0
+	&& pair_content(pair, &fg, &bg) != ERR) {
+	background = bg;
+    } else {
+	background = COLOR_BLACK;
+    }
+    return dlg_color_pair(foreground, background);
 }
 #endif
 
@@ -468,6 +483,8 @@ centered(int width, const char *string)
 void
 dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
 {
+    chtype useattr;
+
     while (len > 0 && (*txt != '\0')) {
 	if (dialog_vars.colors) {
 	    while (isOurEscape(txt)) {
@@ -492,19 +509,19 @@ dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
 		    *attr &= ~A_BOLD;
 		    break;
 		case 'b':
-		    *attr = A_BOLD;
+		    *attr |= A_BOLD;
 		    break;
 		case 'R':
 		    *attr &= ~A_REVERSE;
 		    break;
 		case 'r':
-		    *attr = A_REVERSE;
+		    *attr |= A_REVERSE;
 		    break;
 		case 'U':
 		    *attr &= ~A_UNDERLINE;
 		    break;
 		case 'u':
-		    *attr = A_UNDERLINE;
+		    *attr |= A_UNDERLINE;
 		    break;
 		case 'n':
 		    *attr = A_NORMAL;
@@ -512,10 +529,29 @@ dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
 		}
 		++txt;
 	    }
-	    if (*txt == '\n')
+	    if (*txt == '\n' || *txt == '\0')
 		break;
 	}
-	(void) waddch(win, CharOf(*txt++) | *attr);
+	useattr = (*attr) & A_ATTRIBUTES;
+#ifdef HAVE_COLOR
+	/*
+	 * Prevent this from making text invisible when the foreground and
+	 * background colors happen to be the same, and there's no bold
+	 * attribute.
+	 */
+	if ((useattr & A_COLOR) != 0 && (useattr & A_BOLD) == 0) {
+	    short pair = PAIR_NUMBER(useattr);
+	    short fg, bg;
+	    if (pair_content(pair, &fg, &bg) != ERR
+		&& fg == bg) {
+		useattr &= ~A_COLOR;
+		useattr |= dlg_color_pair(fg, ((bg == COLOR_BLACK)
+					       ? COLOR_WHITE
+					       : COLOR_BLACK));
+	    }
+	}
+#endif
+	(void) waddch(win, CharOf(*txt++) | useattr);
 	--len;
     }
 }
@@ -918,7 +954,7 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
 	     chtype boxchar, chtype borderchar)
 {
     int i, j;
-    chtype save = getattrs(win);
+    attr_t save = getattrs(win);
 
     wattrset(win, 0);
     for (i = 0; i < height; i++) {
@@ -1158,8 +1194,8 @@ void
 dlg_draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
-	chtype attr = A_NORMAL;
-	chtype save = getattrs(win);
+	attr_t attr = A_NORMAL;
+	attr_t save = getattrs(win);
 	int x = centered(getmaxx(win), title);
 
 	wattrset(win, title_attr);
@@ -1309,7 +1345,7 @@ dlg_item_help(char *txt)
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
 	(void) addch(' ');
-	dlg_print_text(stdscr, txt, COLS - 2, &attr);
+	dlg_print_text(stdscr, txt, COLS - 1, &attr);
 	(void) wnoutrefresh(stdscr);
     }
 }

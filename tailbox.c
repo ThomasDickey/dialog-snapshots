@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.40 2003/11/26 20:40:59 tom Exp $
+ *  $Id: tailbox.c,v 1.41 2004/09/19 22:47:44 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -192,9 +192,6 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
     MY_OBJ *obj = (MY_OBJ *) cb;
     bool done = FALSE;
 
-    if (dlg_char_to_button(ch, obj->buttons) == 0) {
-	ch = '\n';
-    }
     if (!fkey) {
 	fkey = TRUE;
 	switch (ch) {
@@ -214,7 +211,11 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 	    ch = KEY_BEG;
 	    break;
 	default:
-	    fkey = FALSE;
+	    if (dlg_char_to_button(ch, obj->buttons) == 0) {
+		ch = KEY_ENTER;
+	    } else {
+		fkey = FALSE;
+	    }
 	    break;
 	}
     }

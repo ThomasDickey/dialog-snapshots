@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.51 2004/07/28 23:49:15 tom Exp $
+ *  $Id: buttons.c,v 1.55 2004/09/19 23:02:17 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2002,2003	Thomas E. Dickey
+ * Copyright 2000-2003,2004	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -247,6 +247,7 @@ dlg_draw_buttons(WINDOW *win,
 		 int vertical,
 		 int limit)
 {
+    attr_t save = getattrs(win);
     int n;
     int step = 0;
     int length;
@@ -293,6 +294,7 @@ dlg_draw_buttons(WINDOW *win,
     (void) wmove(win, final_y, final_x);
     wrefresh(win);
     free(buffer);
+    wattrset(win, save);
 }
 
 /*
@@ -340,11 +342,13 @@ dlg_char_to_button(int ch, const char **labels)
 		if (ch == cmp) {
 		    dlg_flush_getc();
 		    return j;
+		} else if (dlg_isupper(cmp)) {
+		    break;
 		}
 	    }
 	}
     }
-    return -1;
+    return DLG_EXIT_UNKNOWN;
 }
 
 static const char *

@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.32 2004/07/29 22:01:43 tom Exp $
+ *  $Id: msgbox.c,v 1.35 2004/09/19 22:52:32 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -43,8 +43,10 @@ show_message(WINDOW *dialog,
     if (pauseopt) {
 	int wide = width - (2 * MARGIN);
 	int y, x;
+	int len;
 	int percent;
 	WINDOW *dummy;
+	char buffer[5];
 
 	dummy = newwin(LINES, width, 0, 0);
 	wbkgdset(dummy, dialog_attr);
@@ -58,12 +60,19 @@ show_message(WINDOW *dialog,
 	/* if the text is incomplete, or we have scrolled, show the percentage */
 	if (y > 0 && wide > 4) {
 	    percent = ((page + offset - 1) * 100.0 / y);
+	    if (percent < 0)
+		percent = 0;
 	    if (percent > 100)
 		percent = 100;
 	    if (offset != 0 || percent != 100) {
-		wattrset(dialog, dialog_attr);
-		wmove(dialog, MARGIN + page, wide - 4);
-		wprintw(dialog, "%3d%%", percent);
+		(void) wattrset(dialog, position_indicator_attr);
+		(void) wmove(dialog, MARGIN + page, wide - 4);
+		(void) sprintf(buffer, "%d%%", percent);
+		(void) waddstr(dialog, buffer);
+		if ((len = strlen(buffer)) < 4) {
+		    wattrset(dialog, border_attr);
+		    whline(dialog, ACS_HLINE, 4 - len);
+		}
 	    }
 	}
 	return (1 + y - page);
@@ -174,7 +183,11 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    key = KEY_DOWN;
 		    break;
 		default:
-		    fkey = FALSE;
+		    if (dlg_char_to_button(key, buttons) == 0) {
+			key = KEY_ENTER;
+		    } else {
+			fkey = FALSE;
+		    }
 		    break;
 		}
 	    }
@@ -233,8 +246,12 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		default:
 		    if (key >= M_EVENT)
 			done = TRUE;
+		    else
+			beep();
 		    break;
 		}
+	    } else {
+		beep();
 	    }
 	}
     } else {

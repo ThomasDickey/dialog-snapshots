@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.47 2004/07/29 00:17:37 tom Exp $
+ *  $Id: textbox.c,v 1.53 2004/09/19 22:51:45 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -30,15 +30,15 @@ typedef struct {
     int hscroll;
     char line[MAX_LEN + 1];
     int fd;
-    int file_size;
-    int fd_bytes_read;
-    int bytes_read;
+    long file_size;
+    long fd_bytes_read;
+    long bytes_read;
     int buffer_len;
     bool begin_reached;
     bool buffer_first;
     bool end_reached;
-    int page_length;
-    int in_buf;			/* index into buf[] */
+    long page_length;		/* lines on the page which is shown */
+    long in_buf;		/* ending index into buf[] for page */
     char *buf;
 } MY_OBJ;
 
@@ -156,6 +156,7 @@ read_high(MY_OBJ * obj, size_t size_read)
     }
     if (obj->bytes_read == -1)
 	dlg_exiterr("Error reading file");
+    free(buftab);
 }
 
 static int
@@ -195,6 +196,7 @@ tabize(MY_OBJ * obj, int val, int pos)
     }
 
     lseek_obj(obj, fpos, SEEK_SET);
+    free(buftab);
     return count;
 }
 /*
@@ -336,6 +338,7 @@ print_line(MY_OBJ * obj, int row, int width)
 {
     int i, y, x;
     char *line;
+
     line = get_line(obj);
     line += MIN((int) strlen(line), obj->hscroll);	/* Scroll horizontally */
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
@@ -378,22 +381,42 @@ print_page(MY_OBJ * obj, int height, int width)
 static void
 print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 {
+    attr_t save = getattrs(win);
     long fpos;
+    long size;
     int percent;
+    int len;
+    char buffer[5];
 
     fpos = ftell_obj(obj);
+    size = tabize(obj, obj->in_buf, 1);
 
     wattrset(win, position_indicator_attr);
     percent = !obj->file_size
 	? 100
-	: ((fpos
-	    - obj->fd_bytes_read
-	    + tabize(obj, obj->in_buf, 1)) * 100)
+	: ((fpos - obj->fd_bytes_read + size) * 100)
 	/ obj->file_size;
-    (void) wmove(win, height - 3, width - 9);
-    (void) wprintw(win, "(%3d%%)", percent);
 
-    dlg_draw_arrows(win, TRUE, TRUE, 5, 0, height - 3);
+    if (percent < 0)
+	percent = 0;
+    if (percent > 100)
+	percent = 100;
+
+    (void) sprintf(buffer, "%d%%", percent);
+    (void) wmove(win, height - 3, width - 9);
+    (void) waddstr(win, buffer);
+    if ((len = strlen(buffer)) < 4) {
+	wattrset(win, border_attr);
+	whline(win, ACS_HLINE, 4 - len);
+    }
+
+    wattrset(win, save);
+    dlg_draw_arrows2(win,
+		     fpos > obj->fd_bytes_read - size,
+		     size < obj->fd_bytes_read,
+		     5, 0, height - 3,
+		     dialog_attr,
+		     border_attr);
 }
 
 /*
@@ -402,6 +425,7 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 static int
 get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
+    attr_t save = getattrs(dialog);
     int box_x, box_y, key = 0, box_height = 3, box_width = 30;
     int offset = 0;
     int fkey = 0;
@@ -413,7 +437,9 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     if (dialog_state.use_shadow)
 	dlg_draw_shadow(dialog, box_y, box_x, box_height, box_width);
 #endif
-    dlg_draw_box(dialog, box_y, box_x, box_height, box_width, dialog_attr, searchbox_border_attr);
+    dlg_draw_box(dialog, box_y, box_x, box_height, box_width,
+		 searchbox_attr,
+		 searchbox_border_attr);
     wattrset(dialog, searchbox_title_attr);
     (void) wmove(dialog, box_y, box_x + box_width / 2 - 4);
     (void) waddstr(dialog, " Search ");
@@ -437,6 +463,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	    first = FALSE;
 	}
     }
+    wattrset(dialog, save);
 }
 
 static bool
@@ -641,10 +668,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	next = 0;		/* ...but not scroll by a line */
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_char_to_button(key, obj.buttons) == 0) {
-	    key = '\n';
-	    fkey = FALSE;
-	}
 
 	if (!fkey) {
 	    fkey = TRUE;
@@ -696,7 +719,11 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		fkey = FALSE;
 		break;
 	    default:
-		fkey = FALSE;
+		if (dlg_char_to_button(key, obj.buttons) == 0) {
+		    key = KEY_ENTER;
+		} else {
+		    fkey = FALSE;
+		}
 		break;
 	    }
 	}
@@ -706,6 +733,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    default:
 		if (key >= M_EVENT)
 		    result = DLG_EXIT_OK;
+		else
+		    beep();
 		break;
 	    case KEY_ENTER:
 		result = DLG_EXIT_OK;
@@ -795,6 +824,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		}
 		break;
 	    }
+	} else {
+	    beep();
 	}
     }
 

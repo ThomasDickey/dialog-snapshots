@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.19 2003/11/26 18:38:05 tom Exp $
+ * $Id: timebox.c,v 1.21 2004/09/18 16:37:11 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- * Copyright 2001-2002,2003   Thomas E. Dickey
+ * Copyright 2001-2003,2004   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -83,7 +83,7 @@ draw_cell(BOX * data)
     dlg_draw_box(data->parent,
 		 data->y - MARGIN, data->x - MARGIN,
 		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
-		 border_attr, dialog_attr);
+		 menubox_border_attr, menubox_attr);
 
     wattrset(data->window, item_attr);
     wprintw(data->window, "%02d", data->value);

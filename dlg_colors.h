@@ -1,9 +1,10 @@
 /*
- *  $Id: dlg_colors.h,v 1.9 2003/08/30 16:21:16 tom Exp $
+ *  $Id: dlg_colors.h,v 1.10 2004/09/18 11:36:55 tom Exp $
  *
  *  colors.h -- color attribute definitions
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -162,7 +163,6 @@
 
 /* End of default color definitions */
 
-#define C_ATTR(x,y)                  (((x) != 0 ? A_BOLD : 0) | COLOR_PAIR((y)))
 #define COLOR_COUNT                  8
 
 /*

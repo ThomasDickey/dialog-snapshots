@@ -1,8 +1,91 @@
--- $Id: CHANGES,v 1.102 2004/07/31 11:18:08 tom Exp $
+-- $Id: CHANGES,v 1.110 2004/09/21 02:16:30 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/09/20
+	+ add samples/whiptail.rc
+	+ add samples/dialog.py (noting that a later version of this exists
+	  as pythondialog, but this is relatively self-contained).  Modified
+	  the script to accept the $DIALOG environment variable like the other
+	  sample scripts, to specify the path of the program to use.
+	+ modify the install rule for header-files so the autoconf names in
+	  dlg_config.h (and corresponding usage in dialog.h, etc), are altered
+	  from "HAVE_xxx" to "DLG_HAVE_xxx", etc.
+	+ add a check for getenv("HOME") in rc.c
+	+ add a call to end_dialog() in signal_handler for tailboxbg (from
+	  patch by Werner Fink).
+	+ correct initialization in checklist and radiobox for --default-item,
+	  scrolling as needed.
+	+ modify --visit-items option so that it puts the cursor initially on
+	  the list (in menubox, checklist and radiobox), accepts abbreviations
+	  for the buttons when the cursor is on the button-row, and otherwise
+	  (when --visit-items is given) abbreviations apply only to the list
+	  (report by Erika Pacholleck).
+	+ modify a few widgets (inputbox, textbox, yesno) to beep on unexpected
+	  input.
+	+ modify some msgbox widget to accept abbreviations of its button
+	  label, for consistency with other widgets (request by Erika
+	  Pacholleck).
+	+ corrected logic of dlg_char_to_button(), making it check only the
+	  first uppercase letter in each button label rather than all uppercase
+	  letters (report by Erika Pacholleck, cf: 2003/09/10).
+	+ improved description of --clear and --keep-window options (adapted
+	  from Erika Pacholleck).
+	+ move discussion of --beep and --beep-signal options to Obsolete
+	  Options section of manpage, remove these from the help-message
+	  (report by Erika Pacholleck).
+	+ bracket extern's in dialog.h with C++ extern "C" declaration, in case
+	  the library is used from a C++ application.
+	+ modify inputmenu examples to allow ESC to cancel the script.
+	+ modify inputmenu widget to cancel edit on a TAB or ESC.
+	+ modify inputmenu widget to use the same color scheme for the editable
+	  text as the inputbox widget.
+	+ modify samples/killall to work around differences in "cut" versions.
+	+ use the color-caching from the \Z logic when loading the ".rc" file,
+	  thereby reducing the number of color pairs required, and making it
+	  less likely that deriving color pairs for drawing arrows on a given
+	  background will run out of colors.
+	+ save/restore window attributes in dlg_draw_arrows() and similar
+	  functions, to allow widgets to draw arrows using the widget's
+	  background rather than a common/fixed value (request by Erika
+	  Pacholleck).
+	+ modify textbox widget so the down-arrow will be hidden when at the
+	  end of the file.  (Modifying the up-arrow to be hidden is harder -
+	  will do this when implementing scrollbars).
+	+ correct off-by-one in fselect.c which left down-arrows showing at
+	  the bottom of directory- and file-lists (report by Erika Pacholleck).
+	+ improve display of percentages by omitting blanks where lines should
+	  be shown.
+	+ modify logic for \Z escapes to make those that set video attributes
+	  not clear the colors (report by Erika Pacholleck).
+	+ modify logic for \Z escapes to allow foreground and background
+	  colors to be the same, provided that bold attribute is set.
+	  Also improved the logic for choosing a background color when the
+	  foreground and background are the same (report by Erika Pacholleck).
+	+ update configure script macro CF_XOPEN_SOURCE, ensuring that the
+	  _POSIX_C_SOURCE value is defined with a specific value (from a bug
+	  report for lynx).
+	+ fix configure script so that po/makefile is generated properly when
+	  the configure --srcdir --enable-nls options are used.
+	+ modify makefile.in to allow build/install from another directory,
+	  i.e., using configure --srcdir (patch by Mike Castle).
+	+ updated da.po (Debian #262587, Morten Brix Pedersen).
+	+ modify some sample scripts to avoid using grave quotes nested within
+	  double quotes with multiple file redirection, which does not work
+	  with Solaris /bin/sh (report/analysis by Eric Haller).
+	+ check for end of string immediately after a \Z escape to avoid
+	  displaying the null terminator as a ^@ (report by Erika Pacholleck).
+	> patches by Erika Pacholleck:
+	+ modify calendar.c, fselect.c and timebox.c to use color scheme like
+	  other lists, using menubox colors rather than dialog colors.
+	+ correct charset for po/de.po, translate messages for "Help" and
+	  "Rename".
+	+ omit parentheses around percentage in textbox.c
+	+ correct a few mismatched attributes, e.g., searchbox_attr in textbox.c,
+	  percentage in msgbox.c,
+
 
 2004/07/31
 	+ add test scripts to cover zero-width column case.

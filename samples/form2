@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: form2,v 1.4 2004/03/13 16:06:38 tom Exp $
+# $Id: form2,v 1.5 2004/09/12 22:37:31 tom Exp $
 : ${DIALOG=dialog}
 
 backtitle="An Example for the use of --form:"
@@ -15,7 +15,7 @@ returncode=0
 while test $returncode != 1 && test $returncode != 250
 do
 exec 3>&1
-value="`$DIALOG --ok-label "Submit" \
+value=`$DIALOG --ok-label "Submit" \
 	  --backtitle "$backtitle" \
 	  --form "Here is a possible piece of a configuration program." \
 0 0 10 \
@@ -47,7 +47,7 @@ value="`$DIALOG --ok-label "Submit" \
 	"7 UID:"      26 1	"$uid"  26 12 10 10 \
 	"7 GID:"      27 1	"$gid"  27 12 10 10 \
 	"7 HOME:"     28 1	"$home" 28 12 10 10 \
-2>&1 1>&3`"
+2>&1 1>&3`
 returncode=$?
 exec 3>&-
 

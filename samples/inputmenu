@@ -1,5 +1,5 @@
 #! /bin/bash
-# $Id: inputmenu,v 1.4 2003/10/09 22:39:35 tom Exp $
+# $Id: inputmenu,v 1.6 2004/09/19 17:59:14 tom Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
 : ${DIALOG=dialog}
 
@@ -21,7 +21,7 @@ configuration purpose. Here is a possible piece of a configuration program. \
        returncode=$?
        exec 3>&-
        case $returncode in
-               1)
+       1)
                "$DIALOG"  --clear --backtitle "An Example for the use of --inputmenu:" \
                                --yesno "Really quit?" 10 30
                case $? in
@@ -29,11 +29,15 @@ configuration purpose. Here is a possible piece of a configuration program. \
                        1) returncode=99;;
                esac
                ;;
-               0)
+       0)
                "$DIALOG" --clear --backtitle "An Example for the use of --inputmenu:"  \
-                         --msgbox "$(useradd -d "$home" -u "$uid" -g "$gid" "$user" 2>&1)" 10 40
+			--msgbox "useradd \n\
+				-d $home \n\
+				-u $uid \n\
+				-g $gid \n\
+				$user" 10 40
                ;;
-               3)
+       3)
                value="${value:8:${#value}}"
                tag="${value%:*}"
                item="${value#*: }"
@@ -44,6 +48,12 @@ configuration purpose. Here is a possible piece of a configuration program. \
                        GID) gid="$item";;
                        HOME) home="$item";;
                esac
+               ;;
+
+       255)
+                echo "ESC pressed."
+                break
+                ;;
 
        esac
 done

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.42 2004/07/29 00:17:37 tom Exp $
+ *  $Id: inputbox.c,v 1.43 2004/09/19 22:09:50 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -174,8 +174,11 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		break;
 	    default:
+		beep();
 		break;
 	    }
+	} else {
+	    beep();
 	}
     }
 

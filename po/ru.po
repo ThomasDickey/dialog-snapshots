@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"POT-Creation-Date: 2004-09-20 21:46-0400\n"
 "PO-Revision-Date: 2004-03-26 11:39+0200\n"
 "Last-Translator: Leonid Kanter <leon@asplinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -18,39 +18,41 @@ msgstr ""
 "Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: buttons.c:354
+#: buttons.c:359
 msgid "Yes"
 msgstr "Да"
 
-#: buttons.c:362
+#: buttons.c:367
 msgid "No"
 msgstr "Нет"
 
-#: buttons.c:370
+#: buttons.c:375
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:378
+#: buttons.c:383
 msgid "Cancel"
 msgstr "Отмена"
 
-#: buttons.c:386
+#: buttons.c:391
 msgid "EXIT"
 msgstr "Выход"
 
-#: buttons.c:394
+#: buttons.c:399
 msgid "Extra"
 msgstr "Дополнительно"
 
-#: buttons.c:402
+#: buttons.c:407
 msgid "Help"
 msgstr "Справка"
 
-#: calendar.c:301
+#. Headline "Month"
+#: calendar.c:299
 msgid "Month"
 msgstr "Месяц"
 
-#: calendar.c:320
+#. Headline "Year"
+#: calendar.c:319
 msgid "Year"
 msgstr "Год"
 

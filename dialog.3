@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.8 2004/06/06 01:07:58 tom Exp $
-.TH DIALOG 3 "" "$Date: 2004/06/06 01:07:58 $"
+.\" $Id: dialog.3,v 1.9 2004/09/19 21:20:35 tom Exp $
+.TH DIALOG 3 "" "$Date: 2004/09/19 21:20:35 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -175,12 +175,11 @@ string to be displayed on the backdrop, at the top of the screen.
 .
 .IP \fIDIALOG_VARS.beep_after_signal
 This corresponds to the command-line option "\fB--beep-after\fP".
-If true, beep if input is interrupted, e.g., by a control/C.
+If true, beep after a user has completed a widget by pressing one of the buttons.
 .
 .IP \fIDIALOG_VARS.beep_signal
 This corresponds to the command-line option "\fB--beep\fP".
-If true, sound the audible alarm
-each time the screen is refreshed.
+It is obsolete.
 .
 .IP \fIDIALOG_VARS.begin_set
 This is true if the command-line option "\fB--begin y x\fP" was used.

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.123 2004/06/05 23:56:24 tom Exp $
+ * $Id: dialog.c,v 1.124 2004/09/19 21:05:14 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -158,8 +158,8 @@ static const Options options[] = {
     { "aspect",		o_aspect,		1, "<ratio>" },
     { "auto-placement", o_auto_placement,	1, NULL },
     { "backtitle",	o_backtitle,		1, "<backtitle>" },
-    { "beep",		o_beep,			1, "" },
-    { "beep-after",	o_beep_after,		1, "" },
+    { "beep",		o_beep,			1, NULL },
+    { "beep-after",	o_beep_after,		1, NULL },
     { "begin",		o_begin,		1, "<y> <x>" },
     { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
     { "cancel-label",	o_cancel_label,		1, "<str>" },
@@ -943,7 +943,7 @@ Help(void)
 	"",
 #ifdef HAVE_RC_FILE
 	"Special options:",
-	"  [--create-rc \"Ifile\"]",
+	"  [--create-rc \"file\"]",
 #endif
 	0
     }, *const tbl_3[] =

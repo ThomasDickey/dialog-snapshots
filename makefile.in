@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.36 2004/03/15 00:09:52 tom Exp $
+# $Id: makefile.in,v 1.38 2004/09/20 22:32:36 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -123,6 +123,7 @@ uninstall ::
 clean	::
 	@- $(RM) -r autom4te.cache
 	- $(LIBTOOL_CLEAN) $(RM) *$o $(ALL)
+	- $(RM) headers.sed
 	- $(RM) core *~ tags TAGS
 
 distclean :: clean
@@ -138,19 +139,22 @@ install-strip :: $(PROG) $(bindir)
 
 install-strip \
 install :: $(MAN1DIR)
-	$(INSTALL_DATA) dialog.1 $(MAN1DIR)
+	$(INSTALL_DATA) $(srcdir)/dialog.1 $(MAN1DIR)
 
 uninstall ::
 	$(RM) $(bindir)/$(PROG)
 	$(RM) $(MAN1DIR)/dialog.1
 
 # most users do not want/need the library, so the install rules are distinct.
-install-lib :: $(LIB_DIRS)
+install-lib :: $(LIB_DIRS) headers.sed
+	@ echo "** installing library in $(libdir)"
 	$(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(libdir)
-	$(INSTALL_DATA) dialog.h $(includedir)
-	$(INSTALL_DATA) dlg_colors.h $(includedir)
-	$(INSTALL_DATA) dlg_config.h $(includedir)
-	$(INSTALL_DATA) dialog.3 $(MAN3DIR)
+	@ echo "** installing headers in $(includedir)"
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dialog.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dlg_colors.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) .         dlg_config.h
+	@ echo "** installing manpage"
+	$(INSTALL_DATA) $(srcdir)/dialog.3 $(MAN3DIR)
 
 uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(libdir)/$(LIB)
@@ -158,6 +162,9 @@ uninstall-lib :: $(LIB_DIRS)
 	$(RM) $(includedir)/dlg_colors.h
 	$(RM) $(includedir)/dlg_config.h
 	$(RM) $(MAN3DIR)/dialog.3
+
+headers.sed : $(srcdir)/headers.sh
+	$(SHELL) $(srcdir)/headers.sh $(includedir) $(srcdir)
 
 $(MAN1DIR) \
 $(MAN3DIR) \
