@@ -49,7 +49,7 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
   char search_term[MAX_LEN+1], *tempptr, *found;
   WINDOW *dialog, *text;
 
-  auto_sizefile(file, &height, &width, 2, 12);
+  auto_sizefile(title, file, &height, &width, 2, 12);
   print_size(height, width);
   ctl_size(height, width);
 
@@ -87,6 +87,10 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
     draw_shadow(stdscr, y, x, height, width);
 #endif
   dialog = newwin(height, width, y, x);
+
+  if ( dialog == 0 )
+    exiterr("\nCan't make new window.\n");
+
   mouse_setbase (x, y);
   keypad(dialog, TRUE);
 

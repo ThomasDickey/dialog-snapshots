@@ -18,10 +18,7 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 #include "dialog.h"
-
-char *nowait_gets(WINDOW *win, char *buf);
 
 /*
  * Display a guage, or progress meter.  Starts at percent% and
@@ -32,108 +29,78 @@ char *nowait_gets(WINDOW *win, char *buf);
  * of the window never changes, so the prompt can not get any
  * larger than the height and width specified.
  */
-int dialog_guage(const char *title, const char *cprompt, int height, int width, int percent)
+int
+dialog_guage (const char *title, const char *prompt, int height,
+		int width, int percent)
 {
-  int i, x, y;
-  char buf[1024];
-  char prompt_buf[1024];
-  WINDOW *dialog;
-  char *prompt=strclone(cprompt);
+    int i, x, y;
+    char buf[1024];
+    char prompt_buf[1024];
+    WINDOW *dialog;
 
-  tab_correct_str(prompt);
-  prompt=auto_size(prompt, &height, &width, 3, 0);
-  print_size(height, width);
-  ctl_size(height, width);
-    
-  if (begin_set == 1) {
-    x = begin_x;
-    y = begin_y;
-  } else {
     /* center dialog box on screen */
-    x = (SCOLS - width)/2;
-    y = (SLINES - height)/2;
-  }
+    x = (COLS - width) / 2;
+    y = (LINES - height) / 2;
 
 #ifdef HAVE_NCURSES
-  if (use_shadow)
-    draw_shadow(stdscr, y, x, height, width);
+    if (use_shadow)
+	draw_shadow (stdscr, y, x, height, width);
 #endif
-  dialog = newwin(height, width, y, x);
-  keypad(dialog, TRUE);
-  wtimeout(dialog, WTIMEOUT_VAL);
+    dialog = newwin (height, width, y, x);
+    keypad (dialog, TRUE);
 
-  do {
-      werase(dialog);
-      draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    do {
+	werase (dialog);
+	draw_box (dialog, 0, 0, height, width, dialog_attr, border_attr);
 
-      if (title != NULL) {
-	  wattrset(dialog, title_attr);
-	  wmove(dialog, 0, (width - strlen(title))/2 - 1);
-	  waddch(dialog, ' ');
-	  waddstr(dialog, title);
-	  waddch(dialog, ' ');
-      }
+	if (title != NULL) {
+	    wattrset (dialog, title_attr);
+	    wmove (dialog, 0, (width - strlen (title)) / 2 - 1);
+	    waddch (dialog, ' ');
+	    waddstr (dialog, title);
+	    waddch (dialog, ' ');
+	}
+	wattrset (dialog, dialog_attr);
+	print_autowrap (dialog, prompt, width - 2, 1, 2);
 
-      wattrset(dialog, dialog_attr);
-      print_autowrap(dialog, prompt, width, 1, 2);
+	draw_box (dialog, height - 4, 3, 3, width - 6, dialog_attr,
+		  border_attr);
 
-      draw_box(dialog, height - 4, 3, 3, width - 6, dialog_attr, border_attr);
+	wmove (dialog, height - 3, 4);
+	wattrset (dialog, title_attr);
+	for (i = 0; i < (width - 8); i++)
+	    waddch (dialog, ' ');
 
-      wmove(dialog, height - 3, 4);
-      wattrset(dialog, title_attr);
-      for (i = 0; i < (width - 8); i++) {
-	  waddch(dialog, ' ');
-      }
+	wattrset (dialog, title_attr);
+	wmove (dialog, height - 3, (width / 2) - 2);
+	sprintf (buf, "%3d%%", percent);
+	waddstr (dialog, buf);
 
-      wattrset(dialog, title_attr);
-      wmove(dialog, height - 3, (width / 2) - 2);
-      sprintf(buf, "%3d%%", percent);
-      waddstr(dialog, buf);
+	x = (percent * (width - 8)) / 100;
+	wattrset (dialog, item_selected_attr);
+	wmove (dialog, height - 3, 4);
+	for (i = 0; i < x; i++)
+	    waddch (dialog, winch (dialog));
 
-      x = (percent * (width - 8)) / 100;
-      wattrset(dialog, item_selected_attr);
-      wmove(dialog, height - 3, 4);
-      for (i = 0; i < x; i++) {
-	  waddch(dialog, winch(dialog));
-      }
-  
-      wrefresh_lock(dialog);
+	wrefresh (dialog);
 
-      if (nowait_gets(dialog, buf) == NULL)
-         break;
-         
-      if (buf[0] == 'X') {
-	  /* Next line is percentage */
-	  nowait_gets(dialog, buf);
-	  percent = atoi(buf);
+	if (feof (stdin))
+	    break;
+	gets (buf);
+	if (buf[0] == 'X') {
+	    /* Next line is percentage */
+	    gets (buf);
+	    percent = atoi (buf);
 
-	  /* Rest is message text */
-	  prompt_buf[0] = '\0';
-	  while (strncmp(nowait_gets(dialog, buf), "XXX", 3)) {
-	      strcat(prompt_buf, buf);
-	  }
-	  prompt = prompt_buf;
-      } else {
-	  percent = atoi(buf);
-      }
-  } while (1);
-  
-  delwin(dialog);
-  return(0);
-}
-/* End of dialog_msgbox() */
+	    /* Rest is message text */
+	    prompt_buf[0] = '\0';
+	    while (strncmp (gets (buf), "XXX", 3))
+		strcat (prompt_buf, buf);
+	    prompt = prompt_buf;
+	} else
+	    percent = atoi (buf);
+    } while (1);
 
-char *nowait_gets(WINDOW *win, char *buf) {
-  char ch; int i=0;
-
-  while ((ch = wgetch(win)) != '\n') {
-    if (ch != -1)
-      buf[i++]=ch;
-    ctl_idlemsg(win);
-  }
-
-  if (i == 0)  return NULL;
-
-  buf[i]='\0';
-  return buf;
+    delwin (dialog);
+    return (0);
 }

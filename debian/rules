@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+package = dialog
+docdir = debian/tmp/usr/doc/$(package)
+
+build:
+	$(checkdir)
+	make depend
+	make OPTIM="-O2 -g -Wall"
+	touch build
+
+clean:
+	$(checkdir)
+	-rm -f build
+	-make clean
+	-rm -f `find . -name "*~"`
+	-rm -rf debian/tmp debian/files* core debian/substvars
+
+binary-indep: checkroot build
+	$(checkdir)
+
+binary-arch: checkroot build
+	$(checkdir)
+	-rm -rf debian/tmp
+	install -d debian/tmp/DEBIAN $(docdir)
+	cd debian/tmp && install -d usr/bin usr/man/man1 usr/lib/perl5
+	make install prefix=`pwd`/debian/tmp/usr
+	cp -p libdialog.a debian/tmp/usr/lib
+	cp -p dialog.pl debian/tmp/usr/lib/perl5
+	cp -p debian/changelog $(docdir)/changelog.Debian
+	cp -p README TODO debian/copyright $(docdir)
+	cd $(docdir) && gzip -9 changelog.Debian
+	gzip -r9 debian/tmp/usr/man
+	strip --strip-debug debian/tmp/usr/lib/libdialog.a
+	strip debian/tmp/usr/bin/dialog
+	dpkg-shlibdeps dialog
+	dpkg-gencontrol
+	cd debian/tmp && md5sum `find * -type f ! -regex "DEBIAN/.*"` >DEBIAN/md5sums
+	chown -R root.root debian/tmp
+	chmod -R go=rX debian/tmp
+	dpkg --build debian/tmp ..
+
+define checkdir
+	test -f debian/rules
+endef
+
+binary: binary-indep binary-arch
+
+checkroot:
+	$(checkdir)
+	test root = "`whoami`"
+
+.PHONY: binary binary-arch binary-indep clean checkroot

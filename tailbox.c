@@ -45,7 +45,7 @@ int dialog_tailbox(const char *title, const char *file, int height, int width)
   WINDOW *dialog, *text;
   char ch;
 
-  auto_sizefile(file, &height, &width, 2, 12);
+  auto_sizefile(title, file, &height, &width, 2, 12);
   print_size(height, width);
   ctl_size(height, width);
 
@@ -67,6 +67,10 @@ int dialog_tailbox(const char *title, const char *file, int height, int width)
     draw_shadow(stdscr, y, x, height, width);
 #endif
   dialog = newwin(height, width, y, x);
+
+  if ( dialog == 0 )
+    exiterr("\nCan't make new window.\n");
+
   mouse_setbase (x, y);
   keypad(dialog, TRUE);
 
@@ -168,7 +172,7 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
   WINDOW *dialog, *text;
   char ch;
 
-  auto_sizefile(file, &height, &width, 1, 0);
+  auto_sizefile(title, file, &height, &width, 1, 0);
   print_size(height, width);
   ctl_size(height, width);
 
@@ -190,6 +194,10 @@ void dialog_tailboxbg(const char *title, const char *file, int height, int width
     draw_shadow(stdscr, y, x, height, width);
 #endif
   dialog = newwin(height, width, y, x);
+
+  if ( dialog == 0 )
+    exiterr("\nCan't make new window.\n");
+
   keypad(dialog, FALSE);
 /*  leaveok(dialog, TRUE);
 */

@@ -12,11 +12,11 @@ HAVE_NCURSES=true
 # support of a configuration file
 HAVE_RC_FILE=false
 # can be disabled to make cdialog a bit smaller (could be done for more things)
-HAVE_GUAGE=false
+HAVE_GUAGE=true
 HAVE_TAILBOX=true
 
-BINDIR = /usr/bin
-MANDIR = /usr/man/man1/
+BINDIR = $(prefix)/bin
+MANDIR = $(prefix)/man/man1
 
 CC = gcc
 CPP = gcc -E
@@ -66,8 +66,8 @@ libdialog.a: $(OBJS)
 dialog: $(OBJS) dialog.o
 
 clean:
-	rm -f core *.o *~ dialog .depend libdialog.a
-	touch .depend
+	rm -f core *.o *~ dialog libdialog.a
+	:> .depend
 
 include .depend
 

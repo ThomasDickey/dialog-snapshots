@@ -162,8 +162,8 @@ void end_dialog (void);
 void attr_clear (WINDOW * win, int height, int width, chtype attr);
 void put_backtitle(void);
 
-char *auto_size(char *prompt, int *height, int *width, int boxlines, int mincols);
-void auto_sizefile(const char *file, int *height, int *width, int boxlines, int mincols);
+char *auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
+void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
 char *make_lock_filename(char *filename);
 void wrefresh_lock(WINDOW *win);
@@ -220,28 +220,17 @@ void dialog_tailboxbg (const char *title, const char *file, int height, int widt
  */
 #ifndef HAVE_LIBGPM
 
-extern __inline__ void
-mouse_open (void)
-{
-};
-extern __inline__ void
-mouse_close (void)
-{
-};
-extern __inline__ void
-mouse_mkregion (int y, int x, int height, int width,
-		int code)
-{
-};
-extern __inline__ void
-mouse_mkbigregion (int y, int x, int height, int width,
-		   int nitems, int th, int mode)
-{
-};
-extern __inline__ void
-mouse_setbase (int x, int y)
-{
-};
+/*
+ * This used to be defined as "extern __inline__", which caused problems
+ * when building with -g . That might be a gcc bug, but what does a compiler
+ * do with an "extern" inline? Inline it and then generate an
+ * externaly-callable version? Ugh!
+ */
+#define	mouse_open() {}
+#define	mouse_close() {}
+#define	mouse_mkregion(y, x, height, width, code) {}
+#define	mouse_mkbigregion(y, x, height, width, nitems, th, mode) {}
+#define	mouse_setbase(x, y) {}
 
 #else
 

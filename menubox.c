@@ -62,10 +62,10 @@ dialog_menu (const char *title, const char *cprompt, int height, int width,
     if (menu_height == 0) {
       min_width=calc_listw(item_no, items, 2)+10;
       /* calculate height without items (4) */
-      prompt=auto_size(prompt, &height, &width, 4, MAX(26, min_width));
+      prompt=auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
       calc_listh(&height, &menu_height, item_no);
     } else
-      prompt=auto_size(prompt, &height, &width, 4+menu_height, 26);
+      prompt=auto_size(title, prompt, &height, &width, 4+menu_height, 26);
     print_size(height, width);
     ctl_size(height, width);
 
@@ -85,6 +85,10 @@ dialog_menu (const char *title, const char *cprompt, int height, int width,
 	draw_shadow (stdscr, y, x, height, width);
 #endif
     dialog = newwin (height, width, y, x);
+
+    if ( dialog == 0 )
+      exiterr("\nCan't make new window.\n");
+
     mouse_setbase (x, y);
     keypad (dialog, TRUE);
 
