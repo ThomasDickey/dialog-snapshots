@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.100 2004/07/29 20:01:57 tom Exp $
+-- $Id: CHANGES,v 1.102 2004/07/31 11:18:08 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/07/31
+	+ add test scripts to cover zero-width column case.
+	+ remove limit checks from checklist.c and menubox.c (cf: 2004/07/28),
+	  since some scripts use zero-width columns (Debian #262411 and report
+	  by Kyle Sallee).
 
 2004/07/29
 	+ modify msgbox.c to only reserve space for percentage shown as part

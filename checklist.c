@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.76 2004/07/29 00:17:37 tom Exp $
+ *  $Id: checklist.c,v 1.77 2004/07/31 10:58:03 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -184,8 +184,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
      * leave it intact.
      */
     use_width = (list_width - 6);
-    if (use_width <= 5)
-	dlg_exiterr("screen too small");
     if (text_width + name_width > use_width) {
 	int need = 0.25 * use_width;
 	if (name_width > need) {
@@ -194,8 +192,6 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 	text_width = use_width - name_width;
     }
-    if (text_width <= 1 || name_width <= 1)
-	dlg_exiterr("screen too small");
 
     check_x = (use_width - (text_width + name_width)) / 2;
     item_x = name_width + check_x + 6;
