@@ -1,5 +1,5 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
 
 $DIALOG --aspect 9 --cr-wrap --title "MESSAGE BOX" --clear \
         --msgbox "Hi, this is a simple message box. You can use this to \

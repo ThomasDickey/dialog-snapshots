@@ -24,9 +24,9 @@
  * Display a dialog box with two buttons - Yes and No
  */
 int
-dialog_yesno (const char *title, const char *cprompt, int height, int width)
+dialog_yesno (const char *title, const char *cprompt, int height, int width, int defaultno)
 {
-    int x, y, key = 0, button = 0;
+    int x, y, key = 0, button = defaultno;
     WINDOW *dialog = 0;
     char *prompt=strclone(cprompt);
 
@@ -64,8 +64,11 @@ restart:
 
     x = width / 2 - 10;
     y = height - 2;
-    print_button (dialog, "  No  ", y, x + 13, FALSE);
-    print_button (dialog, " Yes ", y, x, TRUE);
+    if (! defaultno)
+    	print_button (dialog, "  No  ", y, x + 13, FALSE);
+    print_button (dialog, " Yes ", y, x, !defaultno);
+    if (defaultno)
+    	print_button (dialog, "  No  ", y, x + 13, TRUE);
     wrefresh_lock (dialog);
 
 #ifndef KEY_RESIZE

@@ -22,21 +22,37 @@
 #include <string.h>
 
 static void Usage (const char *name);
-static int howmany_tags(int argc, const char * const * argv, int offset, int group);
-static int arg_rest( int argc, const char * const * argv, int offset );
+static int howmany_tags(int argc, char *argv[], int offset, int group);
+static int arg_rest( int argc, char *argv[], int offset );
 
 /* globals */
-char *backtitle, *lock_refresh, *lock_tailbg_refreshed,
-	*lock_tailbg_exit;
-int beep_signal, is_tailbg = 0, print_siz, cr_wrap, size_err,
-	tab_len, tab_correct;
-int begin_x, begin_y, begin_set, aspect_ratio, screen_initialized = 0;
-pid_t tailbg_pids[MAX_TAILBG], tailbg_lastpid = 0, tailbg_nokill_pids[MAX_TAILBG], tailbg_nokill_lastpid = 0;
+char *backtitle;
+char *lock_refresh;
+char *lock_tailbg_exit;
+char *lock_tailbg_refreshed;
+int aspect_ratio;
+int beep_signal;
+int begin_set;
+int begin_x;
+int begin_y;
 int cant_kill;
+int cr_wrap;
+int defaultno = FALSE;
+int is_tailbg = 0;
+int print_siz;
+int screen_initialized = 0;
+int size_err;
+int tab_correct;
+int tab_len;
+pid_t tailbg_lastpid = 0;
+pid_t tailbg_nokill_lastpid = 0;
+pid_t tailbg_nokill_pids[MAX_TAILBG];
+pid_t tailbg_pids[MAX_TAILBG];
 
 int separate_output;	/* local file */
 
-typedef int (jumperFn) (const char *title, int argc, const char * const * argv, int offset, int *offset_add);
+#define JUMPARGS const char *t, int ac, char *av[], int offset, int *offset_add
+typedef int (jumperFn) (JUMPARGS);
 
 struct Mode {
     char *name;
@@ -46,7 +62,7 @@ struct Mode {
 
 jumperFn j_yesno, j_msgbox, j_infobox, j_textbox, j_menu;
 jumperFn j_checklist, j_radiolist, j_inputbox, j_gauge;
-jumperFn j_tailbox, j_tailboxbg;
+jumperFn j_tailbox, j_tailboxbg, j_passwordbox;
 
 /*
  * All functions are used in the slackware root disk, apart from "gauge"
@@ -62,6 +78,7 @@ static struct Mode modes[] =
     {"--checklist", 9, 0, j_checklist},
     {"--radiolist", 9, 0, j_radiolist},
     {"--inputbox", 5, 6, j_inputbox},
+    {"--passwordbox", 5, 6, j_passwordbox},
 #ifdef HAVE_GAUGE
     {"--gauge", 6, 6, j_gauge},
 #endif
@@ -74,18 +91,18 @@ static struct Mode modes[] =
 
 static struct Mode *modePtr;
 
-#ifdef LOCALE
+#ifdef HAVE_SETLOCALE
 #include <locale.h>
 #endif
 
 int
-main (int argc, const char * const * argv)
+main (int argc, char *argv[])
 {
     int offset = 0, clear_screen, end_common_opts, retval = 0, sleep_secs,
         beep_after_signal, tab_set, offset_add, esc_pressed = 0;
     char *title, separate_str[MAX_LEN];
 
-#ifdef LOCALE
+#ifdef HAVE_SETLOCALE
     (void) setlocale (LC_ALL, "");
 #endif
 
@@ -111,7 +128,7 @@ main (int argc, const char * const * argv)
 #ifdef HAVE_RC_FILE
 
     else if (!strcmp (argv[1], "--create-rc"))
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
     {
 	if (argc != 3)
 	    Usage (argv[0]);
@@ -197,6 +214,11 @@ main (int argc, const char * const * argv)
     {
         use_shadow = TRUE;
         offset++;
+    }
+    else if (!strcmp(argv[offset+1], "--defaultno" ))
+    {
+       defaultno = TRUE;
+       offset++;
     }
     else if (!strcmp(argv[offset+1], "--no-shadow" ))
     {
@@ -358,7 +380,7 @@ Usage(const char *name)
 \n       [--clear] [--begin <y> <x>] [--aspect <ratio>] [--print-size]\
 \n       [--print-maxsize] [--size-err] [--separate-output] [--cr-wrap]\
 \n       [--tab-len <n>] [--tab-correct] [--print-version] [--no-kill]\
-\n       [--title <title>]\
+\n       [--title <title>] [--defaultno]\
 \n\
 \nGlobal options: [--shadow] [--no-shadow] [--separate-widget \"<str>\"]\
 \n\
@@ -368,6 +390,7 @@ Usage(const char *name)
 \n  --infobox   <text> <height> <width>\
 \n  --inputbox  <text> <height> <width> [<init>]\
 \n  --textbox   <file> <height> <width>\
+\n  --passwordbox <text> <height> <width> [<init>]\
 \n  --menu      <text> <height> <width> <menu height> <tag1> <item1>...\
 \n  --checklist <text> <height> <width> <list height> <tag1> <item1> <status1>...\
 \n  --radiolist <text> <height> <width> <list height> <tag1> <item1> <status1>...\
@@ -387,7 +410,7 @@ exiterr(str);
  * In MultiWidget this function is needed to count how many tags
  * a widget (menu, checklist, radiolist) has
  */
-int howmany_tags(int argc, const char * const * argv, int offset, int group)
+int howmany_tags(int argc, char *argv[], int offset, int group)
 {
   int i, ptr = offset;
 
@@ -406,7 +429,7 @@ int howmany_tags(int argc, const char * const * argv, int offset, int group)
   return (ptr-offset)/group;
 }
 
-int arg_rest( int argc, const char * const * argv, int offset ) {
+int arg_rest( int argc, char *argv[], int offset ) {
     int i=offset;
     
     while (++i < argc) {
@@ -421,35 +444,35 @@ int arg_rest( int argc, const char * const * argv, int offset ) {
  */
 
 int
-j_yesno (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_yesno (JUMPARGS)
 {
     *offset_add=4;
-    return dialog_yesno (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]));
+    return dialog_yesno (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]), defaultno);
 }
 
 int
-j_msgbox (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_msgbox (JUMPARGS)
 {
     *offset_add=4;
     return dialog_msgbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]), 1);
 }
 
 int
-j_infobox (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_infobox (JUMPARGS)
 {
     *offset_add=4;
     return dialog_msgbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]), 0);
 }
 
 int
-j_textbox (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_textbox (JUMPARGS)
 {
     *offset_add=4;
     return dialog_textbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]));
 }
 
 int
-j_menu (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_menu (JUMPARGS)
 {
     int ret;
     int tags=howmany_tags(ac, av, offset+6, 2);
@@ -465,7 +488,7 @@ j_menu (const char *t, int ac, const char * const * av, int offset, int *offset_
 }
 
 int
-j_checklist (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_checklist (JUMPARGS)
 {
     int tags=howmany_tags(ac, av, offset+6, 3);
     *offset_add=5+tags*3;
@@ -474,7 +497,7 @@ j_checklist (const char *t, int ac, const char * const * av, int offset, int *of
 }
 
 int
-j_radiolist (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_radiolist (JUMPARGS)
 {
     int tags=howmany_tags(ac, av, offset+6, 3);
     *offset_add=5+tags*3;
@@ -483,7 +506,7 @@ j_radiolist (const char *t, int ac, const char * const * av, int offset, int *of
 }
 
 int
-j_inputbox (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_inputbox (JUMPARGS)
 {
     int ret;
     char *init_inputbox=(char *) NULL;
@@ -493,15 +516,32 @@ j_inputbox (const char *t, int ac, const char * const * av, int offset, int *off
 
     *offset_add=4+((init_inputbox == NULL) ? 0 : 1);
     ret = dialog_inputbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
-			    init_inputbox);
+			    init_inputbox, 0);
     if (ret == 0)
 	fprintf(stderr, "%s", dialog_input_result);
     return ret;
 }
 
+int
+j_passwordbox (JUMPARGS)
+{
+    int ret;
+    char *init_inputbox=(char *) NULL;
+    if (offset+5 < ac)
+      if (strcmp(av[offset+5], "--and-widget"))
+        init_inputbox=av[offset+5];
+  
+  *offset_add=4+((init_inputbox == NULL) ? 0 : 1);
+  ret = dialog_inputbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
+			  init_inputbox, 1);
+  if (ret == 0)
+      fprintf(stderr, "%s", dialog_input_result);
+  return ret;
+}
+
 #ifdef HAVE_GAUGE
 int
-j_gauge (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_gauge (JUMPARGS)
 {
     *offset_add=5;
     return dialog_gauge (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
@@ -511,14 +551,14 @@ j_gauge (const char *t, int ac, const char * const * av, int offset, int *offset
 
 #ifdef HAVE_TAILBOX
 int
-j_tailbox (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_tailbox (JUMPARGS)
 {
     *offset_add=4;
     return dialog_tailbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]));
 }
 
 int
-j_tailboxbg (const char *t, int ac, const char * const * av, int offset, int *offset_add)
+j_tailboxbg (JUMPARGS)
 {
     if (tailbg_lastpid+1 >= MAX_TAILBG)
       Usage(av[0]);

@@ -61,21 +61,26 @@ print_item (WINDOW * win, const char *tag, const char *item, int status,
  */
 int
 dialog_checklist (const char *title, const char *cprompt, int height, int width,
-	int list_height, int item_no, const char * const * items, int flag,
+	int list_height, int item_no, char **items, int flag,
 	int separate_output)
 {
     int i, x, y, cur_x, cur_y, box_x, box_y;
-    int key = 0, button = 0, choice = 0, scroll = 0, max_choice, *status, min_width;
+    int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status, min_width;
     WINDOW *dialog, *list;
     char *prompt=strclone(cprompt);
 
+    if (list_height < 1)
+      list_height = 1;
+
     tab_correct_str(prompt);
+#if 0
     if (list_height == 0) {
       min_width=calc_listw(item_no, items, 3)+14;
       /* calculate height without items (4) */
       prompt=auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
       calc_listh(&height, &list_height, item_no);
     } else
+#endif
       prompt=auto_size(title, prompt, &height, &width, 4+list_height, 26);
 
     print_size(height, width);
@@ -125,8 +130,8 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
     item_x = 0;
     /* Find length of longest item in order to center checklist */
     for (i = 0; i < item_no; i++) {
-	check_x = MAX (check_x, strlen (items[i * 3 + 1]));
-	item_x = MAX (item_x, strlen (items[i * 3]));
+	check_x = MAX (check_x, (int)strlen (items[i * 3 + 1]));
+	item_x = MAX (item_x, (int)strlen (items[i * 3]));
     }
     check_x = (list_width - check_x - item_x - 6) / 2;
     item_x = check_x + item_x + 6;
@@ -161,7 +166,7 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 	   any item tag in list */
 	for (i = 0; i < max_choice; i++)
 	    if (toupper (key) ==
-		toupper (items[(scroll + i) * 3][0]))
+		toupper (items[(scrollamt + i) * 3][0]))
 		break;
 
 	if (i < max_choice ||
@@ -173,35 +178,35 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 		i = key - '1';
 	    else if (key == KEY_UP || key == '-') {
 		if (!choice) {
-		    if (!scroll)
+		    if (!scrollamt)
 			continue;
 		    /* Scroll list down */
 		    getyx (dialog, cur_y, cur_x);
 		    if (list_height > 1) {
 			/* De-highlight current first item */
-			print_item (list, items[scroll * 3],
-				    items[scroll * 3 + 1], status[scroll],
+			print_item (list, items[scrollamt * 3],
+				    items[scrollamt * 3 + 1], status[scrollamt],
 				    0, FALSE);
 			scrollok (list, TRUE);
 			wscrl (list, -1);
 			scrollok (list, FALSE);
 		    }
-		    scroll--;
-		    print_item (list, items[scroll * 3],
-				items[scroll * 3 + 1],
-				status[scroll], 0, TRUE);
+		    scrollamt--;
+		    print_item (list, items[scrollamt * 3],
+				items[scrollamt * 3 + 1],
+				status[scrollamt], 0, TRUE);
 		    wnoutrefresh (list);
 
 		    /* print the up/down arrows */
 		    wmove (dialog, box_y, box_x + check_x + 5);
-		    wattrset (dialog, scroll ? uarrow_attr : menubox_attr);
-		    waddch (dialog, scroll ? ACS_UARROW : ACS_HLINE);
+		    wattrset (dialog, scrollamt ? uarrow_attr : menubox_attr);
+		    waddch (dialog, scrollamt ? ACS_UARROW : ACS_HLINE);
 		    wmove (dialog, box_y, box_x + check_x + 6);
-		    waddch (dialog, scroll ? '(' : ACS_HLINE);
+		    waddch (dialog, scrollamt ? '(' : ACS_HLINE);
 		    wmove (dialog, box_y, box_x + check_x + 7);
-		    waddch (dialog, scroll ? '-' : ACS_HLINE);
+		    waddch (dialog, scrollamt ? '-' : ACS_HLINE);
 		    wmove (dialog, box_y, box_x + check_x + 8);
-		    waddch (dialog, scroll ? ')' : ACS_HLINE);
+		    waddch (dialog, scrollamt ? ')' : ACS_HLINE);
 		    wattrset (dialog, darrow_attr);
 		    wmove (dialog, box_y + list_height + 1,
 			   box_x + check_x + 5);
@@ -222,24 +227,24 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 		    i = choice - 1;
 	    } else if (key == KEY_DOWN || key == '+') {
 		if (choice == max_choice - 1) {
-		    if (scroll + choice >= item_no - 1)
+		    if (scrollamt + choice >= item_no - 1)
 			continue;
 		    /* Scroll list up */
 		    getyx (dialog, cur_y, cur_x);
 		    if (list_height > 1) {
 			/* De-highlight current last item before scrolling up */
-			print_item (list, items[(scroll + max_choice - 1) * 3],
-				    items[(scroll + max_choice - 1) * 3 + 1],
-				    status[scroll + max_choice - 1],
+			print_item (list, items[(scrollamt + max_choice - 1) * 3],
+				    items[(scrollamt + max_choice - 1) * 3 + 1],
+				    status[scrollamt + max_choice - 1],
 				    max_choice - 1, FALSE);
 			scrollok (list, TRUE);
-			scroll (list);
+			wscrl(list, 1);
 			scrollok (list, FALSE);
 		    }
-		    scroll++;
-		    print_item (list, items[(scroll + max_choice - 1) * 3],
-				items[(scroll + max_choice - 1) * 3 + 1],
-				status[scroll + max_choice - 1],
+		    scrollamt++;
+		    print_item (list, items[(scrollamt + max_choice - 1) * 3],
+				items[(scrollamt + max_choice - 1) * 3 + 1],
+				status[scrollamt + max_choice - 1],
 				max_choice - 1, TRUE);
 		    wnoutrefresh (list);
 
@@ -251,21 +256,21 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 		    waddstr (dialog, "(-)");
 		    wmove (dialog, box_y + list_height + 1,
 			   box_x + check_x + 5);
-		    wattrset (dialog, scroll + choice < item_no - 1 ?
+		    wattrset (dialog, scrollamt + choice < item_no - 1 ?
 			      darrow_attr : menubox_border_attr);
-		    waddch (dialog, scroll + choice < item_no - 1 ?
+		    waddch (dialog, scrollamt + choice < item_no - 1 ?
 			    ACS_DARROW : ACS_HLINE);
 		    wmove (dialog, box_y + list_height + 1,
 			   box_x + check_x + 6);
-		    waddch (dialog, scroll + choice < item_no - 1 ?
+		    waddch (dialog, scrollamt + choice < item_no - 1 ?
 			    '(' : ACS_HLINE);
 		    wmove (dialog, box_y + list_height + 1,
 			   box_x + check_x + 7);
-		    waddch (dialog, scroll + choice < item_no - 1 ?
+		    waddch (dialog, scrollamt + choice < item_no - 1 ?
 			    '+' : ACS_HLINE);
 		    wmove (dialog, box_y + list_height + 1,
 			   box_x + check_x + 8);
-		    waddch (dialog, scroll + choice < item_no - 1 ?
+		    waddch (dialog, scrollamt + choice < item_no - 1 ?
 			    ')' : ACS_HLINE);
 		    wmove (dialog, cur_y, cur_x);
 		    wrefresh_lock (dialog);
@@ -274,21 +279,21 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 		    i = choice + 1;
 	    } else if (key == ' ') {	/* Toggle item status */
 		if (flag == FLAG_CHECK) {
-		    status[scroll + choice] = !status[scroll + choice];
+		    status[scrollamt + choice] = !status[scrollamt + choice];
 		    getyx (dialog, cur_y, cur_x);
 		    wmove (list, choice, check_x);
 		    wattrset (list, check_selected_attr);
-		    wprintw (list, "[%c]", status[scroll + choice] ? 'X' : ' ');
+		    wprintw (list, "[%c]", status[scrollamt + choice] ? 'X' : ' ');
 		} else {
-		    if (!status[scroll + choice]) {
+		    if (!status[scrollamt + choice]) {
 			for (i = 0; i < item_no; i++)
 			    status[i] = 0;
-			status[scroll + choice] = 1;
+			status[scrollamt + choice] = 1;
 			getyx (dialog, cur_y, cur_x);
 			for (i = 0; i < max_choice; i++)
-			    print_item (list, items[(scroll + i) * 3],
-					items[(scroll + i) * 3 + 1],
-					status[scroll + i], i, i == choice);
+			    print_item (list, items[(scrollamt + i) * 3],
+					items[(scrollamt + i) * 3 + 1],
+					status[scrollamt + i], i, i == choice);
 		    }
 		}
 		wnoutrefresh (list);
@@ -299,14 +304,14 @@ dialog_checklist (const char *title, const char *cprompt, int height, int width,
 	    if (i != choice) {
 		/* De-highlight current item */
 		getyx (dialog, cur_y, cur_x);
-		print_item (list, items[(scroll + choice) * 3],
-			    items[(scroll + choice) * 3 + 1],
-			    status[scroll + choice], choice, FALSE);
+		print_item (list, items[(scrollamt + choice) * 3],
+			    items[(scrollamt + choice) * 3 + 1],
+			    status[scrollamt + choice], choice, FALSE);
 		/* Highlight new item */
 		choice = i;
-		print_item (list, items[(scroll + choice) * 3],
-			    items[(scroll + choice) * 3 + 1],
-			    status[scroll + choice], choice, TRUE);
+		print_item (list, items[(scrollamt + choice) * 3],
+			    items[(scrollamt + choice) * 3 + 1],
+			    status[scrollamt + choice], choice, TRUE);
 		wnoutrefresh (list);
 		wmove (dialog, cur_y, cur_x);
 		wrefresh_lock (dialog);

@@ -22,11 +22,11 @@
 
 /*
  * Display a message box. Program will pause and display an "OK" button
- * if the parameter 'pause' is non-zero.
+ * if the parameter 'pauseopt' is non-zero.
  */
 int
 dialog_msgbox (const char *title, const char *cprompt, int height, int width,
-		int pause)
+		int pauseopt)
 {
     int x, y, key = 0;
     WINDOW *dialog = 0;
@@ -39,7 +39,7 @@ restart:
 #endif
 
     tab_correct_str(prompt);
-    prompt = auto_size(title, prompt, &height, &width, (pause == 1 ? 2 : 0), (pause == 1 ? 12 : 0));
+    prompt = auto_size(title, prompt, &height, &width, (pauseopt == 1 ? 2 : 0), (pauseopt == 1 ? 12 : 0));
     print_size(height, width);
     ctl_size(height, width);
 
@@ -63,7 +63,7 @@ restart:
     wattrset (dialog, dialog_attr);
     print_autowrap (dialog, prompt, width, 1, 2);
 
-    if (pause) {
+    if (pauseopt) {
 	bool done = FALSE;
 
 	draw_bottom_box (dialog);

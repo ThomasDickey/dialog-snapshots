@@ -30,7 +30,8 @@ these types of dialog boxes are implemented:
 .LP
 .BR yes/no " box," " menu" " box," " input" " box,"
 .BR message " box," " text" " box," " info" " box,"
-.BR checklist " box," " radiolist" " box, and" " gauge" " box."
+.BR checklist " box," " radiolist" " box," " gauge" " box, and"
+.BR password " box."
 .SH OPTIONS
 .TP
 .B \-\-clear
@@ -121,6 +122,14 @@ key can be used to correct typing errors. If the input string is longer than
 can be fitted in the dialog box, the input field will be scrolled. On exit,
 the input string will be printed on
 .IR stderr "."
+.TP
+.BI \-\-passwordbox " text height width [init]"
+.RB "A " password " box is similar to an input box, except the text the user"
+enters is not displayed. This is useful when prompting for passwords or other
+sensitive information. Be aware that if anything is passed in "init", it
+will be visible in the system's process table to casual snoopers. Also, it
+is very confusing to the user to provide them with a default password they
+cannot see. For these reasons, using "init" is highly discouraged.
 .TP
 .BI \-\-textbox " file height width"
 .RB A " text" " box lets you display the contents of a text file in a"

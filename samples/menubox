@@ -1,5 +1,7 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
+trap "rm -f $tempfile" 0 1 2 5 15
 
 $DIALOG --clear --title "MENU BOX" \
         --menu "Hi, this is a menu box. You can use this to \n\
@@ -16,12 +18,11 @@ Try it now!\n\n\
         "OS/2" "IBM OS/2" \
         "WIN NT" "Microsoft Windows NT" \
         "PCDOS"  "IBM PC DOS" \
-        "MSDOS"  "Microsoft DOS" 2> /tmp/menu.tmp.$$
+        "MSDOS"  "Microsoft DOS" 2> $tempfile
 
 retval=$?
 
-choice=`cat /tmp/menu.tmp.$$`
-rm -f /tmp/menu.tmp.$$
+choice=`cat $tempfile`
 
 case $retval in
   0)

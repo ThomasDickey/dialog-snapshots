@@ -1,5 +1,7 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
+trap "rm -f $tempfile" 0 1 2 5 15
 
 $DIALOG --title "INPUT BOX" --clear \
         --inputbox "Hi, this is an input dialog box. You can use \n\
@@ -9,12 +11,11 @@ input strings of length longer than the \n\
 width of the input box, in that case, the \n\
 input field will be automatically scrolled. \n\
 You can use BACKSPACE to correct errors. \n\n\
-Try inputing your name below:" 16 51 2> /tmp/inputbox.tmp.$$
+Try entering your name below:" 16 51 2> $tempfile
 
 retval=$?
 
-input=`cat /tmp/inputbox.tmp.$$`
-rm -f /tmp/inputbox.tmp.$$
+input=`cat $tempfile`
 
 case $retval in
   0)

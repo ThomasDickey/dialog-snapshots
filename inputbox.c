@@ -27,17 +27,17 @@ unsigned char dialog_input_result[MAX_LEN + 1];
  */
 int
 dialog_inputbox (const char *title, const char *cprompt, int height, int width,
-		 const char *init)
+		 const char *init, const int password)
 {
     int i, x, y, box_y, box_x, box_width;
-    int input_x = 0, scroll = 0, key = 0, button = -1;
-    unsigned char *instr = dialog_input_result;
+    int input_x = 0, scrollamt = 0, key = 0, button = -1;
+    unsigned char *input = dialog_input_result;
     WINDOW *dialog;
     char *prompt=strclone(cprompt);
 
     tab_correct_str(prompt);
     if (init != NULL) {
-      prompt=auto_size(title, prompt, &height, &width, 5, MIN(MAX(strlen(init)+7,26),SCOLS-(begin_set ? begin_x : 0)));
+      prompt=auto_size(title, prompt, &height, &width, 5, MIN(MAX((int)strlen(init)+7,26),SCOLS-(begin_set ? begin_x : 0)));
     } else
       prompt=auto_size(title, prompt, &height, &width, 5, 26);
     print_size(height, width);
@@ -75,19 +75,23 @@ dialog_inputbox (const char *title, const char *cprompt, int height, int width,
     wmove (dialog, box_y, box_x);
     wattrset (dialog, inputbox_attr);
     if (!init)
-	instr[0] = '\0';
+	input[0] = '\0';
     else
-	strcpy (instr, init);
-    input_x = strlen (instr);
+	strcpy (input, init);
+    input_x = strlen (input);
     if (input_x >= box_width) {
-	scroll = input_x - box_width + 1;
+	scrollamt = input_x - box_width + 1;
 	input_x = box_width - 1;
-	for (i = 0; i < box_width - 1; i++)
-	    waddch (dialog, instr[scroll + i]);
-    } else
-	waddstr (dialog, instr);
-    wmove (dialog, box_y, box_x + input_x);
-
+      	if (! password)
+	  for (i = 0; i < box_width - 1; i++)
+	      waddch (dialog, input[scrollamt + i]);
+    } else if (! password)
+	waddstr (dialog, input);
+        for (i = 0; i < box_width - 1 - input_x; i++)
+          waddch (dialog, ' ');
+    
+    wmove (dialog, box_y, box_x + (password ? 0 : input_x));
+  
     wrefresh_lock(dialog);
     wtimeout(dialog, WTIMEOUT_VAL);
 
@@ -108,52 +112,65 @@ dialog_inputbox (const char *title, const char *cprompt, int height, int width,
 	    case KEY_RIGHT:
 		continue;
 	    case KEY_BACKSPACE:
+	    case KEY_DC:
 	    case 127:
-		if (input_x || scroll) {
+		if (input_x || scrollamt) {
 		    wattrset (dialog, inputbox_attr);
 		    if (!input_x) {
-			scroll = scroll < box_width - 1 ?
-			    0 : scroll - (box_width - 1);
-			wmove (dialog, box_y, box_x);
-			for (i = 0; i < box_width; i++)
-			    waddch (dialog, instr[scroll + input_x + i] ?
-				    instr[scroll + input_x + i] : ' ');
-			input_x = strlen (instr) - scroll;
+			scrollamt = scrollamt < box_width - 1 ?
+			    0 : scrollamt - (box_width - 1);
+		        if (! password) {
+			  wmove (dialog, box_y, box_x);
+			  for (i = 0; i < box_width; i++)
+			      waddch (dialog, input[scrollamt + input_x + i] ?
+				      input[scrollamt + input_x + i] : ' ');
+			}
+			input_x = strlen (input) - scrollamt;
 		    } else
 			input_x--;
-		    instr[scroll + input_x] = '\0';
-		    wmove (dialog, box_y, input_x + box_x);
-		    waddch (dialog, ' ');
-		    wmove (dialog, box_y, input_x + box_x);
-		    wrefresh_lock (dialog);
+		    input[scrollamt + input_x] = '\0';
+		    if (! password) {
+		      wmove (dialog, box_y, input_x + box_x);
+		      waddch (dialog, ' ');
+		      wmove (dialog, box_y, input_x + box_x);
+		      wrefresh_lock (dialog);
+		    }
 		}
 		continue;
             case 21:  /* ^U   support by Martin Schulze <joey@artis.uni-oldenburg.de> */
                 input_x = 0;
-                scroll = 0;
-                wmove (dialog, box_y, box_x);
-                for (i = 0; i < box_width - 1; i++)
-                  waddch (dialog, ' ');
-                instr[0] = '\0';
-                wmove (dialog, box_y, input_x + box_x);
-                wrefresh_lock (dialog);
+                scrollamt = 0;
+	        if (! password) {
+                  wmove (dialog, box_y, box_x);
+                  for (i = 0; i < box_width - 1; i++)
+                    waddch (dialog, ' ');
+                  input[0] = '\0';
+                  wmove (dialog, box_y, input_x + box_x);
+                  wrefresh_lock (dialog);
+		}
                 continue;
 	    default:
 		if (key < 0x100 && isprint (key)) {
-		    if (scroll + input_x < MAX_LEN) {
+		    if (scrollamt + input_x < MAX_LEN) {
 			wattrset (dialog, inputbox_attr);
-			instr[scroll + input_x] = key;
-			instr[scroll + input_x + 1] = '\0';
+			input[scrollamt + input_x] = key;
+			input[scrollamt + input_x + 1] = '\0';
 			if (input_x == box_width - 1) {
-			    scroll++;
-			    wmove (dialog, box_y, box_x);
-			    for (i = 0; i < box_width - 1; i++)
-				waddch (dialog, instr[scroll + i]);
-			} else {
+			    scrollamt++;
+			    if (! password) {
+			      wmove (dialog, box_y, box_x);
+			      for (i = 0; i < box_width - 1; i++)
+				  waddch (dialog, input[scrollamt + i]);
+			    }
+			} else if (! password) {
 			    wmove (dialog, box_y, input_x++ + box_x);
 			    waddch (dialog, key);
 			}
-			wrefresh_lock (dialog);
+		        else
+			    input_x++;
+		      
+		        if (! password)
+			  wrefresh_lock (dialog);
 		    } else
 			flash ();	/* Alarm user about overflow */
 		    continue;

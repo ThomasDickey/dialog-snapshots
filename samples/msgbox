@@ -1,5 +1,5 @@
 #!/bin/sh
-DIALOG=${DIALOG=../dialog}
+DIALOG=${DIALOG=dialog}
 
 $DIALOG --title "MESSAGE BOX" --clear \
         --msgbox "Hi, this is a simple message box. You can use this to \

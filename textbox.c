@@ -34,7 +34,9 @@ static int tabize(int val, int pos);
 static int hscroll = 0, fd, file_size, bytes_read, begin_reached = 1,
            end_reached = 0, page_length, buffer_len = 0, buffer_first = 1,
            fd_bytes_read;
-char *buf, *page;
+
+static char *buf;
+static char *page;
 
 
 /*
@@ -43,7 +45,7 @@ char *buf, *page;
 int dialog_textbox(const char *title, const char *file, int height, int width)
 {
   int i, x, y, cur_x, cur_y, fpos, key = 0, dir, temp, temp1;
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
   int passed_end;
 #endif
   char search_term[MAX_LEN+1], *tempptr, *found;
@@ -137,7 +139,7 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
         }
         break;
       case 'G':    /* Last page */
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
       case KEY_END:
 #endif
         end_reached = 1;
@@ -164,7 +166,7 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
       case KEY_UP:
         if (!begin_reached) {
           back_lines(page_length+1);
-#ifdef HAVE_NCURSES
+#ifdef NCURSES_VERSION
           /* We don't call print_page() here but use scrolling to ensure
              faster screen update. However, 'end_reached' and 'page_length'
              should still be updated, and 'page' should point to start of
@@ -215,7 +217,7 @@ int dialog_textbox(const char *title, const char *file, int height, int width)
           scroll(text);    /* Scroll text region up one line */
           scrollok(text, FALSE);
           print_line(text, height-5, width-2);
-#ifndef HAVE_NCURSES
+#ifndef NCURSES_VERSION
           wmove(text, height-5, 0);
           waddch(text, ' ');
           wmove(text, height-5, width-3);
@@ -475,11 +477,11 @@ static void print_line(WINDOW *win, int row, int width)
   int i, y, x;
   char *line;
   line = get_line();
-  line += MIN(strlen(line),hscroll);    /* Scroll horizontally */
+  line += MIN((int)strlen(line),hscroll);    /* Scroll horizontally */
   wmove(win, row, 0);    /* move cursor to correct line */
   waddch(win,' ');
-#ifdef HAVE_NCURSES
-  waddnstr(win, line, MIN(strlen(line),width-2));
+#ifdef NCURSES_VERSION
+  waddnstr(win, line, MIN((int)strlen(line),width-2));
 #else
   line[MIN(strlen(line),width-2)] = '\0';
   waddstr(win, line);
@@ -546,12 +548,12 @@ static char *get_line(void)
  */
 static int get_search_term(WINDOW *win, char *search_term, int height, int width)
 {
-  int i, x, y, input_x = 0, scroll = 0, key = 0,
+  int i, x, y, input_x = 0, scrollamt = 0, key = 0,
       box_height = 3, box_width = 30;
 
   x = (width - box_width)/2;
   y = (height - box_height)/2;
-#ifdef HAVE_NCURSES
+#ifdef HAVE_COLOR
   if (use_shadow)
     draw_shadow(win, y, x, box_height, box_width);
 #endif
@@ -573,19 +575,20 @@ static int get_search_term(WINDOW *win, char *search_term, int height, int width
           return 0;
         break;
       case KEY_BACKSPACE:
+      case KEY_DC:
       case 127:
-        if (input_x || scroll) {
+        if (input_x || scrollamt) {
           if (!input_x) {
-            scroll = scroll < box_width-1 ? 0 : scroll-(box_width-1);
+            scrollamt = scrollamt < box_width-1 ? 0 : scrollamt-(box_width-1);
             wmove(win, y+1, x+1);
             for (i = 0; i < box_width; i++)
-              waddch(win, search_term[scroll+input_x+i] ?
-                            search_term[scroll+input_x+i] : ' ');
-            input_x = strlen(search_term) - scroll;
+              waddch(win, search_term[scrollamt+input_x+i] ?
+                            search_term[scrollamt+input_x+i] : ' ');
+            input_x = strlen(search_term) - scrollamt;
           }
           else
             input_x--;
-          search_term[scroll+input_x] = '\0';
+          search_term[scrollamt+input_x] = '\0';
           wmove(win, y+1, input_x + x+1);
           waddch(win, ' ');
           wmove(win, y+1, input_x + x+1);
@@ -596,14 +599,14 @@ static int get_search_term(WINDOW *win, char *search_term, int height, int width
         break;
       default:
         if (isprint(key))
-          if (scroll+input_x < MAX_LEN) {
-            search_term[scroll+input_x] = key;
-            search_term[scroll+input_x+1] = '\0';
+          if (scrollamt+input_x < MAX_LEN) {
+            search_term[scrollamt+input_x] = key;
+            search_term[scrollamt+input_x+1] = '\0';
             if (input_x == box_width-1) {
-              scroll++;
+              scrollamt++;
               wmove(win, y+1, x+1);
               for (i = 0; i < box_width-1; i++)
-                waddch(win, search_term[scroll+i]);
+                waddch(win, search_term[scrollamt+i]);
             }
             else {
               wmove(win, y+1, input_x++ + x+1);
@@ -645,7 +648,8 @@ static void print_position(WINDOW *win, int height, int width)
  * fd_bytes_read is the effective number of bytes read from file
  * bytes_read is the length of buf, that can be different if tab_correct
  */
-static char *read_high(int fd, char *buf, size_t size_read) {
+static char *read_high(int my_fd, char *my_buf, size_t size_read)
+{
   char *buftab, ch;
   int i = 0, j, n, begin_line, tmpint, disp = 0;
 
@@ -653,7 +657,7 @@ static char *read_high(int fd, char *buf, size_t size_read) {
   if ((buftab = malloc(size_read+1)) == NULL)
     exiterr("\nCan't allocate memory in read_high().\n");
 
-  if ((fd_bytes_read = read(fd, buftab, size_read)) == -1)
+  if ((fd_bytes_read = read(my_fd, buftab, size_read)) == -1)
     exiterr("\nError reading file in read_high().\n");
 
   buftab[fd_bytes_read] = '\0';    /* mark end of valid data */
@@ -676,17 +680,17 @@ static char *read_high(int fd, char *buf, size_t size_read) {
       if (buffer_first)
         buffer_first = 0; /* disp = 0 */
       else {
-        disp = page-buf;
-        free(buf);
+        disp = page-my_buf;
+        free(my_buf);
       }
         
       buffer_len = bytes_read;
         
       /* Allocate space for read buffer */
-      if ((buf = malloc(buffer_len+1)) == NULL)
+      if ((my_buf = malloc(buffer_len+1)) == NULL)
         exiterr("\nCan't allocate memory in read_high().\n");
         
-      page=buf+disp;
+      page=my_buf+disp;
     }
     
   }
@@ -695,7 +699,7 @@ static char *read_high(int fd, char *buf, size_t size_read) {
       buffer_first = 0;
       
       /* Allocate space for read buffer */
-      if ((buf = malloc(size_read+1)) == NULL)
+      if ((my_buf = malloc(size_read+1)) == NULL)
         exiterr("\nCan't allocate memory in read_high().\n");
     }
     
@@ -707,17 +711,17 @@ static char *read_high(int fd, char *buf, size_t size_read) {
     if (((ch=buftab[j++]) == TAB) && (tab_correct)) {
       tmpint=tab_len-((i-begin_line)%tab_len);
       for(n = 0; n < tmpint; n++)
-        buf[i++]=' ';
+        my_buf[i++]=' ';
     } else {
       if (ch == '\n')
         begin_line=i+1;
-      buf[i++] = ch;
+      my_buf[i++] = ch;
     }
     
-  buf[i] = '\0';	/* mark end of valid data */
+  my_buf[i] = '\0';	/* mark end of valid data */
   
   if (bytes_read == -1) return NULL;
-  else return buf;
+  else return my_buf;
 }
 
 int tabize(int val, int pos) {

@@ -1,0 +1,76 @@
+-- T.Dickey <dickey@clark.net>
+
+This version of dialog was originally from a Debian snapshot.  I've done this
+to it:
+
+1999/12/25
+	+ use more portable scheme for tempfile generation in samples.
+	+ add a configure script, prefer to not use the original Makefile
+	  because it works only with GNU make.
+	+ correct prototype of 'main()', which misused const.
+	+ modify guage.c to use fgets() rather than gets().
+	+ merge changes from Debian package maintainer
+	  Santiago Vila <sanvila@ctv.es>:
+
+	  1999/10/7
+		+ add a password dialog box.
+		+ implement "--defaultno" option to specify if the default for
+		  the yes/no box is "No".
+	  1999/3/10
+		+ modify input.c to clear the input field to the right of the
+		  given string (unclear:  this seems redundant, since the
+		  dialog is drawn in a new window).
+	  1998/12/8
+		+ check for list_height less than one in checklist.c
+	  1998/10/21
+		+ use function wscrl() in preference to scroll() in checklist.c
+		  and menubox.c (unclear: in ncurses, scroll() is a macro that
+		  uses wscrl()).
+		+ remove the "-I/usr/include/ncurses" option from Makefile
+		  since Debian does not install ncurses' header files into
+		  that directory.
+	  1998/9/12
+		+ simplify menubox.c using new functions print_arrows() and
+		  print_items().
+		+ add logic to handle KEY_NPAGE and KEY_PPAGE.
+		+ change sample scripts to use Debian tempfile utility rather
+		  than putting files into /tmp.
+		+ change sample scripts to use 'dialog' from user's path rather
+		  than in the parent directory as in the build directory.
+		+ use the system copy of GPL rather than that in the build
+		  directory as an example for the textbox script.
+
+1999/11/27
+	+ fix some gcc warnings about ambiguous use of "else"
+
+1999/5/1
+
+	+ cleaned up some of the redundant code with new functions:
+		box_x_ordinate
+		box_y_ordinate
+		draw_title
+		draw_bottom_box
+		new_window
+
+	+ modified msgbox.c and yesno.c to work with the KEY_RESIZE sigwinch
+	  handling in ncurses 4.2
+
+	+ corrected spelling of "gauge"
+
+The relevant portions of the Debian change log for the original version
+(dialog-0.9a-12) are abstracted here, omitting details of their packaging:
+
+1998/5/24
+
+	+ Replaced guage.c by the one in dialog 0.6z, which is known to work.
+	  Fixes Bug #18284: unstable dialog.
+
+1997/12/16
+
+	+ dialog.c:  dialog_input_result printed with "%s" format.  This was
+	  Bug #9913, fixed by Bill Mitchell, but the change was lost.
+	+ Pristine source, .depend is not removed in clean target.  Instead, it
+	  is made zero lenght (otherwise it would not work *without* fakeroot).
+	+ Added '^U' support in input box (Bug #9915, patch by joey@debian.org).
+	+ Wrote patch to fix core-dumping problem (Bug #13170).  Sven Rudolph
+	  <sr1@inf.tu-dresden.de>:

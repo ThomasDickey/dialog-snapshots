@@ -1,3 +1,9 @@
+-(1999-12-25)-------------------------------------------------------------------
+This version of dialog, formerly known as cdialog is based on the Debian
+package for dialog 0.9a (see CHANGES for recent modifications)
+- T.Dickey <dickey@clark.net>
+
+-(1996-01-15)-------------------------------------------------------------------
 I have uploaded cdialog-0.9a.tar.gz to sunsite. It should be moved
 to pub/Linux/utils/shell, I think.
 
