@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.14 2000/10/27 23:16:16 tom Exp $
+dnl $Id: configure.in,v 1.17 2001/04/15 21:21:02 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -72,6 +72,7 @@ if test $with_ncurses = yes ; then
 	CF_NCURSES_CPPFLAGS
 	CF_NCURSES_LIBS
 else
+	CF_CURSES_CPPFLAGS
 	CF_NCURSES_VERSION
 	CF_CURSES_LIBS
 fi
@@ -91,11 +92,11 @@ CF_ARG_MSG_ENABLE([if you want config-file support],
 	[EXTRAOBJS="$EXTRAOBJS rc.o"
 	 AC_DEFINE(HAVE_RC_FILE)],,$cf_all_widgets)
 
-CF_ARG_MSG_ENABLE([if you want lxdialog-style dialogs],
-	lxdialog,
-	[  --enable-lxdialog       include lxdialog-style dialogs],
-	[EXTRAOBJS="$EXTRAOBJS fselect.o"
-	 AC_DEFINE(HAVE_FSELECT)],,$cf_all_widgets)
+CF_ARG_MSG_ENABLE([if you want Xdialog-style dialogs],
+	Xdialog,
+	[  --enable-Xdialog        include Xdialog-style dialogs],
+	[EXTRAOBJS="$EXTRAOBJS calendar.o fselect.o timebox.o"
+	 AC_DEFINE(HAVE_XDIALOG)],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the gauge dialog],
 	gauge,
@@ -131,4 +132,4 @@ CF_CURSES_CHTYPE
 
 AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
 
-AC_OUTPUT(makefile $SUB_MAKEFILE samples/install/makefile,,,sort)
+AC_OUTPUT(makefile $SUB_MAKEFILE samples/install/makefile,,,sort -u)

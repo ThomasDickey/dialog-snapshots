@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.17 2000/10/28 01:08:39 tom Exp $
+ *  $Id: buttons.c,v 1.19 2001/04/15 21:44:16 tom Exp $
  *
  *  buttons.c
  *
@@ -74,76 +74,134 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
     (void) wmove(win, y, x + temp + 1);
 }
 
+static int
+dlg_button_count(const char **labels)
+{
+    int result = 0;
+    while (*labels++ != 0)
+	++result;
+    return result;
+}
+
 /*
  * Print a list of buttons at the given position.
  */
 void
-dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
-		 int vertical, int limit)
+dlg_button_sizes(const char **labels,
+		 int vertical,
+		 int *longest,
+		 int *length)
 {
     int n;
-    int step;
-    int length = 0;
-    int longest = 0;
-    int first_y, first_x;
-    int final_y, final_x;
-    int found = FALSE;
-    int gap;
-    int margin;
-    int count = 0;
-    char *buffer;
 
-    mouse_setbase(getbegx(win), getbegy(win));
-
-    getyx(win, first_y, first_x);
-
+    *length = 0;
+    *longest = 0;
     for (n = 0; labels[n] != 0; n++) {
-	count++;
 	if (vertical) {
-	    length++;
-	    longest = 1;
+	    *length += 1;
+	    *longest = 1;
 	} else {
 	    int len = strlen(labels[n]);
-	    if (len > longest)
-		longest = len;
-	    length += len;
+	    if (len > *longest)
+		*longest = len;
+	    *length += len;
 	}
     }
     /*
      * If we can, make all of the buttons the same size.  This is only optional
      * for buttons laid out horizontally.
      */
-    if (longest < 6 - (longest & 1))
-	longest = 6 - (longest & 1);
+    if (*longest < 6 - (*longest & 1))
+	*longest = 6 - (*longest & 1);
     if (!vertical)
-	length = longest * n;
-    buffer = malloc((unsigned) longest + 1);
+	*length = *longest * n;
+}
 
-    if ((gap = (limit - length) / (count + 3)) <= 0) {
-	gap = (limit - length) / (count + 1);
-	margin = gap;
+int
+dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step)
+{
+    int count = dlg_button_count(labels);
+    int longest;
+    int length;
+    int unused;
+    int used;
+
+    dlg_button_sizes(labels, FALSE, &longest, &length);
+    used = (length + (count * 2));
+    unused = limit - used;
+
+    if ((*gap = unused / (count + 3)) <= 0) {
+	if ((*gap = unused / (count + 1)) <= 0)
+	    *gap = 1;
+	*margin = *gap;
     } else {
-	margin = gap * 2;
+	*margin = *gap * 2;
     }
-    step = gap + (length / count);
+    *step = *gap + (used + count - 1) / count;
+    return (*gap > 0);
+}
+
+/*
+ * Make sure there is enough space for the buttons
+ */
+void
+dlg_button_layout(const char **labels, int *limit)
+{
+    int width = *limit;
+    int button_gap, button_margin, button_step;
+
+    while (!dlg_button_x_step(labels, width, &button_gap, &button_margin, &button_step))
+	++width;
+    width += (2 * MARGIN);
+    if (width > COLS)
+    	width = COLS;
+    *limit = width;
+}
+
+/*
+ * Print a list of buttons at the given position.
+ */
+void
+dlg_draw_buttons(WINDOW *win,
+		 int y, int x,
+		 const char **labels,
+		 int selected,
+		 int vertical,
+		 int limit)
+{
+    int n;
+    int step;
+    int length;
+    int longest;
+    int final_x;
+    int final_y;
+    int gap;
+    int margin;
+    char *buffer;
+
+    mouse_setbase(getbegx(win), getbegy(win));
+
+    getyx(win, final_y, final_x);
+
+    dlg_button_sizes(labels, vertical, &longest, &length);
+
     if (vertical) {
-	if (gap > 1)
-	    y += (gap - 1);
+	y += 1;
     } else {
+	dlg_button_x_step(labels, limit, &gap, &margin, &step);
 	x += margin;
     }
 
-    final_x = 0;
-    final_y = 0;
+    buffer = malloc((unsigned) longest + 1);
+
     for (n = 0; labels[n] != 0; n++) {
 	center_label(buffer, longest, labels[n]);
 	mouse_mkbutton(y, x, strlen(buffer), n);
 	print_button(win, buffer, y, x,
 		     (selected == n) || (n == 0 && selected < 0));
-	if (!found) {
-	    found = (selected == n);
+	if (selected == n)
 	    getyx(win, final_y, final_x);
-	}
+
 	if (vertical) {
 	    if ((y += step) > limit)
 		break;
@@ -152,10 +210,7 @@ dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected,
 		break;
 	}
     }
-    if (found)
-	(void) wmove(win, final_y, final_x);
-    else
-	(void) wmove(win, first_y, first_x);
+    (void) wmove(win, final_y, final_x);
     wrefresh_lock(win);
     free(buffer);
 }
