@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.37 2003/09/24 20:19:30 tom Exp $
+ *  $Id: tailbox.c,v 1.38 2003/10/03 01:47:03 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -107,7 +107,7 @@ last_lines(MY_OBJ * obj, int target)
     char buf[BUFSIZ + 1];
     size_t size_to_read;
     size_t offset = 0;
-    long fpos;
+    long fpos = 0;
 
     if (fseek(fp, 0, SEEK_END) == -1
 	|| (fpos = ftell(fp)) < 0)

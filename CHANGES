@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.76 2003/09/24 20:26:18 tom Exp $
+-- $Id: CHANGES,v 1.77 2003/10/03 01:53:58 tom Exp $
 -- T.E.Dickey <dickey@his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/10/02
+	+ update hu.po (Arpad Biro).
+	+ revert part of the 2003/08/18 change to "--stdout" option.  Using
+	  stderr for screen output does not work well on several platforms
+	  since stdout's settings are affected (report by Kent Robotti).
 
 2003/09/24
 	+ modify tailbox to allow it to display files with arbitrarily long
