@@ -244,7 +244,7 @@ static int parse_line(char *line, char **var, char **value);
 void
 create_rc(const char *filename)
 {
-    int i;
+    unsigned i;
     FILE *rc_file;
 
     if ((rc_file = fopen(filename, "wt")) == NULL)
@@ -297,12 +297,12 @@ create_rc(const char *filename)
 int
 parse_rc(void)
 {
-    int i, l = 1, parse, fg, bg, hl;
+    unsigned i;
+    int l = 1, parse, fg, bg, hl;
     char str[MAX_LEN + 1], *var, *value, *tempptr;
     FILE *rc_file;
 
     /*
-
      *  At start, 'dialog' determines the settings to use as follows:
      *
      *  a) if environment variable DIALOGRC is set, it's value determines the

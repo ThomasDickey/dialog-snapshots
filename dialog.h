@@ -45,8 +45,13 @@
 #define USE_SHADOW TRUE
 #define USE_COLORS TRUE
 
+#ifdef HAVE_COLOR
 #define SCOLS	COLS-(use_shadow ? 2 : 0)
 #define SLINES	LINES-(use_shadow ? 1 : 0)
+#else
+#define SCOLS	COLS
+#define SLINES	LINES
+#endif
 
 #define ESC 27
 #define TAB 9
@@ -63,7 +68,6 @@
 #define WTIMEOUT_VAL        10
 
 
-#ifndef NCURSES_VERSION
 #ifndef ACS_ULCORNER
 #define ACS_ULCORNER '+'
 #endif
@@ -93,7 +97,6 @@
 #endif
 #ifndef ACS_DARROW
 #define ACS_DARROW 'v'
-#endif
 #endif
 
 /* 
@@ -223,6 +226,10 @@ int dialog_gauge (const char *title, const char *cprompt, int height, int width,
 		int percent);
 int dialog_tailbox (const char *title, const char *file, int height, int width);
 void dialog_tailboxbg (const char *title, const char *file, int height, int width, int cant_kill);
+
+/* inputstr.c */
+extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
+extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
 /*
  * The following stuff is needed for mouse support

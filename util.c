@@ -779,12 +779,15 @@ ctl_size(int height, int width)
 		"\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
 		height, width, LINES, COLS);
 	    exiterr(tempstr);
-	} else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
+	}
+#ifdef HAVE_COLOR
+	else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
 	    sprintf(tempstr,
 		"\nWindow+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n",
 		height, width, SLINES, SCOLS);
 	    exiterr(tempstr);
 	}
+#endif
     }
 }
 

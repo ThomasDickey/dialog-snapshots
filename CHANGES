@@ -3,6 +3,14 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/2/5
+	+ implement inline editing in textbox.c search dialog.
+	+ revise inputbox.c, allowing inline editing with arrow-keys.  removed
+	  redundant logic in that module.
+	+ correct a typo that prevented rc-file configuration from building.
+	+ correct ifdef's to compile/run if the curses implementation does not
+	  support color.
+
 2000/1/23
 	+ improve test-case for gauge.
 	+ change gauge.c to show progress in reverse-video, add a check for

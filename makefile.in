@@ -40,6 +40,7 @@ EXTRAOBJS = @EXTRAOBJS@
 OBJS = $(EXTRAOBJS) \
 	checklist.o \
 	inputbox.o \
+	inputstr.o \
 	menubox.o \
 	mousewget.o \
 	msgbox.o \

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.20 2000/01/24 02:16:20 tom Exp $
+ * $Id: dialog.c,v 1.22 2000/02/04 01:13:27 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -472,6 +472,9 @@ main(int argc, char *argv[])
     int retval = 0;
     int sleep_secs;
     struct Mode *modePtr;
+#ifndef HAVE_COLOR
+    int use_shadow = FALSE;	/* ignore corresponding option */
+#endif
 
 #ifdef HAVE_SETLOCALE
     (void) setlocale(LC_ALL, "");
@@ -499,8 +502,6 @@ main(int argc, char *argv[])
     init_dialog();
 
 #ifdef HAVE_RC_FILE
-
-    else
     if (!strcmp(argv[1], "--create-rc"))
 #ifdef NCURSES_VERSION
     {
