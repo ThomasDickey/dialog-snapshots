@@ -3,6 +3,68 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/04/29
+	> Vincent Stemen <dialog@AdvancedResearch.org>:
+	+ rewrote the text justification code to be able to have preformatted
+	  text in the prompts with extra spaces like the older versions of
+	  dialog.  If there are "\n" strings in the text, then extra spaces are
+	  preserved.  Lines are always wrapped on word boundaries.
+        + fixed --cr-wrap to break lines on '\n' (newline) characters and not
+          add an extra line at the top and bottom of the text.  It now works
+          as the manual says it should.
+	+ it is no longer necessary to use "\n\" at the end of lines to escape
+	  the '\n' character.  "\n" now works.  However, the old way, "\n\"
+	  still works.
+        + the fixes involved the following changes:
+          - rewrote dlg_trim_string() to recognize preformatted text (know
+            when not to strip extra spaces) and to pay attention to --cr-wrap.
+          - rewrote justify_text() which now calls a new function in util.c,
+            print_line(), to print each line and end it on a word boundary.
+	  - modified real_auto_size() to call a new function
+	    auto_size_preformated() to calculate the box size for preformatted
+	    text.
+          - removed skip_blanks() and skip_text() since they are not used by
+            the new justify_text().
+          - modified dialog.c to not call dlg_trim_string() on title strings
+            so that titles retain their spaces.
+        + modified the following demo files in the sample directory:
+          - inputbox
+	      changed all "\n\" strings to "\n" to demonstrate the extra
+	      backslash is no longer needed.
+          - inputbox1
+              removed all the "\n\" strings from the end of the lines to
+              properly demonstrate --cr-wrap.
+          - msgbox1
+	      this sample was using "--aspect 9 --cr-wrap".  Rewrote it to
+	      properly demonstrate --aspect.  9 is already dialog's default
+	      aspect ratio.  It now creates several dialogs in sequence,
+	      demonstrating aspect ratios of 9, 12 and 6 and properly
+	      demonstrates --cr-wrap.
+        + made the following changes to the manual (dialog.1).
+          - rewrote the description of --aspect to be more understandable.
+          - rewrote the description of --cr-wrap to be more correct and more
+            detailed.  It did say, "Otherwise, the text for each dialog will
+            display on a single line.", which is not correct.  It wraps the
+            text to fit in the box.
+	> T.Dickey:
+	+ use logic from menubox dialog in checklist to handle autosizing when
+	  list height is given as zero (fixes problem reported by Eric Veltman
+	  <eveltman@baan.nl>).
+	+ modify checklist and menubox dialogs to check for too-wide data, and
+	  truncate one or both of the name and text fields to fit (also
+	  reported by Eric Veltman).
+	+ corrected a few items from Vincent's patch:
+	  - use C89-style comments rather than C++
+	  - restore logic in justify_text() which checks for win==0, needed to
+	    work with standard curses implementations other than ncurses.
+	    The first call on justify_text() passes a null pointer as a flag
+	    to indicate that checking should be done, but no screen updates.
+	  - avoid modifying the buffer in decode_percent(), otherwise a message
+	    containing a space or newline would be truncated at the whitespace.
+	  - modify dlg_button_x_step() and dlg_button_layout() slightly to
+	    work with altered print_autowrap(), etc.
+	+ fixes to build/work with SunOS 4.x 5lib curses
+
 2001/04/15
 	+ fix a memory leak in mouse_region().
 	+ simplify handling of optional parameters with new functions
@@ -139,7 +201,7 @@ to it:
 	+ repaint screen when a control/L is pressed.
 	+ apply CharOf() macro to avoid sign-extension on calls to waddch(),
 	  fixes a problem with accented characters (reported by Santiago Vila).
-	+ add es.po, from Santiago Vila <sanvila@unex.es> 
+	+ add es.po, from Santiago Vila <sanvila@unex.es>
 
 2000/4/23
 	+ modified to use gettext (configure option --enable-nls).  This uses
