@@ -81,6 +81,7 @@ static struct Mode modes[] =
     {"--passwordbox", 5, 6, j_passwordbox},
 #ifdef HAVE_GAUGE
     {"--gauge", 6, 6, j_gauge},
+    {"--guage", 6, 6, j_gauge},	/* obsolete - for compatibility only */
 #endif
 #ifdef HAVE_TAILBOX
     {"--tailbox", 5, 5, j_tailbox},

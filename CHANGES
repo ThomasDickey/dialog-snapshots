@@ -3,6 +3,20 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/1/15
+	+ remove pre-autoconf Makefile
+	+ remove sleep's from a few of the sample scripts, which left users
+	  thinking that dialog was slow to complete an action.
+	+ rewrote infobox sample script, using dialog's --sleep option and
+	  a loop in the script.
+	+ change 'ch' variable in tailbox.c to an integer, because it is
+	  compared against EOF (fixes Debian #53157).
+	+ corrected mandir variable in makefile.in (reported by Santiago Vila).
+	+ small changes to sample scripts, from Debian: rename "guage" script
+	  to "gauge", change path to copy of GPL used in textbox.
+	+ add uninstall rule to makefile.in, fixed some dependencies so
+	  "make install" works without first doing "make all".
+
 1999/12/25
 	+ use more portable scheme for tempfile generation in samples.
 	+ add a configure script, prefer to not use the original Makefile
