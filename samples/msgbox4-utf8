@@ -1,7 +1,12 @@
 #!/bin/sh
-# $Id: msgbox4-utf8,v 1.4 2003/08/16 00:18:25 tom Exp $
+# $Id: msgbox4-utf8,v 1.5 2004/11/18 21:56:52 tom Exp $
 : ${DIALOG=dialog}
 
+: ${DIALOG_OK=0}
+: ${DIALOG_CANCEL=1}
+: ${DIALOG_ESC=255}
+
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 case none"$LANG$LC_ALL$LC_CTYPE" in
 *UTF-8*)
 	;;
@@ -29,5 +34,15 @@ There are several checking points:
 Hi, this is a simple message box.  You can use this to \
 display any message you like.  The box will remain until \
 you press the ENTER key." 22 $width
+retval=$?
+
+case $retval in
+  $DIALOG_CANCEL)
+    echo "Cancel pressed.";exit;;
+  $DIALOG_ESC)
+    echo "ESC pressed.";exit;;
+esac
+
 width=`expr $width + 1`
+
 done

@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.36 2004/11/18 00:37:54 tom Exp $
+ *  $Id: msgbox.c,v 1.38 2004/11/18 21:57:00 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -58,7 +58,7 @@ show_message(WINDOW *dialog,
 	    high = len;
 #endif
 	dummy = newwin(high, width, 0, 0);
-	wbkgdset(dummy, dialog_attr);
+	wbkgdset(dummy, dialog_attr | ' ');
 	wattrset(dummy, dialog_attr);
 	werase(dummy);
 	dlg_print_autowrap(dummy, prompt, high, wide);
@@ -282,5 +282,5 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
     free(prompt);
-    return key == ESC ? DLG_EXIT_ESC : 0;
+    return (key == ESC) ? DLG_EXIT_ESC : DLG_EXIT_OK;
 }

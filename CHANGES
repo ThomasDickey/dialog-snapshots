@@ -1,10 +1,14 @@
--- $Id: CHANGES,v 1.111 2004/11/18 01:14:45 tom Exp $
+-- $Id: CHANGES,v 1.113 2004/11/19 01:23:49 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2004/11/17
+2004/11/18
+	+ correct computation of column width for menubox/checkbox tags, for
+	  multicolumn characters, e.g., the menubox-utf8 example.
+	+ correct calls to wbkgdset(), which set the background attribute but
+	  not the corresponding character (ncurses uses blank if none is given).
 	+ improve configure script check for _XOPEN_SOURCE and _POSIX_C_SOURCE.
 	+ improved limit-computation in show_message() to allow for scrolling
 	  very long messages.
