@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.51 2003/01/25 00:21:37 tom Exp $
-.TH DIALOG 1 "" "$Date: 2003/01/25 00:21:37 $"
+.\" $Id: dialog.1,v 1.54 2003/08/10 21:51:04 tom Exp $
+.TH DIALOG 1 "" "$Date: 2003/08/10 21:51:04 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -22,6 +22,7 @@ These types of dialog boxes are implemented
 .LP
 .BR calendar ", "
 .BR checklist ", "
+.BR form ", "
 .BR fselect ", "
 .BR gauge ", "
 .BR infobox ", "
@@ -85,7 +86,8 @@ on exit.
 This may be used alone, without other options.
 .
 .IP "\fB\-\-colors"
-Interpret embedded "\\Z" sequences in the dialog text by the follow character,
+Interpret embedded "\\Z" sequences in the dialog text
+by the following character,
 which tells dialog to set colors or video attributes:
 0 through 7 are the ANSI used in curses:
 black,
@@ -216,6 +218,7 @@ This may be used alone, without other options.
 For checklist widgets, output result one line at a time, with no quoting.
 This facilitates parsing by another program.
 .
+.IP "\fB\-\-separator \fIstring"
 .IP "\fB\-\-separate-widget \fIstring"
 Specify a string that will separate the output on standard error from
 each widget.
@@ -312,7 +315,21 @@ On exit, a list of the
 strings of those entries that are turned on will be printed on
 .IR stderr "."
 .
-.IP "\fB\-\-fselect \fI filepath height width\fR"
+.IP "\fB\-\-form \fItext height width formheight \fR[ \fIlabel y x item y x flen ilen \fR] \fI..."
+The form dialog displays a form consisting of labels and fields,
+which are positioned on a scrollable window by coordinates given in the script.
+The field length \fIflen\fR and input-length \fIilen\fR tell how long
+the field can be.
+The former defines the length shown for a selected field,
+while the latter defines the permissable length of the data entered in the
+field.
+If \fIflen\fR is zero, the corresponding field cannot be altered.
+If \fIilen\fR is zero, it is set to \fIflen\fR.
+.sp
+Use up/down arrows (or control/N, control/P) to move between fields.
+Use tab to move between windows.
+.
+.IP "\fB\-\-fselect \fIfilepath height width\fR"
 The file-selection dialog displays a text-entry window in which you can type
 a filename (or directory), and above that two windows with directory
 names and filenames.
@@ -345,8 +362,8 @@ New percentages are read from
 standard input, one integer per line.
 The meter is updated
 to reflect each new percentage.
-If stdin is XXX, then subsequent
-lines up to another XXX are used for a new prompt.
+If stdin is the string "XXX", then subsequent
+lines up to another "XXX" are used for a new prompt.
 The gauge exits when EOF is reached on stdin.
 .sp
 The \fIpercent\fR value denotes the initial percentage shown in the meter.

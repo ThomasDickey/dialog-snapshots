@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.20 2002/06/22 16:23:43 tom Exp $
+ *  $Id: guage.c,v 1.22 2003/07/24 22:22:17 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -24,10 +24,13 @@
 
 #define MY_LEN (MAX_LEN)/2
 
+#define MIN_HIGH (4)
+#define MIN_WIDE (10 + 2 * (2 + MARGIN))
+
 #define isMarker(buf) !strncmp(buf, "XXX", 3)
 
 static char *
-read_data(char *buffer, FILE * fp)
+read_data(char *buffer, FILE *fp)
 {
     char *result;
     if (feof(fp)) {
@@ -59,20 +62,28 @@ decode_percent(char *buffer)
  * than the height and width specified.
  */
 int
-dialog_gauge(const char *title, const char *prompt, int height,
-	     int width, int percent)
+dialog_gauge(const char *title,
+	     const char *prompt,
+	     int height,
+	     int width,
+	     int percent)
 {
     int i, x, y;
     char buf[MY_LEN];
     char prompt_buf[MY_LEN];
     WINDOW *dialog;
 
+    auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
+    print_size(height, width);
+    ctl_size(height, width);
+
     /* center dialog box on screen */
-    x = (COLS - width) / 2;
-    y = (LINES - height) / 2;
+    x = box_x_ordinate(width);
+    y = box_y_ordinate(height);
 
     dialog = new_window(height, width, y, x);
 
+    curs_set(0);
     do {
 	(void) werase(dialog);
 	draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -80,22 +91,25 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	print_autowrap(dialog, prompt, height, width - 2);
+	print_autowrap(dialog, prompt, height, width - (2 * MARGIN));
 
-	draw_box(dialog, height - 4, 3, 3, width - 6, dialog_attr,
+	draw_box(dialog,
+		 height - 4, 2 + MARGIN,
+		 2 + MARGIN, width - 2 * (2 + MARGIN),
+		 dialog_attr,
 		 border_attr);
 
 	(void) wmove(dialog, height - 3, 4);
 	wattrset(dialog, title_attr);
 
-	for (i = 0; i < (width - 8); i++)
+	for (i = 0; i < (width - 2 * (3 + MARGIN)); i++)
 	    (void) waddch(dialog, ' ');
 
 	wattrset(dialog, title_attr);
 	(void) wmove(dialog, height - 3, (width / 2) - 2);
 	(void) wprintw(dialog, "%3d%%", percent);
 
-	x = (percent * (width - 8)) / 100;
+	x = (percent * (width - 2 * (3 + MARGIN))) / 100;
 	wattrset(dialog, A_REVERSE);
 	(void) wmove(dialog, height - 3, 4);
 	for (i = 0; i < x; i++)
@@ -132,6 +146,7 @@ dialog_gauge(const char *title, const char *prompt, int height,
 	}
     } while (1);
 
+    curs_set(1);
     del_window(dialog);
     return (DLG_EXIT_OK);
 }

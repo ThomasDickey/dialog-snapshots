@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: checklist,v 1.7 2003/08/15 19:40:37 tom Exp $
+# $Id: checklist-utf8,v 1.2 2003/08/19 00:44:44 tom Exp $
 : ${DIALOG=dialog}
 
 : ${DIALOG_OK=0}
@@ -8,6 +8,15 @@
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
+
+case none"$LANG$LC_ALL$LC_CTYPE" in
+*UTF-8*)
+	;;
+*)
+	echo "This script must be run in a UTF-8 locale"
+	exit 1
+	;;
+esac
 
 $DIALOG --backtitle "Red Hat Software Linux" \
 	--title "CHECKLIST BOX" \
@@ -19,13 +28,13 @@ UP/DOWN arrow keys, the first letter of the choice as a \n\
 hot key, or the number keys 1-9 to choose an option. \n\
 Press SPACE to toggle an option on/off. \n\n\
   Which of the following are fruits?" 20 61 5 \
-        "Apple"  "It's an apple." off \
-        "Dog"    "No, that's not my dog." ON \
-        "Orange" "Yeah, that's juicy." off \
-        "Chicken"    "Normally not a pet." off \
-        "Cat"    "No, never put a dog and a cat together!" oN \
-        "Fish"   "Cats like fish." On \
-        "Lemon"  "You know how it tastes." on 2> $tempfile
+        "ＡＰＰＬＥ"  "It's an ＡＰＰＬＥ." off \
+        "ＤＯＧ"    "No, that's not my ＤＯＧ." ON \
+        "ＯＲＡＮＧＥ" "Yeah, that's ＪＵＩＣＹ." off \
+        "ＣＨＩＣＫＥＮ"    "Normally not a ＰＥＴ." off \
+        "ＣＡＴ"    "No, never put a ＤＯＧ and a ＣＡＴ together!" oN \
+        "ＦＩＳＨ"   "Cats like ＦＩＳＨ." On \
+        "ＬＥＭＯＮ"  "You ＫＮＯＷ how it ＴＡＳＴＥＳ." on 2> $tempfile
 
 retval=$?
 

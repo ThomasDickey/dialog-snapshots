@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.57 2003/07/12 11:44:18 tom Exp $
+ *  $Id: checklist.c,v 1.60 2003/08/18 23:57:36 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -42,6 +42,8 @@ print_item(WINDOW *win, char **items, int status,
 {
     int i;
     chtype attr = A_NORMAL;
+    const int *indx;
+    int limit;
 
     /* Clear 'residue' of last item */
     wattrset(win, menubox_attr);
@@ -56,16 +58,36 @@ print_item(WINDOW *win, char **items, int status,
 		   status ? 'X' : ' ');
     wattrset(win, menubox_attr);
     (void) waddch(win, ' ');
-    wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-    if (strlen(ItemName(0)) != 0)
-	(void) waddch(win, CharOf(ItemName(0)[0]));
-    wattrset(win, selected ? tag_selected_attr : tag_attr);
-    if (strlen(ItemName(0)) > 1)
-	(void) wprintw(win, "%.*s", item_x - check_x - 6, ItemName(0) + 1);
 
-    (void) wmove(win, choice, item_x);
-    wattrset(win, selected ? item_selected_attr : item_attr);
-    dlg_print_text(win, ItemText(0), getmaxx(win) - item_x - 1, &attr);
+    if (strlen(ItemName(0)) != 0) {
+
+	indx = dlg_index_wchars(ItemName(0));
+	limit = dlg_count_wchars(ItemName(0));
+
+	wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
+	(void) waddnstr(win, ItemName(0), indx[1]);
+
+	if ((int) strlen(ItemName(0)) > indx[1]) {
+	    limit = dlg_limit_columns(ItemName(0), (item_x - check_x - 6), 1);
+	    if (limit > 1) {
+		wattrset(win, selected ? tag_selected_attr : tag_attr);
+		(void) waddnstr(win,
+				ItemName(0) + indx[1],
+				indx[limit] - indx[1]);
+	    }
+	}
+    }
+
+    if (strlen(ItemText(0)) != 0) {
+	indx = dlg_index_wchars(ItemText(0));
+	limit = dlg_limit_columns(ItemText(0), (getmaxx(win) - item_x - 1), 0);
+
+	if (limit > 0) {
+	    (void) wmove(win, choice, item_x);
+	    wattrset(win, selected ? item_selected_attr : item_attr);
+	    dlg_print_text(win, ItemText(0), indx[limit], &attr);
+	}
+    }
 
     if (selected) {
 	dlg_item_help(ItemHelp(0));

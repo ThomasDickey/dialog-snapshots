@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.32 2003/03/08 16:39:35 tom Exp $
+ *  $Id: buttons.c,v 1.33 2003/07/25 01:09:46 tom Exp $
  *
  *  buttons.c
  *
@@ -28,10 +28,11 @@ center_label(char *buffer, int longest, const char *label)
     int len = strlen(label);
 
     if (len < longest) {
-	len = (longest - len) / 2;
-	longest -= len;
-	sprintf(buffer, "%*s", len, " ");
-	buffer += strlen(buffer);
+	if ((len = (longest - len) / 2) > 0) {
+	    longest -= len;
+	    sprintf(buffer, "%*s", len, " ");
+	    buffer += strlen(buffer);
+	}
     }
     sprintf(buffer, "%-*s", longest, label);
 }

@@ -1,15 +1,63 @@
--- $Id: CHANGES,v 1.66 2003/07/20 20:51:35 tom Exp $
+-- $Id: CHANGES,v 1.69 2003/08/19 00:01:33 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/08/18
+	+ modify checkbox.c and menubox.c to display tags properly if they
+	  contain wide-characters.
+	+ better solution for initializing curses when "--stdout" option is
+	  used, e.g., use stderr for the output if it is a tty.  Also correct
+	  the error handling, so dialog exits with an error if it cannot
+	  find a way to do output (Debian #205509).
+	+ modify sample scripts to use consistent definition of $DIALOG
+	  (Debian #205508).
+	+ add UTF-8 examples msgbox4-utf8, inputbox6 (from Tomohiro KUBOTA
+	  as testcases for Debian #195674).
+	+ modify print_line() to work with wide-characters, e.g., so it handles
+	  wrapping for double-width characters.
+	+ cache results from multibyte character indices, speeds up cursor
+	  movement.
+	+ modify form widget to support scrolling and mouse-selection.
+	+ add form widget (based on patch by Reznic Valery).
+	+ correct mouse-handling for inputmenu widget.
+	+ corrections to menu.c: location of clearing operation, and height of
+	  rows in code for older ncurses versions (patch by Reznic Valery
+	  <Valery_Reznic@icomverse.com>).
+	+ improve logic that compensates for xterm's alternate-screen by
+	  cancelling the rmcup/smcup strings after the rmcup has been issued.
+	  That ensures that dialog will not clear the screen on exit (report
+	  by Javier Kohen).
+	+ modify initialization between widgets to retain the values for the
+	  --aspect, --separate-widget and --tab-len options.
+	+ add --separator as an alias for --separate-widget (Xdialog).
+	+ correct handling of Xdialog's --icon and --wmclass options, whose
+	  parameter was not ignored.
+	+ correct logic for --separate-widget so its string is written before
+	  each output, rather than only for --and-widget option (report by
+	  Javier Kohen <jkohen@coresecurity.com>).
+	+ improve limit-check in center_label() for buttons.c (report by Tor
+	  Vidar Havstad <tor@hdd.no>).
+	+ correct layout of --menu widget, which reduced display width due to
+	  logic for --inputmenu being applied whether or not that configuration
+	  was used (reports by Javier Kohen <jkohen@coresecurity.com>, Dimitar
+	  Zhekov <jimmy@is-vn.bg> and MAL <mal@komcept.com>).  Fixes Debian
+	  #201215.
+	+ modify gauge widget to support --begin option (Hans-Joachim Baader
+	  <hans-joachim.baader@cjt.de>).
+	+ updated pl.po (Jaroslaw Swierczynski <swiergot@intersec.pl>)
+	+ hide cursor while painting gauge.
+	+ add auto-sizing logic to gauge widget (reports by
+	  Javier Kohen <jkohen@coresecurity.com>
+	  and Robert Schubert <xbert@myrealbox.com>).
 
 2003/07/20
 	+ rewrote inputstr.c, allowing it to enter and display wide-characters.
 	  Some nonprinting characters such as control/B can be edited as well.
 	+ modify timebox to allow user to type numbers into the fields.
 	+ change interfaces of dlg_getc(), mouse_wgetch(), etc., to add
-	  parameter that returns whether the result is really a function-key. 
+	  parameter that returns whether the result is really a function-key.
 	  This is needed to work with wide-character curses.
 	+ correct computation of week-number in calendar widget (report by
 	  Heiner Lamann).
@@ -51,7 +99,7 @@ to it:
 	+ add hu.po (Arpad Biro <biro_arpad@yahoo.com>).
 	+ update fr.po, pt.po, pt_BR.po to add strings for "Help" button (patch
 	  by Frederic L W Meunier).
-	+ fix off-by-one error in menu.c, checklist.c (reported by 
+	+ fix off-by-one error in menu.c, checklist.c (reported by
 	  Tomasz Wasiak <tjwasiak@komputom.com.pl> 2002/9/15 and others:
 	  Andrew Gaul <andrew@gaul.org> 2002/11/12,
 	  Tobias C Rittweiler 2002/11/19,
@@ -117,7 +165,7 @@ to it:
 	+ add --exit-label option (request by Roberto Simoni
 	  <rs@menhir-informatica.com>).
 	+ updated de.po to correct translation for "Cancel" (from Michael
-	  Piefel <piefel@debian.org> fixes Debian #146402). 
+	  Piefel <piefel@debian.org> fixes Debian #146402).
 	+ use definitions from autoconf macro AC_HEADER_TIME to ensure that
 	  time() is properly prototyped.
 	+ update pl.po, adding translation for "Help" (patch by Swiergot
@@ -160,7 +208,7 @@ to it:
 
 2001/12/02
 	+ add --ok-label and --cancel-label options (request by Kyle Sallee
-	  <cromwell@kublai.com> independent of Xdialog). 
+	  <cromwell@kublai.com> independent of Xdialog).
 	+ correct usage message for --fselect option (reported by Patrick J
 	  Volkerding).
 	+ add samples/debian.rc, for comparison with slackware.rc
@@ -200,7 +248,7 @@ to it:
 	  (discussion with Frederic L W Meunier).
 	+ modify dialog.pl to avoid using a statically-named tempfile, allowing
 	  multiple processes to use this script (patch by <euclid80@yahoo.com>,
-	  Debian #110609). 
+	  Debian #110609).
 	+ correct fprintf() call in j_menu() function, i.e., "--menu" option,
 	  which did not guard against expanding '%' embedded in the parameters
 	  (Stavros Chatzistefanidis <sxatz@yahoo.com>).
@@ -450,7 +498,7 @@ to it:
 
 2000/06/29
 	+ add alternate test-script for gauge, adapted from Xdialog.
-	+ modify guage to make optional a percentage which was read at the
+	+ modify gauge to make optional a percentage which was read at the
 	  beginning of the XXX-delimited message text, since clones of dialog
 	  are written to assume this is text.  If the line is not a simple
 	  integer, dialog will treat it as text.

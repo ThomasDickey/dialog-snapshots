@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id: timebox2,v 1.2 2003/08/15 19:40:37 tom Exp $
 : ${DIALOG=dialog}
 
 USERTIME=`$DIALOG --stdout --title "TIMEBOX" --timebox "Please set the time..." 0 0`

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.91 2003/03/08 16:42:55 tom Exp $
+ * $Id: dialog.c,v 1.98 2003/08/10 21:36:04 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -53,6 +53,7 @@ typedef enum {
     ,o_extra_button
     ,o_extra_label
     ,o_fixed_font
+    ,o_form
     ,o_fselect
     ,o_fullbutton
     ,o_gauge
@@ -86,6 +87,7 @@ typedef enum {
     ,o_screen_center
     ,o_separate_output
     ,o_separate_widget
+    ,o_separator
     ,o_shadow
     ,o_size_err
     ,o_sleep
@@ -148,6 +150,7 @@ static const Options options[] = {
     { "extra-label",	o_extra_label,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
+    { "form",		o_form,     	 	2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
     { "fselect",	o_fselect,		2, "<filepath> <directory> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
@@ -183,6 +186,7 @@ static const Options options[] = {
     { "screen-center",	o_screen_center,	1, NULL },
     { "separate-output",o_separate_output,	1, "" },
     { "separate-widget",o_separate_widget,	1, "<str>" },
+    { "separator",	o_separator,		1, NULL },
     { "shadow",		o_shadow,		1, "" },
     { "size-err",	o_size_err,		1, "" },
     { "sleep",		o_sleep,		1, "<secs>" },
@@ -382,12 +386,21 @@ optional_num(char **av, int n, int dft)
 static int
 show_result(int ret)
 {
+    bool either = FALSE;
+
     switch (ret) {
     case DLG_EXIT_OK:
     case DLG_EXIT_EXTRA:
     case DLG_EXIT_HELP:
+	if (dialog_vars.output_count > 1) {
+	    fputs(dialog_vars.separate_str, dialog_vars.output);
+	    either = TRUE;
+	}
 	if (dialog_vars.input_result[0] != '\0') {
 	    fputs(dialog_vars.input_result, dialog_vars.output);
+	    either = TRUE;
+	}
+	if (either) {
 	    fflush(dialog_vars.output);
 	}
 	break;
@@ -563,6 +576,22 @@ j_timebox(JUMPARGS)
 }
 #endif
 
+#ifdef HAVE_FORMBOX
+static int
+j_form(JUMPARGS)
+{
+    int tags = howmany_tags(av + 5, FORMBOX_TAGS);
+    *offset_add = 5 + tags * FORMBOX_TAGS;
+
+    return dialog_form(t,
+		       av[1],
+		       numeric_arg(av, 2),
+		       numeric_arg(av, 3),
+		       numeric_arg(av, 4),
+		       tags, av + 5);
+}
+#endif
+
 #ifdef HAVE_GAUGE
 static int
 j_gauge(JUMPARGS)
@@ -616,6 +645,9 @@ static const Mode modes[] =
     {o_calendar,    4, 7, j_calendar},
     {o_fselect,     4, 5, j_fselect},
     {o_timebox,     4, 7, j_timebox},
+#endif
+#ifdef HAVE_FORMBOX
+    {o_form,       13, 0, j_form},
 #endif
 #ifdef HAVE_GAUGE
     {o_gauge,       4, 5, j_gauge},
@@ -758,15 +790,27 @@ Help(void)
     dlg_exit(DLG_EXIT_OK);
 }
 
+#define DFT(value,dft) ((value == 0) ? dft : value)
+
 static void
 init_result(FILE *output, char *buffer)
 {
+    int output_count = dialog_vars.output_count;
+    int tab_len = DFT(dialog_vars.tab_len, TAB_LEN);
+    int aspect_ratio = DFT(dialog_vars.aspect_ratio, DEFAULT_ASPECT_RATIO);
+    char *separate_str = DFT(dialog_vars.separate_str, DEFAULT_SEPARATE_STR);
+
+    /* clear everything we do not save for the next widget */
     memset(&dialog_vars, 0, sizeof(dialog_vars));
-    dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
-    dialog_vars.tab_len = TAB_LEN;
+
+    dialog_vars.aspect_ratio = aspect_ratio;
+    dialog_vars.tab_len = tab_len;
     dialog_vars.output = output;
+    dialog_vars.separate_str = separate_str;
     dialog_vars.input_result = buffer;
-    *buffer = '\0';
+    dialog_vars.output_count = output_count;
+
+    dialog_vars.input_result[0] = '\0';
 }
 
 int
@@ -774,7 +818,6 @@ main(int argc, char *argv[])
 {
     FILE *output = stderr;
     char temp[80];
-    const char *separate_str = DEFAULT_SEPARATE_STR;
     bool esc_pressed = FALSE;
     bool ignore_unknown = FALSE;
     int offset = 1;
@@ -858,8 +901,9 @@ main(int argc, char *argv[])
 	    case o_backtitle:
 		dialog_vars.backtitle = optionString(argv, &offset);
 		break;
+	    case o_separator:
 	    case o_separate_widget:
-		separate_str = optionString(argv, &offset);
+		dialog_vars.separate_str = optionString(argv, &offset);
 		break;
 	    case o_separate_output:
 		dialog_vars.separate_output = TRUE;
@@ -982,6 +1026,21 @@ main(int argc, char *argv[])
 	    case o_fullbutton:
 		/* ignore */
 		break;
+		/* options of Xdialog which we ignore */
+	    case o_icon:
+	    case o_wmclass:
+		(void) optionString(argv, &offset);
+		/* FALLTHRU */
+	    case o_allow_close:
+	    case o_auto_placement:
+	    case o_fixed_font:
+	    case o_keep_colors:
+	    case o_no_close:
+	    case o_no_cr_wrap:
+	    case o_screen_center:
+	    case o_smooth:
+	    case o_under_mouse:
+		break;
 	    case o_unknown:
 		if (ignore_unknown)
 		    break;
@@ -1074,7 +1133,6 @@ main(int argc, char *argv[])
 	    if (offset < argc) {
 		switch (lookupOption(argv[offset], 7)) {
 		case o_and_widget:
-		    (void) fputs(separate_str, output);
 		    offset++;
 		    break;
 		case o_unknown:

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.93 2003/03/08 16:52:58 tom Exp $
+ *  $Id: util.c,v 1.99 2003/08/18 00:49:43 tom Exp $
  *
  *  util.c
  *
@@ -252,24 +252,38 @@ init_dialog(void)
     }
 
     /*
-     * Try to open the output directly to /dev/tty so we can support the
-     * command-line option "--stdout".  Otherwise it will get lost in the
-     * normal output to the screen.
+     * If stdout is not a tty, assume dialog is called with the --stdout
+     * option.  We cannot test the option from this point, but it is a fairly
+     * safe assumption.  The curses library normally writes its output to
+     * stdout, leaving stderr free for scripting.  Scripts are simpler when
+     * stdout is redirected.  However, we have to find a way to write curses'
+     * output.  The newterm function is useful; it allows us to specify where
+     * the output goes.  The simplest solution uses stderr for the output.  If
+     * stderr cannot be used, then we try to reopen our terminal.  Reopening
+     * the terminal is a last resort since several configurations do not allow
+     * this to work properly:
      *
-     * Actually we only do this if stdout is redirected, to work around HP's
-     * broken implementation of the tty driver (tested on HPUX 10 and 11). 
-     * Opening /dev/tty at this point causes stdin to remain in cooked mode,
-     * even though results from ioctl's state that it is successfully altered
-     * to raw mode.  So "--stdout" is unusable on that platform, as is the
-     * newterm() function.
+     * a) some getty implementations (and possibly broken tty drivers, e.g., on
+     *	  HPUX 10 and 11) cause stdin to act as if it is still in cooked mode
+     *	  even though results from ioctl's state that it is successfully
+     *	  altered to raw mode.  Broken is the proper term.
+     *
+     * b) the user may not have permissions on the device, e.g., if one su's
+     *	  from the login user to another non-privileged user.
+     *
+     * If stdout is a tty, none of this need apply, so we use initscr.
      */
-    if (!isatty(fileno(stdout))
-	&& (fd1 = open_terminal(&device, O_WRONLY)) >= 0
-	&& (my_output = fdopen(fd1, "w")) != 0) {
-	if (newterm(NULL, my_output, stdin) == 0) {
-	    exiterr("cannot initialize curses");
+    if (!isatty(fileno(stdout))) {
+	if (!isatty(fileno(stderr))
+	    || newterm(NULL, stderr, stdin) != 0) {
+	    if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
+		&& (my_output = fdopen(fd1, "w")) != 0) {
+		if (newterm(NULL, my_output, stdin) == 0) {
+		    exiterr("cannot initialize curses");
+		}
+		free(device);
+	    }
 	}
-	free(device);
     } else {
 	my_output = stdout;
 	(void) initscr();
@@ -282,8 +296,27 @@ init_dialog(void)
 	&& key_mouse != 0	/* xterm and kindred */
 	&& isprivate(enter_ca_mode)
 	&& isprivate(exit_ca_mode)) {
+	/*
+	 * initscr() or newterm() already did putp(enter_ca_mode) as a side
+	 * effect of initializing the screen.  It would be nice to not even
+	 * do that, but we do not really have access to the correct copy of
+	 * the terminfo description until those functions have been invoked.
+	 */
 	(void) putp(exit_ca_mode);
 	(void) putp(clear_screen);
+	/*
+	 * Prevent ncurses from switching "back" to the normal screen when
+	 * exiting from dialog.  That would move the cursor to the original
+	 * location saved in xterm.  Normally curses sets the cursor position
+	 * to the first line after the display, but the alternate screen
+	 * switching is done after that point.
+	 *
+	 * Cancelling the strings altogether also works around the buggy
+	 * implementation of alternate-screen in rxvt, etc., which clear
+	 * more of the display than they should.
+	 */
+	enter_ca_mode = 0;
+	exit_ca_mode = 0;
     }
 #endif
     (void) keypad(stdscr, TRUE);
@@ -471,27 +504,35 @@ dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
 static const char *
 print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x)
 {
-    int cur_x = lm;
     const char *wrap_ptr = prompt;
     const char *test_ptr = prompt;
-    int i = 0;
+    const int *cols = dlg_index_columns(prompt);
+    const int *indx = dlg_index_wchars(prompt);
+    int cur_x = lm;
     int hidden = 0;
+    int limit = dlg_count_wchars(prompt);
+    int n;
 
     *x = 1;
 
     /*
-     * Set *test_ptr to the end of the line or the right margin (rm), whichever is
-     * less, and set *wrap_ptr to the end of the last word in the line.
+     * Set *test_ptr to the end of the line or the right margin (rm), whichever
+     * is less, and set *wrap_ptr to the end of the last word in the line.
      */
-    while (*test_ptr != '\n' && *test_ptr != '\0' && cur_x < (rm + hidden)) {
-	if (*test_ptr == ' ' && test_ptr != prompt && *(test_ptr - 1) != ' ') {
-	    wrap_ptr = test_ptr;
+    for (n = 0; n < limit; ++n) {
+	if (*test_ptr == '\n' || *test_ptr == '\0' || cur_x >= (rm + hidden))
+	    break;
+	if (*test_ptr == ' ' && n != 0 && prompt[indx[n - 1]] != ' ') {
+	    wrap_ptr = prompt + indx[n];
 	    *x = cur_x;
 	} else if (isOurEscape(test_ptr)) {
 	    hidden += 3;
+	    n += 2;
 	}
-	test_ptr++;
-	cur_x++;
+	cur_x = lm + cols[n + 1];
+	if (cur_x > (rm + hidden))
+	    break;
+	test_ptr = prompt + indx[n + 1];
     }
 
     /*
@@ -499,6 +540,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
      * we don't have to wrap it at the end of the previous word.
      */
     if (*test_ptr == '\n' || *test_ptr == ' ' || *test_ptr == '\0') {
+	int i = 0;
 	while (&wrap_ptr[++i] < test_ptr) {
 	    ;
 	}
@@ -512,7 +554,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
     /*
      * If the line has no spaces, then wrap it anyway at the right margin
      */
-    else if (*x == 1 && cur_x == rm) {
+    else if (*x == 1 && cur_x >= rm) {
 	*x = rm;
 	wrap_ptr = test_ptr;
     }
@@ -613,7 +655,7 @@ print_autowrap(WINDOW *win, const char *prompt, int height, int width)
  * as necessary.
  */
 static void
-auto_size_preformatted(char *prompt, int *height, int *width)
+auto_size_preformatted(const char *prompt, int *height, int *width)
 {
     int high, wide;
     float car;			/* Calculated Aspect Ratio */
@@ -659,7 +701,7 @@ auto_size_preformatted(char *prompt, int *height, int *width)
  */
 static void
 real_auto_size(const char *title,
-	       char *prompt,
+	       const char *prompt,
 	       int *height, int *width,
 	       int boxlines, int mincols)
 {
@@ -722,8 +764,12 @@ real_auto_size(const char *title,
 /* End of real_auto_size() */
 
 void
-auto_size(const char *title, char *prompt, int *height, int *width, int
-	  boxlines, int mincols)
+auto_size(const char *title,
+	  const char *prompt,
+	  int *height,
+	  int *width,
+	  int boxlines,
+	  int mincols)
 {
     real_auto_size(title, prompt, height, width, boxlines, mincols);
 
@@ -934,12 +980,12 @@ ctl_size(int height, int width)
 {
     if (dialog_vars.size_err) {
 	if ((width > COLS) || (height > LINES)) {
-	    exiterr("Window too big. (Height, width) = (%d, %d). Max allowed (%d, %d).",
+	    exiterr("Window too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
 		    height, width, LINES, COLS);
 	}
 #ifdef HAVE_COLOR
 	else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
-	    exiterr("Window+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).",
+	    exiterr("Window+Shadow too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
 		    height, width, SLINES, SCOLS);
 	}
 #endif
@@ -1331,4 +1377,13 @@ dlg_add_result(char *string)
 	}
     }
     strcat(dialog_vars.input_result, string);
+}
+
+/*
+ * Called each time a widget is invoked which may do output, increment a count.
+ */
+void
+dlg_does_output(void)
+{
+    dialog_vars.output_count += 1;
 }

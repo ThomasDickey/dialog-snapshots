@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.15 2003/07/12 17:12:57 tom Exp $
+ * $Id: timebox.c,v 1.16 2003/07/26 11:11:06 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -146,6 +146,8 @@ dialog_timebox(const char *title,
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
+
+    dlg_does_output();
 
     auto_size(title, prompt, &height, &width, 0, 0);
     height += MIN_HIGH;

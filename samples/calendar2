@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id: calendar2,v 1.2 2003/08/15 19:40:37 tom Exp $
 : ${DIALOG=dialog}
 
 USERDATE=`$DIALOG --stdout --title "CALENDAR" --calendar "Please choose a date..." 0 0`
