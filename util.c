@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.106 2003/08/31 00:50:27 tom Exp $
+ *  $Id: util.c,v 1.107 2003/10/03 01:40:05 tom Exp $
  *
  *  util.c
  *
@@ -255,15 +255,14 @@ init_dialog(void)
      * If stdout is a tty, none of this need apply, so we use initscr.
      */
     if (!isatty(fileno(stdout))) {
-	if (!isatty(fileno(stderr))
-	    || newterm(NULL, stderr, stdin) != 0) {
-	    if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
-		&& (my_output = fdopen(fd1, "w")) != 0) {
-		if (newterm(NULL, my_output, stdin) == 0) {
-		    exiterr("cannot initialize curses");
-		}
-		free(device);
+	if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
+	    && (my_output = fdopen(fd1, "w")) != 0) {
+	    if (newterm(NULL, my_output, stdin) == 0) {
+		exiterr("cannot initialize curses");
 	    }
+	    free(device);
+	} else {
+	    exiterr("cannot open tty-output");
 	}
     } else {
 	my_output = stdout;
