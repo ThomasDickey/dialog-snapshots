@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.70 2004/07/29 00:17:37 tom Exp $
+ *  $Id: menubox.c,v 1.71 2004/07/31 10:58:11 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -269,8 +269,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
      * leave it intact.
      */
     use_width = (menu_width - GUTTER);
-    if (use_width <= 5)
-	dlg_exiterr("screen too small");
     if (text_width + name_width > use_width) {
 	int need = 0.25 * use_width;
 	if (name_width > need) {
@@ -279,8 +277,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	}
 	text_width = use_width - name_width;
     }
-    if (text_width <= 1 || name_width <= 1)
-	dlg_exiterr("screen too small");
 
     tag_x = (dialog_vars.input_menu
 	     ? 0
