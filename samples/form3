@@ -1,5 +1,6 @@
 #! /bin/sh
-# $Id: form1,v 1.6 2004/03/13 16:06:51 tom Exp $
+# $Id: form3,v 1.1 2004/03/13 16:34:56 tom Exp $
+# form1 with --help-button
 : ${DIALOG=dialog}
 
 backtitle="An Example for the use of --form:"
@@ -16,6 +17,7 @@ while test $returncode != 1 && test $returncode != 250
 do
 exec 3>&1
 value="`$DIALOG --ok-label "Submit" \
+	  --help-button \
 	  --backtitle "$backtitle" \
 	  --form "Here is a possible piece of a configuration program." \
 20 50 0 \
@@ -49,6 +51,13 @@ show=`echo "$value" |sed -e 's/^/	/'`
 		--clear \
 		--backtitle "$backtitle" --no-collapse --cr-wrap \
 		--msgbox "Resulting data:\n\
+$show" 10 40
+		;;
+	2)
+		"$DIALOG" \
+		--clear \
+		--backtitle "$backtitle" --no-collapse --cr-wrap \
+		--msgbox "Help data:\n\
 $show" 10 40
 		;;
 	*)

@@ -2,9 +2,9 @@ arrows.c
 buttons.c
 calendar.c
 checklist.c
-colors.h
 dialog.c
 dialog.h
+dlg_colors.h
 fselect.c
 guage.c
 inputbox.c

@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.19 2003/11/26 16:40:44 tom Exp $
+ *  $Id: rc.c,v 1.20 2004/03/10 23:05:16 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -24,7 +24,7 @@
 #include "dialog.h"
 
 #ifdef HAVE_COLOR
-#include "colors.h"
+#include <dlg_colors.h>
 /*
  * For matching color names with color values
  */

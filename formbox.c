@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.26 2003/11/26 18:52:30 tom Exp $
+ *  $Id: formbox.c,v 1.27 2004/03/13 16:29:47 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -329,6 +329,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    int form_height, int item_no, char **items)
 {
 #define sTEXT -1
+    bool show_status = FALSE;
     int form_width;
     int first = TRUE;
     int chr_offset = 0;
@@ -645,11 +646,31 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     }
 
-    for (i = 0; i < item_no; i++) {
-	if (elt[i].text_flen != 0) {
-	    dlg_add_result(elt[i].text);
+    switch (result) {
+    case DLG_EXIT_OK:		/* FALLTHRU */
+    case DLG_EXIT_EXTRA:
+	show_status = TRUE;
+	break;
+    case DLG_EXIT_HELP:
+	dlg_add_result("HELP ");
+	show_status = dialog_vars.help_status;
+	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
+	    dlg_add_result(ItemHelp(scrollamt + choice));
+	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	} else {
+	    dlg_add_result(ItemName(scrollamt + choice));
+	}
+	if (show_status)
 	    dlg_add_result("\n");
-	    free(elt[i].text);
+	break;
+    }
+    if (show_status) {
+	for (i = 0; i < item_no; i++) {
+	    if (elt[i].text_flen != 0) {
+		dlg_add_result(elt[i].text);
+		dlg_add_result("\n");
+		free(elt[i].text);
+	    }
 	}
     }
 

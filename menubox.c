@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.64 2003/11/26 21:10:11 tom Exp $
+ *  $Id: menubox.c,v 1.66 2004/03/14 16:23:32 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -137,8 +137,6 @@ input_menu_edit(WINDOW *win, char **items, int choice)
 
     result = malloc(dialog_vars.max_input);
     assert_ptr(result, "input_menu_edit");
-
-    dialog_vars.max_input = dialog_vars.max_input;
 
     /* original item is used to initialize the input string. */
     result[0] = '\0';
@@ -349,7 +347,12 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    if (key >= (M_EVENT + KEY_MAX)) {
 		key -= (M_EVENT + KEY_MAX);
 		i = RowToItem(key);
-		found = TRUE;
+		if (scrollamt + i < max_choice) {
+		    found = TRUE;
+		} else {
+		    beep();
+		    continue;
+		}
 	    } else if (key >= M_EVENT
 		       && dlg_ok_buttoncode(key - M_EVENT) >= 0) {
 		button = (key - M_EVENT);

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.111 2003/11/26 22:20:28 tom Exp $
+ * $Id: dialog.c,v 1.116 2004/03/15 00:01:10 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -23,6 +23,8 @@
 
 #include "dialog.h"
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
@@ -239,31 +241,143 @@ static const Options options[] = {
  * special token to escape the next argument, allowing it to begin with "--".
  * When we find a "--" argument, also remove it from argv[] and adjust argc.
  * That appears to be an undocumented feature of the popt library.
+ *
+ * Also, if we see a "--file", expand it into the parameter list by reading the
+ * text from the given file and stripping quotes, treating whitespace outside
+ * quotes as a parameter delimiter.
  */
 static void
-unescape_argv(int *argcp, char **argv)
+unescape_argv(int *argcp, char ***argvp)
 {
     int j, k;
     bool changed = FALSE;
+    bool doalloc = FALSE;
 
     dialog_opts = calloc(*argcp + 1, sizeof(bool));
     assert_ptr(dialog_opts, "unescape_argv");
 
-    dialog_argv = argv;
-
     for (j = 1; j < *argcp; j++) {
 	bool escaped = FALSE;
-	if (!strcmp(argv[j], "--")) {
+	if (!strcmp((*argvp)[j], "--")) {
 	    changed = TRUE;
 	    escaped = TRUE;
 	    *argcp -= 1;
 	    for (k = j; k <= *argcp; k++)
-		argv[k] = argv[k + 1];
+		(*argvp)[k] = (*argvp)[k + 1];
+	} else if (!strcmp((*argvp)[j], "--file")) {
+	    char *filename = (*argvp)[j + 1];
+	    if (filename != 0) {
+		FILE *fp;
+		struct stat sb;
+		char *blob;
+		int pass;
+		int n;
+		int length;
+
+		if (stat(filename, &sb) == 0
+		    && (sb.st_mode & S_IFMT) == S_IFREG
+		    && sb.st_size != 0) {
+
+		    blob = malloc(sb.st_size + 1);
+		    assert_ptr(blob, "unescape_argv");
+
+		    fp = fopen(filename, "r");
+		    if (fp != 0) {
+			length = fread(blob, sizeof(char), sb.st_size, fp);
+			fclose(fp);
+		    } else {
+			length = 0;
+		    }
+		    blob[length] = '\0';
+
+		    for (pass = 0; pass < 2; ++pass) {
+			bool inparm = FALSE;
+			bool quoted = FALSE;
+			char *param = blob;
+			int added = 0;
+
+			for (n = 0; n < length; ++n) {
+			    if (quoted && blob[n] == '"') {
+				quoted = FALSE;
+			    } else if (blob[n] == '"') {
+				quoted = TRUE;
+				if (!inparm) {
+				    if (pass)
+					(*argvp)[j + added] = param;
+				    ++added;
+				    inparm = TRUE;
+				}
+			    } else if (blob[n] == '\\') {
+				if (quoted && !isspace(CharOf(blob[n + 1]))) {
+				    if (!inparm) {
+					if (pass)
+					    (*argvp)[j + added] = param;
+					++added;
+					inparm = TRUE;
+				    }
+				    if (pass) {
+					*param++ = blob[n];
+					*param++ = blob[n + 1];
+				    }
+				}
+				++n;
+			    } else if (!quoted && isspace(CharOf(blob[n]))) {
+				inparm = FALSE;
+				if (pass) {
+				    *param++ = '\0';
+				}
+			    } else {
+				if (!inparm) {
+				    if (pass)
+					(*argvp)[j + added] = param;
+				    ++added;
+				    inparm = TRUE;
+				}
+				if (pass) {
+				    *param++ = blob[n];
+				}
+			    }
+			}
+
+			if (!pass) {
+			    if (added) {
+				if (added > 2) {
+				    size_t need = sizeof(char *) * (*argcp + added);
+				    if (doalloc) {
+					*argvp = realloc(*argvp, need);
+					assert_ptr(*argvp, "unescape_argv");
+				    } else {
+					char **newp = malloc(need);
+					assert_ptr(newp, "unescape_argv");
+					for (n = 0; n < *argcp; ++n) {
+					    newp[n] = (*argvp)[n];
+					}
+					*argvp = newp;
+					doalloc = TRUE;
+				    }
+				    dialog_opts = realloc(dialog_opts,
+							  *argcp + added);
+				    assert_ptr(dialog_opts, "unescape_argv");
+				}
+				for (n = *argcp; n >= j + 2; --n) {
+				    (*argvp)[n + added - 2] = (*argvp)[n];
+				    dialog_opts[n + added - 2] = dialog_opts[n];
+				}
+				*argcp += added - 2;
+			    }
+			} else
+			    *param = '\0';
+		    }
+		}
+		(*argvp)[*argcp] = 0;
+		++j;
+		continue;
+	    }
 	}
 	if (!escaped
-	    && argv[j] != 0
-	    && !strncmp(argv[j], "--", 2)
-	    && isalpha(argv[j][2])) {
+	    && (*argvp)[j] != 0
+	    && !strncmp((*argvp)[j], "--", 2)
+	    && isalpha(UCH((*argvp)[j][2]))) {
 	    dialog_opts[j] = TRUE;
 	}
     }
@@ -275,6 +389,7 @@ unescape_argv(int *argcp, char **argv)
 	free(dialog_opts);
 	dialog_opts = 0;
     }
+    dialog_argv = (*argvp);
 }
 
 /*
@@ -294,7 +409,7 @@ isOption(const char *arg)
 		    break;
 		}
 	    }
-	} else if (!strncmp(arg, "--", 2) && isalpha(arg[2])) {
+	} else if (!strncmp(arg, "--", 2) && isalpha(UCH(arg[2]))) {
 	    result = TRUE;
 	}
     }
@@ -762,6 +877,9 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
+	"Copyright (C) 2004 Thomas E. Dickey",
+	"This is free software; see the source for copying conditions.  There is NO",
+	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
 	"* Display dialog boxes from shell scripts *",
 	"",
@@ -848,7 +966,7 @@ main(int argc, char *argv[])
     (void) setlocale(LC_ALL, "");
 #endif
 
-    unescape_argv(&argc, argv);
+    unescape_argv(&argc, &argv);
     program = argv[0];
     dialog_state.output = stderr;
 
