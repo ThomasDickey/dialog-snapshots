@@ -13,6 +13,7 @@ menubox.c
 mouse.c
 mousewget.c
 msgbox.c
+pause.c
 rc.c
 tailbox.c
 textbox.c

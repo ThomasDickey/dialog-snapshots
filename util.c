@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.141 2004/12/20 20:42:58 tom Exp $
+ *  $Id: util.c,v 1.142 2004/12/22 01:17:02 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -360,17 +360,32 @@ void
 dlg_color_setup(void)
 {
     unsigned i;
-    chtype color;
 
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
 
+#if defined(__NetBSD__) && defined(_CURSES_)
+#define C_ATTR(x,y) (((x) != 0 ? A_BOLD :  0) | COLOR_PAIR((y)))
+	/* work around bug in NetBSD curses */
 	for (i = 0; i < sizeof(dlg_color_table) /
 	     sizeof(dlg_color_table[0]); i++) {
 
 	    /* Initialize color pairs */
-	    color = dlg_color_pair(dlg_color_table[i].fg,
-				   dlg_color_table[i].bg);
+	    (void) init_pair(i + 1,
+			     dlg_color_table[i].fg,
+			     dlg_color_table[i].bg);
+
+	    /* Setup color attributes */
+	    dlg_color_table[i].atr = C_ATTR(dlg_color_table[i].hilite, i + 1);
+	}
+	defined_colors = i + 1;
+#else
+	for (i = 0; i < sizeof(dlg_color_table) /
+	     sizeof(dlg_color_table[0]); i++) {
+
+	    /* Initialize color pairs */
+	    chtype color = dlg_color_pair(dlg_color_table[i].fg,
+					  dlg_color_table[i].bg);
 
 	    /* Setup color attributes */
 	    dlg_color_table[i].atr = ((dlg_color_table[i].hilite
@@ -378,6 +393,7 @@ dlg_color_setup(void)
 				       : 0)
 				      | color);
 	}
+#endif
     }
 }
 

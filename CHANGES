@@ -1,10 +1,26 @@
--- $Id: CHANGES,v 1.118 2004/12/20 23:40:36 tom Exp $
+-- $Id: CHANGES,v 1.121 2004/12/23 01:33:49 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2004/12/20
+2004/12/22
+	+ correct a typo in 2004/12/19 changes which caused width of multibyte
+	  characters to be incorrectly computed in some locales.
+	+ modify --version and --help options to write consistently to the
+	  standard output (report by Santiago Vila).
+	+ modify tailboxbg by resetting tty modes at the point where it forks a
+	  process to update the screen, rather than waiting until that process
+	  exits.  This improves user feedback by making it apparent that dialog
+	  is no longer processing input after that point (Redhat Bugzilla
+	  #142538).
+	+ minor updates to some .po files using Babel Fish, comparing with lynx.
+	+ update es.po (Santiago Vila).
+	+ work around bug in NetBSD 1.6 curses which seems to be confused by
+	  reusing color pairs with different video attributes.  The problem
+	  does not appear in NetBSD 2.0 curses (but its headers do not provide
+	  version info, so color-caching is not available for that
+	  configuration).
 	+ modify pause and gauge widgets to ensure that reverse-video progress
 	  bar is visible when the background is reversed, e.g., using the
 	  default non-color attributes.

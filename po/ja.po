@@ -40,7 +40,7 @@ msgstr ""
 
 #: buttons.c:407
 msgid "Help"
-msgstr ""
+msgstr "¥Ø¥ë¥×"
 
 #. Headline "Month"
 #: calendar.c:299
@@ -66,4 +66,4 @@ msgstr ""
 
 #: textbox.c:437
 msgid "Search"
-msgstr "Search"
+msgstr "Ä´ºº"
