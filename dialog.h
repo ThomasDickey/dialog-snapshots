@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.78 2001/10/14 22:50:59 tom Exp $
+ *  $Id: dialog.h,v 1.79 2001/11/11 21:44:44 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -38,7 +38,9 @@
 #include <signal.h>	/* fork() etc. */
 #include <math.h>	/* sqrt() */
 
-#if defined(HAVE_NCURSES_CURSES_H)
+#if defined(HAVE_NCURSESW_NCURSES_H)
+#include <ncursesw/ncurses.h>
+#elif defined(HAVE_NCURSES_CURSES_H)
 #include <ncurses/curses.h>
 #elif defined(HAVE_NCURSES_H)
 #include <ncurses.h>
@@ -309,7 +311,7 @@ void auto_size(const char * title, char *prompt, int *height, int *width, int bo
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
 void exiterr(const char *, ...)
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(printf)
 __attribute__((format(printf,1,2)))
 #endif
 ;

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.72 2001/10/15 01:20:42 tom Exp $
+ * $Id: dialog.c,v 1.73 2001/11/12 01:29:55 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -104,6 +104,9 @@ typedef struct {
     jumperFn *jumper;
 } Mode;
 
+static bool *dialog_opts;
+static char **dialog_argv;
+
 static const char *program = "dialog";
 static const char *const and_widget = "--and-widget";
 /* *INDENT-OFF* */
@@ -174,13 +177,76 @@ static const Options options[] = {
 };
 /* *INDENT-ON* */
 
+/*
+ * Make an array showing which argv[] entries are options.  Use "--" as a
+ * special token to escape the next argument, allowing it to begin with "--".
+ * When we find a "--" argument, also remove it from argv[] and adjust argc.
+ * That appears to be an undocumented feature of the popt library.
+ */
+static void
+unescape_argv(int *argcp, char **argv)
+{
+    int j, k;
+    bool changed = FALSE;
+
+    dialog_opts = calloc(*argcp + 1, sizeof(bool));
+    dialog_argv = argv;
+
+    for (j = 1; j < *argcp; j++) {
+	bool escaped = FALSE;
+	if (!strcmp(argv[j], "--")) {
+	    changed = TRUE;
+	    escaped = TRUE;
+	    *argcp -= 1;
+	    for (k = j; k <= *argcp; k++)
+		argv[k] = argv[k + 1];
+	}
+	if (!escaped
+	    && argv[j] != 0
+	    && !strncmp(argv[j], "--", 2)) {
+	    dialog_opts[j] = TRUE;
+	}
+    }
+
+    /* if we didn't find any "--" tokens, there's no reason to do the table
+     * lookup in isOption()
+     */
+    if (!changed) {
+	free(dialog_opts);
+	dialog_opts = 0;
+    }
+}
+
+/*
+ * Check if the given string from main's argv is an option.
+ */
+static bool
+isOption(const char *arg)
+{
+    bool result = FALSE;
+
+    if (arg != 0) {
+	if (dialog_opts != 0) {
+	    int n;
+	    for (n = 1; dialog_argv[n] != 0; ++n) {
+		if (dialog_argv[n] == arg) {
+		    result = dialog_opts[n];
+		    break;
+		}
+	    }
+	} else if (!strncmp(arg, "--", 2)) {
+	    result = TRUE;
+	}
+    }
+    return result;
+}
+
 static eOptions
 lookupOption(const char *name, int pass)
 {
     unsigned n;
 
-    if (name != 0
-	&& !strncmp(name, "--", 2)) {
+    if (isOption(name)) {
 	name += 2;
 	for (n = 0; n < sizeof(options) / sizeof(options[0]); n++) {
 	    if ((pass & options[n].pass) != 0
@@ -208,8 +274,7 @@ arg_rest(char *argv[])
     int i = 1;			/* argv[0] points to a "--" token */
 
     while (argv[i] != 0
-	   && (strncmp(argv[i], "--", 2)
-	       || lookupOption(argv[i], 7) == o_unknown))
+	   && (!isOption(argv[i]) || lookupOption(argv[i], 7) == o_unknown))
 	i++;
     return i;
 }
@@ -656,6 +721,8 @@ main(int argc, char *argv[])
 #ifndef HAVE_COLOR
     int use_shadow = FALSE;	/* ignore corresponding option */
 #endif
+
+    unescape_argv(&argc, argv);
 
 #if defined(ENABLE_NLS)
     /* initialize locale support */

@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.23 2001/08/28 00:34:44 tom Exp $
+# $Id: makefile.in,v 1.24 2001/11/11 23:01:55 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -78,9 +78,9 @@ LIB_DIRS	= $(libdir) $(includedir)
 
 all	:: $(ALL)
 
-@INTLLIBS@ :
-	@echo "Building GNU gettext library..."
-	@cd intl && $(MAKE) @cf_cv_makeflags@
+@INTLDIR_MAKE@@INTLLIBS@ :
+@INTLDIR_MAKE@	@echo "Building GNU gettext library..."
+@INTLDIR_MAKE@	@cd intl && $(MAKE) @cf_cv_makeflags@
 
 dialog.o \
 $(OBJS) : $(srcdir)/dialog.h config.h
@@ -92,27 +92,34 @@ $(LIB) : $(OBJS)
 dialog$x : $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
 	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
 
-clean	::
+clean	\
+distclean \
+install \
+install-strip \
+uninstall ::
+	@echo making $@
 @INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
 @MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
+
+clean	::
 	rm -f core *.o *~ tags TAGS $(ALL)
 
 distclean :: clean
-@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
-@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f intl/libintl.h intl/po2tbl.sed
 	rm -f makefile config.h config.cache config.log config.status
 	rm -f samples/install/makefile
 
-install :: $(ALL) $(BIN_DIRS)
-@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
-@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
+install :: $(PROG) $(bindir)
+	$(INSTALL_PROGRAM) $(PROG) $(bindir)
+
+install-strip :: $(PROG) $(bindir)
 	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
+
+install-strip \
+install :: $(MANDIR)
 	$(INSTALL_DATA) dialog.1 $(MANDIR)
 
 uninstall ::
-@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
-@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 	rm -f $(bindir)/$(PROG)
 	rm -f $(MANDIR)/dialog.1
 
@@ -125,8 +132,10 @@ uninstall-lib :: $(LIB_DIRS)
 	rm -f $(libdir)/$(LIB)
 	rm -f $(includedir)/dialog.h
 
+$(MANDIR) \
 $(bindir) \
-$(MANDIR) : ; $(srcdir)/mkdirs.sh $@
+$(includedir) \
+$(libdir) : ; $(srcdir)/mkdirs.sh $@
 
 @MAKE_LOWER_TAGS@tags :
 @MAKE_LOWER_TAGS@	ctags $(SRCS) $(HDRS)

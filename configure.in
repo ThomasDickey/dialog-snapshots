@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.20 2001/08/28 00:12:34 tom Exp $
+dnl $Id: configure.in,v 1.21 2001/11/11 21:41:52 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.19990117)
@@ -64,13 +64,19 @@ if test $with_dmalloc = yes ; then
 	AC_CHECK_LIB(dmalloc,dmalloc_debug)
 fi
 
+with_ncurses=no
 AC_ARG_WITH(ncurses,
 	[  --with-ncurses          compile/link with ncurses library],
-	[with_ncurses=$withval],
-	[with_ncurses=no])
-if test $with_ncurses = yes ; then
-	CF_NCURSES_CPPFLAGS
-	CF_NCURSES_LIBS
+	[with_ncurses=ncurses])
+AC_ARG_WITH(ncursesw,
+	[  --with-ncursesw         compile/link with wide-char ncurses library],
+	[with_ncurses=ncursesw])
+if test $with_ncurses != no ; then
+	if test $with_ncurses = ncursesw ; then
+		CF_UTF8_LIB
+	fi
+	CF_NCURSES_CPPFLAGS($with_ncurses)
+	CF_NCURSES_LIBS($with_ncurses)
 else
 	CF_CURSES_CPPFLAGS
 	CF_NCURSES_VERSION
