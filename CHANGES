@@ -3,6 +3,17 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/08/27
+	+ use VPATH in makefile to support build with configure --srcdir, if
+	  the make program supports that.  Note that samples/install/makefile
+	  is not generated, due to awkward limitation of autoconf script
+	  (reported by Frederic L W Meunier <0@pervalidus.net>).
+	+ add po/pt_BR.po (Frederic L W Meunier <0@pervalidus.net>).
+	+ correct sense of --enable/--disable shown in configure --help (report
+	  by Frederic L W Meunier <0@pervalidus.net>).
+	+ correct logic for --clear option, broken in 2000/07/02 (fixes Debian
+	  #110254).
+
 2001/08/11
 	+ porting fixes to work on AIX: flush output to work around bug in
 	  curses library, use ./killall in scripts to avoid conflict with
