@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.82 2004/12/19 22:56:11 tom Exp $
+ *  $Id: checklist.c,v 1.83 2004/12/20 20:42:58 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -59,9 +59,9 @@ static void
 print_item(WINDOW *win, char **items, int status,
 	   int choice, int selected)
 {
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
     int i;
-    attr_t attr = A_NORMAL;
+    chtype attr = A_NORMAL;
     const int *indx;
     int limit;
 

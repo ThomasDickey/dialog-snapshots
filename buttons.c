@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.55 2004/09/19 23:02:17 tom Exp $
+ *  $Id: buttons.c,v 1.56 2004/12/20 20:42:58 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -247,7 +247,7 @@ dlg_draw_buttons(WINDOW *win,
 		 int vertical,
 		 int limit)
 {
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
     int n;
     int step = 0;
     int length;

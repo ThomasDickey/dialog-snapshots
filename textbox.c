@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.56 2004/12/19 19:53:48 tom Exp $
+ *  $Id: textbox.c,v 1.57 2004/12/20 20:47:15 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -383,7 +383,7 @@ print_page(MY_OBJ * obj, int height, int width)
 static void
 print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 {
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
     long fpos;
     long size;
     int percent;
@@ -427,14 +427,14 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 static int
 get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
-    attr_t save = getattrs(dialog);
+    chtype save = getattrs(dialog);
     int box_x, box_y, key = 0;
     int box_height, box_width;
     int offset = 0;
     int fkey = 0;
     bool first = TRUE;
     int result = DLG_EXIT_UNKNOWN;
-    const char *caption = _("Search");
+    char *caption = _("Search");
     int len_caption = dlg_count_columns(caption);
     const int *indx;
     int limit;

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.140 2004/12/19 23:34:03 tom Exp $
+ *  $Id: util.c,v 1.141 2004/12/20 20:42:58 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -425,7 +425,7 @@ dlg_color_pair(int foreground, int background)
 static chtype
 define_color(WINDOW *win, int foreground)
 {
-    attr_t attrs = getattrs(win);
+    chtype attrs = getattrs(win);
     int pair;
     short fg, bg, background;
 
@@ -954,7 +954,7 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
 	     chtype boxchar, chtype borderchar)
 {
     int i, j;
-    attr_t save = getattrs(win);
+    chtype save = getattrs(win);
 
     wattrset(win, 0);
     for (i = 0; i < height; i++) {
@@ -1209,8 +1209,8 @@ void
 dlg_draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
-	attr_t attr = A_NORMAL;
-	attr_t save = getattrs(win);
+	chtype attr = A_NORMAL;
+	chtype save = getattrs(win);
 	int x = centered(getmaxx(win), title);
 
 	wattrset(win, title_attr);
