@@ -1,3 +1,5 @@
+#!/bin/bash
+# $Id: admin.funcs,v 1.2 2001/01/15 22:20:11 tom Exp $
 #
 #  ComeOn Point Functions! v0.9.2
 #  - usate da vari altri moduli ComeOn Point...
@@ -49,9 +51,10 @@ add_alias() {
     echo "$SOURCE: $DEST" >>$ALIASES
   else
     OLDDEST="`echo $ENTRY | cut -f2 -d:`"
-    sed /"$SOURCE:"/s/"$OLDDEST"/" $DEST"/ $ALIASES >/tmp/copi.alias
-    cat /tmp/copi.alias >$ALIASES
-    rm /tmp/copi.alias
+    mkstemp alias
+    sed /"$SOURCE:"/s/"$OLDDEST"/" $DEST"/ $ALIASES >$tmp_alias
+    cat $tmp_alias >$ALIASES
+    rm $tmp_alias
   fi
   mkaliases >/dev/null
 } 
@@ -125,9 +128,10 @@ rmgroup() {
 # Updating newsgroups file
     if [ -f $NEWSGROUPS ]
     then
+      mkstemp groups
       mv $NEWSGROUPS $NEWSGROUPS~
-      grep -v $NEWSGR $NEWSGROUPS~ >/tmp/copi.newsgroups
-      mv /tmp/copi.newsgroups $NEWSGROUPS
+      grep -v $NEWSGR $NEWSGROUPS~ >$tmp_groups
+      mv $tmp_groups $NEWSGROUPS
     else
       :> $NEWSGROUPS
     fi
@@ -136,9 +140,10 @@ rmgroup() {
 # Updating Areas file
     if [ -f $AREAS ]
     then
+      mkstemp areas
       mv $AREAS $AREAS~
-      grep -v $NEWSGR $AREAS~ >/tmp/copi.Areas
-      mv /tmp/copi.Areas $AREAS
+      grep -v $NEWSGR $AREAS~ >$tmp_areas
+      mv $tmp_areas $AREAS
     else
       :> $AREAS
     fi
@@ -147,9 +152,10 @@ rmgroup() {
 # Updating expire.ctl file
     if [ -f $EXPIRE ]
     then
+      mkstemp expire
       mv $EXPIRE $EXPIRE~
-      grep -v "$NEWSGR:" $EXPIRE~ >/tmp/copi.expirectl
-      mv /tmp/copi.expirectl $EXPIRE
+      grep -v "$NEWSGR:" $EXPIRE~ >$tmp_expire
+      mv $tmp_expire $EXPIRE
     else
       :> $EXPIRE
     fi
@@ -158,8 +164,9 @@ rmgroup() {
 # Remove pending articles
     echo -e "\n$NEWSGR:A:0:0:0" >>$EXPIRE
     su -l news -c "bin/news.daily" >/dev/null
-    grep -v $NEWSGR $EXPIRE >/tmp/copi.expirectl
-    mv /tmp/copi.expirectl $EXPIRE
+    mkstemp expire
+    grep -v $NEWSGR $EXPIRE >$tmp_expire
+    mv $tmp_expire $EXPIRE
     chown news.news $EXPIRE
     chmod 444 $EXPIRE
 
@@ -183,8 +190,9 @@ set_expire_time() {
 
 	elif [ "`cut $EXPIRE -s -f1 -d: | grep -x $NEWSGROUP`" ]
 	then
-		grep -v "$NEWSGROUP:" $EXPIRE >/tmp/copi.expirectl
-		mv /tmp/copi.expirectl $EXPIRE
+		mkstemp expire
+		grep -v "$NEWSGROUP:" $EXPIRE >$tmp_expire
+		mv $tmp_expire $EXPIRE
 	fi
 	echo -e "\n$NEWSGROUP:A:2:$KEEPDAYS:$KEEPDAYS" >>$EXPIRE
 	chown news.news $EXPIRE

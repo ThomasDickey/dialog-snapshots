@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.59 2000/12/18 01:48:35 tom Exp $
+ *  $Id: util.c,v 1.64 2001/01/16 00:44:47 tom Exp $
  *
  *  util.c
  *
@@ -25,9 +25,14 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #ifdef NCURSES_VERSION
 #include <term.h>
+#endif
+
+#ifndef O_BINARY
+#define O_BINARY 0
 #endif
 
 #ifndef S_IRUSR
@@ -38,12 +43,19 @@
 #define S_IWUSR 0200
 #endif
 
+#ifndef DIALOG_TMPDIR
+#define DIALOG_TMPDIR NULL
+#endif
+
+#define LOCK_PERMITS (S_IRUSR | S_IWUSR)
+#define LOCK_TIMEOUT 10		/* timeout for locking, in seconds */
+
 /* globals */
 FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
 DIALOG_VARS dialog_vars;
-char *lock_refresh;
-char *lock_tailbg_exit;
-char *lock_tailbg_refreshed;
+DIALOCK lock_refresh;
+DIALOCK lock_tailbg_exit;
+DIALOCK lock_tailbg_refreshed;
 int defaultno = FALSE;
 int is_tailbg = FALSE;
 int screen_initialized = 0;
@@ -315,8 +327,12 @@ color_setup(void)
 void
 end_dialog(void)
 {
-    (void) mouse_close();
-    (void) endwin();
+    if (screen_initialized) {
+	screen_initialized = 0;
+	(void) mouse_close();
+	(void) endwin();
+	(void) fflush(stdout);
+    }
 }
 
 static int
@@ -409,6 +425,10 @@ justify_text(WINDOW *win,
 		(void) wmove(win, cur_y, x);
 	    }
 	}
+	if (cur_y > limit_y)
+	    cur_y = limit_y;
+	if (max_x > limit_x)
+	    max_x = limit_x;
     } else {
 	cur_y = limit_y;
 	max_x = limit_x;
@@ -484,7 +504,7 @@ real_auto_size(const char *title,
 	wide = SCOLS - x;
     }
 
-    justify_text((WINDOW *) 0, prompt, high, wide, y, x, height, width);
+    justify_text((WINDOW *) 0, prompt, high, wide, 0, 0, height, width);
     if (*width < mincols && save_wide == 0)
 	*width = mincols;
     if (prompt != 0) {
@@ -633,22 +653,39 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
 /*
  * make_tmpfile()
  */
-char *
-make_lock_filename(const char *filename)
+int
+make_lock_filename(DIALOCK * dialock, const char *prefix)
 {
-    char *file = (char *) malloc(30);
-    strcpy(file, filename);
-    if (mktemp(file) == NULL) {
-	(void) endwin();
-	fprintf(stderr, "\nCan't make tempfile...\n");
-	return NULL;
+    static int first = 1;
+    char *file = tempnam(DIALOG_TMPDIR, prefix);
+
+    if (first) {
+	first = 0;
+	srand(time((time_t *) 0));
     }
-    return file;
+    if (file == NULL) {
+	end_dialog();
+	fprintf(stderr, "\nCan't make tempfile (%s)...\n", prefix);
+	return -1;
+    }
+    dialock->filename = file;
+    dialock->identifier = rand();
+    return 0;
 }
 /* End of make_tmpfile() */
 
+/* private function, used by wrefresh_lock() and wrefresh_lock_tailbg() */
+static void
+wrefresh_lock_sub(WINDOW *win)
+{
+    create_lock(&lock_refresh);
+    beeping();
+    (void) wrefresh(win);
+    remove_lock(&lock_refresh);
+}
+
 /*
- * Only a process at a time can call wrefresh()
+ * Only one process at a time should call wrefresh()
  */
 
 /* called by all normal widget */
@@ -657,9 +694,8 @@ wrefresh_lock(WINDOW *win)
 {
     wrefresh_lock_sub(win);
 
-    if (exist_lock(lock_tailbg_refreshed))
-	remove_lock(lock_tailbg_refreshed);
-
+    if (exist_lock(&lock_tailbg_refreshed))
+	remove_lock(&lock_tailbg_refreshed);
 }
 
 /* If a tailboxbg was wrefreshed, wrefresh again the principal (normal) widget.
@@ -671,12 +707,12 @@ wrefresh_lock(WINDOW *win)
 void
 ctl_idlemsg(WINDOW *win)
 {
-    if (exist_lock(lock_tailbg_refreshed))
+    if (exist_lock(&lock_tailbg_refreshed))
 	wrefresh_lock(win);
 
     /* if a tailboxbg exited, quit */
-    if (exist_lock(lock_tailbg_exit)) {
-	remove_lock(lock_tailbg_exit);
+    if (exist_lock(&lock_tailbg_exit)) {
+	remove_lock(&lock_tailbg_exit);
 	exiterr("ctl_idlemsg: quit");
     }
 }
@@ -685,24 +721,9 @@ ctl_idlemsg(WINDOW *win)
 void
 wrefresh_lock_tailbg(WINDOW *win)
 {
+    if (!exist_lock(&lock_tailbg_refreshed))
+	create_lock(&lock_tailbg_refreshed);
     wrefresh_lock_sub(win);
-    create_lock(lock_tailbg_refreshed);
-    /* it's right also if more tailboxbg refresh */
-    /* with --no-kill flag the lock_tailbg_refreshed file
-       will not be removed :-/ :-| */
-}
-
-/* private function, used by wrefresh_lock() and wrefresh_lock_tailbg() */
-void
-wrefresh_lock_sub(WINDOW *win)
-{
-    if (lock_refresh) {
-	create_lock(lock_refresh);
-    }
-    (void) wrefresh(win);
-    beeping();
-    (void) wrefresh(win);
-    remove_lock(lock_refresh);
 }
 
 /* End of wrefresh functions */
@@ -711,36 +732,46 @@ wrefresh_lock_sub(WINDOW *win)
  * To work with lock files, here are some functions
  */
 int
-exist_lock(char *filename)
+exist_lock(DIALOCK * dialock)
 {
-    FILE *fil;
-    if ((fil = fopen(filename, "r")) != NULL) {
-	(void) fclose(fil);
-	return 1;
+    int fd;
+    int code = 0;
+    int check;
+    struct stat sb;
+
+    if (dialock->filename != 0
+	&& (fd = open(dialock->filename, O_RDONLY | O_BINARY)) >= 0) {
+	if (fstat(fd, &sb) >= 0
+	    && sb.st_uid == geteuid()
+	    && sb.st_gid == getegid()
+	    && (sb.st_mode & S_IFMT) == S_IFREG
+	    && (sb.st_mode & ~S_IFMT) == LOCK_PERMITS
+	    && read(fd, &check, sizeof(check)) == sizeof(check)
+	    && dialock->identifier == check) {
+	    code = 1;
+	}
+	(void) close(fd);
     }
-    return 0;
+    return code;
 }
 
-#define LOCK_TIMEOUT 10		/* timeout for locking, in seconds */
-
 void
-create_lock(char *filename)
+create_lock(DIALOCK * dialock)
 {
     int fd, i;
 
     i = 0;
-    while ((fd = open(filename,
-		      O_WRONLY | O_CREAT | O_EXCL,
-		      S_IRUSR | S_IWUSR)) == -1) {
+    while ((fd = open(dialock->filename,
+		      O_WRONLY | O_CREAT | O_EXCL | O_BINARY,
+		      LOCK_PERMITS)) == -1) {
 	napms(1000);
 	if (++i == LOCK_TIMEOUT) {
 	    /* can't use exiterr here, since it attempts to use a lock
 	     * which could cause an endless loop of lock attempts :(
 	     */
-	    if (screen_initialized)
-		endwin();
+	    end_dialog();
 
-	    fprintf(stderr, "Unable to create lock");
+	    fprintf(stderr, "Unable to create lock %s", dialock->filename);
 
 	    if (!is_tailbg)
 		killall_bg();
@@ -749,13 +780,15 @@ create_lock(char *filename)
 	}
     }
 
+    ftruncate(fd, 0);
+    write(fd, &(dialock->identifier), sizeof(dialock->identifier));
     close(fd);
 }
 
 void
-remove_lock(char *filename)
+remove_lock(DIALOCK * dialock)
 {
-    (void) remove(filename);
+    (void) remove(dialock->filename);
 }
 
 /* End of functions to work with lock files */
@@ -766,7 +799,7 @@ killall_bg(void)
 {
     int i;
     for (i = 0; i < tailbg_lastpid; i++)
-	(void) kill(tailbg_pids[i], 15);
+	(void) kill(tailbg_pids[i], SIGTERM);
 }
 
 static int
@@ -778,14 +811,20 @@ is_nokill(int pid)
 	    return 1;
     return 0;
 }
+
 /* quitall_bg: kill all tailboxbg without --no-kill flag */
-void
+int
 quitall_bg(void)
 {
     int i;
+    int count = 0;
+
     for (i = 0; i < tailbg_lastpid; i++)
-	if (!is_nokill(tailbg_pids[i]))
-	    (void) kill(tailbg_pids[i], 15);
+	if (is_nokill(tailbg_pids[i]))
+	    count++;
+	else
+	    (void) kill(tailbg_pids[i], SIGTERM);
+    return count;
 }
 
 /* exiterr quit program killing all tailbg */
@@ -794,8 +833,7 @@ exiterr(const char *fmt,...)
 {
     va_list ap;
 
-    if (screen_initialized)
-	(void) endwin();
+    end_dialog();
 
     (void) fputc('\n', stderr);
     va_start(ap, fmt);
@@ -804,7 +842,7 @@ exiterr(const char *fmt,...)
     (void) fputc('\n', stderr);
 
     if (is_tailbg)		/* this is a child process */
-	create_lock(lock_tailbg_exit);
+	create_lock(&lock_tailbg_exit);
     else
 	killall_bg();
 

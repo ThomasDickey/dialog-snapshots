@@ -3,6 +3,23 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2001/01/15
+	+ small fix to revised real_auto_size() and justify_text() to avoid
+	  adding origin to box-width, which broke samples/wheel.
+	+ apply 1999/12/25 tempfile change to wheel and copismall samples.
+	+ add sample script for tailboxbg.
+	+ revised lock-file management to better ensure that locks are actually
+	  created by the tailbox subprocess(es).
+	+ correct hardcoded signal 15 in tailbox to SIGHUP to match
+	  documentation.  Signal 15 is usually SIGTERM, which cannot be caught.
+	+ correct off-by-one comparison of return-value for arg_rest() which
+	  made
+		dialog --gauge test 10 50
+	  dump core because it expected a 4th parameter (fixes Debian #80641).
+	+ resync config.sub, config.guess from
+	  http://subversions.gnu.org/cgi-bin/cvsweb/config/ (which finally have
+	  cases for OS/2 EMX), minor tweaks to related configure script macros.
+
 2000/12/17
 	+ restore treatment of predefined height/width in real_auto_size()
 	  which was lost in 2000/12/12 rewrite (report by Raphael Halimi
