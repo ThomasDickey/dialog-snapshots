@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.19 2000/01/19 00:25:11 tom Exp $
+ * $Id: dialog.c,v 1.20 2000/01/24 02:16:20 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -56,7 +56,7 @@ pid_t tailbg_pids[MAX_TAILBG];
 typedef int (jumperFn) (JUMPARGS);
 
 struct Mode {
-    char *name;
+    const char *name;
     int argmin, argmax;
     jumperFn *jumper;
 };
@@ -462,8 +462,8 @@ int
 main(int argc, char *argv[])
 {
     char temp[80];
-    char *separate_str = DEFAULT_SEPARATE_STR;
     char *title;
+    const char *separate_str = DEFAULT_SEPARATE_STR;
     int beep_after_signal;
     int clear_screen;
     int esc_pressed = 0;
@@ -513,7 +513,7 @@ main(int argc, char *argv[])
 	return 0;
     }
 #else
-	exiterr("\nThis option is currently unsupported on your system.\n");
+	exiterr("This option is currently unsupported on your system.");
 #endif
 #endif
 
@@ -521,7 +521,7 @@ main(int argc, char *argv[])
 	(lock_tailbg_refreshed =
 	    make_lock_filename("/tmp/.lock_tailbgXXXXXX")) == NULL ||
 	(lock_tailbg_exit = make_lock_filename("/tmp/.lock_exitXXXXXX")) == NULL)
-	exiterr("\nInternal error: can't make lock files.\n");
+	exiterr("Internal error: can't make lock files.");
 
     while (offset < argc - 1 && !esc_pressed) {
 	aspect_ratio = DEFAULT_ASPECT_RATIO;

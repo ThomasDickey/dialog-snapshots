@@ -497,7 +497,7 @@ AC_CACHE_CHECK(if -lm needed for math functions,
 	#include <stdio.h>
 	#include <math.h>
 	],
-	[double x = rand(); printf("sin(1.0) = %g\n", sin(x));],
+	[double x = rand(); printf("result = %g\n", ]ifelse($2,,sin(x),$2)[)],
 	[cf_cv_need_libm=no],
 	[cf_cv_need_libm=yes])])
 ifelse($1,,[

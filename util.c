@@ -468,7 +468,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
-	exiterr("\nCan't open input file in auto_sizefile().\n");
+	exiterr("Can't open input file in auto_sizefile().");
 
     if ((*height == -1) || (*width == -1)) {
 	*height = SLINES - (begin_set ? begin_y : 0);
@@ -600,7 +600,7 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
  * make_tmpfile()
  */
 char *
-make_lock_filename(char *filename)
+make_lock_filename(const char *filename)
 {
     char *file = (char *) malloc(30);
     strcpy(file, filename);
@@ -737,12 +737,12 @@ quitall_bg(void)
 
 /* exiterr quit program killing all tailbg */
 void
-exiterr(char *str)
+exiterr(const char *str)
 {
     if (screen_initialized)
 	endwin();
 
-    fprintf(stderr, str);
+    fprintf(stderr, "\n%s\n", str);
 
     if (is_tailbg)		/* this is a child process */
 	create_lock(lock_tailbg_exit);
