@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.43 2002/05/19 19:39:17 tom Exp $
-.TH DIALOG 1 "" "$Date: 2002/05/19 19:39:17 $"
+.\" $Id: dialog.1,v 1.46 2002/06/15 12:20:16 tom Exp $
+.TH DIALOG 1 "" "$Date: 2002/06/15 12:20:16 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -113,12 +113,24 @@ Normally the first item in the box is the default.
 .IP "\fB\-\-exit-label \fIstring"
 Override the label used for "EXIT" buttons.
 .
+.IP "\fB\-\-extra-button"
+Show an extra button, between ok/cancel and help buttons.
+.
+.IP "\fB\-\-extra-label \fIstring"
+Override the label used for "Extra" buttons.
+.
 .IP "\fB\-\-help"
 Prints the help message to standard error.
 The help message is printed if no options are given.
 .
 .IP "\fB\-\-help-button"
-Show a help-button after ok/cancel buttons.
+Show a help-button after ok/cancel buttons,
+i.e., in checklist, radiolist and menu boxes.
+If \fB\-\-item-help\fR is also given, on exit
+the return status will be the same as for the "Ok" button,
+and the item-help text will be written to standard error after the token "HELP".
+Otherwise, the return status will indicate that the Help button was pressed,
+and no message printed.
 .
 .IP "\fB\-\-help-label \fIstring"
 Override the label used for "Help" buttons.
@@ -129,7 +141,7 @@ Some well-known ones such as "\fB--icon\fP" are ignored anyway,
 but this is a better choice for compatibility with other implementations.
 .
 .IP "\fB\-\-item-help"
-Interpret the tags data for checklist, radiolist and menuboxes 
+Interpret the tags data for checklist, radiolist and menu boxes 
 adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
@@ -137,10 +149,9 @@ screen, for the currently selected item.
 Limit input strings to the given size.
 If not specified, the limit is 2000.
 .
-.
 .IP "\fB\-\-no-cancel"
 .IP "\fB\-\-nocancel"
-Suppress the "Cancel" button in checklist, inputbox and menubox modes.
+Suppress the "Cancel" button in checklist, inputbox and menu box modes.
 A script can still test if the user pressed the ESC key to cancel to quit.
 .
 .IP "\fB\-\-no-collapse"
@@ -525,9 +536,18 @@ to use.
 .TP 15
 \fBDIALOG_ESC\fP
 .TP 15
+\fBDIALOG_EXTRA\fP
+.TP 15
+\fBDIALOG_HELP\fP
+.TP 15
 \fBDIALOG_OK\fP
-Define any of these variables to change the exit code on Cancel (1),
-error (-1), ESC (255) or Ok (0).
+Define any of these variables to change the exit code on
+Cancel (1),
+error (-1),
+ESC (255),
+Extra (3),
+Help (2),
+or Ok (0).
 Normally shell scripts cannot distinguish between -1 and 255.
 .SH FILES
 .TP 20

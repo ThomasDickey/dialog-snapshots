@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.84 2002/05/19 19:32:16 tom Exp $
+ *  $Id: dialog.h,v 1.92 2002/06/22 16:21:52 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -40,6 +40,8 @@
 
 #if defined(HAVE_NCURSESW_NCURSES_H)
 #include <ncursesw/ncurses.h>
+#elif defined(HAVE_NCURSES_NCURSES_H)
+#include <ncurses/ncurses.h>
 #elif defined(HAVE_NCURSES_CURSES_H)
 #include <ncurses/curses.h>
 #elif defined(HAVE_NCURSES_H)
@@ -91,10 +93,12 @@
 #endif
 
 #define DLG_EXIT_ESC	255
+#define DLG_EXIT_UNKNOWN -2	/* never return this (internal use) */
 #define DLG_EXIT_ERROR	-1	/* the shell sees this as 255 */
 #define DLG_EXIT_OK	0
 #define DLG_EXIT_CANCEL	1
 #define DLG_EXIT_HELP	2
+#define DLG_EXIT_EXTRA	3
 
 #define CHR_BACKSPACE	8
 #define CHR_REPAINT	12	/* control/L */
@@ -255,6 +259,7 @@ typedef struct {
     bool cant_kill;
     bool cr_wrap;
     bool dlg_clear_screen;
+    bool extra_button;
     bool help_button;
     bool item_help;
     bool nocancel;
@@ -265,24 +270,26 @@ typedef struct {
     bool tab_correct;
     bool trim_whitespace;
     char *backtitle;
+    char *cancel_label;
     char *default_item;
+    char *exit_label;
+    char *extra_label;
+    char *help_label;
+    char *ok_label;
     char *title;
     char input_result[MAX_LEN + 1];
-    char *ok_label;
-    char *cancel_label;
-    char *exit_label;
-    char *help_label;
     int aspect_ratio;
     int begin_x;
     int begin_y;
     int max_input;
     int sleep_secs;
-    int timeout_secs;	/* nonzero if we force timeout/exit */
     int tab_len;
+    int timeout_secs;	/* nonzero if we force timeout/exit */
 } DIALOG_VARS;
 
-#define CHECKBOX_TAGS (dialog_vars.item_help ? 4 : 3)
-#define MENUBOX_TAGS (dialog_vars.item_help ? 3 : 2)
+#define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
+#define CHECKBOX_TAGS           (dialog_vars.item_help ? 4 : 3)
+#define MENUBOX_TAGS            (dialog_vars.item_help ? 3 : 2)
 
 extern DIALOG_VARS dialog_vars;
 
@@ -370,7 +377,7 @@ int dialog_timebox (const char *title, const char *subtitle, int height, int wid
 /* arrows.c */
 void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
 
-/* button.c */
+/* buttons.c */
 extern const char ** dlg_exit_label(void);
 extern const char ** dlg_ok_label(void);
 extern const char ** dlg_ok_labels(void);
@@ -378,14 +385,17 @@ extern const char ** dlg_yes_labels(void);
 extern int dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
 extern int dlg_char_to_button(int ch, const char **labels);
 extern int dlg_next_button(const char **labels, int button);
+extern int dlg_next_ok_buttonindex(int current, int extra);
 extern int dlg_ok_buttoncode(int button);
 extern int dlg_prev_button(const char **labels, int button);
+extern int dlg_prev_ok_buttonindex(int current, int extra);
 extern void dlg_button_layout(const char **labels, int *limit);
 extern void dlg_button_sizes(const char **labels, int vertical, int *longest, int *length);
 extern void dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
 
 /* inputstr.c */
 extern bool dlg_edit_string(char *string, int *offset, int key, bool force);
+extern int dlg_edit_offset(int offset, int x_last);
 extern void dlg_show_string(WINDOW *win, char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
 /* ui_getc.c */
@@ -404,7 +414,7 @@ extern void dlg_trim_string(char *src);
 #ifdef HAVE_STRCASECMP
 #define dlg_strcmp(a,b) strcasecmp(a,b)
 #else
-extern int dlg_strcmp(char *a, char *b);
+extern int dlg_strcmp(const char *a, const char *b);
 #endif
 
 /*
@@ -412,6 +422,7 @@ extern int dlg_strcmp(char *a, char *b);
  */
 typedef struct mseRegion {
     int x, y, X, Y, code;
+    int mode, step_x, step_y;
     struct mseRegion *next;
 } mseRegion;
 
@@ -421,19 +432,8 @@ typedef struct mseRegion {
 #define	mouse_close() mousemask(0, (mmask_t *) 0)
 
 void mouse_free_regions (void);
-void mouse_mkregion (int y, int x, int height, int width, int code);
-void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
-void mouse_setbase (int x, int y);
-
-#define USE_MOUSE 1
-
-#elif defined(HAVE_LIBGPM)
-
-void mouse_open (void);
-void mouse_close (void);
-#define mouse_free_regions() /* nothing */
-void mouse_mkregion (int y, int x, int height, int width, int code);
-void mouse_mkbigregion (int y, int x, int height, int width, int nitems, int th, int mode);
+mseRegion * mouse_mkregion (int y, int x, int height, int width, int code);
+void mouse_mkbigregion (int y, int x, int height, int width, int code, int step_x, int step_y, int mode);
 void mouse_setbase (int x, int y);
 
 #define USE_MOUSE 1
@@ -444,7 +444,7 @@ void mouse_setbase (int x, int y);
 #define	mouse_close() /*nothing*/
 #define mouse_free_regions() /* nothing */
 #define	mouse_mkregion(y, x, height, width, code) /*nothing*/
-#define	mouse_mkbigregion(y, x, height, width, nitems, th, mode) /*nothing*/
+#define	mouse_mkbigregion(y, x, height, width, code, step_x, step_y, mode) /*nothing*/
 #define	mouse_setbase(x, y) /*nothing*/
 
 #define USE_MOUSE 0
@@ -452,6 +452,7 @@ void mouse_setbase (int x, int y);
 #endif
 
 extern mseRegion *mouse_region (int y, int x);
+extern mseRegion *mouse_bigregion (int y, int x);
 extern int mouse_wgetch (WINDOW *);
 
 #define mouse_mkbutton(y,x,len,code) mouse_mkregion(y,x,1,len,code);

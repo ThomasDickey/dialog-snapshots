@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.28 2002/05/19 17:58:53 diego.alvarez Exp $
+ *  $Id: inputbox.c,v 1.32 2002/06/22 12:20:32 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -22,6 +22,8 @@
 
 #include "dialog.h"
 
+#define sTEXT -1
+
 /*
  * Display a dialog box for entering a string
  */
@@ -29,20 +31,11 @@ int
 dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		const char *init, const int password)
 {
-    /* -1 (input)  =>  0 (Ok)     */
-    /*  0 (Ok)     =>  1 (Cancel) */
-    /*  1 (Cancel) => -1 (input)  */
-    static const int forward[] =
-    {0, 1, -1};
-    /* -1 (input)  =>  1 (Cancel) */
-    /*  1 (Cancel) =>  0 (Ok)     */
-    /*  0 (Ok)     => -1 (input)  */
-    static const int backward[] =
-    {1, -1, 0};
-
     int x, y, box_y, box_x, box_width;
     int show_buttons = TRUE, first = TRUE, offset = 0;
-    int input_x = 0, key = 0, key2, button = -1;
+    int key = 0, code;
+    int result = DLG_EXIT_UNKNOWN;
+    int state = sTEXT;
     char *input = dialog_vars.input_result;
     WINDOW *dialog;
     char *prompt = strclone(cprompt);
@@ -91,7 +84,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (key != ESC) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	int edit = 0;
 
 	/*
@@ -99,14 +92,14 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	 */
 	if (show_buttons) {
 	    show_buttons = FALSE;
-	    (void) wmove(dialog, box_y, box_x + input_x);
-	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
+	    (void) wmove(dialog, box_y, box_x + dlg_edit_offset(offset, box_width));
+	    dlg_draw_buttons(dialog, height - 2, 0, buttons, state, FALSE, width);
 	}
 
 	if (!first)
 	    key = mouse_wgetch(dialog);
 
-	if (button == -1) {	/* Input box selected */
+	if (state == sTEXT) {	/* Input box selected */
 	    edit = dlg_edit_string(input, &offset, key, first);
 
 	    if (edit) {
@@ -117,40 +110,46 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    }
 	}
 
-	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
+	if ((code = dlg_char_to_button(key, buttons)) >= 0) {
 	    del_window(dialog);
-	    return key2;
+	    result = code;
+	    continue;
 	}
 
 	switch (key) {
+	case ESC:
+	    result = DLG_EXIT_ESC;
+	    break;
 	case M_EVENT + 'i':	/* mouse enter events */
-	case M_EVENT + 'o':	/* use the code for 'UP' */
-	case M_EVENT + 'c':
-	    button = (key == M_EVENT + 'o') - (key == M_EVENT + 'c');
+	    state = 0;
 	    /* FALLTHRU */
 	case KEY_BTAB:
 	case KEY_UP:
 	case KEY_LEFT:
 	    show_buttons = TRUE;
-	    button = backward[button + 1];
-	    if (dialog_vars.nocancel && button > 0)
-		button = backward[button + 1];
+	    state = dlg_prev_ok_buttonindex(state, sTEXT);
 	    break;
 	case TAB:
 	case KEY_DOWN:
 	case KEY_RIGHT:
 	    show_buttons = TRUE;
-	    button = forward[button + 1];
-	    if (dialog_vars.nocancel && button > 0)
-		button = forward[button + 1];
+	    state = dlg_next_ok_buttonindex(state, sTEXT);
 	    break;
 	case ' ':
 	case '\n':
 	    del_window(dialog);
-	    return (button > 0);
+	    result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+	    break;
+	default:
+	    if (key >= M_EVENT
+		&& (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		result = code;
+	    }
+	    break;
 	}
     }
 
     del_window(dialog);
-    return DLG_EXIT_ESC;	/* ESC pressed */
+    mouse_free_regions();
+    return result;
 }

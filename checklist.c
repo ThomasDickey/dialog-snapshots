@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.43 2002/03/09 18:30:53 tom Exp $
+ *  $Id: checklist.c,v 1.49 2002/06/20 23:12:31 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -80,10 +80,10 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		 int list_height, int item_no, char **items, int flag,
 		 int separate_output)
 {
-    int i, j, found, x, y, cur_x, cur_y, box_x, box_y;
+    int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, button = 0, choice = 0, scrollamt = 0, max_choice, *status;
     int use_width, name_width, text_width;
-    int done = FALSE, result = DLG_EXIT_OK;
+    int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog, *list;
     char *prompt = strclone(cprompt);
     const char **buttons = dlg_ok_labels();
@@ -174,9 +174,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(box_y, box_x, list_height + 2, list_width + 2,
-		      item_no, item_x,	/* the threshold */
-		      0 /* normal */ );
+    mouse_mkbigregion(box_y + 1, box_x, list_height, list_width + 2,
+		      KEY_MAX, 1, 1, 1 /* by lines */ );
 
     dlg_draw_arrows(dialog, scrollamt,
 		    scrollamt + choice < item_no - 1,
@@ -188,8 +187,25 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (!done) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	key = mouse_wgetch(dialog);
+
+	if (key >= (M_EVENT + KEY_MAX)) {
+	    getyx(dialog, cur_y, cur_x);
+	    /* De-highlight current item */
+	    print_item(list,
+		       ItemData(scrollamt + choice),
+		       status[scrollamt + choice], choice, FALSE);
+	    /* Highlight new item */
+	    choice = (key - (M_EVENT + KEY_MAX));
+	    print_item(list,
+		       ItemData(scrollamt + choice),
+		       status[scrollamt + choice], choice, TRUE);
+	    (void) wnoutrefresh(list);
+	    (void) wmove(dialog, cur_y, cur_x);
+
+	    key = ' ';		/* force the selected item to toggle */
+	}
 
 	/*
 	 * A space toggles the item status.  We handle either a checklist
@@ -267,6 +283,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    case KEY_END:
 		i = item_no - 1 - scrollamt;
 		break;
+	    case M_EVENT + KEY_PPAGE:
 	    case KEY_PPAGE:
 		if (choice)
 		    i = 0;
@@ -275,6 +292,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		else
 		    continue;
 		break;
+	    case M_EVENT + KEY_NPAGE:
 	    case KEY_NPAGE:
 		i = MIN(choice + max_choice, item_no - scrollamt - 1);
 		break;
@@ -376,16 +394,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
 
 	switch (key) {
-	case M_EVENT + 0:
-	    done = TRUE;
-	    break;
 	case '\n':
-	    done = TRUE;
 	    result = dlg_ok_buttoncode(button);
-	    break;
-	case M_EVENT + 1:
-	    result = DLG_EXIT_CANCEL;
-	    done = TRUE;
 	    break;
 	case ' ':
 	case KEY_BTAB:
@@ -400,13 +410,21 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    break;
 	case ESC:
 	    result = DLG_EXIT_ESC;
-	    done = TRUE;
 	    break;
+	default:
+	    if (key >= M_EVENT) {
+		if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		    result = key2;
+		    break;
+		}
+		beep();
+	    }
 	}
     }
 
     del_window(dialog);
-    if (result == DLG_EXIT_OK) {
+    switch (result) {
+    case DLG_EXIT_OK:
 	for (i = 0; i < item_no; i++) {
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {
@@ -420,10 +438,15 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		}
 	    }
 	}
-    } else if (result == DLG_EXIT_HELP) {
-	fprintf(dialog_vars.output, "HELP %s", ItemHelp(scrollamt + choice));
-	result = 0;
+	break;
+    case DLG_EXIT_HELP:
+	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
+	    fprintf(dialog_vars.output, "HELP %s", ItemHelp(scrollamt + choice));
+	    result = DLG_EXIT_OK;
+	}
+	break;
     }
+    mouse_free_regions();
     free(status);
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.19 2002/05/19 17:58:53 diego.alvarez Exp $
+ *  $Id: msgbox.c,v 1.21 2002/06/22 12:15:43 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -95,6 +95,10 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		width = req_wide;
 		goto restart;
 #endif
+	    default:
+		if (key >= M_EVENT)
+		    done = TRUE;
+		break;
 	    }
 	}
     } else {
@@ -103,5 +107,6 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     }
 
     del_window(dialog);
+    mouse_free_regions();
     return key == ESC ? DLG_EXIT_ESC : 0;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.19 2002/05/19 17:58:53 diego.alvarez Exp $
+ * $Id: calendar.c,v 1.27 2002/06/22 12:23:08 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -35,11 +35,9 @@
 #define MIN_WIDE (DAY_WIDE + (4 * MARGIN))
 
 typedef enum {
-    sDAY = -3
-    ,sMONTH = -2
-    ,sYEAR = -1
-    ,sOK = 0
-    ,sCANCEL = 1
+    sMONTH = -3
+    ,sYEAR = -2
+    ,sDAY = -1
 } STATES;
 
 struct _box;
@@ -91,32 +89,65 @@ days_in_year(struct tm *current, int offset /* -1, 0, 1 */ )
 }
 
 static int
+day_cell_number(struct tm *current)
+{
+    int cell;
+    cell = current->tm_mday - ((6 + current->tm_mday - current->tm_wday) % 7);
+    if ((current->tm_mday - 1) % 7 != current->tm_wday)
+	cell += 6;
+    else
+	cell--;
+    return cell;
+}
+
+static int
 next_or_previous(int key, int two_d)
 {
     int result = 0;
 
     switch (key) {
+    case M_EVENT + KEY_PPAGE:
     case KEY_PPAGE:
     case KEY_PREVIOUS:
     case KEY_UP:
 	result = two_d ? -7 : -1;
 	break;
     case CHR_PREVIOUS:
-    case KEY_LEFT:
     case 8:
 	result = -1;
 	break;
+    case M_EVENT + KEY_NPAGE:
     case KEY_NPAGE:
     case KEY_DOWN:
 	result = two_d ? 7 : 1;
 	break;
     case CHR_NEXT:
-    case KEY_RIGHT:
     case KEY_NEXT:
 	result = 1;
 	break;
     default:
-	beep();
+	/*
+	 * We're already using the left/right arrow keys for traversal.  Use
+	 * vi-style for navigating around the days of the month.
+	 */
+	if (two_d) {
+	    switch (key) {
+	    case 'h':
+		result = -1;
+		break;
+	    case 'j':
+		result = 7;
+		break;
+	    case 'k':
+		result = -7;
+		break;
+	    case 'l':
+		result = 1;
+		break;
+	    }
+	} else {
+	    beep();
+	}
 	break;
     }
     return result;
@@ -150,7 +181,7 @@ draw_day(BOX * data, struct tm *current)
 	"Saturday"
     };
 #endif
-    int cell_wide = 4;
+    int cell_wide = MON_WIDE;
     int y, x, this_x = 0;
     int save_y = 0, save_x = 0;
     int day = current->tm_mday;
@@ -211,6 +242,11 @@ draw_day(BOX * data, struct tm *current)
 	}
 	wmove(data->window, save_y, save_x);
     }
+    dlg_draw_arrows(data->parent, TRUE, TRUE,
+		    data->x + 5,
+		    data->y - 1,
+		    data->y + data->height);
+
     return 0;
 }
 
@@ -310,46 +346,17 @@ init_object(BOX * data,
     (void) keypad(data->window, TRUE);
 
     mouse_setbase(getbegx(parent), getbegy(parent));
-    mouse_mkregion(y, x, height, width, code);
+    if (code == 'D') {
+	mouse_mkbigregion(y + 1, x + MON_WIDE, height - 1, width - MON_WIDE,
+			  KEY_MAX, 1, MON_WIDE, 3);
+    } else {
+	mouse_mkregion(y, x, height, width, code);
+    }
 
     return 0;
 }
 
 #define DrawObject(data) (data)->box_draw(data, &current)
-
-static STATES
-next_object(STATES now)
-{
-    STATES result;
-
-    switch (now) {
-    default:
-	result = sCANCEL;
-	break;
-    case sCANCEL:
-	result = sMONTH;
-	break;
-    case sMONTH:
-	result = sYEAR;
-	break;
-    case sYEAR:
-	result = sDAY;
-	break;
-    case sDAY:
-	result = sOK;
-	break;
-    }
-    return result;
-}
-
-static STATES
-prev_object(STATES now)
-{
-    STATES result = now;
-    while (next_object(result) != now)
-	result = next_object(result);
-    return result;
-}
 
 /*
  * Display a dialog box for entering a date
@@ -364,12 +371,12 @@ dialog_calendar(const char *title,
 		int year)
 {
     BOX dy_box, mn_box, yr_box;
-    int key = 0, key2, button = sOK;
-    int result = -2;
+    int key = 0, key2, step, button = 0;
+    int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = sOK;
+    STATES state = 0;
     const char **buttons = dlg_ok_labels();
     char *prompt = strclone(subtitle);
 
@@ -438,7 +445,7 @@ dialog_calendar(const char *title,
 		    draw_day,
 		    'D') < 0
 	|| DrawObject(&dy_box) < 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
     if (init_object(&mn_box,
 		    dialog,
@@ -449,7 +456,7 @@ dialog_calendar(const char *title,
 		    draw_month,
 		    'M') < 0
 	|| DrawObject(&mn_box) < 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
     if (init_object(&yr_box,
 		    dialog,
@@ -460,14 +467,14 @@ dialog_calendar(const char *title,
 		    draw_year,
 		    'Y') < 0
 	|| DrawObject(&yr_box) < 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
-    while (result == -2) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sDAY ? &dy_box
 		    : (state == sMONTH ? &mn_box :
 		       (state == sYEAR ? &yr_box : 0)));
 
-	button = (state == sCANCEL) ? 1 : 0;
+	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
@@ -478,12 +485,6 @@ dialog_calendar(const char *title,
 	    result = key2;
 	} else {
 	    switch (key) {
-	    case M_EVENT + 0:
-		result = DLG_EXIT_OK;
-		break;
-	    case M_EVENT + 1:
-		result = DLG_EXIT_CANCEL;
-		break;
 	    case M_EVENT + 'D':
 		state = sDAY;
 		break;
@@ -498,17 +499,33 @@ dialog_calendar(const char *title,
 		break;
 	    case ' ':
 	    case '\n':
-		result = button;
+		result = dlg_ok_buttoncode(button);
 		break;
+	    case KEY_LEFT:
 	    case KEY_BTAB:
-		state = prev_object(state);
+		state = dlg_prev_ok_buttonindex(state, sMONTH);
 		break;
+	    case KEY_RIGHT:
 	    case TAB:
-		state = next_object(state);
+		state = dlg_next_ok_buttonindex(state, sMONTH);
 		break;
 	    default:
+		step = 0;
+		key2 = -1;
+		if (key >= M_EVENT) {
+		    if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+			result = key2;
+			break;
+		    } else if (key >= (M_EVENT + KEY_MAX)) {
+			state = sDAY;
+			obj = &dy_box;
+			key2 = 1;
+			step = (key - (M_EVENT + KEY_MAX) - day_cell_number(&current));
+		    }
+		}
 		if (obj != 0) {
-		    int step = next_or_previous(key, (obj == &dy_box));
+		    if (key2 < 0)
+			step = next_or_previous(key, (obj == &dy_box));
 		    if (step != 0) {
 			struct tm old = current;
 

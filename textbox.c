@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.34 2002/05/19 18:08:17 tom Exp $
+ *  $Id: textbox.c,v 1.38 2002/06/22 12:14:40 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -393,6 +393,8 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 	/ obj->file_size;
     (void) wmove(win, height - 3, width - 9);
     (void) wprintw(win, "(%3d%%)", percent);
+
+    dlg_draw_arrows(win, TRUE, TRUE, 5, 0, height - 3);
 }
 
 /*
@@ -454,8 +456,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     MY_OBJ obj;
     WINDOW *dialog;
     bool found;
-    bool done = FALSE;
     bool moved = TRUE;
+    int result = DLG_EXIT_UNKNOWN;
 
     auto_sizefile(title, file, &height, &width, 2, 12);
     print_size(height, width);
@@ -494,7 +496,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     obj.text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(0, 0, height - 2, width, 1, 0, 2 /* not normal */ );
+    mouse_mkbigregion(0, 0, height - 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     draw_bottom_box(dialog);
     draw_title(dialog, title);
@@ -506,7 +508,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     attr_clear(obj.text, height - 4, width - 2, dialog_attr);
     wtimeout(dialog, WTIMEOUT_VAL);
 
-    while (!done) {
+    while (result == DLG_EXIT_UNKNOWN) {
 
 	/*
 	 * Update the screen according to whether we shifted up/down by a line
@@ -568,12 +570,15 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    key = '\n';
 	}
 	switch (key) {
-	case ESC:
-	    done = TRUE;
+	default:
+	    if (key >= M_EVENT)
+		result = DLG_EXIT_OK;
 	    break;
-	case M_EVENT + 'E':
+	case ESC:
+	    result = DLG_EXIT_ESC;
+	    break;
 	case '\n':
-	    done = TRUE;
+	    result = DLG_EXIT_OK;
 	    break;
 	case 'g':		/* First page */
 	case KEY_HOME:
@@ -618,6 +623,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    break;
 	case 'B':		/* Previous page */
 	case 'b':
+	case M_EVENT + KEY_PPAGE:
 	case KEY_PPAGE:
 	    if (!obj.begin_reached) {
 		back_lines(&obj, obj.page_length + height - 4);
@@ -634,6 +640,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    }
 	    break;
 	case ' ':		/* Next page */
+	case M_EVENT + KEY_NPAGE:
 	case KEY_NPAGE:
 	    if (!obj.end_reached) {
 		obj.begin_reached = 0;
@@ -739,5 +746,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     del_window(dialog);
     free(obj.buf);
     (void) close(obj.fd);
-    return (key == ESC) ? DLG_EXIT_ESC : DLG_EXIT_OK;
+    mouse_free_regions();
+    return result;
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.25 2002/05/19 17:58:53 diego.alvarez Exp $
+ * $Id: fselect.c,v 1.32 2002/06/22 12:09:10 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -48,26 +48,41 @@
 #define MIN_HIGH (HDR_HIGH - MARGIN + (BTN_HIGH * 2) + 4 * MARGIN)
 #define MIN_WIDE (2 * MAX(strlen(d_label), strlen(f_label)) + 6 * MARGIN + 2 * EXT_WIDE)
 
+#define MOUSE_D (KEY_MAX + 0)
+#define MOUSE_F (KEY_MAX + 10000)
+#define MOUSE_T (KEY_MAX + 20000)
+
+typedef enum {
+    sDIRS = -3
+    ,sFILES = -2
+    ,sTEXT = -1
+} STATES;
+
 typedef struct {
     WINDOW *par;		/* parent window */
     WINDOW *win;		/* this window */
     int length;			/* length of the data[] array */
     int offset;			/* index of first item on screen */
     int choice;			/* index of the selection */
+    int mousex;			/* base of mouse-code return-values */
     unsigned allocd;
     char **data;
 } LIST;
 
 static void
-init_list(LIST * list, WINDOW *par, WINDOW *win)
+init_list(LIST * list, WINDOW *par, WINDOW *win, int mousex)
 {
     list->par = par;
     list->win = win;
     list->length = 0;
     list->offset = 0;
     list->choice = 0;
+    list->mousex = mousex;
     list->allocd = 0;
     list->data = 0;
+    mouse_mkbigregion(getbegy(win), getbegx(win),
+		      getmaxy(win), getmaxx(win),
+		      mousex, 1, 1, 1 /* by lines */ );
 }
 
 static char *
@@ -84,7 +99,8 @@ leaf_of(char *path)
 static char *
 data_of(LIST * list)
 {
-    if (list->data != 0)
+    if (list != 0
+	&& list->data != 0)
 	return list->data[list->choice];
     return 0;
 }
@@ -100,7 +116,7 @@ free_list(LIST * list)
 	free(list->data);
 	list->data = 0;
     }
-    init_list(list, list->par, list->win);
+    init_list(list, list->par, list->win, list->mousex);
 }
 
 static void
@@ -184,6 +200,8 @@ display_list(LIST * list)
     int n;
     int x;
     int y;
+    int top;
+    int bottom;
 
     attr_clear(list->win, getmaxy(list->win), getmaxx(list->win), item_attr);
     for (n = list->offset; n < list->length && list->data[n]; n++) {
@@ -199,14 +217,46 @@ display_list(LIST * list)
     wattrset(list->win, item_attr);
 
     getparyx(list->win, y, x);
+
+    top = y - 1;
+    bottom = y + getmaxy(list->win);
     dlg_draw_arrows(list->par, list->offset,
 		    list->length - list->offset >= getmaxy(list->win),
 		    x + 1,
-		    y - 1,
-		    y + getmaxy(list->win));
+		    top,
+		    bottom);
 
     (void) wmove(list->win, list->choice - list->offset, 0);
     (void) wnoutrefresh(list->win);
+}
+
+/* FIXME: see arrows.c
+ * This workaround is used to allow two lists to have scroll-tabs at the same
+ * time, by reassigning their return-values to be different.  Just for
+ * readability, we use the names of keys with similar connotations, though all
+ * that is really required is that they're distinct, so we can put them in a
+ * switch statement.
+ */
+static void
+fix_arrows(LIST * list)
+{
+    int x;
+    int y;
+    int top;
+    int bottom;
+
+    getparyx(list->win, y, x);
+    top = y - 1;
+    bottom = y + getmaxy(list->win);
+
+    mouse_mkbutton(top, x, 6,
+		   ((list->mousex == MOUSE_D)
+		    ? KEY_PREVIOUS
+		    : KEY_PPAGE));
+    mouse_mkbutton(bottom, x, 6,
+		   ((list->mousex == MOUSE_D)
+		    ? KEY_NEXT
+		    : KEY_NPAGE));
 }
 
 static int
@@ -229,6 +279,9 @@ show_both_lists(char *input, LIST * d_list, LIST * f_list, bool keep)
     return show_list(leaf, d_list, keep) | show_list(leaf, f_list, keep);
 }
 
+/*
+ * Move up/down in the given list
+ */
 static bool
 change_list(int choice, LIST * list)
 {
@@ -246,6 +299,17 @@ change_list(int choice, LIST * list)
 	return TRUE;
     }
     return FALSE;
+}
+
+static void
+scroll_list(int direction, LIST * list)
+{
+    if (data_of(list) != 0) {
+	int length = getmaxy(list->win);
+	if (change_list(direction * length, list))
+	    return;
+    }
+    beep();
 }
 
 static int
@@ -310,32 +374,44 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
     return TRUE;
 }
 
+static bool
+usable_state(STATES state, LIST * dirs, LIST * files)
+{
+    bool result;
+
+    switch (state) {
+    case sDIRS:
+	result = (data_of(dirs) != 0);
+	break;
+    case sFILES:
+	result = (data_of(files) != 0);
+	break;
+    default:
+	result = TRUE;
+	break;
+    }
+    return result;
+}
+
+#define which_list() ((state == sFILES) \
+			? &f_list \
+			: ((state == sDIRS) \
+			  ? &d_list \
+			  : 0))
 /*
  * Display a dialog box for entering a filename
  */
 int
 dialog_fselect(const char *title, const char *path, int height, int width)
 {
-    /* -3 (dir)    => -2 (file)   */
-    /* -2 (file)   => -1 (input)  */
-    /* -1 (input)  =>  0 (Ok)     */
-    /*  0 (Ok)     =>  1 (Cancel) */
-    /*  1 (Cancel) => -3 (dir)    */
-    static const int forward[] =
-    {-2, -1, 0, 1, -3};
-    /* -3 (input)  =>  1 (Cancel) */
-    /* -2 (input)  => -3 (dir)    */
-    /* -1 (input)  => -2 (file)   */
-    /*  1 (Cancel) =>  0 (Ok)     */
-    /*  0 (Ok)     => -1 (input)  */
-    static const int backward[] =
-    {1, -3, -2, -1, 0};
-
     int tbox_y, tbox_x, tbox_width, tbox_height;
     int dbox_y, dbox_x, dbox_width, dbox_height;
     int fbox_y, fbox_x, fbox_width, fbox_height;
     int show_buttons = TRUE, first = TRUE, offset = 0;
-    int key = 0, key2, button = -1;
+    int key = 0, code;
+    int result = DLG_EXIT_UNKNOWN;
+    int state = sTEXT;
+    int button = sTEXT;
     char *input = dialog_vars.input_result;
     char *completed;
     char current[MAX_LEN + 1];
@@ -357,6 +433,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dialog = new_window(height, width,
 			box_y_ordinate(height),
 			box_x_ordinate(width));
+    mouse_setbase(0, 0);
 
     draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     draw_bottom_box(dialog);
@@ -372,12 +449,17 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
     if (w_text == 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
     (void) keypad(w_text, TRUE);
     draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
 	     (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
 	     border_attr, dialog_attr);
+    mouse_mkbigregion(getbegy(dialog) + tbox_y - MARGIN,
+		      getbegx(dialog) + tbox_x - MARGIN,
+		      1 + (2 * MARGIN),
+		      tbox_width + (MARGIN + EXT_WIDE),
+		      MOUSE_T, 1, 1, 3 /* doesn't matter */ );
 
     /* Draw the directory listing box */
     dbox_height = height - MIN_HIGH;
@@ -387,7 +469,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     w_dir = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
     if (w_dir == 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
     (void) keypad(w_dir, TRUE);
     (void) mvwprintw(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
@@ -395,7 +477,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	     dbox_y - MARGIN, dbox_x - MARGIN,
 	     dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
 	     border_attr, dialog_attr);
-    init_list(&d_list, dialog, w_dir);
+    init_list(&d_list, dialog, w_dir, MOUSE_D);
 
     /* Draw the filename listing box */
     fbox_height = dbox_height;
@@ -405,7 +487,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     w_file = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
     if (w_file == 0)
-	return -1;
+	return DLG_EXIT_ERROR;
 
     (void) keypad(w_file, TRUE);
     (void) mvwprintw(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
@@ -413,17 +495,17 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	     fbox_y - MARGIN, fbox_x - MARGIN,
 	     fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
 	     border_attr, dialog_attr);
-    init_list(&f_list, dialog, w_file);
+    init_list(&f_list, dialog, w_file, MOUSE_F);
 
     /* Set up the initial value */
     strcpy(input, path);
     offset = strlen(input);
     *current = 0;
 
-    while (key != ESC) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	int edit = 0;
 
-	if (fill_lists(current, input, &d_list, &f_list, button < -1))
+	if (fill_lists(current, input, &d_list, &f_list, state < sTEXT))
 	    show_buttons = TRUE;
 
 	/*
@@ -431,29 +513,32 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	 */
 	if (show_buttons) {
 	    show_buttons = FALSE;
+	    button = (state < 0) ? 0 : state;
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	}
-	if (button < 0) {
-	    switch (button) {
-	    case -1:
+	if (state < 0) {
+	    switch (state) {
+	    case sTEXT:
 		dlg_set_focus(dialog, w_text);
 		break;
-	    case -2:
+	    case sFILES:
 		dlg_set_focus(dialog, w_file);
 		break;
-	    case -3:
+	    case sDIRS:
 		dlg_set_focus(dialog, w_dir);
 		break;
 	    }
 	}
 
 	if (!first) {
-	    key = dlg_getc(dialog);
+	    fix_arrows(&d_list);
+	    fix_arrows(&f_list);
+	    key = mouse_wgetch(dialog);
 	} else {
 	    (void) wrefresh(dialog);
 	}
 
-	if (button == -1) {	/* Input box selected */
+	if (state == sTEXT) {	/* Input box selected */
 	    edit = dlg_edit_string(input, &offset, key, first);
 
 	    if (edit) {
@@ -464,75 +549,109 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    }
 	}
 
-	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
-	    del_window(dialog);
-	    return key2;
+	if ((code = dlg_char_to_button(key, buttons)) >= 0) {
+	    result = code;
+	    break;
 	}
 
-      nextbutton:
 	switch (key) {
+	case ESC:
+	    result = DLG_EXIT_ESC;
+	    break;
+	case M_EVENT + KEY_PREVIOUS:
+	    state = sDIRS;
+	    scroll_list(-1, which_list());
+	    break;
+	case M_EVENT + KEY_NEXT:
+	    state = sDIRS;
+	    scroll_list(1, which_list());
+	    break;
+	case M_EVENT + KEY_PPAGE:
+	    state = sFILES;
+	    scroll_list(-1, which_list());
+	    break;
+	case M_EVENT + KEY_NPAGE:
+	    state = sFILES;
+	    scroll_list(1, which_list());
+	    break;
+	case KEY_PPAGE:
+	    scroll_list(-1, which_list());
+	    break;
+	case KEY_NPAGE:
+	    scroll_list(1, which_list());
+	    break;
 	case KEY_UP:
-	    if (button < -1
-		&& change_list(-1, button == -2 ? &f_list : &d_list))
+	    if (change_list(-1, which_list()))
 		break;
 	    /* FALLTHRU */
 	case KEY_LEFT:
 	case KEY_BTAB:
 	    show_buttons = TRUE;
-	    button = backward[button + 3];
-	    if ((dialog_vars.nocancel && button > 0)
-		|| (button == -2 && data_of(&f_list) == 0)
-		|| (button == -3 && data_of(&d_list) == 0))
-		goto nextbutton;
+	    do {
+		state = dlg_prev_ok_buttonindex(state, sDIRS);
+	    } while (!usable_state(state, &d_list, &f_list));
 	    break;
 	case KEY_DOWN:
-	    if (button < -1
-		&& change_list(1, button == -2 ? &f_list : &d_list))
+	    if (change_list(1, which_list()))
 		break;
 	    /* FALLTHRU */
 	case KEY_RIGHT:
 	case TAB:
 	    show_buttons = TRUE;
-	    button = forward[button + 3];
-	    if ((dialog_vars.nocancel && button > 0)
-		|| (button == -2 && data_of(&f_list) == 0)
-		|| (button == -3 && data_of(&d_list) == 0))
-		goto nextbutton;
+	    do {
+		state = dlg_next_ok_buttonindex(state, sDIRS);
+	    } while (!usable_state(state, &d_list, &f_list));
 	    break;
 	case ' ':
 	    completed = 0;
-	    if (button == -2) {
+	    if (state == sFILES) {
 		completed = data_of(&f_list);
-	    } else if (button == -3) {
+	    } else if (state == sDIRS) {
 		completed = data_of(&d_list);
 	    }
 	    if (completed != 0) {
-		button = -1;
+		state = sTEXT;
 		show_buttons = TRUE;
 		strcpy(leaf_of(input), completed);
 		offset = strlen(input);
 		dlg_show_string(w_text, input, offset, inputbox_attr,
 				0, 0, tbox_width, 0, first);
 		break;
-	    } else if (button < -1) {
+	    } else if (state < sTEXT) {
 		(void) beep();
 		break;
 	    }
 	    /* FALLTHRU */
 	case '\n':
-	    del_window(dialog);
-	    free_list(&d_list);
-	    free_list(&f_list);
-	    return (button > 0);
+	    result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+	    break;
 	default:
-	    (void) ungetch(key);
-	    button = -1;
+	    if (key >= M_EVENT + MOUSE_T) {
+		state = sTEXT;
+	    } else if (key >= M_EVENT + MOUSE_F) {
+		state = sFILES;
+		f_list.choice = (key - (M_EVENT + MOUSE_F)) + f_list.offset;
+		display_list(&f_list);
+	    } else if (key >= M_EVENT + MOUSE_D) {
+		state = sDIRS;
+		d_list.choice = (key - (M_EVENT + MOUSE_D)) + d_list.offset;
+		display_list(&d_list);
+	    } else if (key >= M_EVENT
+		       && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+		result = code;
+	    } else if (key < KEY_MIN) {
+		(void) ungetch(key);
+		state = sTEXT;
+	    } else {
+		(void) beep();
+	    }
 	    break;
 	}
     }
 
     del_window(dialog);
+    mouse_free_regions();
     free_list(&d_list);
     free_list(&f_list);
-    return DLG_EXIT_ESC;	/* ESC pressed */
+    return result;
 }

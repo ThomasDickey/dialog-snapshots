@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.6 2002/03/09 01:01:42 tom Exp $
+ * $Id: inputstr.c,v 1.7 2002/06/15 00:24:45 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -94,6 +94,19 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
     return edit;
 }
 
+/*
+ * Returns the offset in the string-editor where we will display the cursor
+ */
+int
+dlg_edit_offset(int offset, int x_last)
+{
+    int scrollamt = (offset + 1 - x_last);
+
+    if (scrollamt < 0)
+	scrollamt = 0;
+    return offset - scrollamt;
+}
+
 void
 dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
 		int y_base, int x_base, int x_last, bool hidden, bool force)
@@ -104,13 +117,13 @@ dlg_show_string(WINDOW *win, char *string, int offset, chtype attr,
 	    wrefresh(win);
 	}
     } else {
-	int i, input_x;
+	int i;
+	int input_x = dlg_edit_offset(offset, x_last);
 	int len = strlen(string);
 	int scrollamt = (offset + 1 - x_last);
 
 	if (scrollamt < 0)
 	    scrollamt = 0;
-	input_x = offset - scrollamt;
 
 	wattrset(win, attr);
 	(void) wmove(win, y_base, x_base);
