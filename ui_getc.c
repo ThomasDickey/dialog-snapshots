@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.9 2001/10/12 23:33:13 tom Exp $
+ *  $Id: ui_getc.c,v 1.10 2002/03/09 19:32:33 tom Exp $
  *
  *  ui_getc.c
  *
@@ -136,12 +136,18 @@ dlg_getc(WINDOW *win)
     int result;
     bool done = FALSE;
     DIALOG_CALLBACK *p;
+    int interval = MIN(dialog_vars.timeout_secs, WTIMEOUT_VAL);
+    time_t expired = time((time_t *) 0) + dialog_vars.timeout_secs;
+    time_t current;
 
     if (dialog_state.getc_callbacks != 0)
 	wtimeout(win, WTIMEOUT_VAL);
+    else if (interval > 0)
+	wtimeout(win, interval);
 
     while (!done) {
 	ch = wgetch(win);
+	current = time((time_t *) 0);
 
 	switch (ch) {
 	case CHR_REPAINT:
@@ -149,10 +155,14 @@ dlg_getc(WINDOW *win)
 	    (void) wrefresh(curscr);
 	    break;
 	case ERR:		/* wtimeout() in effect; check for file I/O */
+	    if (interval > 0
+		&& current >= expired) {
+		exiterr("timeout");
+	    }
 	    if (dlg_getc_callbacks(ch, &result)) {
 		dlg_raise_window(win);
 	    } else {
-		done = TRUE;
+		done = (interval <= 0);
 	    }
 	    break;
 	case TAB:

@@ -3,6 +3,26 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2002/03/09
+	+ add --timeout option, which forces the program to exit with an error
+	  if no user response is given within the specified number of seconds
+	  (request by <andrew@argoncorp.com>).
+	+ modify calendar widget to allow day/month/year values to default to
+	  the current date (request by <Ron.Perrella@bellsouth.com>).
+	+ modify display of buttons in checklist.c and menubox.c to handle the
+	  case where the button label is empty (Debian #134388).
+	+ extended logic for ok/cancel/help to make this work with checklist
+	  widget.
+	+ revert pt_BT.po, apply changes to pt.po (report by Frederic L W
+	  Meunier).
+	> several changes from Stanislav Ievlev <inger@alt-linux.org>:
+	+ add options --help-button and --help-label to make menubox display a
+	  third button which can be used to return an exit code causing the
+	  calling script to show extended help information.
+	+ use home/end keys in input string-editing, e.g., inputbox.
+	+ add option --max-input to limit length of string returned by inputbox
+	  and other widgets which allow the user to edit a string.
+
 2001/12/02
 	+ add --ok-label and --cancel-label options (request by Kyle Sallee
 	  <cromwell@kublai.com> independent of Xdialog). 

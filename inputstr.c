@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.5 2001/07/27 22:15:35 tom Exp $
+ * $Id: inputstr.c,v 1.6 2002/03/09 01:01:42 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -27,8 +27,11 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
 {
     int i;
     int len = strlen(string);
+    int max_len = MAX_LEN;
     bool edit = TRUE;
 
+    if (dialog_vars.max_input != 0 && dialog_vars.max_input < MAX_LEN)
+	max_len = dialog_vars.max_input;
     switch (key) {
     case 0:			/* special case for loop entry */
 	edit = force;
@@ -40,6 +43,14 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
     case KEY_RIGHT:
 	if (*offset < len)
 	    *offset += 1;
+	break;
+    case KEY_HOME:
+	if (*offset)
+	    *offset = 0;
+	break;
+    case KEY_END:
+	if (*offset < len)
+	    *offset = len;
 	break;
     case 8:
     case KEY_BACKSPACE:
@@ -68,7 +79,7 @@ dlg_edit_string(char *string, int *offset, int key, bool force)
 	break;
     default:
 	if (key < 0x100 && isprint(key)) {
-	    if (len < MAX_LEN) {
+	    if (len < max_len) {
 		for (i = ++len; i > *offset; i--)
 		    string[i] = string[i - 1];
 		string[*offset] = key;

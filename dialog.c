@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.75 2001/12/02 22:10:57 tom Exp $
+ * $Id: dialog.c,v 1.79 2002/03/09 19:23:54 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -51,12 +51,15 @@ typedef enum {
     ,o_fullbutton
     ,o_gauge
     ,o_help
+    ,o_help_button
+    ,o_help_label
     ,o_icon
     ,o_ignore
     ,o_infobox
     ,o_inputbox
     ,o_item_help
     ,o_keep_colors
+    ,o_max_input
     ,o_menu
     ,o_msgbox
     ,o_no_close
@@ -86,6 +89,7 @@ typedef enum {
     ,o_tailboxbg
     ,o_textbox
     ,o_timebox
+    ,o_timeout
     ,o_title
     ,o_trim
     ,o_under_mouse
@@ -136,12 +140,15 @@ static const Options options[] = {
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
+    { "help-button",	o_help_button,		1, "" },
+    { "help-label",	o_help_label,		1, "<str>" },
     { "icon",		o_icon,			1, NULL },
     { "ignore",		o_ignore,		1, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
     { "item-help",	o_item_help,		1, "" },
     { "keep-colors",	o_keep_colors,		1, NULL },
+    { "max-input",	o_max_input,		1, "<n>" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
     { "no-cancel",	o_nocancel,		1, "" },
@@ -172,6 +179,7 @@ static const Options options[] = {
     { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
+    { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
     { "trim",		o_trim,			1, "" },
     { "under-mouse", 	o_under_mouse,		1, NULL },
@@ -356,7 +364,7 @@ optional_num(char **av, int n, int dft)
 static int
 show_result(int ret)
 {
-    if (ret == 0) {
+    if (ret == DLG_EXIT_OK) {
 	fprintf(dialog_vars.output, "%s", dialog_vars.input_result);
 	fflush(dialog_vars.output);
     }
@@ -410,21 +418,14 @@ j_textbox(JUMPARGS)
 static int
 j_menu(JUMPARGS)
 {
-    int ret;
     int tags = howmany_tags(av + 5, MENUBOX_TAGS);
     *offset_add = 5 + tags * MENUBOX_TAGS;
-    ret = dialog_menu(t,
-		      av[1],
-		      numeric_arg(av, 2),
-		      numeric_arg(av, 3),
-		      numeric_arg(av, 4),
-		      tags, av + 5);
-    if (ret >= 0) {
-	fprintf(dialog_vars.output, "%s", av[5 + ret * MENUBOX_TAGS]);
-	return 0;
-    } else if (ret == -2)
-	return 1;		/* CANCEL */
-    return ret;			/* ESC pressed, ret == -1 */
+    return show_result(dialog_menu(t,
+				   av[1],
+				   numeric_arg(av, 2),
+				   numeric_arg(av, 3),
+				   numeric_arg(av, 4),
+				   tags, av + 5));
 }
 
 static int
@@ -484,9 +485,9 @@ j_calendar(JUMPARGS)
 				       av[1],
 				       numeric_arg(av, 2),
 				       numeric_arg(av, 3),
-				       numeric_arg(av, 4),
-				       numeric_arg(av, 5),
-				       numeric_arg(av, 6)));
+				       optional_num(av, 4, -1),
+				       optional_num(av, 5, -1),
+				       optional_num(av, 6, -1)));
 }
 
 static int
@@ -562,7 +563,7 @@ static const Mode modes[] =
     {o_inputbox, 4, 5, j_inputbox},
     {o_passwordbox, 4, 5, j_passwordbox},
 #ifdef HAVE_XDIALOG
-    {o_calendar, 7, 7, j_calendar},
+    {o_calendar, 4, 7, j_calendar},
     {o_fselect, 4, 5, j_fselect},
     {o_timebox, 4, 7, j_timebox},
 #endif
@@ -834,6 +835,9 @@ main(int argc, char *argv[])
 	    case o_item_help:
 		dialog_vars.item_help = TRUE;
 		break;
+	    case o_help_button:
+		dialog_vars.help_button = TRUE;
+		break;
 	    case o_ignore:
 		ignore_unknown = TRUE;
 		break;
@@ -854,6 +858,12 @@ main(int argc, char *argv[])
 		break;
 	    case o_sleep:
 		dialog_vars.sleep_secs = optionValue(argv, &offset);
+		break;
+	    case o_timeout:
+		dialog_vars.timeout_secs = optionValue(argv, &offset);
+		break;
+	    case o_max_input:
+		dialog_vars.max_input = optionValue(argv, &offset);
 		break;
 	    case o_stderr:
 		dialog_vars.output = output = stderr;
@@ -883,6 +893,9 @@ main(int argc, char *argv[])
 		break;
 	    case o_cancel_label:
 		dialog_vars.cancel_label = optionString(argv, &offset);
+		break;
+	    case o_help_label:
+		dialog_vars.help_label = optionString(argv, &offset);
 		break;
 	    case o_noitem:
 	    case o_fullbutton:

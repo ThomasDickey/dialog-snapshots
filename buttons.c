@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.24 2001/12/02 22:22:46 tom Exp $
+ *  $Id: buttons.c,v 1.25 2002/03/09 01:39:34 tom Exp $
  *
  *  buttons.c
  *
@@ -263,6 +263,14 @@ my_cancel_label(void)
 	: _("Cancel");
 }
 
+static const char *
+my_help_label(void)
+{
+    return (dialog_vars.help_label != NULL)
+	? dialog_vars.help_label
+	: _("Help");
+}
+
 /*
  * These functions return a list of button labels.
  */
@@ -291,14 +299,35 @@ dlg_ok_label(void)
 const char **
 dlg_ok_labels(void)
 {
-    static const char *labels[3];
+    static const char *labels[4];
     int n = 0;
 
     labels[n++] = my_ok_label();
     if (!dialog_vars.nocancel)
 	labels[n++] = my_cancel_label();
+    if (dialog_vars.help_button)
+	labels[n++] = my_help_label();
     labels[n] = 0;
     return labels;
+}
+
+/*
+ * Map the given button index for dlg_ok_labels() into our exit-code
+ */
+int
+dlg_ok_buttoncode(int button)
+{
+    int result = DLG_EXIT_ERROR;
+    int n = 1;
+
+    if (button == 0) {
+	result = DLG_EXIT_OK;
+    } else if (!dialog_vars.nocancel && (button == n++)) {
+	result = DLG_EXIT_CANCEL;
+    } else if (button == n) {
+	result = DLG_EXIT_HELP;
+    }
+    return result;
 }
 
 const char **
@@ -311,4 +340,32 @@ dlg_yes_labels(void)
     labels[n++] = _("No");
     labels[n] = 0;
     return labels;
+}
+
+/*
+ * Return the next index in labels[];
+ */
+int
+dlg_next_button(const char **labels, int button)
+{
+    if (labels[button + 1] != 0)
+	++button;
+    else
+	button = 0;
+    return button;
+}
+
+/*
+ * Return the previous index in labels[];
+ */
+int
+dlg_prev_button(const char **labels, int button)
+{
+    if (button > 0)
+	--button;
+    else {
+	while (labels[button + 1] != 0)
+	    ++button;
+    }
+    return button;
 }
