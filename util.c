@@ -1,6 +1,5 @@
-#define TRACE
 /*
- *  $Id: util.c,v 1.78 2001/08/11 00:44:07 tom Exp $
+ *  $Id: util.c,v 1.80 2001/10/15 00:49:16 tom Exp $
  *
  *  util.c
  *
@@ -728,6 +727,43 @@ draw_shadow(WINDOW *win, int y, int x, int height, int width)
 }
 #endif
 
+/*
+ * Allow shell scripts to remap the exit codes so they can distinguish ESC
+ * from ERROR.
+ */
+void
+dlg_exit(int code)
+{
+    /* *INDENT-OFF* */
+    static const struct {
+	int code;
+	const char *name;
+    } table[] = {
+	{ DLG_EXIT_ESC,	   "DIALOG_ESC" },
+	{ DLG_EXIT_ERROR,  "DIALOG_ERROR" },
+	{ DLG_EXIT_OK,	   "DIALOG_OK" },
+	{ DLG_EXIT_CANCEL, "DIALOG_CANCEL" },
+    };
+    /* *INDENT-ON* */
+
+    unsigned n;
+    char *name;
+    char *temp;
+    long value;
+
+    for (n = 0; n < sizeof(table) / sizeof(table[0]); n++) {
+	if (table[n].code == code) {
+	    if ((name = getenv(table[n].name)) != 0) {
+		value = strtol(name, &temp, 0);
+		if (temp != 0 && temp != name && *temp == '\0')
+		    code = value;
+	    }
+	    break;
+	}
+    }
+    exit(code);
+}
+
 /* exiterr quit program killing all tailbg */
 void
 exiterr(const char *fmt,...)
@@ -747,7 +783,7 @@ exiterr(const char *fmt,...)
 
     (void) fflush(stderr);
     (void) fflush(stdout);
-    exit(DLG_EXIT_ERROR);
+    dlg_exit(DLG_EXIT_ERROR);
 }
 
 void
@@ -1087,6 +1123,24 @@ dlg_trim_string(char *s)
 		    p++;
 		}
 	    } else		/* If *p != '\n' */
+		*s++ = *p++;
+	} else if (dialog_vars.trim_whitespace) {
+	    if (*p == ' ') {
+		if (*(s - 1) != ' ') {
+		    *s++ = ' ';
+		    p++;
+		} else
+		    p++;
+	    } else if (*p == '\n') {
+		if (dialog_vars.cr_wrap)
+		    *s++ = *p++;
+		else if (*(s - 1) != ' ') {
+		    /* Strip '\n's if cr_wrap is not set. */
+		    *s++ = ' ';
+		    p++;
+		} else
+		    p++;
+	    } else
 		*s++ = *p++;
 	} else {		/* If there are no "\n" strings */
 	    if (*p == ' ') {

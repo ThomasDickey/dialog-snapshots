@@ -1,5 +1,8 @@
 #! /bin/sh
-DIALOG=${DIALOG=dialog}
+: ${DIALOG=dialog}
+: ${DIALOG_OK=0}
+: ${DIALOG_CANCEL=1}
+: ${DIALOG_ESC=255}
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
@@ -25,10 +28,12 @@ retval=$?
 
 choice=`cat $tempfile`
 case $retval in
-  0)
+  $DIALOG_OK)
     echo "'$choice' chosen.";;
-  1)
+  $DIALOG_CANCEL)
     echo "Cancel pressed.";;
-  255)
+  $DIALOG_ESC)
     echo "ESC pressed.";;
+  *)
+    echo "Unexpected return code: $retval (ok would be $DIALOG_OK)";;
 esac
