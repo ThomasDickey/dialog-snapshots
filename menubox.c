@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.71 2004/07/31 10:58:11 tom Exp $
+ *  $Id: menubox.c,v 1.76 2004/09/19 23:43:39 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -25,6 +25,12 @@
 
 static int menu_width, tag_x, item_x;
 
+typedef enum {
+    Unselected = 0,
+    Selected,
+    Editing
+} Mode;
+
 #define INPUT_ROWS     3	/* rows per inputmenu entry */
 
 #define LLEN(n) ((n) * MENUBOX_TAGS)
@@ -37,13 +43,30 @@ static int menu_width, tag_x, item_x;
 #define ItemToRow(i) (dialog_vars.input_menu ? ((i) * INPUT_ROWS + 1) : (i))
 #define RowToItem(i) (dialog_vars.input_menu ? ((i) / INPUT_ROWS + 0) : (i))
 
+static void
+print_arrows(WINDOW *win,
+	     int box_x,
+	     int box_y,
+	     int scrollamt,
+	     int max_choice,
+	     int item_no,
+	     int menu_height)
+{
+    dlg_draw_arrows(win, scrollamt,
+		    scrollamt + max_choice < item_no,
+		    box_x + tag_x + 1,
+		    box_y,
+		    box_y + menu_height + 1);
+}
+
 /*
  * Print the tag of a menu-item
  */
 static void
 print_tag(WINDOW *win,
 	  char **items,
-	  int choice, int selected)
+	  int choice,
+	  Mode selected)
 {
     int my_x = item_x;
     int my_y = ItemToRow(choice);
@@ -78,20 +101,40 @@ print_tag(WINDOW *win,
 static void
 print_item(WINDOW *win,
 	   char **items,
-	   int choice, int selected)
+	   int choice,
+	   Mode selected)
 {
+    attr_t save = getattrs(win);
     int n;
     int my_width = menu_width;
     int my_x = item_x;
     int my_y = ItemToRow(choice);
     chtype attr = A_NORMAL;
+    chtype textchar;
+    chtype bordchar;
 
     if (items == 0)
 	return;
 
+    switch (selected) {
+    default:
+    case Unselected:
+	textchar = item_attr;
+	bordchar = item_attr;
+	break;
+    case Selected:
+	textchar = item_selected_attr;
+	bordchar = item_selected_attr;
+	break;
+    case Editing:
+	textchar = inputbox_attr;
+	bordchar = dialog_attr;
+	break;
+    }
+
     /* Clear 'residue' of last item and mark current current item */
     if (dialog_vars.input_menu) {
-	wattrset(win, selected ? item_selected_attr : item_attr);
+	wattrset(win, (selected != Unselected) ? item_selected_attr : item_attr);
 	for (n = my_y - 1; n < my_y + INPUT_ROWS - 1; n++) {
 	    wmove(win, n, 0);
 	    wprintw(win, "%*s", my_width, " ");
@@ -109,31 +152,37 @@ print_item(WINDOW *win,
     if (dialog_vars.input_menu) {
 	my_width -= 1;
 	dlg_draw_box(win, my_y - 1, my_x, INPUT_ROWS, my_width - my_x - tag_x,
-		     selected ? item_selected_attr : item_attr,
-		     selected ? item_selected_attr : item_attr);
+		     bordchar,
+		     bordchar);
 	my_width -= 1;
 	++my_x;
     }
 
     /* print actual item */
     wmove(win, my_y, my_x);
-    wattrset(win, selected ? item_selected_attr : item_attr);
+    wattrset(win, textchar);
     dlg_print_text(win, ItemText(0), my_width - my_x, &attr);
 
     if (selected) {
 	dlg_item_help(ItemHelp(0));
     }
+    wattrset(win, save);
 }
 
-static char *
-input_menu_edit(WINDOW *win, char **items, int choice)
+/*
+ * Allow the user to edit the text of a menu entry.
+ */
+static int
+input_menu_edit(WINDOW *win, char **items, int choice, char **resultp)
 {
+    attr_t save = getattrs(win);
     char *result;
     int offset = 0;
     int key = 0, fkey = 0;
     int first = TRUE;
     /* see above */
     int y = ItemToRow(choice);
+    int code = TRUE;
 
     result = malloc(dialog_vars.max_input);
     assert_ptr(result, "input_menu_edit");
@@ -142,10 +191,10 @@ input_menu_edit(WINDOW *win, char **items, int choice)
     result[0] = '\0';
     strcpy(result, ItemText(0));
 
-    print_tag(win, items, choice, TRUE);
+    print_item(win, items, choice, Editing);
 
     /* taken out of inputbox.c - but somewhat modified */
-    while (key != '\n' && key != '\r') {
+    for (;;) {
 	if (!first)
 	    key = dlg_mouse_wgetch(win, &fkey);
 	if (dlg_edit_string(result, &offset, key, fkey, first)) {
@@ -157,13 +206,22 @@ input_menu_edit(WINDOW *win, char **items, int choice)
 	     * item_x - tag_x - 2 . same as "name_width"
 	     *                      ( see in dialog_menu() )
 	     */
-	    dlg_show_string(win, result, offset, item_selected_attr,
+	    dlg_show_string(win, result, offset, inputbox_attr,
 			    y, item_x + 1, menu_width - item_x - 3,
 			    FALSE, first);
 	    first = FALSE;
+	} else if (key == ESC || key == TAB) {
+	    code = FALSE;
+	    break;
+	} else {
+	    break;
 	}
     }
-    return result;
+    print_item(win, items, choice, Selected);
+    wattrset(win, save);
+
+    *resultp = result;
+    return code;
 }
 
 static int
@@ -196,7 +254,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 {
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = dlg_defaultno_button();
+    int button = dialog_state.visit_items ? -1 : dlg_defaultno_button();
     int choice = dlg_default_item(items, MENUBOX_TAGS);
     int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
@@ -270,9 +328,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
      */
     use_width = (menu_width - GUTTER);
     if (text_width + name_width > use_width) {
-	int need = 0.25 * use_width;
+	int need = (int) (0.25 * use_width);
 	if (name_width > need) {
-	    int want = use_width * ((double) name_width) / (text_width + name_width);
+	    int want = (int) (use_width
+			      * ((double) name_width)
+			      / (text_width + name_width));
 	    name_width = (want > need) ? want : need;
 	}
 	text_width = use_width - name_width;
@@ -289,19 +349,19 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     }
 
     /* Print the menu */
-    for (i = 0; i < max_choice; i++)
-	print_item(menu, ItemData(i + scrollamt), i, i == choice);
+    for (i = 0; i < max_choice; i++) {
+	print_item(menu,
+		   ItemData(i + scrollamt),
+		   i,
+		   (i == choice) ? Selected : Unselected);
+    }
     (void) wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
     dlg_mouse_mkbigregion(box_y + 1, box_x, menu_height + 2, menu_width + 2,
 			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
-    dlg_draw_arrows(dialog, scrollamt,
-		    scrollamt + max_choice < item_no,
-		    box_x + tag_x + 1,
-		    box_y,
-		    box_y + menu_height + 1);
+    print_arrows(dialog, box_x, box_y, scrollamt, max_choice, item_no, menu_height);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -366,24 +426,30 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	     * list.  If there is more than one match, we will cycle through
 	     * each one as the same key is pressed repeatedly.
 	     */
-	    for (j = scrollamt + choice + 1; j < item_no; j++) {
-		if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
-		    found = TRUE;
-		    i = j - scrollamt;
-		    break;
-		}
-	    }
-	    if (!found) {
-		for (j = 0; j <= scrollamt + choice; j++) {
+	    if (button < 0 || !dialog_state.visit_items) {
+		for (j = scrollamt + choice + 1; j < item_no; j++) {
 		    if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 			found = TRUE;
 			i = j - scrollamt;
 			break;
 		    }
 		}
+		if (!found) {
+		    for (j = 0; j <= scrollamt + choice; j++) {
+			if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
+			    found = TRUE;
+			    i = j - scrollamt;
+			    break;
+			}
+		    }
+		}
+		if (found)
+		    dlg_flush_getc();
+	    } else if ((j = dlg_char_to_button(key, buttons)) >= 0) {
+		button = j;
+		ungetch('\n');
+		continue;
 	    }
-	    if (found)
-		dlg_flush_getc();
 
 	    /*
 	     * A single digit (1-9) positions the selection to that line in the
@@ -449,19 +515,20 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		    if (i == -1) {
 			if (menu_height > 1) {
 			    /* De-highlight current first item */
-			    print_item(menu, ItemData(scrollamt), 0, FALSE);
+			    print_item(menu, ItemData(scrollamt), 0, Unselected);
 			    scrollok(menu, TRUE);
 			    wscrl(menu, -RowHeight(1));
 			    scrollok(menu, FALSE);
 			}
 			scrollamt--;
-			print_item(menu, ItemData(scrollamt), 0, TRUE);
+			print_item(menu, ItemData(scrollamt), 0, Selected);
 		    } else if (i == max_choice) {
 			if (menu_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(menu,
 				       ItemData(scrollamt + max_choice - 1),
-				       max_choice - 1, FALSE);
+				       max_choice - 1,
+				       Unselected);
 			    scrollok(menu, TRUE);
 			    wscrl(menu, RowHeight(1));
 			    scrollok(menu, FALSE);
@@ -483,7 +550,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 			for (i = 0; i < max_choice; i++) {
 			    print_item(menu,
 				       ItemData(scrollamt + i),
-				       i, i == choice);
+				       i,
+				       (i == choice) ? Selected : Unselected);
 			}
 		    }
 		    /* Clean bottom lines */
@@ -500,21 +568,21 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 			}
 		    }
 		    (void) wnoutrefresh(menu);
-		    dlg_draw_arrows(dialog, scrollamt,
-				    scrollamt + choice < item_no - 1,
-				    box_x + tag_x + 1,
-				    box_y,
-				    box_y + menu_height + 1);
+		    print_arrows(dialog,
+				 box_x, box_y,
+				 scrollamt, max_choice, item_no, menu_height);
 		} else {
 		    /* De-highlight current item */
 		    print_item(menu,
 			       ItemData(scrollamt + choice),
-			       choice, FALSE);
+			       choice,
+			       Unselected);
 		    /* Highlight new item */
 		    choice = i;
 		    print_item(menu,
 			       ItemData(scrollamt + choice),
-			       choice, TRUE);
+			       choice,
+			       Selected);
 		    (void) wnoutrefresh(menu);
 		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh(dialog);
@@ -543,14 +611,24 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
 		if (dialog_vars.input_menu && result == DLG_EXIT_EXTRA) {
 		    char *tmp;
-		    tmp = input_menu_edit(menu, ItemData(scrollamt + choice),
-					  choice);
 
-		    dialog_vars.input_result[0] = '\0';
-		    dlg_add_result("RENAMED ");
-		    dlg_add_result(ItemName(scrollamt + choice));
-		    dlg_add_result(" ");
-		    dlg_add_result(tmp);
+		    if (input_menu_edit(menu,
+					ItemData(scrollamt + choice),
+					choice,
+					&tmp)) {
+			dialog_vars.input_result[0] = '\0';
+			dlg_add_result("RENAMED ");
+			dlg_add_result(ItemName(scrollamt + choice));
+			dlg_add_result(" ");
+			dlg_add_result(tmp);
+		    } else {
+			result = DLG_EXIT_UNKNOWN;
+			print_item(menu,
+				   ItemData(scrollamt + choice),
+				   choice,
+				   Selected);
+			(void) wnoutrefresh(menu);
+		    }
 		    free(tmp);
 
 		    dlg_draw_buttons(dialog, height - 2, 0,

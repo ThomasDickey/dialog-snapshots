@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 0.9a\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"POT-Creation-Date: 2004-09-20 21:46-0400\n"
 "PO-Revision-Date: 2000-10-06 18:02+09:00\n"
 "Last-Translator: Hirofumi Takeda <takepin@turbolinux.co.jp>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -14,39 +14,41 @@ msgstr ""
 "Content-Type: text/plain; charset=EUC-JP\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:354
+#: buttons.c:359
 msgid "Yes"
 msgstr "はい"
 
-#: buttons.c:362
+#: buttons.c:367
 msgid "No"
 msgstr "いいえ"
 
-#: buttons.c:370
+#: buttons.c:375
 msgid "OK"
 msgstr "了解"
 
-#: buttons.c:378
+#: buttons.c:383
 msgid "Cancel"
 msgstr "取消"
 
-#: buttons.c:386
+#: buttons.c:391
 msgid "EXIT"
 msgstr "終了"
 
-#: buttons.c:394
+#: buttons.c:399
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:402
+#: buttons.c:407
 msgid "Help"
 msgstr ""
 
-#: calendar.c:301
+#. Headline "Month"
+#: calendar.c:299
 msgid "Month"
 msgstr ""
 
-#: calendar.c:320
+#. Headline "Year"
+#: calendar.c:319
 msgid "Year"
 msgstr ""
 

@@ -1,5 +1,18 @@
-.\" $Id: dialog.1,v 1.75 2004/07/29 00:30:36 tom Exp $
-.TH DIALOG 1 "" "$Date: 2004/07/29 00:30:36 $"
+.\" $Id: dialog.1,v 1.78 2004/09/21 01:43:31 tom Exp $
+.de EX
+.ne 8
+.IP
+..
+.de ES
+.RS +10
+.nf
+..
+.de EE
+.fi
+.RE
+..
+.
+.TH DIALOG 1 "" "$Date: 2004/09/21 01:43:31 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -42,7 +55,7 @@ These types of dialog boxes are implemented
 You can put more than one dialog box into a script:
 .TP 5
 -
-Use the \fB--and-widget\fP token to force Dialog to proceed to the next
+Use the "\fB--and-widget\fP" token to force Dialog to proceed to the next
 dialog unless you have pressed ESC to cancel, or
 .TP 5
 -
@@ -52,7 +65,7 @@ e.g., Cancel or No (see DIAGNOSTICS).
 .PP
 Some widgets, e.g., checklist, will write text to \fBdialog\fP's output.
 Normally that is the standard error, but there are options for
-changing this: \fB--output-fd\fP, \fB--stderr\fP and \fB--stdout\fP.
+changing this: "\fB--output-fd\fP", "\fB--stderr\fP" and "\fB--stdout\fP".
 No text is written if the Cancel button (or ESC) is pressed;
 \fBdialog\fP exits immediately in that case.
 .
@@ -76,7 +89,7 @@ the file named as its value.
 Blanks not within double-quotes are discarded
 (use backslashes to quote single characters).
 The result is inserted into the command-line,
-replacing \fB--file\fP and its option value.
+replacing "\fB--file\fP" and its option value.
 Interpretation of the command-line resumes from that point.
 .
 .SS \fBCommon Options\fP
@@ -92,13 +105,6 @@ Specifies a
 \fIbacktitle\fP
 string to be displayed on the backdrop, at the top of the screen.
 .
-.IP "\fB--beep"
-Sound the audible alarm
-each time the screen is refreshed.
-.
-.IP "\fB--beep-after"
-Beep if input is interrupted, e.g., by a control/C.
-.
 .IP "\fB--begin \fIy x"
 Specify the position of the upper left corner of a dialog box on the screen.
 .
@@ -106,8 +112,48 @@ Specify the position of the upper left corner of a dialog box on the screen.
 Override the label used for "Cancel" buttons.
 .
 .IP "\fB--clear"
-The screen will be cleared on exit.
-This may be used alone, without other options.
+Clears the widget screen, keeping only the screen_color background.
+Use this when you combine widgets with "\fB--and-widget\fR" to erase the
+contents of a previous widget on the screen, so it won't be seen 
+under the contents of a following widget.
+Understand this as the complement of "\fB--keep-window\fR".
+To compare the effects, use these:
+.
+.EX
+All three widgets visible, staircase effect, ordered 1,2,3:
+.ES
+dialog                         --begin 2 2 --yesno "" 0 0 \\
+    --and-widget               --begin 4 4 --yesno "" 0 0 \\
+    --and-widget               --begin 6 6 --yesno "" 0 0
+.EE
+.
+.EX
+Only the last widget is left visible:
+.ES
+dialog           --clear       --begin 2 2 --yesno "" 0 0 \\
+    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
+    --and-widget               --begin 6 6 --yesno "" 0 0
+.EE
+.
+.EX
+All three widgets visible, staircase effect, ordered 3,2,1:
+.ES
+dialog           --keep-window --begin 2 2 --yesno "" 0 0 \\
+    --and-widget --keep-window --begin 4 4 --yesno "" 0 0 \\
+    --and-widget               --begin 6 6 --yesno "" 0 0
+.EE
+.
+.EX
+First and third widget visible, staircase effect, ordered 3,1:
+.ES
+dialog           --keep-window --begin 2 2 --yesno "" 0 0 \\
+    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
+    --and-widget               --begin 6 6 --yesno "" 0 0
+.EE
+.IP
+Note, if you want to restore original console colors and send your
+cursor home after the dialog program has exited, use the \fBclear\fR\ (1)
+command.
 .
 .IP "\fB--colors"
 Interpret embedded "\\Z" sequences in the dialog text
@@ -138,7 +184,7 @@ Without cr-wrap, the layout of your text may be formatted to look nice
 in the source code of your script without affecting the way it will
 look in the dialog.
 .IP
-See also the \fB--no-collapse\fP and \fB--trim\fP options.
+See also the "\fB--no-collapse\fP" and "\fB--trim\fP" options.
 .
 .IP "\fB--create-rc \fIfile"
 When
@@ -155,7 +201,8 @@ box a
 .BR No .
 Likewise, make the default button of widgets that provide "OK" and "Cancel"
 a \fBCancel\fP.
-If \fB--nocancel\fP was given that option overrides this,
+If "\fB--nocancel\fP" or "\fB--visit-items\fP" are given
+those options overrides this,
 making the default button always "Yes" (internally the same as "OK").
 .
 .IP "\fB--default-item \fIstring"
@@ -179,7 +226,7 @@ The help message is printed if no options are given.
 .IP "\fB--help-button"
 Show a help-button after "OK" and "Cancel" buttons,
 i.e., in checklist, radiolist and menu boxes.
-If \fB--item-help\fR is also given, on exit
+If "\fB--item-help\fR" is also given, on exit
 the return status will be the same as for the "OK" button,
 and the item-help text will be written to \fBdialog\fP's output after the token "HELP".
 Otherwise, the return status will indicate that the Help button was pressed,
@@ -219,10 +266,15 @@ adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
 .IP "\fB--keep-window"
-Do not remove/repaint the window on exit.
-This is useful for keeping the window contents visible when several
-widgets are run in the same process.
-Note that curses will clear the screen when starting a new process.
+Normally when \fBdialog\fR performs several \fBtailboxbg\fR widgets
+connected by "\fB--and-widget\fR",
+it clears the old widget from the screen by painting over it.
+Use this option to suppress that repainting.
+.IP
+At exit, \fBdialog\fR repaints all of the widgets which have been
+marked with "\fB--keep-window\fR", even if they are not \fBtailboxbg\fR widgets.
+That causes them to be repainted in reverse order.
+See the discussion of the "\fB--clear\fR" option for examples.
 .
 .IP "\fB--max-input \fIsize"
 Limit input strings to the given size.
@@ -238,7 +290,7 @@ Normally \fBdialog\fR converts tabs to spaces and reduces multiple
 spaces to a single space for text which is displayed in a message boxes, etc.
 Use this option to disable that feature.
 Note that \fBdialog\fR will still wrap text,
-subject to the \fB--cr-wrap\fR and \fB--trim\fR options.
+subject to the "\fB--cr-wrap\fR" and "\fB--trim\fR" options.
 .
 .IP "\fB--no-kill"
 Tells
@@ -345,7 +397,7 @@ eliminate leading blanks,
 trim literal newlines and repeated blanks from message text.
 .
 .IP
-See also the \fB--cr-wrap\fR and \fB--no-collapse\fR options.
+See also the "\fB--cr-wrap\fR" and "\fB--no-collapse\fR" options.
 .
 .IP "\fB--version"
 Same as "\fB--print-version\fP".
@@ -355,6 +407,10 @@ Modify the tab-traversal of checklist, radiobox, menubox and inputmenu
 to include the list of items as one of the states.
 This is useful as a visual aid,
 i.e., the cursor position helps some users.
+.IP
+When this option is given, the cursor is initially placed on the list.
+Abbreviations (the first letter of the tag) apply to the list items.
+If you tab to the button row, abbrevations apply to the buttons.
 .
 .IP "\fB--yes-label \fIstring"
 Override the label used for "Yes" buttons.
@@ -404,9 +460,9 @@ The initial on/off state of each entry is specified by
 On exit, a list of the \fItag\fP
 strings of those entries that are turned on
 will be printed on \fBdialog\fP's output.
-If the \fB--separate-output\fP option is not given,
+If the "\fB--separate-output\fP" option is not given,
 the strings will be quoted to make it simple for scripts to separate them.
-See the \fB--single-quoted\fP option, which modifies the quoting behavior.
+See the "\fB--single-quoted\fP" option, which modifies the quoting behavior.
 .
 .
 .nf
@@ -552,7 +608,7 @@ scrolled if there are more entries than that.
 .IP
 On exit the \fItag\fP
 of the chosen menu entry will be printed on \fBdialog\fP's output.
-If the \fB--help-button\fR option is given, the corresponding help
+If the "\fB--help-button\fR" option is given, the corresponding help
 text will be printed if the user selects the help button.
 .
 .IP "\fB--msgbox \fItext height width"
@@ -620,7 +676,7 @@ polling for updates.
 You may use a tab to traverse between the widgets on the screen,
 and close them individually, e.g., by pressing \fIENTER\fP.
 Once the non-tailboxbg widgets are closed, \fBdialog\fP forks a copy of itself
-into the background, and prints its process id if the \fB--no-kill\fP option
+into the background, and prints its process id if the "\fB--no-kill\fP" option
 is given.
 .IP
 On exit, no text is written to \fBdialog\fP's output.
@@ -704,6 +760,17 @@ The codes used for "Yes" and "No" match those used for "OK" and "Cancel",
 internally no distinction is made.
 .
 .\" ************************************************************************
+.SS "Obsolete Options"
+.\" from cdialog 0.9a (Pako)
+.IP "\fB--beep"
+This was used to tell the original cdialog that it should make a beep
+when the separate processes of the tailboxbg widget would repaint the screen.
+.
+.\" from cdialog 0.9a (Pako)
+.IP "\fB--beep-after"
+Beep after a user has completed a widget by pressing one of the buttons.
+.
+.\" ************************************************************************
 .SH "RUN-TIME CONFIGURATION"
 .TP 4
 1.
@@ -749,10 +816,10 @@ Define this variable to apply any of the common options to each widget.
 Most of the common options are reset before processing each widget.
 If you set the options in this environment variable,
 they are applied to \fBdialog\fP's state after the reset.
-As in the \fB--file\fP option,
+As in the "\fB--file\fP" option,
 double-quotes and backslashes are interpreted.
 .IP
-The \fB--file\fP option is not considered a common option
+The "\fB--file\fP" option is not considered a common option
 (so you cannot embed it within this environment variable).
 .TP 15
 \fBDIALOGRC\fP

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: uk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"POT-Creation-Date: 2004-09-20 21:46-0400\n"
 "PO-Revision-Date: 2004-02-12 20:17+0200\n"
 "Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
 "Language-Team: Ukrainian\n"
@@ -16,39 +16,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.2\n"
 
-#: buttons.c:354
+#: buttons.c:359
 msgid "Yes"
 msgstr "Так"
 
-#: buttons.c:362
+#: buttons.c:367
 msgid "No"
 msgstr "Ні"
 
-#: buttons.c:370
+#: buttons.c:375
 msgid "OK"
 msgstr "Гаразд"
 
-#: buttons.c:378
+#: buttons.c:383
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: buttons.c:386
+#: buttons.c:391
 msgid "EXIT"
 msgstr "ВИЙТИ"
 
-#: buttons.c:394
+#: buttons.c:399
 msgid "Extra"
 msgstr "Додатково"
 
-#: buttons.c:402
+#: buttons.c:407
 msgid "Help"
 msgstr "Допомога"
 
-#: calendar.c:301
+#. Headline "Month"
+#: calendar.c:299
 msgid "Month"
 msgstr "Місяць"
 
-#: calendar.c:320
+#. Headline "Year"
+#: calendar.c:319
 msgid "Year"
 msgstr "Рік"
 

@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.20 2004/07/29 00:32:43 tom Exp $
+ *  $Id: ui_getc.c,v 1.22 2004/09/21 00:40:18 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2002,2003	Thomas E. Dickey
+ * Copyright 2001-2003,2004	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -294,6 +294,7 @@ dlg_getc(WINDOW *win, int *fkey)
 static void
 finish_bg(int sig GCC_UNUSED)
 {
+    end_dialog();
     dlg_exit(DLG_EXIT_ERROR);
 }
 

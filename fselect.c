@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.41 2003/11/26 20:34:24 tom Exp $
+ * $Id: fselect.c,v 1.44 2004/09/18 16:36:40 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2002,2003   Thomas E. Dickey
+ * Copyright 2000-2003,2004   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -223,7 +223,7 @@ display_list(LIST * list)
     top = y - 1;
     bottom = y + getmaxy(list->win);
     dlg_draw_arrows(list->par, list->offset,
-		    list->length - list->offset >= getmaxy(list->win),
+		    list->length - list->offset > getmaxy(list->win),
 		    x + 1,
 		    top,
 		    bottom);
@@ -462,7 +462,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     (void) keypad(w_text, TRUE);
     dlg_draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
 		 (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
-		 border_attr, dialog_attr);
+		 menubox_border_attr, menubox_attr);
     dlg_mouse_mkbigregion(getbegy(dialog) + tbox_y - MARGIN,
 			  getbegx(dialog) + tbox_x - MARGIN,
 			  1 + (2 * MARGIN),
@@ -484,7 +484,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dlg_draw_box(dialog,
 		 dbox_y - MARGIN, dbox_x - MARGIN,
 		 dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
-		 border_attr, dialog_attr);
+		 menubox_border_attr, menubox_attr);
     init_list(&d_list, dialog, w_dir, MOUSE_D);
 
     /* Draw the filename listing box */
@@ -502,7 +502,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dlg_draw_box(dialog,
 		 fbox_y - MARGIN, fbox_x - MARGIN,
 		 fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
-		 border_attr, dialog_attr);
+		 menubox_border_attr, menubox_attr);
     init_list(&f_list, dialog, w_file, MOUSE_F);
 
     /* Set up the initial value */

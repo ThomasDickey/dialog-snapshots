@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"POT-Creation-Date: 2004-09-20 21:46-0400\n"
 "PO-Revision-Date: 2003-06-21 17:07+0200\n"
 "Last-Translator: Jaroslaw Swierczynski <swiergot@intersec.pl>\n"
 "Language-Team: Polish <po@lists.intersec.pl>\n"
@@ -14,39 +14,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.1\n"
 
-#: buttons.c:354
+#: buttons.c:359
 msgid "Yes"
 msgstr "Tak"
 
-#: buttons.c:362
+#: buttons.c:367
 msgid "No"
 msgstr "Nie"
 
-#: buttons.c:370
+#: buttons.c:375
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:378
+#: buttons.c:383
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: buttons.c:386
+#: buttons.c:391
 msgid "EXIT"
 msgstr "WYJD¬"
 
-#: buttons.c:394
+#: buttons.c:399
 msgid "Extra"
 msgstr "Ekstra"
 
-#: buttons.c:402
+#: buttons.c:407
 msgid "Help"
 msgstr "Pomoc"
 
-#: calendar.c:301
+#. Headline "Month"
+#: calendar.c:299
 msgid "Month"
 msgstr "Miesi±c"
 
-#: calendar.c:320
+#. Headline "Year"
+#: calendar.c:319
 msgid "Year"
 msgstr "Rok"
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.77 2004/07/31 10:58:03 tom Exp $
+ *  $Id: checklist.c,v 1.81 2004/09/20 00:12:32 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -34,6 +34,24 @@ static int list_width, check_x, item_x, checkflag;
 #define ItemStatus(i)  items[LLEN(i) + 2]
 #define ItemHelp(i)    items[LLEN(i) + 3]
 
+static void
+print_arrows(WINDOW *win,
+	     int box_x,
+	     int box_y,
+	     int scrollamt,
+	     int choice,
+	     int item_no,
+	     int list_height)
+{
+    dlg_draw_arrows2(win, scrollamt,
+		     scrollamt + choice < item_no - 1,
+		     box_x + check_x + 5,
+		     box_y,
+		     box_y + list_height + 1,
+		     menubox_attr,
+		     menubox_border_attr);
+}
+
 /*
  * Print list item
  */
@@ -41,8 +59,9 @@ static void
 print_item(WINDOW *win, char **items, int status,
 	   int choice, int selected)
 {
+    attr_t save = getattrs(win);
     int i;
-    chtype attr = A_NORMAL;
+    attr_t attr = A_NORMAL;
     const int *indx;
     int limit;
 
@@ -93,6 +112,7 @@ print_item(WINDOW *win, char **items, int status,
     if (selected) {
 	dlg_item_help(ItemHelp(0));
     }
+    wattrset(win, save);
 }
 
 /*
@@ -108,7 +128,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			    && (dialog_vars.separate_output));
     int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = dlg_defaultno_button();
+    int button = dialog_state.visit_items ? -1 : dlg_defaultno_button();
     int choice = dlg_default_item(items, CHECKBOX_TAGS);
     int scrollamt = 0;
     int max_choice, *status;
@@ -197,21 +217,23 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     item_x = name_width + check_x + 6;
 
     /* Print the list */
+    if (choice >= (max_choice + scrollamt)) {
+	scrollamt = choice - max_choice + 1;
+	choice = max_choice - 1;
+    }
     for (i = 0; i < max_choice; i++)
 	print_item(list,
-		   ItemData(i),
-		   status[i], i, i == choice);
+		   ItemData(i + scrollamt),
+		   status[i + scrollamt], i, i == choice);
     (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */
     dlg_mouse_mkbigregion(box_y + 1, box_x, list_height, list_width + 2,
 			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
-    dlg_draw_arrows(dialog, scrollamt,
-		    scrollamt + max_choice < item_no - 1,
-		    box_x + check_x + 5,
-		    box_y,
-		    box_y + list_height + 1);
+    print_arrows(dialog,
+		 box_x, box_y,
+		 scrollamt, choice, item_no, list_height);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -306,24 +328,30 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	 */
 	found = FALSE;
 	if (!fkey) {
-	    for (j = scrollamt + choice + 1; j < item_no; j++) {
-		if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
-		    found = TRUE;
-		    i = j - scrollamt;
-		    break;
-		}
-	    }
-	    if (!found) {
-		for (j = 0; j <= scrollamt + choice; j++) {
+	    if (button < 0 || !dialog_state.visit_items) {
+		for (j = scrollamt + choice + 1; j < item_no; j++) {
 		    if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
 			found = TRUE;
 			i = j - scrollamt;
 			break;
 		    }
 		}
+		if (!found) {
+		    for (j = 0; j <= scrollamt + choice; j++) {
+			if (dlg_match_char(dlg_last_getc(), ItemName(j))) {
+			    found = TRUE;
+			    i = j - scrollamt;
+			    break;
+			}
+		    }
+		}
+		if (found)
+		    dlg_flush_getc();
+	    } else if ((j = dlg_char_to_button(key, buttons)) >= 0) {
+		button = j;
+		ungetch('\n');
+		continue;
 	    }
-	    if (found)
-		dlg_flush_getc();
 	}
 
 	/*
@@ -435,11 +463,9 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 			}
 		    }
 		    (void) wnoutrefresh(list);
-		    dlg_draw_arrows(dialog, scrollamt,
-				    scrollamt + choice < item_no - 1,
-				    box_x + check_x + 5,
-				    box_y,
-				    box_y + list_height + 1);
+		    print_arrows(dialog,
+				 box_x, box_y,
+				 scrollamt, choice, item_no, list_height);
 		} else {
 		    /* De-highlight current item */
 		    print_item(list,

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: inputbox7,v 1.2 2003/08/15 19:34:18 tom Exp $
+# $Id: inputbox7,v 1.3 2004/09/12 22:38:38 tom Exp $
 # An example which produces two widget outputs.
 : ${DIALOG=dialog}
 
@@ -17,11 +17,11 @@ SEP='
 '
 
 exec 3>&1
-RESULT="`$DIALOG --title "INPUT BOX" --clear --separate-widget "$SEP" \
+RESULT=`$DIALOG --title "INPUT BOX" --clear --separate-widget "$SEP" \
         --inputbox "$MSG" 16 51 \
 	--title "ANOTHER INPUT BOX" \
         --inputbox "$MSG" 16 51 \
-2>&1 1>&3`"
+2>&1 1>&3`
 retval=$?
 exec 3>&-
 

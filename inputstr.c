@@ -1,9 +1,9 @@
 /*
- * $Id: inputstr.c,v 1.35 2004/06/06 13:51:55 tom Exp $
+ * $Id: inputstr.c,v 1.36 2004/09/18 16:37:44 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- * Copyright 2000-2002,2003	Thomas E. Dickey
+ * Copyright 2000-2003,2004	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

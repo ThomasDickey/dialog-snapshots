@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: form4,v 1.1 2004/03/13 16:36:35 tom Exp $
+# $Id: form4,v 1.2 2004/09/12 22:37:50 tom Exp $
 # form3 with --item-help
 : ${DIALOG=dialog}
 
@@ -16,7 +16,7 @@ returncode=0
 while test $returncode != 1 && test $returncode != 250
 do
 exec 3>&1
-value="`$DIALOG --ok-label "Submit" \
+value=`$DIALOG --ok-label "Submit" \
 	  --help-button \
 	  --item-help \
 	  --backtitle "$backtitle" \
@@ -26,7 +26,7 @@ value="`$DIALOG --ok-label "Submit" \
 	"UID:"      2 1	"$uid"  2 10  8 0 "User ID" \
 	"GID:"      3 1	"$gid"  3 10  8 0 "Group ID" \
 	"HOME:"     4 1	"$home" 4 10 40 0 "User's home-directory" \
-2>&1 1>&3`"
+2>&1 1>&3`
 returncode=$?
 exec 3>&-
 

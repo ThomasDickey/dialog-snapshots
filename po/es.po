@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 0.9b-20030910\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-06 11:07-0400\n"
+"POT-Creation-Date: 2004-09-20 21:46-0400\n"
 "PO-Revision-Date: 2003-09-11 11:40+0200\n"
 "Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -14,39 +14,41 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:354
+#: buttons.c:359
 msgid "Yes"
 msgstr "Sí"
 
-#: buttons.c:362
+#: buttons.c:367
 msgid "No"
 msgstr "No"
 
-#: buttons.c:370
+#: buttons.c:375
 msgid "OK"
 msgstr "Aceptar"
 
-#: buttons.c:378
+#: buttons.c:383
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: buttons.c:386
+#: buttons.c:391
 msgid "EXIT"
 msgstr "Salir"
 
-#: buttons.c:394
+#: buttons.c:399
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:402
+#: buttons.c:407
 msgid "Help"
 msgstr "Ayuda"
 
-#: calendar.c:301
+#. Headline "Month"
+#: calendar.c:299
 msgid "Month"
 msgstr "Mes"
 
-#: calendar.c:320
+#. Headline "Year"
+#: calendar.c:319
 msgid "Year"
 msgstr "Año"
 
