@@ -1,12 +1,13 @@
 #!/bin/sh
 DIALOG=${DIALOG=dialog}
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 
 TITLE="This screen was taken from ComeOn Point Installer! v0.9 by ComeOn Linux!"
 
-$DIALOG --print-maxsize 2>/tmp/copi.size
-ROWS="`cut /tmp/copi.size -f1 -d, | cut -f2 -d:`"
-COLS="`cut /tmp/copi.size -f2 -d,`"
-rm /tmp/copi.size
+$DIALOG --print-maxsize 2>$tempfile
+ROWS="`cut $tempfile -f1 -d, | cut -f2 -d:`"
+COLS="`cut $tempfile -f2 -d,`"
+rm $tempfile
 
 # account for widest labels
 COLS=`expr $COLS - 30`

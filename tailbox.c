@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.22 2000/10/28 01:03:37 tom Exp $
+ *  $Id: tailbox.c,v 1.24 2001/01/15 20:12:47 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -31,13 +31,12 @@ static char *get_line(void);
 static int hscroll = 0, page_length, old_hscroll = 0, end_reached;
 static FILE *fd;
 
-int can_quit = 0;
+static int can_quit = 0;
 
 static RETSIGTYPE
 signal_tailbg(int sig)
-{				/* __sighandler_t */
-    if (sig == 15)
-	can_quit = 1;
+{
+    can_quit = sig;
 }
 
 /*
@@ -143,7 +142,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width)
  * Display text from a file in a dialog box in background, like in a "tail -f &".
  */
 void
-dialog_tailboxbg(const char *title, const char *file, int height, int width, int cant_kill)
+dialog_tailboxbg(const char *title, const char *file, int height, int width, int no_kill)
 {
     int x, y;
     WINDOW *dialog, *text;
@@ -179,8 +178,12 @@ dialog_tailboxbg(const char *title, const char *file, int height, int width, int
     print_last_page(text, height - 3, width - 2);
     wrefresh_lock_tailbg(dialog);
 
-    if (cant_kill)
-	(void) signal(15, &signal_tailbg);
+    /* if we haven't specified --no-kill, allow SIGHUP to stop this */
+    if (no_kill == 0)
+	(void) signal(SIGHUP, &signal_tailbg);
+
+    (void) signal(SIGINT, &signal_tailbg);
+    (void) signal(SIGQUIT, &signal_tailbg);
 
     while (!can_quit) {
 	ch = getc(fd);
@@ -192,6 +195,7 @@ dialog_tailboxbg(const char *title, const char *file, int height, int width, int
 	}
 	(void) napms(1000);
     }
+    remove_lock(&lock_tailbg_refreshed);
 }
 
 /* End of dialog_tailboxbg() */

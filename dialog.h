@@ -183,6 +183,11 @@
 /* number of attributes */
 #define ATTRIBUTE_COUNT               30
 
+typedef struct {
+	char *filename;
+	int identifier;
+} DIALOCK;
+
 /*
  * Global variables
  */
@@ -231,9 +236,9 @@ extern chtype attributes[];
 extern int defaultno;
 extern int is_tailbg;
 extern int screen_initialized;
-extern char *lock_refresh;
-extern char *lock_tailbg_refreshed;
-extern char *lock_tailbg_exit;
+extern DIALOCK lock_refresh;
+extern DIALOCK lock_tailbg_refreshed;
+extern DIALOCK lock_tailbg_exit;
 extern pid_t tailbg_pids[MAX_TAILBG];
 extern pid_t tailbg_lastpid;
 extern pid_t tailbg_nokill_pids[MAX_TAILBG];
@@ -247,27 +252,26 @@ extern void create_rc (const char *filename);
 extern int parse_rc (void);
 #endif
 
-void dialog_clear (void);
-void init_dialog (void);
-void end_dialog (void);
 void attr_clear (WINDOW * win, int height, int width, chtype attr);
+void dialog_clear (void);
+void end_dialog (void);
+void init_dialog (void);
 void put_backtitle(void);
 
 void auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
-char *make_lock_filename(const char *filename);
+int make_lock_filename(DIALOCK *dialock, const char *prefix);
 void wrefresh_lock(WINDOW *win);
 void ctl_idlemsg(WINDOW *win);
 void wrefresh_lock_tailbg(WINDOW *win);
-void wrefresh_lock_sub(WINDOW *win);
 
-int exist_lock(char *filename);
-void create_lock(char *filename);
-void remove_lock(char *filename);
+int exist_lock(DIALOCK *dialock);
+void create_lock(DIALOCK *dialock);
+void remove_lock(DIALOCK *dialock);
 
+int quitall_bg(void);
 void killall_bg(void);
-void quitall_bg(void);
 void exiterr(const char *, ...)
 #ifdef __GNUC__
 __attribute__((format(printf,1,2)))

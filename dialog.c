@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.47 2000/12/08 11:45:28 tom Exp $
+ * $Id: dialog.c,v 1.52 2001/01/15 23:26:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -315,7 +315,7 @@ j_inputbox(JUMPARGS)
     int ret;
     char *init_inputbox = 0;
 
-    if (arg_rest(av) >= 4)
+    if (arg_rest(av) > 4)
 	init_inputbox = av[4];
 
     *offset_add = arg_rest(av);
@@ -335,7 +335,7 @@ j_passwordbox(JUMPARGS)
     int ret;
     char *init_inputbox = 0;
 
-    if (arg_rest(av) >= 4)
+    if (arg_rest(av) > 4)
 	init_inputbox = av[4];
 
     *offset_add = arg_rest(av);
@@ -372,7 +372,7 @@ j_gauge(JUMPARGS)
 {
     int percent = 0;
 
-    if (arg_rest(av) >= 4)
+    if (arg_rest(av) > 4)
 	percent = atoi(av[4]);
 
     *offset_add = arg_rest(av);
@@ -406,12 +406,20 @@ j_tailboxbg(JUMPARGS)
     }
 
     *offset_add = 4;
-    (void) refresh();		/* doupdate(); */
+
+    /*
+     * Try to avoid having stdout from the parent process's initialization of
+     * curses mess up the display from a backgrounded process.
+     */
+    if (dialog_vars.cant_kill) {
+	(void) refresh();
+	(void) fflush(stdout);
+    }
+
+    tailbg_pids[tailbg_lastpid] = fork();
     if (dialog_vars.cant_kill)
 	tailbg_nokill_pids[tailbg_nokill_lastpid] =
-	    tailbg_pids[tailbg_lastpid] = fork();
-    else
-	tailbg_pids[tailbg_lastpid] = fork();
+	    tailbg_pids[tailbg_lastpid];
 
     /* warning! here are 2 processes */
 
@@ -425,8 +433,8 @@ j_tailboxbg(JUMPARGS)
 			 atoi(av[3]),
 			 dialog_vars.cant_kill);
 
-	(void) refresh();	/* quitting for signal 15 and --no-kill */
-	(void) endwin();
+	(void) refresh();	/* quitting for SIGHUP and --no-kill */
+	end_dialog();
 	exit(0);
     }
     if (dialog_vars.cant_kill)
@@ -435,6 +443,7 @@ j_tailboxbg(JUMPARGS)
     return 0;
 }
 #endif
+
 /* *INDENT-OFF* */
 static Mode modes[] =
 {
@@ -467,7 +476,7 @@ optionString(char **argv, int *num)
     char *result = argv[next];
     if (result == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a string-parameter for %.20s", argv[0]);
+	sprintf(temp, "Expected a string-parameter for %.20s", argv[*num]);
 	Usage(temp);
     }
     *num = next;
@@ -490,7 +499,7 @@ optionValue(char **argv, int *num)
 
     if (src == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a numeric-parameter for %.20s", argv[0]);
+	sprintf(temp, "Expected a numeric-parameter for %.20s", argv[*num]);
 	Usage(temp);
     }
     *num = next;
@@ -625,7 +634,7 @@ main(int argc, char *argv[])
 	case o_print_maxsize:
 	    (void) initscr();
 	    fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
-	    (void) endwin();
+	    end_dialog();
 	    break;
 	case o_print_version:
 	    fprintf(output, "Version: %s\n", VERSION);
@@ -659,10 +668,9 @@ main(int argc, char *argv[])
 	dlg_trim_string(argv[j]);
     }
 
-    if ((lock_refresh = make_lock_filename("/tmp/.lock_fileXXXXXX")) == NULL ||
-	(lock_tailbg_refreshed =
-	 make_lock_filename("/tmp/.lock_tailbgXXXXXX")) == NULL ||
-	(lock_tailbg_exit = make_lock_filename("/tmp/.lock_exitXXXXXX")) == NULL)
+    if ((make_lock_filename(&lock_refresh, "file")) < 0 ||
+	(make_lock_filename(&lock_tailbg_refreshed, "tail")) < 0 ||
+	(make_lock_filename(&lock_tailbg_exit, "exit")) < 0)
 	exiterr("Internal error: can't make lock files.");
 
     while (offset < argc && !esc_pressed) {
@@ -848,7 +856,13 @@ main(int argc, char *argv[])
 
     }
 
-    quitall_bg();		/* instead of killall_bg() */
+    /*
+     * If we have background processes running, avoid resetting the terminal
+     * characteristics, let them do it when they exit.
+     */
+    if (quitall_bg())
+	_exit(retval);
+
     (void) refresh();
     end_dialog();
     return retval;
