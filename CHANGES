@@ -3,6 +3,26 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/1/18
+	+ update manpage (Debian #25648).
+	+ modify configure test for math library to avoid using a constant
+	  parameter to the test function, lest gcc optimize the call away
+	  (fixes Debian #55553).
+	+ restructure help-message so actual problem is indicated.  The original
+	  help-message is shown if no parameters are given, or if the --help
+	  option is specified alone.
+	+ suppress xterm's alternate screen mode by sending an exit_ca_mode
+	  after initscr if the terminal looks like xterm, e.g., has key_mouse
+	  defined, and has private-mode escapes in both enter_ca_mode and
+	  exit_ca_mode (fixes Debian #55181).
+	+ change yellow lettering on white to blue on white, since it offers
+	  better contrast (fixes Debian #51196).
+	+ use napms() rather than sleep().
+	+ some cleanup/simplification of main program.  Indent'd dialog.c and
+	  util.c
+	+ eliminate several places where repeated options are treated as
+	  an error, since they are really executed once anyway.
+
 2000/1/15
 	+ remove pre-autoconf Makefile
 	+ remove sleep's from a few of the sample scripts, which left users
