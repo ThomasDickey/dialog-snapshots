@@ -19,6 +19,7 @@
  */
 
 #include "dialog.h"
+#include <string.h>
 
 static void Usage (const char *name);
 static int howmany_tags(int argc, const char * const * argv, int offset, int group);
@@ -276,7 +277,8 @@ main (int argc, const char * const * argv)
   }
 
   /* if (separate_output==1 and no-checklist) or (no more options) ... */
-  if ((strcmp(argv[offset+1], "--checklist") && (separate_output == 1)) || (argc-1 == offset))
+
+  if (( argv[offset+1]!=NULL && (strcmp(argv[offset+1], "--checklist")) && (separate_output == 1)) || (argc-1 == offset))
     Usage(argv[0]);
 
   if (tab_set == 0)
@@ -340,7 +342,7 @@ main (int argc, const char * const * argv)
 static void 
 Usage(const char *name)
 {
-  char *str=(char *) malloc((size_t) 300); /* change this number for a longer string */
+  char *str=(char *) malloc((size_t) 4096); /* change this number for a longer string */
 
   sprintf(str, "\
 \ndialog version 0.3, by Savio Lam (lam836@cs.cuhk.hk).\
@@ -493,7 +495,7 @@ j_inputbox (const char *t, int ac, const char * const * av, int offset, int *off
     ret = dialog_inputbox (t, av[offset+2], atoi (av[offset+3]), atoi (av[offset+4]),
 			    init_inputbox);
     if (ret == 0)
-	fprintf(stderr, dialog_input_result);
+	fprintf(stderr, "%s", dialog_input_result);
     return ret;
 }
 

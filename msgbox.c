@@ -33,7 +33,7 @@ dialog_msgbox (const char *title, const char *cprompt, int height, int width,
     char *prompt=strclone(cprompt);
 
     tab_correct_str(prompt);
-    prompt=auto_size(prompt, &height, &width, (pause == 1 ? 2 : 0), (pause == 1 ? 12 : 0));
+    prompt=auto_size(title, prompt, &height, &width, (pause == 1 ? 2 : 0), (pause == 1 ? 12 : 0));
     print_size(height, width);
     ctl_size(height, width);
 
@@ -51,6 +51,10 @@ dialog_msgbox (const char *title, const char *cprompt, int height, int width,
 	draw_shadow (stdscr, y, x, height, width);
 #endif
     dialog = newwin (height, width, y, x);
+
+    if ( dialog == 0 )
+      exiterr("\nCan't make new window.\n");
+
     mouse_setbase (x, y);
     keypad (dialog, TRUE);
 

@@ -37,9 +37,9 @@ dialog_inputbox (const char *title, const char *cprompt, int height, int width,
 
     tab_correct_str(prompt);
     if (init != NULL) {
-      prompt=auto_size(prompt, &height, &width, 5, MIN(MAX(strlen(init)+7,26),SCOLS-(begin_set ? begin_x : 0)));
+      prompt=auto_size(title, prompt, &height, &width, 5, MIN(MAX(strlen(init)+7,26),SCOLS-(begin_set ? begin_x : 0)));
     } else
-      prompt=auto_size(prompt, &height, &width, 5, 26);
+      prompt=auto_size(title, prompt, &height, &width, 5, 26);
     print_size(height, width);
     ctl_size(height, width);
   
@@ -57,6 +57,10 @@ dialog_inputbox (const char *title, const char *cprompt, int height, int width,
 	draw_shadow (stdscr, y, x, height, width);
 #endif
     dialog = newwin (height, width, y, x);
+
+    if ( dialog == 0 )
+      exiterr("\nCan't make new window.\n");
+
     mouse_setbase (x, y);
     keypad (dialog, TRUE);
 
@@ -153,6 +157,16 @@ dialog_inputbox (const char *title, const char *cprompt, int height, int width,
 		    wrefresh_lock (dialog);
 		}
 		continue;
+            case 21:  /* ^U   support by Martin Schulze <joey@artis.uni-oldenburg.de> */
+                input_x = 0;
+                scroll = 0;
+                wmove (dialog, box_y, box_x);
+                for (i = 0; i < box_width - 1; i++)
+                  waddch (dialog, ' ');
+                instr[0] = '\0';
+                wmove (dialog, box_y, input_x + box_x);
+                wrefresh_lock (dialog);
+                continue;
 	    default:
 		if (key < 0x100 && isprint (key)) {
 		    if (scroll + input_x < MAX_LEN) {

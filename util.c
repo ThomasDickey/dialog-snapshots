@@ -293,8 +293,9 @@ void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x)
  *    else
  *       calculate with aspect_ratio
  */
-char *auto_size(char *prompt, int *height, int *width, int boxlines, int mincols) {
-  int count = 0, len = 0, street, i, first, nc = 4, nl = 3,
+static char *
+real_auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols) {
+  int count = 0, len = title ? strlen(title) : 0, street, i, first, nc = 4, nl = 3,
       cur_x, text_width;
   char *cr1, *cr2, *ptr = prompt, *str, *word;
 
@@ -346,7 +347,8 @@ char *auto_size(char *prompt, int *height, int *width, int boxlines, int mincols
     return prompt;
   } else {          /* all chars in only a line */
     str = (char *)malloc(strlen(prompt)*2);
-    text_width = MAX( ((int) sqrt((double)(aspect_ratio*strlen(prompt)))), (mincols-nc));
+    text_width = MAX(((int) sqrt((double)(aspect_ratio*strlen(prompt)))), (mincols-nc));
+	text_width = MAX(text_width, len);
     ptr = (char *)malloc(strlen(prompt)+1);
 
     while (1) {
@@ -392,14 +394,29 @@ char *auto_size(char *prompt, int *height, int *width, int boxlines, int mincols
 }
 /* End of auto_size() */
 
+char *
+auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols) {
+	char * s = real_auto_size(title, prompt, height, width, boxlines, mincols);
+
+	if ( *width > SCOLS ) {
+		(*height)++;
+		*width = SCOLS;
+	}
+
+	if ( *height > SLINES )
+		*height = SLINES;
+
+	return s;
+}
+
 /*
  * if (height or width == -1) Maximize()
  * if (height or width == 0)
  *    height=MIN(SLINES, num.lines in fd+n);
  *    width=MIN(SCOLS, MAX(longer line+n, mincols));
  */
-void auto_sizefile(const char *file, int *height, int *width, int boxlines, int mincols) {
-  int count = 0, len = 0, nc = 4, nl = 2;
+void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols) {
+  int count = 0, len = title ? strlen(title) : 0, nc = 4, nl = 2;
   long offset;
   char ch;
   FILE *fd;
@@ -714,7 +731,7 @@ int calc_listw(int item_no, const char * const * items, int group) {
 }
 
 char *strclone(const char *cprompt) {
-    char *prompt=(char *) malloc(strlen(cprompt));
+    char *prompt=(char *) malloc(strlen(cprompt) + 1);
     strcpy(prompt, cprompt);
     return prompt;
 }
