@@ -1,11 +1,11 @@
 #! /bin/sh
-# $Id: radiolist,v 1.7 2003/08/15 19:40:37 tom Exp $
+# $Id: radiolist,v 1.8 2004/12/20 00:14:24 tom Exp $
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --backtitle "Red Hat Software Linux" \
+$DIALOG --backtitle "No Such Organization" \
 	--title "RADIOLIST BOX" --clear \
         --radiolist "Hi, this is a radiolist box. You can use this to \n\
 present a list of choices which can be turned on or \n\

@@ -1,11 +1,11 @@
 #! /bin/sh
-# $Id: checklist2,v 1.2 2003/08/15 19:40:37 tom Exp $
+# $Id: checklist2,v 1.4 2004/12/20 00:14:24 tom Exp $
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --item-help --backtitle "Red Hat Software Linux" \
+$DIALOG --item-help --backtitle "No Such Organization" \
 	--title "CHECKLIST BOX" \
         --checklist "Hi, this is a checklist box. You can use this to \n\
 present a list of choices which can be turned on or \n\
@@ -28,9 +28,13 @@ retval=$?
 choice=`cat $tempfile`
 case $retval in
   0)
-    echo "'$choice' chosen.";;
+    echo "OK '$choice' chosen.";;
   1)
     echo "Cancel pressed.";;
+  2)
+    echo "HELP '$choice' chosen.";;
   255)
     echo "ESC pressed.";;
+  *)
+    echo "Unexpected code $retval";;
 esac

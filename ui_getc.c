@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.22 2004/09/21 00:40:18 tom Exp $
+ *  $Id: ui_getc.c,v 1.23 2004/12/19 17:45:34 Len.Meakin Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -35,6 +35,10 @@
 
 #ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
+
+#ifdef __QNX__
+#include <sys/select.h>
 #endif
 
 #ifndef WEXITSTATUS

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog 0.9a-20020814\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2002-09-04 19:12-0300\n"
 "Last-Translator: Frédéric L. W. Meunier <0 @ pervalidus.net>\n"
 "Language-Team: Brazilian Portuguese <ldp-br @ bazar.conectiva.com.br>\n"
@@ -52,7 +52,7 @@ msgstr "Mês"
 msgid "Year"
 msgstr "Ano"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr ""
 
@@ -63,3 +63,8 @@ msgstr "Diretórios"
 #: fselect.c:427
 msgid "Files"
 msgstr "Arquivos"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

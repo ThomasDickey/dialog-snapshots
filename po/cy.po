@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2004-03-30 23:00+0100\n"
 "Last-Translator: Dafydd Harries <daf@muse.19inch.net>\n"
 "Language-Team: Welsh <cy@pengwyn.linux.org.uk>\n"
@@ -51,7 +51,7 @@ msgstr "Mis"
 msgid "Year"
 msgstr "Blwyddyn"
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr "Ailenwy"
 
@@ -62,3 +62,8 @@ msgstr "Cyfeiriaduron"
 #: fselect.c:427
 msgid "Files"
 msgstr "Ffeiliau"
+
+#: textbox.c:437
+#, fuzzy
+msgid "Search"
+msgstr "Search"

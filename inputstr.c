@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.37 2004/11/19 01:26:05 tom Exp $
+ * $Id: inputstr.c,v 1.39 2004/12/19 17:19:09 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -21,6 +21,11 @@
  */
 
 #include "dialog.h"
+#include <errno.h>
+
+#ifdef HAVE_SETLOCALE
+#include <locale.h>
+#endif
 
 typedef struct _cache {
     struct _cache *next;
@@ -38,6 +43,25 @@ typedef struct _cache {
 #define SAME_CACHE(c,s,l) (c->string != 0 && memcmp(c->string,s,l) == 0)
 
 static CACHE *cache_list;
+
+#ifdef USE_WIDE_CURSES
+static int
+have_locale(void)
+{
+    static int result = -1;
+    if (result < 0) {
+	char *test = setlocale(LC_ALL, 0);
+	if (test == 0 || *test == 0) {
+	    result = FALSE;
+	} else if (strcmp(test, "C") && strcmp(test, "POSIX")) {
+	    result = TRUE;
+	} else {
+	    result = FALSE;
+	}
+    }
+    return result;
+}
+#endif
 
 static void
 make_cache(CACHE * cache, const char *string)
@@ -89,7 +113,7 @@ save_cache(CACHE * cache, const char *string)
 #define SAME_CACHE(c,s,l) (c->string != 0)
 #define load_cache(cache, string)	/* nothing */
 #define save_cache(cache, string)	/* nothing */
-#endif
+#endif /* USE_WIDE_CURSES */
 
 /*
  * If the given string has not changed, we do not need to update the index.
@@ -155,45 +179,50 @@ same_cache1(CACHE * cache, const char *string, unsigned i_len)
 
     return FALSE;
 }
-#endif
+#endif /* USE_WIDE_CURSES */
 
 /*
  * Counts the number of bytes that make up complete wide-characters, up to byte
- * 'len'.
+ * 'len'.  If there is no locale set, simply return the original length.
  */
 #ifdef USE_WIDE_CURSES
 static int
 dlg_count_wcbytes(const char *string, size_t len)
 {
-    static CACHE cache;
+    int result;
 
-    load_cache(&cache, string);
-    if (!same_cache1(&cache, string, len)) {
-	while (len != 0) {
-	    int part = 0;
-	    int result = 0;
-	    const char *src = cache.string;
-	    mbstate_t state;
-	    int save = cache.string[len];
+    if (have_locale()) {
+	static CACHE cache;
 
-	    cache.string[len] = '\0';
-	    memset(&state, 0, sizeof(state));
-	    result = mbsrtowcs((wchar_t *) 0, &src, len, &state);
-	    cache.string[len] = save;
-	    if (result >= 0) {
-		break;
+	load_cache(&cache, string);
+	if (!same_cache1(&cache, string, len)) {
+	    while (len != 0) {
+		int part = 0;
+		int code = 0;
+		const char *src = cache.string;
+		mbstate_t state;
+		int save = cache.string[len];
+
+		cache.string[len] = '\0';
+		memset(&state, 0, sizeof(state));
+		code = mbsrtowcs((wchar_t *) 0, &src, len, &state);
+		cache.string[len] = save;
+		if (code >= 0) {
+		    break;
+		}
+		++part;
+		--len;
 	    }
-	    ++part;
-	    --len;
+	    cache.i_len = len;
 	}
-	cache.i_len = len;
+	save_cache(&cache, string);
+	result = cache.i_len;
+    } else {
+	result = len;
     }
-    save_cache(&cache, string);
-    return cache.i_len;
+    return result;
 }
-#else
-#define dlg_count_wcbytes(string,len) len
-#endif
+#endif /* USE_WIDE_CURSES */
 
 /*
  * Counts the number of wide-characters in the string.
@@ -201,32 +230,37 @@ dlg_count_wcbytes(const char *string, size_t len)
 int
 dlg_count_wchars(const char *string)
 {
+    int result;
+
 #ifdef USE_WIDE_CURSES
-    static CACHE cache;
-    size_t len = strlen(string);
+    if (have_locale()) {
+	static CACHE cache;
+	size_t len = strlen(string);
 
-    load_cache(&cache, string);
-    if (!same_cache1(&cache, string, len)) {
-	const char *src = cache.string;
-	mbstate_t state;
-	int part = dlg_count_wcbytes(cache.string, len);
-	int save = cache.string[part];
-	int result;
-	wchar_t *temp = calloc(sizeof(wchar_t), len + 1);
+	load_cache(&cache, string);
+	if (!same_cache1(&cache, string, len)) {
+	    const char *src = cache.string;
+	    mbstate_t state;
+	    int part = dlg_count_wcbytes(cache.string, len);
+	    int save = cache.string[part];
+	    int code;
+	    wchar_t *temp = calloc(sizeof(wchar_t), len + 1);
 
-	cache.string[part] = '\0';
-	memset(&state, 0, sizeof(state));
-	result = mbsrtowcs(temp, &src, part, &state);
-	cache.string[part] = save;
-	cache.i_len = wcslen(temp);
-	free(temp);
+	    cache.string[part] = '\0';
+	    memset(&state, 0, sizeof(state));
+	    code = mbsrtowcs(temp, &src, part, &state);
+	    cache.i_len = (code >= 0) ? wcslen(temp) : 0;
+	    cache.string[part] = save;
+	    free(temp);
+	}
+	save_cache(&cache, string);
+	result = cache.i_len;
     }
-
-    save_cache(&cache, string);
-    return cache.i_len;
-#else
-    return strlen(string);
-#endif
+#endif /* USE_WIDE_CURSES */
+    {
+	result = strlen(string);
+    }
+    return result;
 }
 
 /*
@@ -247,18 +281,21 @@ dlg_index_wchars(const char *string)
 	cache.list[0] = 0;
 	for (inx = 1; inx <= len; ++inx) {
 #ifdef USE_WIDE_CURSES
-	    mbstate_t state;
-	    int width;
-	    memset(&state, 0, sizeof(state));
-	    width = mbrlen(current, strlen(current), &state);
-	    if (width <= 0)
-		width = 1;	/* FIXME: what if we have a control-char? */
-	    current += width;
-	    cache.list[inx] = cache.list[inx - 1] + width;
-#else
-	    (void) current;
-	    cache.list[inx] = inx;
-#endif
+	    if (have_locale()) {
+		mbstate_t state;
+		int width;
+		memset(&state, 0, sizeof(state));
+		width = mbrlen(current, strlen(current), &state);
+		if (width <= 0)
+		    width = 1;	/* FIXME: what if we have a control-char? */
+		current += width;
+		cache.list[inx] = cache.list[inx - 1] + width;
+	    } else
+#endif /* USE_WIDE_CURSES */
+	    {
+		(void) current;
+		cache.list[inx] = inx;
+	    }
 	}
     }
     save_cache(&cache, string);
@@ -296,7 +333,7 @@ dlg_index_columns(const char *string)
     if (!same_cache2(&cache, string, len)) {
 	cache.list[0] = 0;
 #ifdef USE_WIDE_CURSES
-	{
+	if (have_locale()) {
 	    size_t num_bytes = strlen(string);
 	    const int *inx_wchars = dlg_index_wchars(string);
 	    mbstate_t state;
@@ -322,18 +359,19 @@ dlg_index_columns(const char *string)
 		if (inx > 0)
 		    cache.list[inx + 1] += cache.list[inx];
 	    }
+	} else
+#endif /* USE_WIDE_CURSES */
+	{
+	    for (inx = 0; inx < len; ++inx) {
+		cache.list[inx + 1] = (isprint(UCH(string[inx]))
+				       ? 1
+				       : strlen(unctrl(UCH(string[inx]))));
+		if (string[inx] == '\n')
+		    cache.list[inx + 1] = 1;
+		if (inx != 0)
+		    cache.list[inx + 1] += cache.list[inx];
+	    }
 	}
-#else
-	for (inx = 0; inx < len; ++inx) {
-	    cache.list[inx + 1] = (isprint(UCH(string[inx]))
-				   ? 1
-				   : strlen(unctrl(UCH(string[inx]))));
-	    if (string[inx] == '\n')
-		cache.list[inx + 1] = 1;
-	    if (inx != 0)
-		cache.list[inx + 1] += cache.list[inx];
-	}
-#endif
     }
     save_cache(&cache, string);
     return cache.list;

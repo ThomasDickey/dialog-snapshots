@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-20 21:46-0400\n"
+"POT-Creation-Date: 2004-12-19 20:14-0500\n"
 "PO-Revision-Date: 2004-05-31 00:20+0200\n"
 "Last-Translator: Marco Mariani <marcom@sferacarta.com>\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: dialog.c:670
+#: dialog.c:672
 msgid "Rename"
 msgstr ""
 
@@ -59,3 +59,7 @@ msgstr ""
 #: fselect.c:427
 msgid "Files"
 msgstr ""
+
+#: textbox.c:437
+msgid "Search"
+msgstr "Search"

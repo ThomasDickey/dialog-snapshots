@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.145 2004/09/19 15:49:23 tom Exp $
+ *  $Id: dialog.h,v 1.147 2004/12/20 00:01:11 Yura.Kalinichen Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -102,13 +102,14 @@
 #define SLINES	LINES
 #endif
 
-#define DLG_EXIT_ESC	255
-#define DLG_EXIT_UNKNOWN -2	/* never return this (internal use) */
-#define DLG_EXIT_ERROR	-1	/* the shell sees this as 255 */
-#define DLG_EXIT_OK	0
-#define DLG_EXIT_CANCEL	1
-#define DLG_EXIT_HELP	2
-#define DLG_EXIT_EXTRA	3
+#define DLG_EXIT_ESC		255
+#define DLG_EXIT_UNKNOWN	-2	/* never return this (internal use) */
+#define DLG_EXIT_ERROR		-1	/* the shell sees this as 255 */
+#define DLG_EXIT_OK		0
+#define DLG_EXIT_CANCEL		1
+#define DLG_EXIT_HELP		2
+#define DLG_EXIT_EXTRA		3
+#define DLG_EXIT_ITEM_HELP	4	/* actually DLG_EXIT_HELP */
 
 #define CHR_BACKSPACE	8
 #define CHR_REPAINT	12	/* control/L */
@@ -458,6 +459,7 @@ extern int dialog_checklist(const char *title, const char *cprompt, int height, 
 extern int dialog_form(const char *title, const char *cprompt, int height, int width, int form_height, int item_no, char **items);
 extern int dialog_fselect(const char *title, const char *path, int height, int width);
 extern int dialog_gauge(const char *title, const char *cprompt, int height, int width, int percent);
+extern int dialog_pause(const char *title, const char *cprompt, int height, int width, int seconds);
 extern int dialog_inputbox(const char *title, const char *cprompt, int height, int width, const char *init, const int password);
 extern int dialog_menu(const char *title, const char *cprompt, int height, int width, int menu_height, int item_no, char **items);
 extern int dialog_msgbox(const char *title, const char *cprompt, int height, int width, int pauseopt);
@@ -604,6 +606,7 @@ extern void dlg_mouse_setbase (int x, int y);
 extern mseRegion *dlg_mouse_region (int y, int x);
 extern mseRegion *dlg_mouse_bigregion (int y, int x);
 extern int dlg_mouse_wgetch (WINDOW *, int *);
+extern int dlg_mouse_wgetch_nowait (WINDOW *, int *);
 
 #define mouse_mkbutton(y,x,len,code) dlg_mouse_mkregion(y,x,1,len,code);
 

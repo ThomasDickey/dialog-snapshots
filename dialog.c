@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.125 2004/11/18 22:23:32 tom Exp $
+ * $Id: dialog.c,v 1.128 2004/12/20 00:01:11 Yura.Kalinichen Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -88,6 +88,7 @@ typedef enum {
     ,o_ok_label
     ,o_output_fd
     ,o_passwordbox
+    ,o_pause
     ,o_print_maxsize
     ,o_print_size
     ,o_print_version
@@ -175,7 +176,7 @@ static const Options options[] = {
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
     { "form",		o_form,     	 	2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
-    { "fselect",	o_fselect,		2, "<filepath> <directory> <height> <width>" },
+    { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
@@ -208,6 +209,7 @@ static const Options options[] = {
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
+    { "pause",		o_pause,		2, "<text> <height> <width> <seconds>" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
     { "print-version",	o_print_version,	5, "" },
@@ -581,6 +583,7 @@ show_result(int ret)
     case DLG_EXIT_OK:
     case DLG_EXIT_EXTRA:
     case DLG_EXIT_HELP:
+    case DLG_EXIT_ITEM_HELP:
 	if (dialog_state.output_count > 1) {
 	    fputs(dialog_state.separate_str, dialog_state.output);
 	    either = TRUE;
@@ -794,6 +797,17 @@ j_gauge(JUMPARGS)
 }
 #endif
 
+static int
+j_pause(JUMPARGS)
+{
+    *offset_add = arg_rest(av);
+    return dialog_pause(t,
+			av[1],
+			numeric_arg(av, 2),
+			numeric_arg(av, 3),
+			numeric_arg(av, 4));
+}
+
 #ifdef HAVE_TAILBOX
 static int
 j_tailbox(JUMPARGS)
@@ -830,6 +844,7 @@ static const Mode modes[] =
     {o_radiolist,   8, 0, j_radiolist},
     {o_inputbox,    4, 5, j_inputbox},
     {o_passwordbox, 4, 5, j_passwordbox},
+    {o_pause,       5, 5, j_pause},
 #ifdef HAVE_XDIALOG
     {o_calendar,    4, 7, j_calendar},
     {o_fselect,     4, 5, j_fselect},

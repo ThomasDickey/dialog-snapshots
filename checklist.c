@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.81 2004/09/20 00:12:32 tom Exp $
+ *  $Id: checklist.c,v 1.82 2004/12/19 22:56:11 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -534,7 +534,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    } else {
 		dlg_add_result(ItemHelp(scrollamt + choice));
 	    }
-	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	    result = DLG_EXIT_ITEM_HELP;
 	} else {
 	    if (show_status) {
 		if (separate_output) {

@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.38 2004/09/20 22:32:36 tom Exp $
+# $Id: makefile.in,v 1.39 2004/12/20 00:01:11 Yura.Kalinichen Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -71,6 +71,7 @@ OBJECTS = $(EXTRAOBJS) \
 	mouse$o \
 	mousewget$o \
 	msgbox$o \
+	pause$o \
 	textbox$o \
 	ui_getc$o \
 	util$o \

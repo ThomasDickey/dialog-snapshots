@@ -1,8 +1,27 @@
--- $Id: CHANGES,v 1.113 2004/11/19 01:23:49 tom Exp $
+-- $Id: CHANGES,v 1.116 2004/12/20 00:43:58 tom Exp $
 -- T.E.Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2004/12/19
+	+ add pause-widget (patch by Yura Kalinichen).
+	+ modify exit-code returned on selecting the "Help"-button when the
+	  --item-help option is given.  Previously this returned the same code
+	  as "OK", since it combines output for "OK" with the help status.  It
+	  now returns the help-code, but this can be overridden by setting the
+	  environment variable $DIALOG_ITEM_HELP (reports by Erika Pacholleck
+	  and Sebastian Muesch).
+	+ modify formbox widget so input-length is not limited to field-length
+	  (report by David Liebermann).
+	+ localize the label on the search box for textbox widget (report by
+	  Erika Pacholleck).
+	+ correct usage message detail for fselect, which listed an extra
+	  parameter (Debian #284008).
+	+ add include for <sys/select.h> in ui_getc.c to build with QNX 4.25
+	  using Watcom 10.6 (patch by Len Meakin).
+	+ modify behavior when no locale (or POSIX locale) is set to allow
+	  legacy interpretation of Latin-1 character set (Debian #284795).
 
 2004/11/18
 	+ correct computation of column width for menubox/checkbox tags, for
