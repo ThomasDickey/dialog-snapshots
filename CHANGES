@@ -1,8 +1,83 @@
--- $Id: CHANGES,v 1.77 2003/10/03 01:53:58 tom Exp $
+-- $Id: CHANGES,v 1.85 2003/11/26 22:48:28 tom Exp $
 -- T.E.Dickey <dickey@his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2003/11/26
+	+ add samples/sourcemage.rc, for comparison with slackware.rc
+	+ add "--insecure" option (request by Sean Mathews DrWho@f34r.com).
+	+ make "--defaultno" option apply to widgets which use OK/Cancel
+	  buttons as well (Debian #209030).
+	+ improve documentation of exit-codes for each widget in the manpage
+	  (Debian #217926).
+	+ add option "--keep-window" to suppress repainting after completing
+	  each widget (request by Ingo van Lil <inguin@gmx.de>).
+	+ add options "--yes-label" and "--no-label" to allow override of the
+	  "Yes" and "No" strings (request by Christoph Zwerschke
+	  <cito@online.de>).
+	+ add option "--help-status" to allow script to restore a checklist
+	  or radiolist after processing an item-help string (Debian #209031).
+	+ modify width-calculation for non-formatted text to ensure it is
+	  wide enough for the longest word in the text (patch by Andrew Gaul
+	  <andrew@gaul.org>).
+	+ modify dlg_index_columns() to count a newline as a single cell rather
+	  than 2 for the normal curses case.  This fixes an off-by-one for
+	  the text-justification, shown in screen 2 of msgbox1 sample script.
+	+ fix dlg_char_to_button(); 2003/09/10 changes made it incorrectly
+	  ignore case of the labels.
+	+ change calendar's use of arrow keys so they are (as before 2002/6/22)
+	  interpreted within the day-grid as movement within that grid (request
+	  by David Anders <dave123@abcsinc.com>).
+	+ correct missing initialization of last_getc variable in dlg_getc()
+	  (report/analysis by Victor Wodecki).
+	+ modify main program to make
+		dialog --no-shadow --print-maxsize
+	  work.  Normally dialog prints the screen size after subtracting the
+	  area reserved for shadows, but some applications may need the actual
+	  screen size (Debian #213424).
+	+ several related changes (Debian #213425):
+	  + separate the examples using "--stdout" and "--output-fd" from the
+	    normal usage examples.
+	  + add "--input-fd" option, provide a sample of its use.
+	  + modify init_dialog() to use initscr() unless a "--stdout" option
+	    was used.  Some scripts relied on the coincidence that redirecting
+	    standard output from dialog would "work".  Before this change
+	    init_dialog() assumed that redirected standard output was
+	    synonymous with "--stdout" option (not the intended behavior).
+	  + modify command-line parsing to look for "--stdout" and "--stderr"
+	    options first, allowing only one.
+	  + add a check for an environment variable $DIALOG_TTY which provides
+	    the older behavior, i.e., try to open the terminal directly if
+	    stdout is redirected.
+	+ interface changes, to make libdialog simpler to use:
+	  + rename all of the internal functions to begin with "dlg_", but
+	    provide compatibility with older names if the application defines
+	    __DIALOG_OLD_NAMES__.
+	  + add dialog_version() function, and corresponding DIALOG_VERSION and
+	    DIALOG_PATCHDATE definitions to dlg_config.h
+	  + eliminate remaining global variables such as screen_initialized in
+	    favor of dialog_state and dialog_vars.
+	  + move some data such as dialog_vars.output to dialog_state, since
+	    they are normally not reset between widgets.
+	  + change interfaces of dialog_yesno() and dialog_checklist() to use
+	    dialog_state.defaultno and dialog_vars.separate_output, making it
+	    simpler and more consistent.
+	+ improve configure script and related definitions:
+	  + add "--with-libtool" option to provide shared library support by
+	    libtool.
+	  + rename generated "config.h" to "dlg_config.h", so it can be
+	    installed without naming conflict.  Added "dlg_config.h" to
+	    install-lib rule.
+	  + modify configure script and makefile to use EXEEXT and OBJEXT.
+	  + add "--enable-widec" option to control whether wide-curses features
+	    are compiled-in, rather than check for the existence of those in
+	    the curses library.  This allows building with HPUX curses, which
+	    has abandoned legacy features while not quite supporting X/Open
+	    curses.
+	  + add configure check for getbegx(), etc., which are not provided on
+	    all platforms.
+	+ update config.guess, config.sub
 
 2003/10/02
 	+ update hu.po (Arpad Biro).

@@ -1,10 +1,10 @@
 /*
- *  $Id: util.c,v 1.107 2003/10/03 01:40:05 tom Exp $
+ *  $Id: util.c,v 1.117 2003/11/26 21:26:10 tom Exp $
  *
- *  util.c
+ *  util.c -- miscellaneous utilities for dialog
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -58,20 +58,8 @@
 #define LOCK_TIMEOUT 10		/* timeout for locking, in seconds */
 
 /* globals */
-FILE *pipe_fp;			/* copy of stdin, for reading a pipe */
 DIALOG_STATE dialog_state;
 DIALOG_VARS dialog_vars;
-int defaultno = FALSE;
-int screen_initialized = 0;
-static FILE *my_output = 0;	/* prefer to stdout, to support --stdout */
-
-#ifdef HAVE_COLOR
-/* use colors by default? */
-bool use_colors = USE_COLORS;
-/* shadow dialog boxes by default?
-   Note that 'use_shadow' implies 'use_colors' */
-bool use_shadow = USE_SHADOW;
-#endif
 
 #define concat(a,b) a##b
 
@@ -94,7 +82,7 @@ bool use_shadow = USE_SHADOW;
  * Table of color and attribute values, default is for mono display.
  */
 /* *INDENT-OFF* */
-DIALOG_COLORS color_table[] =
+DIALOG_COLORS dlg_color_table[] =
 {
     DATA(A_NORMAL,	SCREEN,			screen, "Screen"),
     DATA(A_NORMAL,	SHADOW,			shadow, "Shadow"),
@@ -135,7 +123,7 @@ DIALOG_COLORS color_table[] =
  * Display background title if it exists ...
  */
 void
-put_backtitle(void)
+dlg_put_backtitle(void)
 {
     int i;
 
@@ -160,7 +148,7 @@ put_backtitle(void)
  * but will not work on older/buggy ncurses versions.
  */
 void
-attr_clear(WINDOW *win, int height, int width, chtype attr)
+dlg_attr_clear(WINDOW *win, int height, int width, chtype attr)
 {
     int i, j;
 
@@ -174,15 +162,34 @@ attr_clear(WINDOW *win, int height, int width, chtype attr)
 }
 
 void
-dialog_clear(void)
+dlg_clear(void)
 {
-    attr_clear(stdscr, LINES, COLS, screen_attr);
+    dlg_attr_clear(stdscr, LINES, COLS, screen_attr);
 }
 
 #define isprivate(s) ((s) != 0 && strstr(s, "\033[?") != 0)
 
 #define TTY_DEVICE "/dev/tty"
 
+/*
+ * If $DIALOG_TTY exists, allow the program to try to open the terminal
+ * directly when stdout is redirected.  By default we require the "--stdout"
+ * option to be given, but some scripts were written making use of the
+ * behavior of dialog which tried opening the terminal anyway. 
+ */
+static char *
+dialog_tty(void)
+{
+    char *result = getenv("DIALOG_TTY");
+    if (result != 0 && atoi(result))
+	result = 0;
+    return result;
+}
+
+/*
+ * Open the terminal directly.  If one of stdin, stdout or stderr really points
+ * to a tty, use it.  Otherwise give up and open /dev/tty.
+ */
 static int
 open_terminal(char **result, int mode)
 {
@@ -197,34 +204,64 @@ open_terminal(char **result, int mode)
 	    }
 	}
     }
-    *result = strclone(device);
+    *result = dlg_strclone(device);
     return open(device, mode);
 }
 
 /*
- * Do some initialization for dialog
+ * Do some initialization for dialog.
+ *
+ * 'input' is the real tty input of dialog.  Usually it is stdin, but if
+ * --input-fd option is used, it may be anything.
+ *
+ * 'output' is where dialog will send its result.  Usually it is stderr, but
+ * if --stdout or --output-fd is used, it may be anything.  We are concerned
+ * mainly with the case where it happens to be the same as stdout.
  */
 void
-init_dialog(void)
+init_dialog(FILE *input, FILE *output)
 {
     int fd1, fd2;
     char *device = 0;
 
+    dialog_state.output = output;
+    dialog_state.tab_len = TAB_LEN;
+    dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
+#ifdef HAVE_COLOR
+    dialog_state.use_colors = USE_COLORS;	/* use colors by default? */
+    dialog_state.use_shadow = USE_SHADOW;	/* shadow dialog boxes by default? */
+#endif
+
 #ifdef HAVE_RC_FILE
-    if (parse_rc() == -1)	/* Read the configuration file */
-	exiterr("init_dialog: parse_rc");
+    if (dlg_parse_rc() == -1)	/* Read the configuration file */
+	dlg_exiterr("init_dialog: dlg_parse_rc");
 #endif
 
     /*
-     * Some widgets (such as gauge) may read from the standard input.
-     * That would get in the way of curses' normal reading stdin for getch.
-     * If we're not reading from a tty, see if we can open /dev/tty.
+     * Some widgets (such as gauge) may read from the standard input.  Pipes
+     * only connect stdout/stdin, so there is not much choice.  But reading a
+     * pipe would get in the way of curses' normal reading stdin for getch.
+     *
+     * As in the --stdout (see below), reopening the terminal does not always
+     * work properly.  dialog provides a --pipe-fd option for this purpose.  We
+     * test that case first (differing fileno's for input/stdin).  If the
+     * fileno's are equal, but we're not reading from a tty, see if we can open
+     * /dev/tty.
      */
-    pipe_fp = stdin;
-    if (!isatty(fileno(stdin))) {
+    dialog_state.pipe_input = stdin;
+    if (fileno(input) != fileno(stdin)) {
+	if ((fd1 = dup(fileno(input))) >= 0
+	    && (fd2 = dup(fileno(stdin))) >= 0) {
+	    *stdin = *fdopen(fd1, "r");
+	    dialog_state.pipe_input = fdopen(fd2, "r");
+	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
+		(void) dup2(fileno(stdin), 0);
+	} else
+	    dlg_exiterr("cannot open tty-input");
+    } else if (!isatty(fileno(stdin))) {
 	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
-	    pipe_fp = fdopen(fd2, "r");
+	    dialog_state.pipe_input = fdopen(fd2, "r");
 	    *stdin = *freopen(device, "r", stdin);
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
 		(void) dup2(fileno(stdin), 0);
@@ -233,16 +270,14 @@ init_dialog(void)
     }
 
     /*
-     * If stdout is not a tty, assume dialog is called with the --stdout
-     * option.  We cannot test the option from this point, but it is a fairly
-     * safe assumption.  The curses library normally writes its output to
-     * stdout, leaving stderr free for scripting.  Scripts are simpler when
-     * stdout is redirected.  However, we have to find a way to write curses'
-     * output.  The newterm function is useful; it allows us to specify where
-     * the output goes.  The simplest solution uses stderr for the output.  If
-     * stderr cannot be used, then we try to reopen our terminal.  Reopening
-     * the terminal is a last resort since several configurations do not allow
-     * this to work properly:
+     * If stdout is not a tty and dialog is called with the --stdout option, we
+     * have to provide for a way to write to the screen.
+     *
+     * The curses library normally writes its output to stdout, leaving stderr
+     * free for scripting.  Scripts are simpler when stdout is redirected.  The
+     * newterm function is useful; it allows us to specify where the output
+     * goes.  Reopening the terminal is not portable since several
+     * configurations do not allow this to work properly:
      *
      * a) some getty implementations (and possibly broken tty drivers, e.g., on
      *    HPUX 10 and 11) cause stdin to act as if it is still in cooked mode
@@ -251,28 +286,27 @@ init_dialog(void)
      *
      * b) the user may not have permissions on the device, e.g., if one su's
      *    from the login user to another non-privileged user.
-     *
-     * If stdout is a tty, none of this need apply, so we use initscr.
      */
-    if (!isatty(fileno(stdout))) {
+    if (!isatty(fileno(stdout))
+	&& (fileno(stdout) == fileno(output) || dialog_tty())) {
 	if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
-	    && (my_output = fdopen(fd1, "w")) != 0) {
-	    if (newterm(NULL, my_output, stdin) == 0) {
-		exiterr("cannot initialize curses");
+	    && (dialog_state.screen_output = fdopen(fd1, "w")) != 0) {
+	    if (newterm(NULL, dialog_state.screen_output, stdin) == 0) {
+		dlg_exiterr("cannot initialize curses");
 	    }
 	    free(device);
 	} else {
-	    exiterr("cannot open tty-output");
+	    dlg_exiterr("cannot open tty-output");
 	}
     } else {
-	my_output = stdout;
+	dialog_state.screen_output = stdout;
 	(void) initscr();
     }
 #ifdef NCURSES_VERSION
     /*
      * Cancel xterm's alternate-screen mode.
      */
-    if ((my_output != stdout || isatty(fileno(my_output)))
+    if ((dialog_state.screen_output != stdout || isatty(fileno(dialog_state.screen_output)))
 	&& key_mouse != 0	/* xterm and kindred */
 	&& isprivate(enter_ca_mode)
 	&& isprivate(exit_ca_mode)) {
@@ -303,15 +337,15 @@ init_dialog(void)
     (void) cbreak();
     (void) noecho();
     mouse_open();
-    screen_initialized = 1;
+    dialog_state.screen_initialized = 1;
 
 #ifdef HAVE_COLOR
-    if (use_colors || use_shadow)	/* Set up colors */
-	color_setup();
+    if (dialog_state.use_colors || dialog_state.use_shadow)
+	dlg_color_setup();	/* Set up colors */
 #endif
 
     /* Set screen to screen attribute */
-    dialog_clear();
+    dlg_clear();
 }
 
 #ifdef HAVE_COLOR
@@ -320,20 +354,22 @@ static int defined_colors = 0;
  * Setup for color display
  */
 void
-color_setup(void)
+dlg_color_setup(void)
 {
     unsigned i;
 
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
 
-	for (i = 0; i < sizeof(color_table) / sizeof(color_table[0]); i++) {
+	for (i = 0; i < sizeof(dlg_color_table) /
+	     sizeof(dlg_color_table[0]); i++) {
 
 	    /* Initialize color pairs */
-	    (void) init_pair(i + 1, color_table[i].fg, color_table[i].bg);
+	    (void) init_pair(i + 1, dlg_color_table[i].fg,
+			     dlg_color_table[i].bg);
 
 	    /* Setup color attributes */
-	    color_table[i].atr = C_ATTR(color_table[i].hilite, i + 1);
+	    dlg_color_table[i].atr = C_ATTR(dlg_color_table[i].hilite, i + 1);
 	}
 	defined_colors = i + 1;
     }
@@ -342,7 +378,7 @@ color_setup(void)
 int
 dlg_color_count(void)
 {
-    return sizeof(color_table) / sizeof(color_table[0]);
+    return sizeof(dlg_color_table) / sizeof(dlg_color_table[0]);
 }
 
 /*
@@ -391,8 +427,8 @@ define_color(WINDOW *win, int foreground)
 void
 end_dialog(void)
 {
-    if (screen_initialized) {
-	screen_initialized = 0;
+    if (dialog_state.screen_initialized) {
+	dialog_state.screen_initialized = 0;
 	mouse_close();
 	(void) endwin();
 	(void) fflush(stdout);
@@ -626,7 +662,7 @@ justify_text(WINDOW *win,
  * string may contain embedded newlines.
  */
 void
-print_autowrap(WINDOW *win, const char *prompt, int height, int width)
+dlg_print_autowrap(WINDOW *win, const char *prompt, int height, int width)
 {
     justify_text(win, prompt,
 		 height,
@@ -643,13 +679,13 @@ print_autowrap(WINDOW *win, const char *prompt, int height, int width)
 static void
 auto_size_preformatted(const char *prompt, int *height, int *width)
 {
-    int high, wide;
+    int high = 0, wide = 0;
     float car;			/* Calculated Aspect Ratio */
     float diff;
     int max_y = SLINES - 1;
     int max_x = SCOLS - 2;
     int max_width = max_x;
-    int ar = dialog_vars.aspect_ratio;
+    int ar = dialog_state.aspect_ratio;
 
     /* Get the initial dimensions */
     justify_text((WINDOW *) 0, prompt, max_y, max_x, &high, &wide);
@@ -679,6 +715,28 @@ auto_size_preformatted(const char *prompt, int *height, int *width)
 
     *height = high;
     *width = wide;
+}
+
+/*
+ * Find the length of the longest "word" in the given string.  By setting the
+ * widget width at least this long, we can avoid splitting a word on the
+ * margin.
+ */
+static int
+longest_word(const char *string)
+{
+    int length, result = 0;
+
+    while (*string != '\0') {
+	length = 0;
+	while (*string != '\0' && !isspace(*string)) {
+	    length++;
+	    string++;
+	}
+	result = MAX(result, length);
+	string++;
+    }
+    return result;
 }
 
 /*
@@ -718,9 +776,10 @@ real_auto_size(const char *title,
     } else if (prompt != 0) {
 	wide = MAX(title_length, mincols);
 	if (strchr(prompt, '\n') == 0) {
-	    double val = dialog_vars.aspect_ratio * strlen(prompt);
+	    double val = dialog_state.aspect_ratio * strlen(prompt);
 	    int tmp = sqrt(val);
 	    wide = MAX(wide, tmp);
+	    wide = MAX(wide, longest_word(prompt));
 	    justify_text((WINDOW *) 0, prompt, high, wide, height, width);
 	} else {
 	    auto_size_preformatted(prompt, height, width);
@@ -750,12 +809,12 @@ real_auto_size(const char *title,
 /* End of real_auto_size() */
 
 void
-auto_size(const char *title,
-	  const char *prompt,
-	  int *height,
-	  int *width,
-	  int boxlines,
-	  int mincols)
+dlg_auto_size(const char *title,
+	      const char *prompt,
+	      int *height,
+	      int *width,
+	      int boxlines,
+	      int mincols)
 {
     real_auto_size(title, prompt, height, width, boxlines, mincols);
 
@@ -775,8 +834,12 @@ auto_size(const char *title,
  *    width=MIN(SCOLS, MAX(longer line+n, mincols));
  */
 void
-auto_sizefile(const char *title, const char *file, int *height, int *width, int
-	      boxlines, int mincols)
+dlg_auto_sizefile(const char *title,
+		  const char *file,
+		  int *height,
+		  int *width,
+		  int boxlines,
+		  int mincols)
 {
     int count = 0, len = title ? strlen(title) : 0, nc = 4, numlines = 2;
     long offset;
@@ -785,7 +848,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
-	exiterr("auto_sizefile: Cannot open input file %s", file);
+	dlg_exiterr("dlg_auto_sizefile: Cannot open input file %s", file);
 
     if ((*height == -1) || (*width == -1)) {
 	*height = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
@@ -800,7 +863,7 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
 	offset = 0;
 	while (((ch = getc(fd)) != '\n') && !feof(fd))
 	    if ((ch == TAB) && (dialog_vars.tab_correct))
-		offset += dialog_vars.tab_len - (offset % dialog_vars.tab_len);
+		offset += dialog_state.tab_len - (offset % dialog_state.tab_len);
 	    else
 		offset++;
 
@@ -821,8 +884,6 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
     (void) fclose(fd);
 }
 
-/* End of auto_sizefile() */
-
 /*
  * Draw a rectangular box with line drawing characters.
  *
@@ -840,8 +901,8 @@ auto_sizefile(const char *title, const char *file, int *height, int *width, int
  * reverse this choice.
  */
 void
-draw_box(WINDOW *win, int y, int x, int height, int width,
-	 chtype boxchar, chtype borderchar)
+dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
+	     chtype boxchar, chtype borderchar)
 {
     int i, j;
     chtype save = getattrs(win);
@@ -878,7 +939,7 @@ draw_box(WINDOW *win, int y, int x, int height, int width,
  * to the boxes
  */
 void
-draw_shadow(WINDOW *win, int y, int x, int height, int width)
+dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
 {
     int i, j;
 
@@ -938,9 +999,9 @@ dlg_exit(int code)
     exit(code);
 }
 
-/* exiterr quit program killing all tailbg */
+/* quit program killing all tailbg */
 void
-exiterr(const char *fmt,...)
+dlg_exiterr(const char *fmt,...)
 {
     int retval;
     va_list ap;
@@ -953,7 +1014,7 @@ exiterr(const char *fmt,...)
     va_end(ap);
     (void) fputc('\n', stderr);
 
-    killall_bg(&retval);
+    dlg_killall_bg(&retval);
 
     (void) fflush(stderr);
     (void) fflush(stdout);
@@ -961,7 +1022,7 @@ exiterr(const char *fmt,...)
 }
 
 void
-beeping(void)
+dlg_beeping(void)
 {
     if (dialog_vars.beep_signal) {
 	(void) beep();
@@ -970,31 +1031,32 @@ beeping(void)
 }
 
 void
-print_size(int height, int width)
+dlg_print_size(int height, int width)
 {
     if (dialog_vars.print_siz)
-	fprintf(dialog_vars.output, "Size: %d, %d\n", height, width);
+	fprintf(dialog_state.output, "Size: %d, %d\n", height, width);
 }
 
 void
-ctl_size(int height, int width)
+dlg_ctl_size(int height, int width)
 {
     if (dialog_vars.size_err) {
 	if ((width > COLS) || (height > LINES)) {
-	    exiterr("Window too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
-		    height, width, LINES, COLS);
+	    dlg_exiterr("Window too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
+			height, width, LINES, COLS);
 	}
 #ifdef HAVE_COLOR
-	else if ((use_shadow) && ((width > SCOLS || height > SLINES))) {
-	    exiterr("Window+Shadow too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
-		    height, width, SLINES, SCOLS);
+	else if ((dialog_state.use_shadow)
+		 && ((width > SCOLS || height > SLINES))) {
+	    dlg_exiterr("Window+Shadow too big. (height, width) = (%d, %d). Max allowed (%d, %d).",
+			height, width, SLINES, SCOLS);
 	}
 #endif
     }
 }
 
 void
-tab_correct_str(char *prompt)
+dlg_tab_correct_str(char *prompt)
 {
     char *ptr;
 
@@ -1008,7 +1070,7 @@ tab_correct_str(char *prompt)
 }
 
 void
-calc_listh(int *height, int *list_height, int item_no)
+dlg_calc_listh(int *height, int *list_height, int item_no)
 {
     /* calculate new height and list_height */
     int rows = SLINES - (dialog_vars.begin_set ? dialog_vars.begin_y : 0);
@@ -1022,7 +1084,7 @@ calc_listh(int *height, int *list_height, int item_no)
 }
 
 int
-calc_listw(int item_no, char **items, int group)
+dlg_calc_listw(int item_no, char **items, int group)
 {
     int n, i, len1 = 0, len2 = 0;
     for (i = 0; i < (item_no * group); i += group) {
@@ -1035,16 +1097,16 @@ calc_listw(int item_no, char **items, int group)
 }
 
 char *
-strclone(const char *cprompt)
+dlg_strclone(const char *cprompt)
 {
     char *prompt = (char *) malloc(strlen(cprompt) + 1);
-    assert_ptr(prompt, "strclone");
+    assert_ptr(prompt, "dlg_strclone");
     strcpy(prompt, cprompt);
     return prompt;
 }
 
 int
-box_x_ordinate(int width)
+dlg_box_x_ordinate(int width)
 {
     int x;
 
@@ -1058,7 +1120,7 @@ box_x_ordinate(int width)
 }
 
 int
-box_y_ordinate(int height)
+dlg_box_y_ordinate(int height)
 {
     int y;
 
@@ -1072,7 +1134,7 @@ box_y_ordinate(int height)
 }
 
 void
-draw_title(WINDOW *win, const char *title)
+dlg_draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
 	chtype attr = A_NORMAL;
@@ -1087,7 +1149,7 @@ draw_title(WINDOW *win, const char *title)
 }
 
 void
-draw_bottom_box(WINDOW *win)
+dlg_draw_bottom_box(WINDOW *win)
 {
     int width = getmaxx(win);
     int height = getmaxy(win);
@@ -1110,9 +1172,15 @@ draw_bottom_box(WINDOW *win)
  * used the panel library, but that is not _always_ available.
  */
 void
-del_window(WINDOW *win)
+dlg_del_window(WINDOW *win)
 {
     DIALOG_WINDOWS *p, *q, *r;
+
+    /*
+     * If --keep-window was set, do not delete/repaint the windows.
+     */
+    if (dialog_vars.keep_window)
+	return;
 
     /* Leave the main window untouched if there are no background windows.
      * We do this so the current window will not be cleared on exit, allowing
@@ -1151,22 +1219,22 @@ del_window(WINDOW *win)
  * Create a window, optionally with a shadow.
  */
 WINDOW *
-new_window(int height, int width, int y, int x)
+dlg_new_window(int height, int width, int y, int x)
 {
     WINDOW *win;
     DIALOG_WINDOWS *p = (DIALOG_WINDOWS *) calloc(1, sizeof(DIALOG_WINDOWS));
 
 #ifdef HAVE_COLOR
-    if (use_shadow) {
+    if (dialog_state.use_shadow) {
 	if ((win = newwin(height, width, y + 1, x + 2)) != 0) {
-	    draw_shadow(win, 0, 0, height, width);
+	    dlg_draw_shadow(win, 0, 0, height, width);
 	}
 	p->shadow = win;
     }
 #endif
     if ((win = newwin(height, width, y, x)) == 0) {
-	exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
-		y, x, height, width);
+	dlg_exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
+		    y, x, height, width);
     }
     p->next = dialog_state.all_windows;
     p->normal = win;
@@ -1177,13 +1245,13 @@ new_window(int height, int width, int y, int x)
 }
 
 WINDOW *
-sub_window(WINDOW *parent, int height, int width, int y, int x)
+dlg_sub_window(WINDOW *parent, int height, int width, int y, int x)
 {
     WINDOW *win;
 
     if ((win = subwin(parent, height, width, y, x)) == 0) {
-	exiterr("Can't make sub-window at (%d,%d), size (%d,%d).\n",
-		y, x, height, width);
+	dlg_exiterr("Can't make sub-window at (%d,%d), size (%d,%d).\n",
+		    y, x, height, width);
     }
 
     (void) keypad(win, TRUE);
@@ -1381,10 +1449,100 @@ dlg_add_result(char *string)
 }
 
 /*
+ * Add a quoted string to the result buffer.
+ */
+void
+dlg_add_quoted(char *string)
+{
+    char temp[2];
+
+    temp[1] = '\0';
+    dlg_add_result("\"");
+    while (*string != '\0') {
+	temp[0] = *string++;
+	if (*temp == '"')
+	    dlg_add_result("\\");
+	dlg_add_result(temp);
+    }
+    dlg_add_result("\"");
+}
+
+/*
  * Called each time a widget is invoked which may do output, increment a count.
  */
 void
 dlg_does_output(void)
 {
-    dialog_vars.output_count += 1;
+    dialog_state.output_count += 1;
 }
+
+/*
+ * Compatibility for different versions of curses.
+ */
+#if !(defined(HAVE_GETBEGX) && defined(HAVE_GETBEGY))
+int
+getbegx(WINDOW *win)
+{
+    int y, x;
+    getbegyx(win, y, x);
+    return x;
+}
+int
+getbegy(WINDOW *win)
+{
+    int y, x;
+    getbegyx(win, y, x);
+    return y;
+}
+#endif
+
+#if !(defined(HAVE_GETCURX) && defined(HAVE_GETCURY))
+int
+getcurx(WINDOW *win)
+{
+    int y, x;
+    getyx(win, y, x);
+    return x;
+}
+int
+getcury(WINDOW *win)
+{
+    int y, x;
+    getyx(win, y, x);
+    return y;
+}
+#endif
+
+#if !(defined(HAVE_GETMAXX) && defined(HAVE_GETMAXY))
+int
+getmaxx(WINDOW *win)
+{
+    int y, x;
+    getmaxyx(win, y, x);
+    return x;
+}
+int
+getmaxy(WINDOW *win)
+{
+    int y, x;
+    getmaxyx(win, y, x);
+    return y;
+}
+#endif
+
+#if !(defined(HAVE_GETPARX) && defined(HAVE_GETPARY))
+int
+getparx(WINDOW *win)
+{
+    int y, x;
+    getparyx(win, y, x);
+    return x;
+}
+int
+getpary(WINDOW *win)
+{
+    int y, x;
+    getparyx(win, y, x);
+    return y;
+}
+#endif

@@ -1,9 +1,9 @@
 /*
- * $Id: inputstr.c,v 1.28 2003/09/08 23:57:57 tom Exp $
+ * $Id: inputstr.c,v 1.34 2003/11/26 22:21:36 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  AUTHOR: Thomas Dickey
+ * Copyright 2000-2002,2003	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 
 typedef struct _cache {
     struct _cache *next;
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
     struct _cache *cache_at;	/* unique: associate caches by CACHE */
     const char *string_at;	/* unique: associate caches by char* */
 #endif
@@ -34,7 +34,7 @@ typedef struct _cache {
     int *list;			/* indices into the string */
 } CACHE;
 
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 #define SAME_CACHE(c,s,l) (c->string != 0 && memcmp(c->string,s,l) == 0)
 
 static CACHE *cache_list;
@@ -121,14 +121,14 @@ same_cache2(CACHE * cache, const char *string, unsigned i_len)
     } else {
 	if (cache->string != 0)
 	    free(cache->string);
-	cache->string = strclone(string);
+	cache->string = dlg_strclone(string);
     }
     cache->s_len = s_len;
 
     return FALSE;
 }
 
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 /*
  * Like same_cache2(), but we are only concerned about caching a copy of the
  * string and its associated length.
@@ -148,7 +148,7 @@ same_cache1(CACHE * cache, const char *string, unsigned i_len)
     } else {
 	if (cache->string != 0)
 	    free(cache->string);
-	cache->string = strclone(string);
+	cache->string = dlg_strclone(string);
     }
     cache->s_len = s_len;
     cache->i_len = i_len;
@@ -161,7 +161,7 @@ same_cache1(CACHE * cache, const char *string, unsigned i_len)
  * Counts the number of bytes that make up complete wide-characters, up to byte
  * 'len'.
  */
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 static int
 dlg_count_wcbytes(const char *string, size_t len)
 {
@@ -201,7 +201,7 @@ dlg_count_wcbytes(const char *string, size_t len)
 int
 dlg_count_wchars(const char *string)
 {
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
     static CACHE cache;
     size_t len = strlen(string);
 
@@ -246,13 +246,13 @@ dlg_index_wchars(const char *string)
 
 	cache.list[0] = 0;
 	for (inx = 1; inx <= len; ++inx) {
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 	    mbstate_t state;
 	    int width;
 	    memset(&state, 0, sizeof(state));
 	    width = mbrlen(current, strlen(current), &state);
 	    if (width <= 0)
-	    	width = 1;	/* FIXME: what if we have a control-char? */
+		width = 1;	/* FIXME: what if we have a control-char? */
 	    current += width;
 	    cache.list[inx] = cache.list[inx - 1] + width;
 #else
@@ -295,7 +295,7 @@ dlg_index_columns(const char *string)
     load_cache(&cache, string);
     if (!same_cache2(&cache, string, len)) {
 	cache.list[0] = 0;
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 	{
 	    size_t num_bytes = strlen(string);
 	    const int *inx_wchars = dlg_index_wchars(string);
@@ -327,7 +327,9 @@ dlg_index_columns(const char *string)
 	for (inx = 0; inx < len; ++inx) {
 	    cache.list[inx + 1] = (isprint(UCH(string[inx]))
 				   ? 1
-				   : strlen(unctrl(string[inx])));
+				   : strlen(unctrl(UCH(string[inx]))));
+	    if (string[inx] == '\n')
+		cache.list[inx + 1] = 1;
 	    if (inx > 0)
 		cache.list[inx + 1] += cache.list[inx];
 	}
@@ -561,7 +563,7 @@ dlg_show_string(WINDOW *win,
 {
     x_last = MIN(x_last + x_base, getmaxx(win)) - x_base;
 
-    if (hidden) {
+    if (hidden && !dialog_vars.insecure) {
 	if (force) {
 	    (void) wmove(win, y_base, x_base);
 	    wrefresh(win);
@@ -583,7 +585,10 @@ dlg_show_string(WINDOW *win,
 	    int check = cols[i + 1] - cols[scrollamt];
 	    if (check <= x_last) {
 		for (j = indx[i]; j < indx[i + 1]; ++j) {
-		    waddch(win, CharOf(string[j]));
+		    if (hidden && dialog_vars.insecure)
+			waddch(win, '*');
+		    else
+			waddch(win, CharOf(string[j]));
 		}
 		k = check;
 	    } else {

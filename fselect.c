@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.39 2003/08/24 20:45:44 tom Exp $
+ * $Id: fselect.c,v 1.41 2003/11/26 20:34:24 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  AUTHOR: Thomas Dickey
+ * Copyright 2000-2002,2003   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -80,9 +80,9 @@ init_list(LIST * list, WINDOW *par, WINDOW *win, int mousex)
     list->mousex = mousex;
     list->allocd = 0;
     list->data = 0;
-    mouse_mkbigregion(getbegy(win), getbegx(win),
-		      getmaxy(win), getmaxx(win),
-		      mousex, 1, 1, 1 /* by lines */ );
+    dlg_mouse_mkbigregion(getbegy(win), getbegx(win),
+			  getmaxy(win), getmaxx(win),
+			  mousex, 1, 1, 1 /* by lines */ );
 }
 
 static char *
@@ -135,7 +135,7 @@ add_to_list(LIST * list, char *text)
 	}
 	assert_ptr(list->data, "add_to_list");
     }
-    list->data[list->length++] = strclone(text);
+    list->data[list->length++] = dlg_strclone(text);
     list->data[list->length] = 0;
 }
 
@@ -205,7 +205,7 @@ display_list(LIST * list)
     int top;
     int bottom;
 
-    attr_clear(list->win, getmaxy(list->win), getmaxx(list->win), item_attr);
+    dlg_attr_clear(list->win, getmaxy(list->win), getmaxx(list->win), item_attr);
     for (n = list->offset; n < list->length && list->data[n]; n++) {
 	y = n - list->offset;
 	if (y >= getmaxy(list->win))
@@ -409,11 +409,15 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     int tbox_y, tbox_x, tbox_width, tbox_height;
     int dbox_y, dbox_x, dbox_width, dbox_height;
     int fbox_y, fbox_x, fbox_width, fbox_height;
-    int show_buttons = TRUE, first = TRUE, offset = 0;
-    int key = 0, fkey = FALSE, code;
+    int show_buttons = TRUE;
+    int offset = 0;
+    int key = 0;
+    int fkey = FALSE;
+    int code;
     int result = DLG_EXIT_UNKNOWN;
-    int state = sTEXT;
-    int button = sTEXT;
+    int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
+    int button = state;
+    int first = (state == sTEXT);
     char *input = dialog_vars.input_result;
     char *completed;
     char current[MAX_LEN + 1];
@@ -427,21 +431,21 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     dlg_does_output();
 
-    auto_size(title, (char *) 0, &height, &width, 6, 25);
+    dlg_auto_size(title, (char *) 0, &height, &width, 6, 25);
     height += MIN_HIGH + min_items;
     if (width < min_wide)
 	width = min_wide;
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
-    dialog = new_window(height, width,
-			box_y_ordinate(height),
-			box_x_ordinate(width));
-    mouse_setbase(0, 0);
+    dialog = dlg_new_window(height, width,
+			    dlg_box_y_ordinate(height),
+			    dlg_box_x_ordinate(width));
+    dlg_mouse_setbase(0, 0);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
 
@@ -456,14 +460,14 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	return DLG_EXIT_ERROR;
 
     (void) keypad(w_text, TRUE);
-    draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
-	     (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
-	     border_attr, dialog_attr);
-    mouse_mkbigregion(getbegy(dialog) + tbox_y - MARGIN,
-		      getbegx(dialog) + tbox_x - MARGIN,
-		      1 + (2 * MARGIN),
-		      tbox_width + (MARGIN + EXT_WIDE),
-		      MOUSE_T, 1, 1, 3 /* doesn't matter */ );
+    dlg_draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
+		 (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
+		 border_attr, dialog_attr);
+    dlg_mouse_mkbigregion(getbegy(dialog) + tbox_y - MARGIN,
+			  getbegx(dialog) + tbox_x - MARGIN,
+			  1 + (2 * MARGIN),
+			  tbox_width + (MARGIN + EXT_WIDE),
+			  MOUSE_T, 1, 1, 3 /* doesn't matter */ );
 
     /* Draw the directory listing box */
     dbox_height = height - MIN_HIGH;
@@ -477,10 +481,10 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     (void) keypad(w_dir, TRUE);
     (void) mvwprintw(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
-    draw_box(dialog,
-	     dbox_y - MARGIN, dbox_x - MARGIN,
-	     dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
-	     border_attr, dialog_attr);
+    dlg_draw_box(dialog,
+		 dbox_y - MARGIN, dbox_x - MARGIN,
+		 dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
+		 border_attr, dialog_attr);
     init_list(&d_list, dialog, w_dir, MOUSE_D);
 
     /* Draw the filename listing box */
@@ -495,10 +499,10 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     (void) keypad(w_file, TRUE);
     (void) mvwprintw(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
-    draw_box(dialog,
-	     fbox_y - MARGIN, fbox_x - MARGIN,
-	     fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
-	     border_attr, dialog_attr);
+    dlg_draw_box(dialog,
+		 fbox_y - MARGIN, fbox_x - MARGIN,
+		 fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
+		 border_attr, dialog_attr);
     init_list(&f_list, dialog, w_file, MOUSE_F);
 
     /* Set up the initial value */
@@ -539,7 +543,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	} else {
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
-	    key = mouse_wgetch(dialog, &fkey);
+	    key = dlg_mouse_wgetch(dialog, &fkey);
 	}
 
 	if (!fkey) {
@@ -674,8 +678,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
     }
 
-    del_window(dialog);
-    mouse_free_regions();
+    dlg_del_window(dialog);
+    dlg_mouse_free_regions();
     free_list(&d_list, FALSE);
     free_list(&f_list, FALSE);
     return result;

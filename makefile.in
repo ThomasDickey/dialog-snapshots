@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.27 2003/08/20 19:33:49 tom Exp $
+# $Id: makefile.in,v 1.33 2003/11/27 00:23:16 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -6,14 +6,14 @@ SHELL		= /bin/sh
 srcdir		= @srcdir@
 VPATH		= @srcdir@
 
-VERSION		= `cat $(srcdir)/VERSION`
-
 prefix		= @prefix@
 exec_prefix	= @exec_prefix@
 
 top_builddir	= .
 
-x		= @PROG_EXT@
+x		= @EXEEXT@
+o		= .@OBJEXT@
+a		= @LIB_SUFFIX@
 
 DESTDIR		=
 bindir		= $(DESTDIR)@bindir@
@@ -26,50 +26,65 @@ MANDIR		= $(mandir)/man1
 localedir       = $(prefix)/@DATADIRNAME@/locale
 
 CFLAGS		= @CFLAGS@
-CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DLOCALEDIR=\"$(localedir)\" -DVERSION=\"$(VERSION)\"
+CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DLOCALEDIR=\"$(localedir)\"
 EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 CC		= @CC@
+AR		= @AR@
 LDFLAGS		= @LDFLAGS@
 LIBS		= @LIBS@ @INTLDIR_MAKE@ @INTLLIBS@
-RANLIB		= @RANLIB@
+RANLIB		= @LIB_PREP@
 
 RM		= rm -f
 LINT		= lint
 
+LIBTOOL		= @LIBTOOL@
+LIBTOOL_CLEAN	= @LIB_CLEAN@
+LIBTOOL_COMPILE	= @LIB_COMPILE@
+LIBTOOL_CREATE	= @LIB_CREATE@
+LIBTOOL_LINK	= @LIB_LINK@
+LIBTOOL_INSTALL	= @LIB_INSTALL@
+LIBTOOL_UNINSTALL = @LIB_UNINSTALL@
+
 INSTALL		= @INSTALL@
-INSTALL_PROGRAM	= @INSTALL_PROGRAM@
+INSTALL_PROGRAM	= $(LIBTOOL_INSTALL) @INSTALL_PROGRAM@
 INSTALL_DATA	= @INSTALL_DATA@
+
+LINK		= $(LIBTOOL_LINK) $(CC)
 
 #
 # Standard .c to .o compile line.
 #
-.c.o :
+.SUFFIXES: .c $o
+.c$o :
 @RULE_CC@
-	@ECHO_CC@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
+	@ECHO_CC@$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
 
 EXTRAOBJS = @EXTRAOBJS@
-OBJS = $(EXTRAOBJS) \
-	arrows.o \
-	buttons.o \
-	checklist.o \
-	inputbox.o \
-	inputstr.o \
-	menubox.o \
-	mouse.o \
-	mousewget.o \
-	msgbox.o \
-	textbox.o \
-	ui_getc.o \
-	util.o \
-	yesno.o
+OBJECTS = $(EXTRAOBJS) \
+	arrows$o \
+	buttons$o \
+	checklist$o \
+	inputbox$o \
+	inputstr$o \
+	menubox$o \
+	mouse$o \
+	mousewget$o \
+	msgbox$o \
+	textbox$o \
+	ui_getc$o \
+	util$o \
+	version$o \
+	yesno$o
 
-SRCS = $(OBJS:.o=.c)
+LIB_OBJECT = @LIB_OBJECT@
+
+SRCS = $(OBJECTS:$o=.c)
 HDRS = \
 	colors.h \
-	config.h \
-	dialog.h
+	dialog.h \
+	dlg_config.h
 
-LIB	= @LIB_PREFIX@dialog.a
+LIB	= @LIB_PREFIX@dialog$a
 PROG	= dialog$x
 ALL	= $(LIB) $(PROG)
 
@@ -82,15 +97,15 @@ all	:: $(ALL)
 @INTLDIR_MAKE@	@echo "Building GNU gettext library..."
 @INTLDIR_MAKE@	@cd intl && $(MAKE) @cf_cv_makeflags@
 
-dialog.o \
-$(OBJS) : $(srcdir)/dialog.h config.h VERSION
+dialog$o \
+$(OBJECTS) : $(srcdir)/dialog.h dlg_config.h VERSION
 
-$(LIB) : $(OBJS)
-	ar crv $(LIB) $(OBJS)
+$(LIB) : $(LIB_OBJECT)
+	$(LIBTOOL_CREATE) $(LIB) $(LIB_OBJECT)
 	$(RANLIB) $@
 
-dialog$x : $(LIB) dialog.o @INTLDIR_MAKE@ @INTLLIBS@
-	$(CC) -o $@ dialog.o -L. -ldialog $(LDFLAGS) $(LIBS)
+dialog$x : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
+	$(LINK) -o $@ dialog$o -L. -ldialog $(LDFLAGS) $(LIBS)
 
 clean	\
 distclean \
@@ -102,13 +117,14 @@ uninstall ::
 @MSG_DIR_MAKE@	@-test -f po/makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 
 clean	::
-	@- rm -rf autom4te.cache
-	rm -f core *.o *~ tags TAGS $(ALL)
+	@- $(RM) -r autom4te.cache
+	- $(LIBTOOL_CLEAN) $(RM) *$o $(ALL)
+	- $(RM) core *~ tags TAGS
 
 distclean :: clean
-	rm -f intl/libintl.h intl/po2tbl.sed
-	rm -f makefile config.h config.cache config.log config.status
-	rm -f samples/install/makefile
+	$(RM) intl/libintl.h intl/po2tbl.sed
+	$(RM) makefile dlg_config.h config.cache config.log config.status
+	$(RM) samples/install/makefile
 
 install :: $(PROG) $(bindir)
 	$(INSTALL_PROGRAM) $(PROG) $(bindir)
@@ -121,17 +137,19 @@ install :: $(MANDIR)
 	$(INSTALL_DATA) dialog.1 $(MANDIR)
 
 uninstall ::
-	rm -f $(bindir)/$(PROG)
-	rm -f $(MANDIR)/dialog.1
+	$(RM) $(bindir)/$(PROG)
+	$(RM) $(MANDIR)/dialog.1
 
 # most users do not want/need the library, so the install rules are distinct.
 install-lib :: $(LIB_DIRS)
-	$(INSTALL_DATA) $(LIB) $(libdir)
+	$(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(libdir)
 	$(INSTALL_DATA) dialog.h $(includedir)
+	$(INSTALL_DATA) dlg_config.h $(includedir)
 
 uninstall-lib :: $(LIB_DIRS)
-	rm -f $(libdir)/$(LIB)
-	rm -f $(includedir)/dialog.h
+	- $(LIBTOOL_UNINSTALL) $(RM) $(libdir)/$(LIB)
+	$(RM) $(includedir)/dialog.h
+	$(RM) $(includedir)/dlg_config.h
 
 $(MANDIR) \
 $(bindir) \

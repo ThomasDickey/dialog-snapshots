@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.64 2003/09/10 22:04:56 tom Exp $
+ *  $Id: checklist.c,v 1.67 2003/11/26 18:44:28 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -101,32 +101,34 @@ print_item(WINDOW *win, char **items, int status,
  */
 int
 dialog_checklist(const char *title, const char *cprompt, int height, int width,
-		 int list_height, int item_no, char **items, int flag,
-		 int separate_output)
+		 int list_height, int item_no, char **items, int flag)
 {
+    bool show_status = FALSE;
+    bool separate_output = ((flag == FLAG_CHECK)
+			    && (dialog_vars.separate_output));
     int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = 0;
+    int button = dlg_defaultno_button();
     int choice = 0;
     int scrollamt = 0;
     int max_choice, *status;
     int use_width, name_width, text_width;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog, *list;
-    char *prompt = strclone(cprompt);
+    char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
 
-    tab_correct_str(prompt);
+    dlg_tab_correct_str(prompt);
     if (list_height == 0) {
-	use_width = calc_listw(item_no, items, CHECKBOX_TAGS) + 10;
+	use_width = dlg_calc_listw(item_no, items, CHECKBOX_TAGS) + 10;
 	/* calculate height without items (4) */
-	auto_size(title, prompt, &height, &width, 4, MAX(26, use_width));
-	calc_listh(&height, &list_height, item_no);
+	dlg_auto_size(title, prompt, &height, &width, 4, MAX(26, use_width));
+	dlg_calc_listh(&height, &list_height, item_no);
     } else {
-	auto_size(title, prompt, &height, &width, 4 + list_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, 4 + list_height, 26);
     }
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     checkflag = flag;
 
@@ -140,19 +142,19 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 
     max_choice = MIN(list_height, item_no);
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     list_width = width - 6;
     getyx(dialog, cur_y, cur_x);
@@ -160,14 +162,14 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     box_x = (width - list_width) / 2 - 1;
 
     /* create new window for the list */
-    list = sub_window(dialog, list_height, list_width,
-		      y + box_y + 1, x + box_x + 1);
+    list = dlg_sub_window(dialog, list_height, list_width,
+			  y + box_y + 1, x + box_x + 1);
 
     /* draw a box around the list items */
-    draw_box(dialog, box_y, box_x,
-	     list_height + 2 * MARGIN,
-	     list_width + 2 * MARGIN,
-	     menubox_border_attr, menubox_attr);
+    dlg_draw_box(dialog, box_y, box_x,
+		 list_height + 2 * MARGIN,
+		 list_width + 2 * MARGIN,
+		 menubox_border_attr, menubox_attr);
 
     text_width = 0;
     name_width = 0;
@@ -202,8 +204,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(box_y + 1, box_x, list_height, list_width + 2,
-		      KEY_MAX, 1, 1, 1 /* by lines */ );
+    dlg_mouse_mkbigregion(box_y + 1, box_x, list_height, list_width + 2,
+			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
     dlg_draw_arrows(dialog, scrollamt,
 		    scrollamt + max_choice < item_no - 1,
@@ -211,12 +213,12 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    box_y,
 		    box_y + list_height + 1);
 
-    dlg_draw_buttons(dialog, height - 2, 0, buttons, 0, FALSE, width);
+    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if (fkey && (key >= (M_EVENT + KEY_MAX))) {
 	    getyx(dialog, cur_y, cur_x);
@@ -479,38 +481,49 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	}
     }
 
-    del_window(dialog);
+    dlg_del_window(dialog);
     switch (result) {
     case DLG_EXIT_OK:		/* FALLTHRU */
     case DLG_EXIT_EXTRA:
-	for (i = 0; i < item_no; i++) {
-	    if (status[i]) {
-		if (flag == FLAG_CHECK) {
-		    if (separate_output) {
-			dlg_add_result(ItemName(i));
-			dlg_add_result("\n");
-		    } else {
-			dlg_add_result("\"");
-			dlg_add_result(ItemName(i));
-			dlg_add_result("\" ");
-		    }
-		} else {
-		    dlg_add_result(ItemName(i));
-		}
-	    }
-	}
+	show_status = TRUE;
 	break;
     case DLG_EXIT_HELP:
 	dlg_add_result("HELP ");
-	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
-	    dlg_add_result(ItemHelp(scrollamt + choice));
-	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	if ((show_status = dialog_vars.help_status) != FALSE) {
+	    if (separate_output) {
+		dlg_add_result(ItemHelp(scrollamt + choice));
+		dlg_add_result("\n");
+	    } else {
+		dlg_add_quoted(ItemHelp(scrollamt + choice));
+	    }
 	} else {
-	    dlg_add_result(ItemName(scrollamt + choice));
+	    dlg_add_result(ItemHelp(scrollamt + choice));
+	}
+	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
+	    result = DLG_EXIT_OK;	/* this is inconsistent */
 	}
 	break;
     }
-    mouse_free_regions();
+
+    if (show_status) {
+	for (i = 0; i < item_no; i++) {
+	    if (status[i]) {
+		if (separate_output) {
+		    dlg_add_result(ItemName(i));
+		    dlg_add_result("\n");
+		} else {
+		    if (*(dialog_vars.input_result))
+			dlg_add_result(" ");
+		    if (FLAG_CHECK) {
+			dlg_add_quoted(ItemName(i));
+		    } else {
+			dlg_add_result(ItemName(i));
+		    }
+		}
+	    }
+	}
+    }
+    dlg_mouse_free_regions();
     free(status);
     free(prompt);
     return result;

@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.38 2003/09/10 23:07:13 tom Exp $
+ *  $Id: buttons.c,v 1.43 2003/11/26 18:27:26 tom Exp $
  *
- *  buttons.c
+ *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  AUTHOR: Thomas Dickey
+ * Copyright 2000-2002,2003	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 
 #include "dialog.h"
 
-#if defined(HAVE_WGET_WCH)
+#ifdef USE_WIDE_CURSES
 #include <wctype.h>
 #define dlg_toupper(ch) towupper(ch)
 #define dlg_isupper(ch) iswupper(ch)
@@ -54,7 +54,7 @@ static int
 string_to_char(const char **stringp)
 {
     int result;
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
     const char *string = *stringp;
     int have = strlen(string);
     int check;
@@ -112,7 +112,7 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 
 	switch (state) {
 	case 0:
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 	    if ((last - first) != 1) {
 		const char *temp = (label + first);
 		int cmp = string_to_char(&temp);
@@ -249,7 +249,7 @@ dlg_draw_buttons(WINDOW *win,
     int margin;
     char *buffer;
 
-    mouse_setbase(getbegx(win), getbegy(win));
+    dlg_mouse_setbase(getbegx(win), getbegy(win));
 
     getyx(win, final_y, final_x);
 
@@ -296,7 +296,7 @@ dlg_match_char(int ch, const char *string)
 {
     if (string != 0) {
 	int cmp2 = string_to_char(&string);
-#ifdef HAVE_WGET_WCH
+#ifdef USE_WIDE_CURSES
 	wint_t cmp1 = dlg_toupper(ch);
 	if (cmp2 != 0 && (wchar_t) cmp1 == cmp2) {
 	    return TRUE;
@@ -328,7 +328,7 @@ dlg_char_to_button(int ch, const char **labels)
 	for (j = 0; labels[j] != 0; ++j) {
 	    label = labels[j];
 	    while (*label != 0) {
-		int cmp = dlg_toupper(string_to_char(&label));
+		int cmp = string_to_char(&label);
 		if (ch == cmp) {
 		    dlg_flush_getc();
 		    return j;
@@ -337,6 +337,22 @@ dlg_char_to_button(int ch, const char **labels)
 	}
     }
     return -1;
+}
+
+static const char *
+my_yes_label(void)
+{
+    return (dialog_vars.yes_label != NULL)
+	? dialog_vars.yes_label
+	: _("Yes");
+}
+
+static const char *
+my_no_label(void)
+{
+    return (dialog_vars.no_label != NULL)
+	? dialog_vars.no_label
+	: _("No");
 }
 
 static const char *
@@ -404,6 +420,9 @@ dlg_ok_label(void)
     return labels;
 }
 
+/*
+ * Return a list of button labels for the OK/Cancel group.
+ */
 const char **
 dlg_ok_labels(void)
 {
@@ -474,14 +493,33 @@ dlg_prev_ok_buttonindex(int current, int extra)
     return result;
 }
 
+/*
+ * Find the button-index for the "OK" or "Cancel" button, according to
+ * whether --defaultno is given.
+ */
+int
+dlg_defaultno_button(void)
+{
+    int result = 0;
+
+    if (dialog_vars.defaultno) {
+	while (dlg_ok_buttoncode(result) != DLG_EXIT_CANCEL)
+	    ++result;
+    }
+    return result;
+}
+
+/*
+ * Return a list of buttons for Yes/No labels.
+ */
 const char **
 dlg_yes_labels(void)
 {
     static const char *labels[3];
     int n = 0;
 
-    labels[n++] = _("Yes");
-    labels[n++] = _("No");
+    labels[n++] = my_yes_label();
+    labels[n++] = my_no_label();
     labels[n] = 0;
     return labels;
 }

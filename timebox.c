@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.17 2003/08/20 19:46:51 tom Exp $
+ * $Id: timebox.c,v 1.19 2003/11/26 18:38:05 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  AUTHOR: Thomas E. Dickey
+ * Copyright 2001-2002,2003   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -80,10 +80,10 @@ static int
 draw_cell(BOX * data)
 {
     werase(data->window);
-    draw_box(data->parent,
-	     data->y - MARGIN, data->x - MARGIN,
-	     data->height + (2 * MARGIN), data->width + (2 * MARGIN),
-	     border_attr, dialog_attr);
+    dlg_draw_box(data->parent,
+		 data->y - MARGIN, data->x - MARGIN,
+		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
+		 border_attr, dialog_attr);
 
     wattrset(data->window, item_attr);
     wprintw(data->window, "%02d", data->value);
@@ -113,8 +113,8 @@ init_object(BOX * data,
 	return -1;
     (void) keypad(data->window, TRUE);
 
-    mouse_setbase(getbegx(parent), getbegy(parent));
-    mouse_mkregion(y, x, height, width, code);
+    dlg_mouse_setbase(getbegx(parent), getbegy(parent));
+    dlg_mouse_mkregion(y, x, height, width, code);
 
     return 0;
 }
@@ -135,39 +135,39 @@ dialog_timebox(const char *title,
 {
     BOX hr_box, mn_box, sc_box;
     int key = 0, key2, fkey;
-    int button = DLG_EXIT_OK;
+    int button;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = DLG_EXIT_OK;
+    STATES state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
-    char *prompt = strclone(subtitle);
+    char *prompt = dlg_strclone(subtitle);
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
 
     dlg_does_output();
 
-    auto_size(title, prompt, &height, &width, 0, 0);
+    dlg_auto_size(title, prompt, &height, &width, 0, 0);
     height += MIN_HIGH;
     if (width < MIN_WIDE)
 	width = MIN_WIDE;
     dlg_button_layout(buttons, &width);
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     /* FIXME: how to make this resizable? */
-    dialog = new_window(height, width,
-			box_y_ordinate(height),
-			box_x_ordinate(width));
+    dialog = dlg_new_window(height, width,
+			    dlg_box_y_ordinate(height),
+			    dlg_box_x_ordinate(width));
 
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, height, width);
+    dlg_print_autowrap(dialog, prompt, height, width);
 
     /* compute positions of hour, month and year boxes */
     memset(&hr_box, 0, sizeof(hr_box));
@@ -222,7 +222,7 @@ dialog_timebox(const char *title,
 	if (obj != 0)
 	    dlg_set_focus(dialog, obj->window);
 
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
@@ -342,10 +342,10 @@ dialog_timebox(const char *title,
 	}
     }
 
-    del_window(dialog);
+    dlg_del_window(dialog);
     sprintf(dialog_vars.input_result, "%02d:%02d:%02d\n",
 	    hr_box.value, mn_box.value, sc_box.value);
-    mouse_free_regions();
+    dlg_mouse_free_regions();
     free(prompt);
     return result;
 }

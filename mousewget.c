@@ -1,9 +1,9 @@
 /*
- * $Id: mousewget.c,v 1.13 2003/07/11 22:49:50 tom Exp $
+ * $Id: mousewget.c,v 1.14 2003/11/26 16:42:38 tom Exp $
  *
- * mousewget.c - mouse_wgetch support for dialog
+ * mousewget.c -- mouse/wgetch support for dialog
  *
- * Copyright 2000-2001,2002   Thomas Dickey
+ * Copyright 2000-2002,2003   Thomas E. Dickey
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include "dialog.h"
 
 int
-mouse_wgetch(WINDOW *win, int *fkey)
+dlg_mouse_wgetch(WINDOW *win, int *fkey)
 {
     int key;
 
@@ -37,9 +37,9 @@ mouse_wgetch(WINDOW *win, int *fkey)
 	    mseRegion *p;
 
 	    if (getmouse(&event) != ERR) {
-		if ((p = mouse_region(event.y, event.x)) != 0) {
+		if ((p = dlg_mouse_region(event.y, event.x)) != 0) {
 		    key = M_EVENT + p->code;
-		} else if ((p = mouse_bigregion(event.y, event.x)) != 0) {
+		} else if ((p = dlg_mouse_bigregion(event.y, event.x)) != 0) {
 		    int x = event.x - p->x;
 		    int y = event.y - p->y;
 		    int row = (p->X - p->x) / p->step_x;

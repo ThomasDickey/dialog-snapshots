@@ -1,10 +1,10 @@
 /*
- * $Id: dialog.c,v 1.101 2003/09/23 22:49:34 tom Exp $
+ * $Id: dialog.c,v 1.111 2003/11/26 22:20:28 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and     Thomas E. Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -61,13 +61,17 @@ typedef enum {
     ,o_help
     ,o_help_button
     ,o_help_label
+    ,o_help_status
     ,o_icon
     ,o_ignore
     ,o_infobox
+    ,o_input_fd
     ,o_inputbox
     ,o_inputmenu
+    ,o_insecure
     ,o_item_help
     ,o_keep_colors
+    ,o_keep_window
     ,o_max_input
     ,o_menu
     ,o_msgbox
@@ -75,6 +79,7 @@ typedef enum {
     ,o_no_collapse
     ,o_no_cr_wrap
     ,o_no_kill
+    ,o_no_label
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
@@ -106,9 +111,17 @@ typedef enum {
     ,o_trim
     ,o_under_mouse
     ,o_wmclass
+    ,o_yes_label
     ,o_yesno
 } eOptions;
 
+/*
+ * The bits in 'pass' are used to decide which options are applicable at
+ * different stages in the program:
+ *	1 flags before widgets
+ *	2 widgets
+ *	4 non-widget options
+ */
 typedef struct {
     const char *name;
     eOptions code;
@@ -127,6 +140,11 @@ static char **dialog_argv;
 
 static const char *program = "dialog";
 static const char *const and_widget = "--and-widget";
+
+/*
+ * The options[] table is organized this way to make it simple to maintain
+ * a sorted list of options for the help-message.
+ */
 /* *INDENT-OFF* */
 static const Options options[] = {
     { "allow-close",	o_allow_close,		1, NULL },
@@ -159,13 +177,17 @@ static const Options options[] = {
     { "help",		o_help,			4, "" },
     { "help-button",	o_help_button,		1, "" },
     { "help-label",	o_help_label,		1, "<str>" },
+    { "help-status",	o_help_status,		1, "" },
     { "icon",		o_icon,			1, NULL },
     { "ignore",		o_ignore,		1, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
+    { "input-fd",	o_input_fd,		1, "<fd>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
     { "inputmenu",	o_inputmenu,		2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
+    { "insecure",	o_insecure,		1, "" },
     { "item-help",	o_item_help,		1, "" },
     { "keep-colors",	o_keep_colors,		1, NULL },
+    { "keep-window",	o_keep_window,		1, "" },
     { "max-input",	o_max_input,		1, "<n>" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
@@ -174,6 +196,7 @@ static const Options options[] = {
     { "no-collapse",	o_no_collapse,		1, "" },
     { "no-cr-wrap",	o_no_cr_wrap,		1, NULL },
     { "no-kill",	o_no_kill,		1, "" },
+    { "no-label",	o_no_label,		1, "<str>" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
@@ -206,6 +229,7 @@ static const Options options[] = {
     { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
     { "wmclass",	o_wmclass,		1, NULL },
+    { "yes-label",	o_yes_label,		1, "<str>" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
 };
 /* *INDENT-ON* */
@@ -297,7 +321,7 @@ lookupOption(const char *name, int pass)
 static void
 Usage(char *msg)
 {
-    exiterr("Error: %s.\nUse --help to list options.\n\n", msg);
+    dlg_exiterr("Error: %s.\nUse --help to list options.\n\n", msg);
 }
 
 /*
@@ -388,16 +412,16 @@ show_result(int ret)
     case DLG_EXIT_OK:
     case DLG_EXIT_EXTRA:
     case DLG_EXIT_HELP:
-	if (dialog_vars.output_count > 1) {
-	    fputs(dialog_vars.separate_str, dialog_vars.output);
+	if (dialog_state.output_count > 1) {
+	    fputs(dialog_state.separate_str, dialog_state.output);
 	    either = TRUE;
 	}
 	if (dialog_vars.input_result[0] != '\0') {
-	    fputs(dialog_vars.input_result, dialog_vars.output);
+	    fputs(dialog_vars.input_result, dialog_state.output);
 	    either = TRUE;
 	}
 	if (either) {
-	    fflush(dialog_vars.output);
+	    fflush(dialog_state.output);
 	}
 	break;
     }
@@ -415,7 +439,7 @@ j_yesno(JUMPARGS)
     return dialog_yesno(t,
 			av[1],
 			numeric_arg(av, 2),
-			numeric_arg(av, 3), defaultno);
+			numeric_arg(av, 3));
 }
 
 static int
@@ -496,7 +520,7 @@ j_checklist(JUMPARGS)
 			    numeric_arg(av, 2),
 			    numeric_arg(av, 3),
 			    numeric_arg(av, 4),
-			    tags, av + 5, FLAG_CHECK, dialog_vars.separate_output);
+			    tags, av + 5, FLAG_CHECK);
 }
 
 static int
@@ -509,7 +533,7 @@ j_radiolist(JUMPARGS)
 			    numeric_arg(av, 2),
 			    numeric_arg(av, 3),
 			    numeric_arg(av, 4),
-			    tags, av + 5, FLAG_RADIO, dialog_vars.separate_output);
+			    tags, av + 5, FLAG_RADIO);
 }
 
 static int
@@ -707,8 +731,8 @@ PrintList(const char *const *list)
 	leaf = program;
 
     while (*list != 0) {
-	fprintf(dialog_vars.output, *list, n ? leaf : VERSION);
-	(void) fputc('\n', dialog_vars.output);
+	fprintf(dialog_state.output, *list, n ? leaf : dialog_version());
+	(void) fputc('\n', dialog_state.output);
 	n = 1;
 	list++;
     }
@@ -759,26 +783,26 @@ Help(void)
     unsigned j, k;
 
     PrintList(tbl_1);
-    fprintf(dialog_vars.output, "Common options:\n ");
+    fprintf(dialog_state.output, "Common options:\n ");
     for (j = k = 0; j < sizeof(options) / sizeof(options[0]); j++) {
 	if ((options[j].pass & 1)
 	    && options[j].help != 0) {
 	    unsigned len = 6 + strlen(options[j].name) + strlen(options[j].help);
 	    k += len;
 	    if (k > 75) {
-		fprintf(dialog_vars.output, "\n ");
+		fprintf(dialog_state.output, "\n ");
 		k = len;
 	    }
-	    fprintf(dialog_vars.output, " [--%s%s%s]", options[j].name,
+	    fprintf(dialog_state.output, " [--%s%s%s]", options[j].name,
 		    *(options[j].help) ? " " : "", options[j].help);
 	}
     }
-    fprintf(dialog_vars.output, "\nBox options:\n");
+    fprintf(dialog_state.output, "\nBox options:\n");
     for (j = 0; j < sizeof(options) / sizeof(options[0]); j++) {
 	if ((options[j].pass & 2) != 0
 	    && options[j].help != 0
 	    && lookupMode(options[j].code))
-	    fprintf(dialog_vars.output, "  --%-12s %s\n", options[j].name,
+	    fprintf(dialog_state.output, "  --%-12s %s\n", options[j].name,
 		    options[j].help);
     }
     PrintList(tbl_3);
@@ -786,34 +810,21 @@ Help(void)
     dlg_exit(DLG_EXIT_OK);
 }
 
-#define DFT(value,dft) ((value == 0) ? dft : value)
-
 static void
-init_result(FILE *output, char *buffer)
+init_result(char *buffer)
 {
-    int output_count = dialog_vars.output_count;
-    int tab_len = DFT(dialog_vars.tab_len, TAB_LEN);
-    int aspect_ratio = DFT(dialog_vars.aspect_ratio, DEFAULT_ASPECT_RATIO);
-    char *separate_str = DFT(dialog_vars.separate_str, DEFAULT_SEPARATE_STR);
-
     /* clear everything we do not save for the next widget */
     memset(&dialog_vars, 0, sizeof(dialog_vars));
 
-    dialog_vars.aspect_ratio = aspect_ratio;
-    dialog_vars.tab_len = tab_len;
-    dialog_vars.output = output;
-    dialog_vars.separate_str = separate_str;
     dialog_vars.input_result = buffer;
-    dialog_vars.output_count = output_count;
-
     dialog_vars.input_result[0] = '\0';
 }
 
 int
 main(int argc, char *argv[])
 {
-    FILE *output = stderr;
-    char temp[80];
+    FILE *input = stdin;
+    char temp[256];
     bool esc_pressed = FALSE;
     bool ignore_unknown = FALSE;
     int offset = 1;
@@ -823,12 +834,10 @@ main(int argc, char *argv[])
     int j;
     eOptions code;
     const Mode *modePtr;
-#ifndef HAVE_COLOR
-    int use_shadow = FALSE;	/* ignore corresponding option */
-#endif
     char my_buffer[MAX_LEN + 1];
 
-    unescape_argv(&argc, argv);
+    memset(&dialog_state, 0, sizeof(dialog_state));
+    memset(&dialog_vars, 0, sizeof(dialog_vars));
 
 #if defined(ENABLE_NLS)
     /* initialize locale support */
@@ -839,18 +848,60 @@ main(int argc, char *argv[])
     (void) setlocale(LC_ALL, "");
 #endif
 
+    unescape_argv(&argc, argv);
     program = argv[0];
-    init_result(output, my_buffer);
+    dialog_state.output = stderr;
+
+    /*
+     * Look for the last --stdout, --stderr or --output-fd option, and use
+     * that.  We can only write to one of them.  If --stdout is used, that
+     * can interfere with initializing the curses library, so we want to
+     * know explicitly if it is used.
+     */
+    while (offset < argc) {
+	int base = offset;
+	switch (lookupOption(argv[offset], 7)) {
+	case o_stdout:
+	    dialog_state.output = stdout;
+	    break;
+	case o_stderr:
+	    dialog_state.output = stderr;
+	    break;
+	case o_input_fd:
+	    if ((j = optionValue(argv, &offset)) < 0
+		|| (input = fdopen(j, "r")) == 0)
+		dlg_exiterr("Cannot open input-fd\n");
+	    break;
+	case o_output_fd:
+	    if ((j = optionValue(argv, &offset)) < 0
+		|| (dialog_state.output = fdopen(j, "w")) == 0)
+		dlg_exiterr("Cannot open output-fd\n");
+	    break;
+	default:
+	    ++offset;
+	    continue;
+	}
+	for (j = base; j < argc; ++j) {
+	    dialog_argv[j] = dialog_argv[j + 1 + (offset - base)];
+	    if (dialog_opts != 0)
+		dialog_opts[j] = dialog_opts[j + 1 + (offset - base)];
+	}
+	argc -= (1 + offset - base);
+	offset = base;
+    }
+    offset = 1;
+    init_result(my_buffer);
 
     if (argc == 2) {		/* if we don't want clear screen */
 	switch (lookupOption(argv[1], 7)) {
 	case o_print_maxsize:
 	    (void) initscr();
-	    fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 	    endwin();
+	    fflush(dialog_state.output);
+	    fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 	    break;
 	case o_print_version:
-	    fprintf(output, "Version: %s\n", VERSION);
+	    fprintf(dialog_state.output, "Version: %s\n", dialog_version());
 	    break;
 	case o_clear:
 	    initscr();
@@ -873,20 +924,20 @@ main(int argc, char *argv[])
 #ifdef HAVE_RC_FILE
     if (lookupOption(argv[1], 7) == o_create_rc) {
 	if (argc != 3) {
-	    sprintf(temp, "Expected a filename for %s", argv[1]);
+	    sprintf(temp, "Expected a filename for %.50s", argv[1]);
 	    Usage(temp);
 	}
-	if (parse_rc() == -1)	/* Read the configuration file */
-	    exiterr("dialog: parse_rc");
-	create_rc(argv[2]);
+	if (dlg_parse_rc() == -1)	/* Read the configuration file */
+	    dlg_exiterr("dialog: dlg_parse_rc");
+	dlg_create_rc(argv[2]);
 	return DLG_EXIT_OK;
     }
 #endif
 
-    init_dialog();
+    init_dialog(input, dialog_state.output);
 
     while (offset < argc && !esc_pressed) {
-	init_result(output, my_buffer);
+	init_result(my_buffer);
 	done = FALSE;
 
 	while (offset < argc && !done) {	/* Common options */
@@ -899,7 +950,7 @@ main(int argc, char *argv[])
 		break;
 	    case o_separator:
 	    case o_separate_widget:
-		dialog_vars.separate_str = optionString(argv, &offset);
+		dialog_state.separate_str = optionString(argv, &offset);
 		break;
 	    case o_separate_output:
 		dialog_vars.separate_output = TRUE;
@@ -929,13 +980,16 @@ main(int argc, char *argv[])
 		dialog_vars.beep_after_signal = TRUE;
 		break;
 	    case o_shadow:
-		use_shadow = TRUE;
+		dialog_state.use_shadow = TRUE;
 		break;
 	    case o_defaultno:
-		defaultno = TRUE;
+		dialog_vars.defaultno = TRUE;
 		break;
 	    case o_default_item:
 		dialog_vars.default_item = optionString(argv, &offset);
+		break;
+	    case o_insecure:
+		dialog_vars.insecure = TRUE;
 		break;
 	    case o_item_help:
 		dialog_vars.item_help = TRUE;
@@ -943,23 +997,39 @@ main(int argc, char *argv[])
 	    case o_help_button:
 		dialog_vars.help_button = TRUE;
 		break;
+	    case o_help_status:
+		dialog_vars.help_status = TRUE;
+		break;
 	    case o_extra_button:
 		dialog_vars.extra_button = TRUE;
 		break;
 	    case o_ignore:
 		ignore_unknown = TRUE;
 		break;
+	    case o_keep_window:
+		dialog_vars.keep_window = TRUE;
+		break;
 	    case o_no_shadow:
-		use_shadow = FALSE;
+		dialog_state.use_shadow = FALSE;
 		break;
 	    case o_print_size:
 		dialog_vars.print_siz = TRUE;
 		break;
 	    case o_print_maxsize:
-		fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
+		/*
+		 * If this is the last option, we do not want any error
+		 * messages - just our output.  Calling end_dialog() cancels
+		 * the refresh() at the end of the program as well.
+		 */
+		if (argv[offset + 1] == 0) {
+		    ignore_unknown = TRUE;
+		    end_dialog();
+		}
+		fflush(dialog_state.output);
+		fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 		break;
 	    case o_print_version:
-		fprintf(output, "Version: %s\n", VERSION);
+		fprintf(dialog_state.output, "Version: %s\n", dialog_version());
 		break;
 	    case o_tab_correct:
 		dialog_vars.tab_correct = TRUE;
@@ -973,27 +1043,14 @@ main(int argc, char *argv[])
 	    case o_max_input:
 		dialog_vars.max_input = optionValue(argv, &offset);
 		break;
-	    case o_output_fd:
-		if ((j = optionValue(argv, &offset)) >= 0
-		    && (output = fdopen(j, "w")) != 0)
-		    dialog_vars.output = output;
-		else
-		    exiterr("Cannot open output-fd\n");
-		break;
-	    case o_stderr:
-		dialog_vars.output = output = stderr;
-		break;
-	    case o_stdout:
-		dialog_vars.output = output = stdout;
-		break;
 	    case o_tab_len:
-		dialog_vars.tab_len = optionValue(argv, &offset);
+		dialog_state.tab_len = optionValue(argv, &offset);
 		break;
 	    case o_trim:
 		dialog_vars.trim_whitespace = TRUE;
 		break;
 	    case o_aspect:
-		dialog_vars.aspect_ratio = optionValue(argv, &offset);
+		dialog_state.aspect_ratio = optionValue(argv, &offset);
 		break;
 	    case o_begin:
 		dialog_vars.begin_set = TRUE;
@@ -1002,6 +1059,12 @@ main(int argc, char *argv[])
 		break;
 	    case o_clear:
 		dialog_vars.dlg_clear_screen = TRUE;
+		break;
+	    case o_yes_label:
+		dialog_vars.yes_label = optionString(argv, &offset);
+		break;
+	    case o_no_label:
+		dialog_vars.no_label = optionString(argv, &offset);
 		break;
 	    case o_ok_label:
 		dialog_vars.ok_label = optionString(argv, &offset);
@@ -1075,10 +1138,10 @@ main(int argc, char *argv[])
 	    Usage(temp);
 	}
 
-	if (dialog_vars.aspect_ratio == 0)
-	    dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
+	if (dialog_state.aspect_ratio == 0)
+	    dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
 
-	put_backtitle();
+	dlg_put_backtitle();
 
 	/* use a table to look for the requested mode, to avoid code duplication */
 
@@ -1146,13 +1209,15 @@ main(int argc, char *argv[])
 		}
 	    }
 	    if (dialog_vars.dlg_clear_screen)
-		dialog_clear();
+		dlg_clear();
 	}
 
     }
 
-    killall_bg(&retval);
-    (void) refresh();
-    end_dialog();
+    dlg_killall_bg(&retval);
+    if (dialog_state.screen_initialized) {
+	(void) refresh();
+	end_dialog();
+    }
     dlg_exit(retval);
 }

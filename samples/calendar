@@ -1,10 +1,13 @@
 #!/bin/sh
-# $Id: calendar,v 1.3 2003/08/15 19:40:37 tom Exp $
+# $Id: calendar,v 1.4 2003/10/09 22:45:06 tom Exp $
 : ${DIALOG=dialog}
 
-USERDATE=`$DIALOG --stdout --title "CALENDAR" --calendar "Please choose a date..." 0 0 7 7 1981`
+exec 3>&1
+USERDATE=`$DIALOG --title "CALENDAR" --calendar "Please choose a date..." 0 0 7 7 1981 2>&1 1>&3`
+code=$?
+exec 3>&-
 
-case $? in
+case $code in
   0)
     echo "Date entered: $USERDATE.";;
   1)

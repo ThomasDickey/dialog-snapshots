@@ -1,10 +1,10 @@
 /*
- *  $Id: dialog.h,v 1.122 2003/09/10 20:51:38 tom Exp $
+ *  $Id: dialog.h,v 1.137 2003/11/27 00:22:55 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *  and:    Thomas Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -24,11 +24,7 @@
 #ifndef DIALOG_H_included
 #define DIALOG_H_included 1
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#else
-#define RETSIGTYPE void
-#endif
+#include <dlg_config.h>
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -79,6 +75,18 @@
 #define GCC_UNUSED /*nothing*/
 #endif
 
+#ifndef HAVE_WGET_WCH
+#undef USE_WIDE_CURSES
+#endif
+
+/*
+ * FIXME: a configure check would be useful
+ */
+#ifdef __hpux
+#undef ACS_UARROW
+#undef ACS_DARROW
+#endif
+
 /*
  * Change these if you want
  */
@@ -86,8 +94,8 @@
 #define USE_COLORS TRUE
 
 #ifdef HAVE_COLOR
-#define SCOLS	COLS-(use_shadow ? 2 : 0)
-#define SLINES	LINES-(use_shadow ? 1 : 0)
+#define SCOLS	(COLS - (dialog_state.use_shadow ? 2 : 0))
+#define SLINES	(LINES - (dialog_state.use_shadow ? 1 : 0))
 #else
 #define SCOLS	COLS
 #define SLINES	LINES
@@ -167,31 +175,107 @@
 #define ACS_DARROW 'v'
 #endif
 
-/* these definitions really would work for ncurses 1.8.6, etc. */
+/* these definitions may work for antique versions of curses */
+#ifndef HAVE_GETBEGYX
+#undef  getbegyx
+#define getbegyx(win,y,x)	(y = (win)?(win)->_begy:ERR, x = (win)?(win)->_begx:ERR)
+#endif
+
+#ifndef HAVE_GETMAXYX
+#undef  getmaxyx
+#define getmaxyx(win,y,x)	(y = (win)?(win)->_maxy:ERR, x = (win)?(win)->_maxx:ERR)
+#endif
+
 #ifndef HAVE_GETPARYX
+#undef  getparyx
 #define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
 #endif
 
-#ifndef HAVE_GETPARX
-#define getparx(win)		((win)?(win)->_parx:ERR)
+/* these definitions may be needed for bleeding-edge curses implementations */
+#if !(defined(HAVE_GETBEGX) && defined(HAVE_GETBEGY))
+#undef getbegx
+#undef getbegy
+#define getbegx(win) dlg_getbegx(win)
+#define getbegy(win) dlg_getbegy(win)
+extern int dlg_getbegx(WINDOW *);
+extern int dlg_getbegy(WINDOW *);
 #endif
 
-#ifndef HAVE_GETPARY
-#define getpary(win)		((win)?(win)->_pary:ERR)
+#if !(defined(HAVE_GETCURX) && defined(HAVE_GETCURY))
+#undef getcurx
+#undef getcury
+#define getcurx(win) dlg_getcurx(win)
+#define getcury(win) dlg_getcury(win)
+extern int dlg_getcurx(WINDOW *);
+extern int dlg_getcury(WINDOW *);
 #endif
 
-#ifndef HAVE_GETCURX
-#define getcurx(win)		((win)?(win)->_curx:ERR)
+#if !(defined(HAVE_GETMAXX) && defined(HAVE_GETMAXY))
+#undef getmaxx
+#undef getmaxy
+#define getmaxx(win) dlg_getmaxx(win)
+#define getmaxy(win) dlg_getmaxy(win)
+extern int dlg_getmaxx(WINDOW *);
+extern int dlg_getmaxy(WINDOW *);
 #endif
 
-#ifndef HAVE_GETCURY
-#define getcury(win)		((win)?(win)->_cury:ERR)
+#if !(defined(HAVE_GETPARX) && defined(HAVE_GETPARY))
+#undef getparx
+#undef getpary
+#define getparx(win) dlg_getparx(win)
+#define getpary(win) dlg_getpary(win)
+extern int dlg_getparx(WINDOW *);
+extern int dlg_getpary(WINDOW *);
+#endif
+
+/*
+ * This is a list of "old" names, which should be helpful in updating
+ * applications that use libdialog.  Starting with 2003/11/26, all exported
+ * symbols from libdialog have "dlg_" prefix, or "dialog_" prefix or "_dialog"
+ * suffix.
+ */
+#ifdef __DIALOG_OLD_NAMES__
+#define color_table                       dlg_color_table
+#define attr_clear(win,h,w,a)             dlg_attr_clear(win,h,w,a)
+#define auto_size(t,s,h,w,xl,mc)          dlg_auto_size(t,s,h,w,xl,mc)
+#define auto_sizefile(t,f,h,w,xl,mc)      dlg_auto_sizefile(t,f,h,w,xl,mc)
+#define beeping()                         dlg_beeping()
+#define box_x_ordinate(w)                 dlg_box_x_ordinate(w)
+#define box_y_ordinate(h)                 dlg_box_y_ordinate(h)
+#define calc_listh(h,lh,in)               dlg_calc_listh(h,lh,in)
+#define calc_listw(in,items,group)        dlg_calc_listw(in,items,group)
+#define color_setup()                     dlg_color_setup()
+#define create_rc(f)                      dlg_create_rc(f)
+#define ctl_size(h,w)                     dlg_ctl_size(h,w)
+#define del_window(win)                   dlg_del_window(win)
+#define dialog_clear()                    dlg_clear()
+#define draw_bottom_box(win)              dlg_draw_bottom_box(win)
+#define draw_box(win,y,x,h,w,xc,bc)       dlg_draw_box(win,y,x,h,w,xc,bc)
+#define draw_shadow(win,h,w,y,x)          dlg_draw_shadow(win,h,w,y,x)
+#define draw_title(win,t)                 dlg_draw_title(win,t)
+#define exiterr                           dlg_exiterr
+#define killall_bg(n)                     dlg_killall_bg(n)
+#define mouse_bigregion(y,x)              dlg_mouse_bigregion(y,x)
+#define mouse_free_regions()              dlg_mouse_free_regions()
+#define mouse_mkbigregion(y,x,h,w,n,ix,iy,m) dlg_mouse_mkbigregion(y,x,h,w,n,ix,iy,m)
+#define mouse_mkregion(y,x,h,w,n)         dlg_mouse_mkregion(y,x,h,w,n)
+#define mouse_region(y,x)                 dlg_mouse_region(y,x)
+#define mouse_setbase(x,y)                dlg_mouse_setbase(x,y)
+#define mouse_wgetch(w,c)                 dlg_mouse_wgetch(w,c)
+#define new_window(h,w,y,x)               dlg_new_window(h,w,y,x)
+#define parse_rc()                        dlg_parse_rc()
+#define print_autowrap(win,s,h,w)         dlg_print_autowrap(win,s,h,w)
+#define print_size(h,w)                   dlg_print_size(h,w)
+#define put_backtitle()                   dlg_put_backtitle()
+#define strclone(cprompt)                 dlg_strclone(cprompt)
+#define sub_window(win,h,w,y,x)           dlg_sub_window(win,h,w,y,x)
+#define tab_correct_str(s)                dlg_tab_correct_str(s)
 #endif
 
 /*
  * Attribute names
  */
-#define DIALOG_ATR(n)                 color_table[n].atr
+#define DIALOG_ATR(n)                 dlg_color_table[n].atr
 
 #define screen_attr                   DIALOG_ATR(0)
 #define shadow_attr                   DIALOG_ATR(1)
@@ -227,6 +311,17 @@
 #define form_text_attr                DIALOG_ATR(31)
 
 /*
+ * Internal keycodes are used for commands.
+ */
+typedef enum {
+    DLGK_min = KEY_MAX + 1
+    , DLGK_NEXT_FIELD
+    , DLGK_PREV_FIELD
+} DLGK_xxx;
+
+#define DLGK_max (KEY_MAX + 256)
+
+/*
  * Callbacks are used to implement the "background" tailbox.
  */
 typedef struct _dlg_callback {
@@ -251,6 +346,17 @@ typedef struct {
     DIALOG_CALLBACK *getc_callbacks;
     DIALOG_CALLBACK *getc_redirect;
     DIALOG_WINDOWS *all_windows;
+    FILE *output;		/* option "--output-fd fd" */
+    FILE *pipe_input;		/* used for gauge widget */
+    FILE *screen_output;	/* newterm(), etc. */
+    bool screen_initialized;
+    bool use_colors;		/* use colors by default? */
+    bool use_shadow;		/* shadow dialog boxes by default? */
+    bool visit_items;		/* option "--visit-items" */
+    char *separate_str;		/* option "--separate-widget string" */
+    int aspect_ratio;		/* option "--aspect ratio" */
+    int output_count;		/* # of widgets that may have done output */
+    int tab_len;		/* option "--tab-len n" */
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;
@@ -259,18 +365,21 @@ extern DIALOG_STATE dialog_state;
  * Global variables, which dialog resets before each widget
  */
 typedef struct {
-    FILE *output;		/* option "--output-fd fd" */
     bool beep_after_signal;	/* option "--beep-after" */
     bool beep_signal;		/* option "--beep" */
     bool begin_set;		/* option "--begin y x" was used */
     bool cant_kill;		/* option "--no-kill" */
     bool colors;		/* option "--colors" */
     bool cr_wrap;		/* option "--cr-wrap" */
+    bool defaultno;		/* option "--defaultno" */
     bool dlg_clear_screen;	/* option "--clear" */
     bool extra_button;		/* option "--extra-button" */
     bool help_button;		/* option "--help-button" */
-    bool input_menu;
+    bool help_status;		/* option "--help-status" */
+    bool input_menu;		/* menu vs inputmenu widget */
+    bool insecure;		/* option "--insecure" */
     bool item_help;		/* option "--item-help" */
+    bool keep_window;		/* option "--keep-window" */
     bool nocancel;		/* option "--no-cancel" */
     bool nocollapse;		/* option "--no-collapse" */
     bool print_siz;		/* option "--print-size" */
@@ -285,16 +394,14 @@ typedef struct {
     char *extra_label;		/* option "--extra-label string" */
     char *help_label;		/* option "--help-label string" */
     char *input_result;
+    char *no_label;		/* option "--no-label string" */
     char *ok_label;		/* option "--ok-label string" */
-    char *separate_str;		/* option "--separate-widget string" */
     char *title;		/* option "--title title" */
-    int aspect_ratio;		/* option "--aspect ratio" */
+    char *yes_label;		/* option "--yes-label string" */
     int begin_x;		/* option "--begin y x" (second value) */
     int begin_y;		/* option "--begin y x" (first value) */
     int max_input;		/* option "--max-input size" */
-    int output_count;		/* # of widgets that may have done output */
     int sleep_secs;		/* option "--sleep secs" */
-    int tab_len;		/* option "--tab-len n" */
     int timeout_secs;		/* option "--timeout secs" */
     unsigned input_length;	/* nonzero if input_result is allocated */
 } DIALOG_VARS;
@@ -306,18 +413,13 @@ typedef struct {
 
 extern DIALOG_VARS dialog_vars;
 
-#ifdef HAVE_COLOR
-extern bool use_colors;
-extern bool use_shadow;
-#endif
-
 #ifndef HAVE_TYPE_CHTYPE
 #define chtype long
 #endif
 
 #define UCH(ch)			((unsigned char)(ch))
 
-#define assert_ptr(ptr,msg) if ((ptr) == 0) exiterr("cannot allocate memory in " msg)
+#define assert_ptr(ptr,msg) if ((ptr) == 0) dlg_exiterr("cannot allocate memory in " msg)
 
 /*
  * Table for attribute- and color-values.
@@ -335,80 +437,29 @@ typedef struct {
 #endif
 } DIALOG_COLORS;
 
-extern DIALOG_COLORS color_table[];
-
-extern FILE *pipe_fp;
-extern int defaultno;
-extern int screen_initialized;
+extern DIALOG_COLORS dlg_color_table[];
 
 /*
  * Function prototypes
  */
-#ifdef HAVE_RC_FILE
-extern void create_rc (const char *filename);
-extern int parse_rc (void);
-#endif
+extern char *dialog_version(void);
 
-void attr_clear (WINDOW * win, int height, int width, chtype attr);
-void dialog_clear (void);
-void end_dialog (void);
-void init_dialog (void);
-void put_backtitle(void);
-
-void auto_size(const char * title, const char *prompt, int *height, int *width, int boxlines, int mincols);
-void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
-
-void exiterr(const char *, ...)
-#if defined(__GNUC__) && !defined(printf)
-__attribute__((format(printf,1,2)))
-#endif
-;
-void beeping(void);
-void print_size(int height, int width);
-void ctl_size(int height, int width);
-void tab_correct_str(char *prompt);
-void calc_listh(int *height, int *list_height, int item_no);
-int calc_listw(int item_no, char **items, int group);
-char *strclone(const char *cprompt);
-int box_x_ordinate(int width);
-int box_y_ordinate(int height);
-void del_window(WINDOW *win);
-void draw_title(WINDOW *win, const char *title);
-void draw_bottom_box(WINDOW *win);
-WINDOW * new_window (int height, int width, int y, int x);
-WINDOW * sub_window (WINDOW *win, int height, int width, int y, int x);
-
-#ifdef HAVE_COLOR
-int dlg_color_count (void);
-void color_setup (void);
-void draw_shadow (WINDOW * win, int height, int width, int y, int x);
-#endif
-
-void print_autowrap(WINDOW *win, const char *prompt, int height, int width);
-void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
-		chtype borderchar);
-
-int dialog_yesno (const char *title, const char *cprompt, int height, int width, int dftno);
-int dialog_msgbox (const char *title, const char *cprompt, int height,
-		int width, int pauseopt);
-int dialog_textbox (const char *title, const char *file, int height, int width);
-int dialog_menu (const char *title, const char *cprompt, int height, int width,
-		int menu_height, int item_no, char **items);
-int dialog_checklist (const char *title, const char *cprompt, int height,
-		int width, int list_height, int item_no,
-		char ** items, int flag, int separate_output);
-int dialog_inputbox (const char *title, const char *cprompt, int height,
-		int width, const char *init, const int password);
-int dialog_gauge (const char *title, const char *cprompt, int height, int width,
-		int percent);
-int dialog_tailbox (const char *title, const char *file, int height, int width, int bg_task);
-int dialog_fselect (const char *title, const char *path, int height, int width);
-int dialog_calendar (const char *title, const char *subtitle, int height, int width, int day, int month, int year);
-int dialog_timebox (const char *title, const char *subtitle, int height, int width, int hour, int minute, int second);
-int dialog_form(const char *title, const char *cprompt, int height, int width, int form_height, int item_no, char **items);
+/* widgets, each in separate files */
+extern int dialog_calendar(const char *title, const char *subtitle, int height, int width, int day, int month, int year);
+extern int dialog_checklist(const char *title, const char *cprompt, int height, int width, int list_height, int item_no, char ** items, int flag);
+extern int dialog_form(const char *title, const char *cprompt, int height, int width, int form_height, int item_no, char **items);
+extern int dialog_fselect(const char *title, const char *path, int height, int width);
+extern int dialog_gauge(const char *title, const char *cprompt, int height, int width, int percent);
+extern int dialog_inputbox(const char *title, const char *cprompt, int height, int width, const char *init, const int password);
+extern int dialog_menu(const char *title, const char *cprompt, int height, int width, int menu_height, int item_no, char **items);
+extern int dialog_msgbox(const char *title, const char *cprompt, int height, int width, int pauseopt);
+extern int dialog_tailbox(const char *title, const char *file, int height, int width, int bg_task);
+extern int dialog_textbox(const char *title, const char *file, int height, int width);
+extern int dialog_timebox(const char *title, const char *subtitle, int height, int width, int hour, int minute, int second);
+extern int dialog_yesno(const char *title, const char *cprompt, int height, int width);
 
 /* arrows.c */
-void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
+extern void dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
 
 /* buttons.c */
 extern const char ** dlg_exit_label(void);
@@ -437,6 +488,12 @@ extern int dlg_edit_offset(char *string, int offset, int x_last);
 extern int dlg_limit_columns(const char *string, int limit, int offset);
 extern void dlg_show_string(WINDOW *win, const char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 
+/* rc.c */
+#ifdef HAVE_RC_FILE
+extern int dlg_parse_rc(void);
+extern void dlg_create_rc(const char *filename);
+#endif
+
 /* ui_getc.c */
 extern int dlg_getc(WINDOW *win, int *fkey);
 extern int dlg_getc_callbacks(int ch, int fkey, int *result);
@@ -444,17 +501,54 @@ extern int dlg_last_getc(void);
 extern void dlg_add_callback(DIALOG_CALLBACK *p);
 extern void dlg_flush_getc(void);
 extern void dlg_remove_callback(DIALOG_CALLBACK *p);
-extern void killall_bg(int *retval);
+extern void dlg_killall_bg(int *retval);
 
 /* util.c */
+extern WINDOW * dlg_new_window(int height, int width, int y, int x);
+extern WINDOW * dlg_sub_window(WINDOW *win, int height, int width, int y, int x);
+extern char * dlg_strclone(const char *cprompt);
+extern int dlg_box_x_ordinate(int width);
+extern int dlg_box_y_ordinate(int height);
+extern int dlg_calc_listw(int item_no, char **items, int group);
 extern int dlg_default_item(char **items, int llen);
+extern int dlg_defaultno_button(void);
+extern void dlg_add_quoted(char *string);
 extern void dlg_add_result(char *string);
+extern void dlg_attr_clear(WINDOW * win, int height, int width, chtype attr);
+extern void dlg_auto_size(const char * title, const char *prompt, int *height, int *width, int boxlines, int mincols);
+extern void dlg_auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
+extern void dlg_beeping(void);
+extern void dlg_calc_listh(int *height, int *list_height, int item_no);
+extern void dlg_clear(void);
+extern void dlg_ctl_size(int height, int width);
+extern void dlg_del_window(WINDOW *win);
 extern void dlg_does_output(void);
+extern void dlg_draw_bottom_box(WINDOW *win);
+extern void dlg_draw_box(WINDOW * win, int y, int x, int height, int width, chtype boxchar, chtype borderchar);
+extern void dlg_draw_title(WINDOW *win, const char *title);
 extern void dlg_exit(int code) GCC_NORETURN;
 extern void dlg_item_help(char *txt);
+extern void dlg_print_autowrap(WINDOW *win, const char *prompt, int height, int width);
+extern void dlg_print_size(int height, int width);
 extern void dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);
+extern void dlg_put_backtitle(void);
 extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
+extern void dlg_tab_correct_str(char *prompt);
 extern void dlg_trim_string(char *src);
+extern void end_dialog(void);
+extern void init_dialog(FILE *input, FILE * output);
+
+extern void dlg_exiterr(const char *, ...)
+#if defined(__GNUC__) && !defined(printf)
+__attribute__((format(printf,1,2)))
+#endif
+;
+
+#ifdef HAVE_COLOR
+extern int dlg_color_count(void);
+extern void dlg_color_setup(void);
+extern void dlg_draw_shadow(WINDOW * win, int height, int width, int y, int x);
+#endif
 
 #ifdef HAVE_STRCASECMP
 #define dlg_strcmp(a,b) strcasecmp(a,b)
@@ -476,10 +570,10 @@ typedef struct mseRegion {
 #define	mouse_open() mousemask(BUTTON1_CLICKED, (mmask_t *) 0)
 #define	mouse_close() mousemask(0, (mmask_t *) 0)
 
-void mouse_free_regions (void);
-mseRegion * mouse_mkregion (int y, int x, int height, int width, int code);
-void mouse_mkbigregion (int y, int x, int height, int width, int code, int step_x, int step_y, int mode);
-void mouse_setbase (int x, int y);
+extern mseRegion * dlg_mouse_mkregion (int y, int x, int height, int width, int code);
+extern void dlg_mouse_free_regions (void);
+extern void dlg_mouse_mkbigregion (int y, int x, int height, int width, int code, int step_x, int step_y, int mode);
+extern void dlg_mouse_setbase (int x, int y);
 
 #define USE_MOUSE 1
 
@@ -487,20 +581,20 @@ void mouse_setbase (int x, int y);
 
 #define	mouse_open() /*nothing*/
 #define	mouse_close() /*nothing*/
-#define mouse_free_regions() /* nothing */
-#define	mouse_mkregion(y, x, height, width, code) /*nothing*/
-#define	mouse_mkbigregion(y, x, height, width, code, step_x, step_y, mode) /*nothing*/
-#define	mouse_setbase(x, y) /*nothing*/
+#define dlg_mouse_free_regions() /* nothing */
+#define	dlg_mouse_mkregion(y, x, height, width, code) /*nothing*/
+#define	dlg_mouse_mkbigregion(y, x, height, width, code, step_x, step_y, mode) /*nothing*/
+#define	dlg_mouse_setbase(x, y) /*nothing*/
 
 #define USE_MOUSE 0
 
 #endif
 
-extern mseRegion *mouse_region (int y, int x);
-extern mseRegion *mouse_bigregion (int y, int x);
-extern int mouse_wgetch (WINDOW *, int *);
+extern mseRegion *dlg_mouse_region (int y, int x);
+extern mseRegion *dlg_mouse_bigregion (int y, int x);
+extern int dlg_mouse_wgetch (WINDOW *, int *);
 
-#define mouse_mkbutton(y,x,len,code) mouse_mkregion(y,x,1,len,code);
+#define mouse_mkbutton(y,x,len,code) dlg_mouse_mkregion(y,x,1,len,code);
 
 /*
  * This is the base for fictitious keys, which activate
@@ -511,7 +605,7 @@ extern int mouse_wgetch (WINDOW *, int *);
  *   -- the lowercase are used to signal mouse-enter events (M_EVENT + 'o')
  *   -- uppercase chars are used to invoke the button (M_EVENT + 'O')
  */
-#define M_EVENT (KEY_MAX+1)
+#define M_EVENT (DLGK_max + 1)
 
 /*
  * The `flag' parameter in checklist is used to select between

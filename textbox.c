@@ -1,10 +1,10 @@
 /*
- *  $Id: textbox.c,v 1.42 2003/08/30 15:06:35 tom Exp $
+ *  $Id: textbox.c,v 1.45 2003/11/26 20:41:23 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas Dickey
+ *     and: Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -49,13 +49,13 @@ lseek_obj(MY_OBJ * obj, long offset, int mode)
     if ((fpos = lseek(obj->fd, offset, mode)) == -1) {
 	switch (mode) {
 	case SEEK_CUR:
-	    exiterr("Cannot get file position");
+	    dlg_exiterr("Cannot get file position");
 	    break;
 	case SEEK_END:
-	    exiterr("Cannot seek to end of file");
+	    dlg_exiterr("Cannot seek to end of file");
 	    break;
 	case SEEK_SET:
-	    exiterr("Cannot set file position to %ld", offset);
+	    dlg_exiterr("Cannot set file position to %ld", offset);
 	    break;
 	}
     }
@@ -104,9 +104,9 @@ read_high(MY_OBJ * obj, size_t size_read)
 	    obj->bytes_read = begin_line = 0;
 	    for (j = 0; j < obj->fd_bytes_read; j++)
 		if (buftab[j] == TAB)
-		    obj->bytes_read += dialog_vars.tab_len
+		    obj->bytes_read += dialog_state.tab_len
 			- ((obj->bytes_read - begin_line)
-			   % dialog_vars.tab_len);
+			   % dialog_state.tab_len);
 		else if (buftab[j] == '\n') {
 		    obj->bytes_read++;
 		    begin_line = obj->bytes_read;
@@ -141,8 +141,8 @@ read_high(MY_OBJ * obj, size_t size_read)
 	begin_line = 0;
 	while (j < obj->fd_bytes_read)
 	    if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct != 0)) {
-		tmpint = dialog_vars.tab_len
-		    - ((i - begin_line) % dialog_vars.tab_len);
+		tmpint = dialog_state.tab_len
+		    - ((i - begin_line) % dialog_state.tab_len);
 		for (n = 0; n < tmpint; n++)
 		    obj->buf[i++] = ' ';
 	    } else {
@@ -155,7 +155,7 @@ read_high(MY_OBJ * obj, size_t size_read)
 
     }
     if (obj->bytes_read == -1)
-	exiterr("Error reading file");
+	dlg_exiterr("Error reading file");
 }
 
 static int
@@ -176,7 +176,7 @@ tabize(MY_OBJ * obj, int val, int pos)
     buftab = xalloc(val + 1);
 
     if ((read(obj->fd, buftab, val)) == -1)
-	exiterr("Error reading file in tabize().");
+	dlg_exiterr("Error reading file in tabize().");
 
     begin_line = count = 0;
     for (i = 0; i < val; i++) {
@@ -185,8 +185,8 @@ tabize(MY_OBJ * obj, int val, int pos)
 	    break;
 	}
 	if (buftab[i] == TAB)
-	    count += dialog_vars.tab_len
-		- ((count - begin_line) % dialog_vars.tab_len);
+	    count += dialog_state.tab_len
+		- ((count - begin_line) % dialog_state.tab_len);
 	else if (buftab[i] == '\n') {
 	    count++;
 	    begin_line = count;
@@ -295,7 +295,7 @@ back_lines(MY_OBJ * obj, int n)
 	obj->in_buf--;
 	if (obj->buf[obj->in_buf] != '\n')
 	    /* Something's wrong... */
-	    exiterr("Internal error in back_lines().");
+	    dlg_exiterr("Internal error in back_lines().");
     }
 
     /* Go back 'n' lines */
@@ -410,10 +410,10 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     box_x = (width - box_width) / 2;
     box_y = (height - box_height) / 2;
 #ifdef HAVE_COLOR
-    if (use_shadow)
-	draw_shadow(dialog, box_y, box_x, box_height, box_width);
+    if (dialog_state.use_shadow)
+	dlg_draw_shadow(dialog, box_y, box_x, box_height, box_width);
 #endif
-    draw_box(dialog, box_y, box_x, box_height, box_width, dialog_attr, searchbox_border_attr);
+    dlg_draw_box(dialog, box_y, box_x, box_height, box_width, dialog_attr, searchbox_border_attr);
     wattrset(dialog, searchbox_title_attr);
     (void) wmove(dialog, box_y, box_x + box_width / 2 - 4);
     (void) waddstr(dialog, " Search ");
@@ -535,9 +535,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     bool moved = TRUE;
     int result = DLG_EXIT_UNKNOWN;
 
-    auto_sizefile(title, file, &height, &width, 2, 12);
-    print_size(height, width);
-    ctl_size(height, width);
+    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     search_term[0] = '\0';	/* no search term entered yet */
 
@@ -550,7 +550,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     /* Open input file for reading */
     if ((obj.fd = open(file, O_RDONLY)) == -1)
-	exiterr("Can't open input file %s", file);
+	dlg_exiterr("Can't open input file %s", file);
 
     /* Get file size. Actually, 'file_size' is the real file size - 1,
        since it's only the last byte offset from the beginning */
@@ -561,27 +561,27 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     read_high(&obj, BUF_SIZE);
 
-    x = box_x_ordinate(width);
-    y = box_y_ordinate(height);
+    x = dlg_box_x_ordinate(width);
+    y = dlg_box_y_ordinate(height);
 
-    dialog = new_window(height, width, y, x);
+    dialog = dlg_new_window(height, width, y, x);
 
-    mouse_setbase(x, y);
+    dlg_mouse_setbase(x, y);
 
     /* Create window for text region, used for scrolling text */
-    obj.text = sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
+    obj.text = dlg_sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
 
     /* register the new window, along with its borders */
-    mouse_mkbigregion(0, 0, height - 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
-    draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    draw_bottom_box(dialog);
-    draw_title(dialog, title);
+    dlg_mouse_mkbigregion(0, 0, height - 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
+    dlg_draw_bottom_box(dialog);
+    dlg_draw_title(dialog, title);
 
     dlg_draw_buttons(dialog, height - 2, 0, obj.buttons, FALSE, FALSE, width);
     (void) wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
-    attr_clear(obj.text, height - 4, width - 2, dialog_attr);
+    dlg_attr_clear(obj.text, height - 4, width - 2, dialog_attr);
     wtimeout(dialog, WTIMEOUT_VAL);
 
     while (result == DLG_EXIT_UNKNOWN) {
@@ -641,7 +641,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	moved = FALSE;		/* assume we'll not move */
 	next = 0;		/* ...but not scroll by a line */
 
-	key = mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch(dialog, &fkey);
 	if (dlg_char_to_button(key, obj.buttons) == 0) {
 	    key = '\n';
 	    fkey = FALSE;
@@ -799,9 +799,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	}
     }
 
-    del_window(dialog);
+    dlg_del_window(dialog);
     free(obj.buf);
     (void) close(obj.fd);
-    mouse_free_regions();
+    dlg_mouse_free_regions();
     return result;
 }
