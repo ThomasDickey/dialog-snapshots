@@ -67,4 +67,4 @@ msgstr "Fichiers"
 #: textbox.c:437
 #, fuzzy
 msgid "Search"
-msgstr "Search"
+msgstr "Recherche"

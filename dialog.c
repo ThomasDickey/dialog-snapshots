@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.128 2004/12/20 00:01:11 Yura.Kalinichen Exp $
+ * $Id: dialog.c,v 1.129 2004/12/22 23:35:40 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1102,7 +1102,7 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_print_version:
 	    if (output) {
-		fprintf(dialog_state.output, "Version: %s\n", dialog_version());
+		fprintf(stdout, "Version: %s\n", dialog_version());
 	    }
 	    break;
 	case o_tab_correct:
@@ -1304,7 +1304,7 @@ main(int argc, char *argv[])
 	    fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 	    break;
 	case o_print_version:
-	    fprintf(dialog_state.output, "Version: %s\n", dialog_version());
+	    fprintf(stdout, "Version: %s\n", dialog_version());
 	    break;
 	case o_clear:
 	    initscr();
@@ -1315,6 +1315,7 @@ main(int argc, char *argv[])
 	    break;
 	default:
 	case o_help:
+	    dialog_state.output = stdout;
 	    Help();
 	    break;
 	}

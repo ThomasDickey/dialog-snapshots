@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.39 2004/12/19 17:19:09 tom Exp $
+ * $Id: inputstr.c,v 1.40 2004/12/23 00:46:15 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -255,7 +255,7 @@ dlg_count_wchars(const char *string)
 	}
 	save_cache(&cache, string);
 	result = cache.i_len;
-    }
+    } else
 #endif /* USE_WIDE_CURSES */
     {
 	result = strlen(string);

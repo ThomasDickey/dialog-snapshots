@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.23 2004/12/19 17:45:34 Len.Meakin Exp $
+ *  $Id: ui_getc.c,v 1.24 2004/12/22 23:10:33 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -332,6 +332,7 @@ dlg_killall_bg(int *retval)
 	    refresh();
 	    fflush(stdout);
 	    fflush(stderr);
+	    reset_shell_mode();
 	    if ((pid = fork()) != 0) {
 		_exit(pid > 0 ? DLG_EXIT_OK : DLG_EXIT_ERROR);
 	    } else if (pid == 0) {	/* child */
