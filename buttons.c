@@ -1,7 +1,9 @@
 /*
+ *  $Id: buttons.c,v 1.12 2000/07/29 19:28:50 tom Exp $
+ *
  *  buttons.c
  *
- *  AUTHOR: Thomas Dickey <dickey@clark.net>
+ *  AUTHOR: Thomas Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

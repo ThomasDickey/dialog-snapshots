@@ -1,4 +1,5 @@
-.TH DIALOG 1 "10 June 1994" "Dialog Version 0.4"
+.\" $Id: dialog.1,v 1.15 2000/07/29 19:24:31 tom Exp $
+.TH DIALOG 1 "" "$Date: 2000/07/29 19:24:31 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -15,9 +16,12 @@ dialog \- display dialog boxes from shell scripts
 .B Dialog
 is a program that will let you to present a variety of questions or
 display messages using dialog boxes from a shell script.
-Currently, these types of dialog boxes are implemented: 
+These types of dialog boxes are implemented
+(though not all are necessarily compiled into \fBdialog\fR):
+.RS
 .LP
 .BR checklist ", "
+.BR fselect ", "
 .BR gauge ", "
 .BR infobox ", "
 .BR inputbox ", "
@@ -29,6 +33,18 @@ Currently, these types of dialog boxes are implemented:
 .BR tailboxbg ", "
 .BR textbox ", and "
 .BR yesno " (yes/no)."
+.RE
+.PP
+You can put more than one dialog box into a script:
+.TP 5
+-
+Use the \fB\-\-and-widget\fP token to force Dialog to proceed to the next
+dialog unless you have pressed ESC to cancel, or
+.TP 5
+-
+Simply add the tokens for the next dialog box, making a chain.
+Dialog stops chaining when the return code from a dialog is nonzero,
+e.g., Cancel or No.
 .
 .\" ************************************************************************
 .SH OPTIONS
@@ -47,7 +63,8 @@ Specifies a
 string to be displayed on the backdrop, at the top of the screen.
 .
 .IP "\fB\-\-beep"
-Beep each time the screen is refreshed.
+Sound the audible alarm
+each time the screen is refreshed.
 .
 .IP "\fB\-\-beep-after"
 Beep if input is interrupted, e.g., by a control/C.
@@ -59,7 +76,7 @@ Specify the position of the upper left corner of a dialog box on the screen.
 The screen will be cleared to the
 .B screen attribute
 on exit.
-This may be used as the only option.
+This may be used alone, without other options.
 .
 .IP "\fB\-\-cr-wrap"
 Interpret embedded newlines in the dialog text as a newline on the screen.
@@ -75,7 +92,7 @@ by
 .
 .IP "\fB\-\-help"
 Prints the help message to standard error.
-The help message also will be printed if no options are given.
+The help message is printed if no options are given.
 .
 .IP "\fB\-\-defaultno"
 Make the default value of the
@@ -97,7 +114,7 @@ printing its process id to standard error.
 SIGHUP is disabled for the background process.
 .
 .IP "\fB\-\-no-shadow"
-Suppress shadows which would be drawn to the right and bottom of each dialog box.
+Suppress shadows that would be drawn to the right and bottom of each dialog box.
 .
 .IP "\fB\-\-nocancel"
 Suppress the "Cancel" button in checklist, inputbox and menubox modes.
@@ -106,14 +123,14 @@ A script can still test if the user pressed the ESC key to cancel to quit.
 .IP "\fB\-\-print-maxsize"
 Print the maximum size of dialog boxes, i.e., the screen size,
 to the standard error.
-This must be used as the only option.
+This may be used alone, without other options.
 .
 .IP "\fB\-\-print-size"
 Prints the size of each dialog box to standard error.
 .
 .IP "\fB\-\-print-version"
 Prints dialog's version to standard error.
-This may be the only option.
+This may be used alone, without other options.
 .
 .IP "\fB\-\-separate-output"
 For checklist widgets, output result one line at a time, with no
@@ -134,6 +151,14 @@ printing the resulting size if it is larger than the screen.
 .
 .IP "\fB\-\-sleep \fIsecs"
 Sleep (delay) for the given number of seconds after processing a dialog box.
+.
+.IP "\fB\-\-stderr"
+Direct output to the standard error.
+This is the default, since curses normally writes screen updates to
+the standard output.
+.
+.IP "\fB\-\-stdout"
+Direct output to the standard output.
 .
 .IP "\fB\-\-tab-correct"
 Convert each tab character to one or more spaces.
@@ -183,6 +208,24 @@ On exit, a list of the
 strings of those entries that are turned on will be printed on
 .IR stderr "."
 .
+.IP "\fB\-\-fselect \fItext directory height width\fR"
+The file-selection dialog displays a text-entry window in which you can type
+a filename (or directory), and above that two windows with directory
+names and filenames.
+.sp
+Use tab or arrow keys to move between the windows.
+Within the directory or filename windows, use the up/down arrow keys
+to scroll the current selection.
+Use the space-bar to copy the current selection into the text-entry
+window.
+.sp
+Typing any printable characters switches focus to the text-entry window,
+entering that character as well as scrolling the directory and filename
+windows to the closest match.
+.sp
+Use a carriage return or the "OK" button to accept the current value
+in the text-entry window, or the "Cancel" button to cancel.
+
 .IP "\fB\-\-gauge \fItext height width [percent]\fR"
 A
 .B gauge
@@ -218,7 +261,7 @@ An
 box is useful when you want to ask questions that
 require the user to input a string as the answer. If init is supplied
 it is used to initialize the input string.
-When inputing the
+When entering the
 string, the
 .I BACKSPACE
 key can be used to correct typing errors. If the input string is longer than
@@ -331,11 +374,12 @@ rows by
 .I width
 columns will be displayed. The string specified by
 .I text
-is displayed inside the dialog box. If this string is too long to be fitted
+is displayed inside the dialog box.
+If this string is too long to be fitted
 in one line, it will be automatically divided into multiple lines at
 appropriate places. The
 .I text
-string may also contain the sub-string
+string can also contain the sub-string
 .I
 "\en"
 or newline characters
@@ -371,12 +415,12 @@ if environment variable
 is set, its value determines the name of the configuration file.
 .TP 4
 b)
-if the file in (a) can't be found, use the file
+if the file in (a) is not found, use the file
 .I $HOME/.dialogrc
 as the configuration file.
 .TP 4
 c)
-if the file in (b) can't be found, use compiled in defaults.
+if the file in (b) is not found, use compiled in defaults.
 .RE
 .TP 4
 3.
@@ -418,16 +462,7 @@ key.
 .
 .\" ************************************************************************
 .SH BUGS
-Text files containing
-.I tab
-characters may cause problems with
-.B text
-box.
-.I Tab
-characters in text files must first be expanded to spaces before being
-.RB "displayed by " text " box."
-.TP
-Screen update is too slow.
+Perhaps.
 .SH AUTHOR
 Savio Lam (lam836@cs.cuhk.hk) - version 0.3
 .LP

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.28 2000/06/30 00:14:05 tom Exp $
+ * $Id: dialog.c,v 1.38 2000/07/03 02:00:20 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -55,8 +55,9 @@ typedef enum {
     ,o_clear
     ,o_cr_wrap
     ,o_create_rc
-    ,o_defaultno
     ,o_default_item
+    ,o_defaultno
+    ,o_fselect
     ,o_fullbutton
     ,o_gauge
     ,o_help
@@ -78,6 +79,8 @@ typedef enum {
     ,o_shadow
     ,o_size_err
     ,o_sleep
+    ,o_stderr
+    ,o_stdout
     ,o_tab_correct
     ,o_tab_len
     ,o_tailbox
@@ -94,11 +97,11 @@ typedef struct {
     const char *help;
 } Options;
 
-struct Mode {
+typedef struct {
     eOptions code;
     int argmin, argmax;
     jumperFn *jumper;
-};
+} Mode;
 
 static const char *program = "dialog";
 static const char *and_widget = "--and-widget";
@@ -117,6 +120,7 @@ static Options options[] = {
     { "defaultno",	o_defaultno,		1, "" },
     { "default-item",	o_default_item,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
+    { "fselect",	o_fselect,		2, "<text> <directory> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
@@ -132,13 +136,15 @@ static Options options[] = {
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
-    { "print-version",	o_print_version,	4, "" },
+    { "print-version",	o_print_version,	5, "" },
     { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "separate-output",o_separate_output,	1, "" },
     { "separate-widget",o_separate_widget,	1, "<str>" },
     { "shadow",		o_shadow,		1, "" },
     { "size-err",	o_size_err,		1, "" },
     { "sleep",		o_sleep,		1, "<secs>" },
+    { "stderr",		o_stderr,		1, "" },
+    { "stdout",		o_stdout,		1, "" },
     { "tab-correct",	o_tab_correct,		1, "" },
     { "tab-len",	o_tab_len,		1, "<n>" },
     { "tailbox",	o_tailbox,		2, "<file> <height> <width>" },
@@ -177,16 +183,17 @@ Usage(char *msg)
 }
 
 /*
- * Count arguments, stopping at the end of the argument list, or on the token
- * --and-widget.
+ * Count arguments, stopping at the end of the argument list, or on any of our
+ * "--" tokens.
  */
 static int
 arg_rest(char *argv[])
 {
-    int i = 0;
+    int i = 1;			/* argv[0] points to a "--" token */
 
     while (argv[i] != 0
-	&& strcmp(argv[i], and_widget) != 0)
+	&& (strncmp(argv[i], "--", 2)
+	    || lookupOption(argv[i], 7) == o_unknown))
 	i++;
     return i;
 }
@@ -281,7 +288,7 @@ j_menu(JUMPARGS)
 	atoi(av[4]),
 	tags, av + 5);
     if (ret >= 0) {
-	fprintf(stderr, av[5 + ret * 2]);
+	fprintf(dialog_vars.output, av[5 + ret * 2]);
 	return 0;
     } else if (ret == -2)
 	return 1;		/* CANCEL */
@@ -323,14 +330,14 @@ j_inputbox(JUMPARGS)
     if (arg_rest(av) >= 4)
 	init_inputbox = av[4];
 
-    *offset_add = 4 + ((init_inputbox == NULL) ? 0 : 1);
+    *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
 	av[1],
 	atoi(av[2]),
 	atoi(av[3]),
 	init_inputbox, 0);
     if (ret == 0)
-	fprintf(stderr, "%s", dialog_input_result);
+	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
 }
 
@@ -343,27 +350,49 @@ j_passwordbox(JUMPARGS)
     if (arg_rest(av) >= 4)
 	init_inputbox = av[4];
 
-    *offset_add = 4 + ((init_inputbox == NULL) ? 0 : 1);
+    *offset_add = arg_rest(av);
     ret = dialog_inputbox(t,
 	av[1],
 	atoi(av[2]),
 	atoi(av[3]),
 	init_inputbox, 1);
     if (ret == 0)
-	fprintf(stderr, "%s", dialog_input_result);
+	fprintf(dialog_vars.output, "%s", dialog_input_result);
     return ret;
 }
+
+#ifdef HAVE_FSELECT
+static int
+j_fselect(JUMPARGS)
+{
+    int ret;
+
+    *offset_add = arg_rest(av);
+    ret = dialog_fselect(t,
+	av[1],
+	atoi(av[2]),
+	atoi(av[3]));
+    if (ret == 0)
+	fprintf(dialog_vars.output, "%s", dialog_input_result);
+    return ret;
+}
+#endif
 
 #ifdef HAVE_GAUGE
 static int
 j_gauge(JUMPARGS)
 {
-    *offset_add = 5;
+    int percent = 0;
+
+    if (arg_rest(av) >= 4)
+	percent = atoi(av[4]);
+
+    *offset_add = arg_rest(av);
     return dialog_gauge(t,
 	av[1],
 	atoi(av[2]),
 	atoi(av[3]),
-	av[4] ? atoi(av[4]) : 0);
+	percent);
 }
 #endif
 
@@ -400,7 +429,7 @@ j_tailboxbg(JUMPARGS)
 
     if (tailbg_pids[tailbg_lastpid] == 0) {
 	if (dialog_vars.cant_kill)
-	    fprintf(stderr, "%d", (int) getpid());
+	    fprintf(dialog_vars.output, "%d", (int) getpid());
 	is_tailbg = TRUE;
 	dialog_tailboxbg(t,
 	    av[1],
@@ -418,12 +447,8 @@ j_tailboxbg(JUMPARGS)
     return 0;
 }
 #endif
-
-/*
- * All functions are used in the slackware root disk, apart from "gauge"
- */
 /* *INDENT-OFF* */
-static struct Mode modes[] =
+static Mode modes[] =
 {
     {o_yesno, 4, 4, j_yesno},
     {o_msgbox, 4, 4, j_msgbox},
@@ -434,6 +459,9 @@ static struct Mode modes[] =
     {o_radiolist, 8, 0, j_radiolist},
     {o_inputbox, 4, 5, j_inputbox},
     {o_passwordbox, 4, 5, j_passwordbox},
+#ifdef HAVE_FSELECT
+    {o_fselect, 4, 5, j_fselect},
+#endif
 #ifdef HAVE_GAUGE
     {o_gauge, 4, 5, j_gauge},
 #endif
@@ -496,10 +524,24 @@ PrintList(const char **list)
 	leaf = program;
 
     while (*list != 0) {
-	fprintf(stderr, *list++, n ? leaf : VERSION);
-	fputc('\n', stderr);
+	fprintf(dialog_vars.output, *list++, n ? leaf : VERSION);
+	fputc('\n', dialog_vars.output);
 	n = 1;
     }
+}
+
+static Mode *
+lookupMode(eOptions code)
+{
+    Mode *modePtr = 0;
+    unsigned n;
+    for (n = 0; n < sizeof(modes) / sizeof(modes[0]); n++) {
+	if (modes[n].code == code) {
+	    modePtr = &modes[n];
+	    break;
+	}
+    }
+    return modePtr;
 }
 
 /*
@@ -534,25 +576,27 @@ Help(void)
     unsigned j, k;
 
     PrintList(tbl_1);
-    fprintf(stderr, "Common options:\n ");
+    fprintf(dialog_vars.output, "Common options:\n ");
     for (j = k = 0; j < sizeof(options) / sizeof(options[0]); j++) {
 	if ((options[j].pass & 1)
 	    && options[j].help != 0) {
 	    unsigned len = 6 + strlen(options[j].name) + strlen(options[j].help);
 	    k += len;
 	    if (k > 75) {
-		fprintf(stderr, "\n ");
+		fprintf(dialog_vars.output, "\n ");
 		k = len;
 	    }
-	    fprintf(stderr, " [--%s%s%s]", options[j].name,
+	    fprintf(dialog_vars.output, " [--%s%s%s]", options[j].name,
 		*(options[j].help) ? " " : "", options[j].help);
 	}
     }
-    fprintf(stderr, "\nBox options:\n");
+    fprintf(dialog_vars.output, "\nBox options:\n");
     for (j = 0; j < sizeof(options) / sizeof(options[0]); j++) {
 	if ((options[j].pass & 2)
-	    && options[j].help != 0)
-	    fprintf(stderr, "  --%-12s %s\n", options[j].name, options[j].help);
+	    && options[j].help != 0
+	    && lookupMode(options[j].code))
+	    fprintf(dialog_vars.output, "  --%-12s %s\n", options[j].name,
+		options[j].help);
     }
     PrintList(tbl_3);
 
@@ -562,6 +606,7 @@ Help(void)
 int
 main(int argc, char *argv[])
 {
+    FILE *output = stderr;
     char temp[80];
     const char *separate_str = DEFAULT_SEPARATE_STR;
     int esc_pressed = 0;
@@ -569,8 +614,9 @@ main(int argc, char *argv[])
     int offset_add;
     int retval = 0;
     int done;
+    int j;
     eOptions code;
-    struct Mode *modePtr;
+    Mode *modePtr;
 #ifndef HAVE_COLOR
     int use_shadow = FALSE;	/* ignore corresponding option */
 #endif
@@ -585,16 +631,22 @@ main(int argc, char *argv[])
 #endif
 
     program = argv[0];
+    dialog_vars.output = output;
 
     if (argc == 2) {		/* if we don't want clear screen */
-	if (!strcmp(argv[1], "--print-maxsize")) {
+	switch (lookupOption(argv[1], 7)) {
+	case o_print_maxsize:
 	    initscr();
-	    fprintf(stderr, "MaxSize: %d, %d\n", SLINES, SCOLS);
+	    fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 	    endwin();
-	} else if (!strcmp(argv[1], "--print-version")) {
-	    fprintf(stderr, "Version: %s\n", VERSION);
-	} else if (!strcmp(argv[1], "--help")) {
+	    break;
+	case o_print_version:
+	    fprintf(output, "Version: %s\n", VERSION);
+	    break;
+	default:
+	case o_help:
 	    Help();
+	    break;
 	}
 	return 0;
     }
@@ -606,9 +658,7 @@ main(int argc, char *argv[])
     init_dialog();
 
 #ifdef HAVE_RC_FILE
-    if (!strcmp(argv[1], "--create-rc"))
-#ifdef NCURSES_VERSION
-    {
+    if (!strcmp(argv[1], "--create-rc")) {
 	if (argc != 3) {
 	    sprintf(temp, "Expected a filename for %s", argv[1]);
 	    Usage(temp);
@@ -617,10 +667,10 @@ main(int argc, char *argv[])
 	create_rc(argv[2]);
 	return 0;
     }
-#else
-	exiterr("This option is currently unsupported on your system.");
 #endif
-#endif
+    for (j = 1; j < argc; j++) {
+	dlg_trim_string(argv[j]);
+    }
 
     if ((lock_refresh = make_lock_filename("/tmp/.lock_fileXXXXXX")) == NULL ||
 	(lock_tailbg_refreshed =
@@ -632,6 +682,7 @@ main(int argc, char *argv[])
 	memset(&dialog_vars, 0, sizeof(dialog_vars));
 	dialog_vars.aspect_ratio = DEFAULT_ASPECT_RATIO;
 	dialog_vars.tab_len = TAB_LEN;
+	dialog_vars.output = output;
 	done = FALSE;
 
 	while (offset < argc && !done) {	/* Common options */
@@ -682,16 +733,22 @@ main(int argc, char *argv[])
 		dialog_vars.print_siz = TRUE;
 		break;
 	    case o_print_maxsize:
-		fprintf(stderr, "MaxSize: %d, %d\n", SLINES, SCOLS);
+		fprintf(output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 		break;
 	    case o_print_version:
-		fprintf(stderr, "Version: %s\n", VERSION);
+		fprintf(output, "Version: %s\n", VERSION);
 		break;
 	    case o_tab_correct:
 		dialog_vars.tab_correct = TRUE;
 		break;
 	    case o_sleep:
 		dialog_vars.sleep_secs = optionValue(argv, &offset);
+		break;
+	    case o_stderr:
+		dialog_vars.output = output = stderr;
+		break;
+	    case o_stdout:
+		dialog_vars.output = output = stdout;
 		break;
 	    case o_tab_len:
 		dialog_vars.tab_len = optionValue(argv, &offset);
@@ -743,29 +800,22 @@ main(int argc, char *argv[])
 	/* use a table to look for the requested mode, to avoid code duplication */
 
 	modePtr = 0;
-	if ((code = lookupOption(argv[offset], 2)) != o_unknown) {
-	    unsigned n;
-	    for (n = 0; n < sizeof(modes) / sizeof(modes[0]); n++) {
-		if (modes[n].code == code) {
-		    modePtr = &modes[n];
-		    break;
-		}
-	    }
-	}
-
+	if ((code = lookupOption(argv[offset], 2)) != o_unknown)
+	    modePtr = lookupMode(code);
 	if (modePtr == 0) {
 	    sprintf(temp, "Unknown option %.20s", argv[offset]);
 	    Usage(temp);
 	}
 
 	if (arg_rest(&argv[offset]) < modePtr->argmin) {
-	    sprintf(temp, "Expected at least %d tokens for %.20s",
-		modePtr->argmin, argv[offset]);
+	    sprintf(temp, "Expected at least %d tokens for %.20s, have %d",
+		modePtr->argmin, argv[offset], arg_rest(&argv[offset]));
 	    Usage(temp);
 	}
 	if (modePtr->argmax && arg_rest(&argv[offset]) > modePtr->argmax) {
-	    sprintf(temp, "Expected no more than %d tokens for %.20s",
-		modePtr->argmax, argv[offset]);
+	    sprintf(temp,
+		"Expected no more than %d tokens for %.20s, have %d",
+		modePtr->argmax, argv[offset], arg_rest(&argv[offset]));
 	    Usage(temp);
 	}
 
@@ -782,19 +832,28 @@ main(int argc, char *argv[])
 	    if (dialog_vars.sleep_secs)
 		napms(dialog_vars.sleep_secs * 1000);
 
-	    if (dialog_vars.clear_screen)
-		attr_clear(stdscr, LINES, COLS, screen_attr);
-
 	    if (offset < argc) {
-		if (!strcmp(argv[offset], and_widget)) {
-		    fprintf(stderr, separate_str);
+		switch (lookupOption(argv[offset], 7)) {
+		case o_and_widget:
+		    fputs(separate_str, output);
 		    offset++;
-		} else {
+		    break;
+		case o_unknown:
 		    sprintf(temp, "Expected --and-widget, not %.20s",
 			argv[offset]);
 		    Usage(temp);
+		    break;
+		default:
+		    /* if we got a cancel, etc., stop chaining */
+		    if (retval != 0)
+			esc_pressed = 2;
+		    else
+			dialog_vars.clear_screen = TRUE;
+		    break;
 		}
 	    }
+	    if (dialog_vars.clear_screen)
+		attr_clear(stdscr, LINES, COLS, screen_attr);
 	}
 
     }
