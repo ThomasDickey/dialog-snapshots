@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.73 2001/11/12 01:29:55 tom Exp $
+ * $Id: dialog.c,v 1.75 2001/12/02 22:10:57 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -39,6 +39,7 @@ typedef enum {
     ,o_beep_after
     ,o_begin
     ,o_calendar
+    ,o_cancel_label
     ,o_checklist
     ,o_clear
     ,o_cr_wrap
@@ -50,8 +51,8 @@ typedef enum {
     ,o_fullbutton
     ,o_gauge
     ,o_help
-    ,o_ignore
     ,o_icon
+    ,o_ignore
     ,o_infobox
     ,o_inputbox
     ,o_item_help
@@ -64,6 +65,7 @@ typedef enum {
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
+    ,o_ok_label
     ,o_passwordbox
     ,o_print_maxsize
     ,o_print_size
@@ -120,6 +122,7 @@ static const Options options[] = {
     { "beep-after",	o_beep_after,		1, "" },
     { "begin",		o_begin,		1, "<y> <x>" },
     { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
+    { "cancel-label",	o_cancel_label,		1, "<str>" },
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
@@ -128,13 +131,13 @@ static const Options options[] = {
     { "defaultno",	o_defaultno,		1, "" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
-    { "fselect",	o_fselect,		2, "<text> <directory> <height> <width>" },
+    { "fselect",	o_fselect,		2, "<filepath> <directory> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
-    { "ignore",		o_ignore,		1, "" },
     { "icon",		o_icon,			1, NULL },
+    { "ignore",		o_ignore,		1, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
     { "inputbox",	o_inputbox,		2, "<text> <height> <width> [<init>]" },
     { "item-help",	o_item_help,		1, "" },
@@ -148,6 +151,7 @@ static const Options options[] = {
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
+    { "ok-label",	o_ok_label,		1, "<str>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
@@ -873,6 +877,12 @@ main(int argc, char *argv[])
 		break;
 	    case o_clear:
 		dialog_vars.dlg_clear_screen = TRUE;
+		break;
+	    case o_ok_label:
+		dialog_vars.ok_label = optionString(argv, &offset);
+		break;
+	    case o_cancel_label:
+		dialog_vars.cancel_label = optionString(argv, &offset);
 		break;
 	    case o_noitem:
 	    case o_fullbutton:

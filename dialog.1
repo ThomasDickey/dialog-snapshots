@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.34 2001/10/15 01:13:54 tom Exp $
-.TH DIALOG 1 "" "$Date: 2001/10/15 01:13:54 $"
+.\" $Id: dialog.1,v 1.38 2001/12/02 22:25:13 tom Exp $
+.TH DIALOG 1 "" "$Date: 2001/12/02 22:25:13 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -74,6 +74,9 @@ Beep if input is interrupted, e.g., by a control/C.
 .IP "\fB\-\-begin \fIy x"
 Specify the position of the upper left corner of a dialog box on the screen.
 .
+.IP "\fB\-\-cancel-label \fIstring"
+Override the label used for "Cancel" buttons.
+.
 .IP "\fB\-\-clear"
 The screen will be cleared to the
 \fBscreen attribute\fP
@@ -97,10 +100,6 @@ this can be used to dump a sample configuration file to the file specified
 by
 .IR file "."
 .
-.IP "\fB\-\-help"
-Prints the help message to standard error.
-The help message is printed if no options are given.
-.
 .IP "\fB\-\-defaultno"
 Make the default value of the
 \fByes/no\fP
@@ -110,6 +109,10 @@ box a
 .IP "\fB\-\-default-item \fIstring"
 Set the default item in a menu box.
 Normally the first item in the box is the default.
+.
+.IP "\fB\-\-help"
+Prints the help message to standard error.
+The help message is printed if no options are given.
 .
 .IP "\fB\-\-ignore"
 Ignore options that \fBdialog\fP does not recognize.
@@ -130,13 +133,16 @@ box in the background,
 printing its process id to standard error.
 SIGHUP is disabled for the background process.
 .
-.IP "\fB\-\-no-shadow"
-Suppress shadows that would be drawn to the right and bottom of each dialog box.
-.
 .IP "\fB\-\-no-cancel"
 .IP "\fB\-\-nocancel"
 Suppress the "Cancel" button in checklist, inputbox and menubox modes.
 A script can still test if the user pressed the ESC key to cancel to quit.
+.
+.IP "\fB\-\-no-shadow"
+Suppress shadows that would be drawn to the right and bottom of each dialog box.
+.
+.IP "\fB\-\-ok-label \fIstring"
+Override the label used for "OK" buttons.
 .
 .IP "\fB\-\-print-maxsize"
 Print the maximum size of dialog boxes, i.e., the screen size,
@@ -465,7 +471,11 @@ if the file in (a) is not found, use the file
 as the configuration file.
 .TP 4
 c)
-if the file in (b) is not found, use compiled in defaults.
+if the file in (b) is not found, try using the GLOBALRC file determined at
+compile-time, i.e., \fI/etc/dialogrc\fP.
+.TP 4
+d)
+if the file in (c) is not found, use compiled in defaults.
 .RE
 .TP 4
 3.

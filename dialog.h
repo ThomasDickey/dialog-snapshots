@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.79 2001/11/11 21:44:44 tom Exp $
+ *  $Id: dialog.h,v 1.80 2001/12/02 22:10:06 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -265,6 +265,8 @@ typedef struct {
     char *default_item;
     char *title;
     char input_result[MAX_LEN + 1];
+    char *ok_label;
+    char *cancel_label;
     int aspect_ratio;
     int begin_x;
     int begin_y;
