@@ -1,4 +1,6 @@
 /*
+ *  $Id: dlg_colors.h,v 1.9 2003/08/30 16:21:16 tom Exp $
+ *
  *  colors.h -- color attribute definitions
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
@@ -18,6 +20,10 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#ifndef COLORS_H_included
+#define COLORS_H_included 1
+
+#include <dialog.h>
 
 /*
  *   Default color definitions
@@ -146,6 +152,14 @@
 #define ITEMHELP_BG                  COLOR_BLACK
 #define ITEMHELP_HL                  FALSE
 
+#define FORM_ACTIVE_TEXT_FG          COLOR_WHITE
+#define FORM_ACTIVE_TEXT_BG          COLOR_BLUE
+#define FORM_ACTIVE_TEXT_HL          TRUE
+
+#define FORM_TEXT_FG                 COLOR_WHITE
+#define FORM_TEXT_BG                 COLOR_CYAN
+#define FORM_TEXT_HL                 TRUE
+
 /* End of default color definitions */
 
 #define C_ATTR(x,y)                  (((x) != 0 ? A_BOLD : 0) | COLOR_PAIR((y)))
@@ -160,4 +174,4 @@ typedef struct {
     int value;
 } color_names_st;
 
-extern int color_table[][3];
+#endif /* COLORS_H_included */

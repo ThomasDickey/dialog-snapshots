@@ -1,9 +1,10 @@
 /*
- *  $Id: guage.c,v 1.22 2003/07/24 22:22:17 tom Exp $
+ *  $Id: guage.c,v 1.23 2003/08/30 14:34:47 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
  *  AUTHOR: Marc Ewing, Red Hat Software
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

@@ -1,9 +1,10 @@
 /*
- *  $Id: rc.c,v 1.14 2001/12/02 21:03:06 tom Exp $
+ *  $Id: rc.c,v 1.17 2003/08/30 14:31:14 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -46,7 +47,6 @@ static const color_names_st color_names[] =
 #define VAL_INT  0
 #define VAL_STR  1
 #define VAL_BOOL 2
-#define VAL_ATTR 3
 
 /* Type of line in configuration file */
 #define LINE_BLANK    2
@@ -88,155 +88,6 @@ static const vars_st vars[] =
      VAL_BOOL,
      "Turn color support ON or OFF"},
 
-    {"screen_color",
-     color_table[0],
-     VAL_ATTR,
-     "Screen color"},
-
-    {"shadow_color",
-     color_table[1],
-     VAL_ATTR,
-     "Shadow color"},
-
-    {"dialog_color",
-     color_table[2],
-     VAL_ATTR,
-     "Dialog box color"},
-
-    {"title_color",
-     color_table[3],
-     VAL_ATTR,
-     "Dialog box title color"},
-
-    {"border_color",
-     color_table[4],
-     VAL_ATTR,
-     "Dialog box border color"},
-
-    {"button_active_color",
-     color_table[5],
-     VAL_ATTR,
-     "Active button color"},
-
-    {"button_inactive_color",
-     color_table[6],
-     VAL_ATTR,
-     "Inactive button color"},
-
-    {"button_key_active_color",
-     color_table[7],
-     VAL_ATTR,
-     "Active button key color"},
-
-    {"button_key_inactive_color",
-     color_table[8],
-     VAL_ATTR,
-     "Inactive button key color"},
-
-    {"button_label_active_color",
-     color_table[9],
-     VAL_ATTR,
-     "Active button label color"},
-
-    {"button_label_inactive_color",
-     color_table[10],
-     VAL_ATTR,
-     "Inactive button label color"},
-
-    {"inputbox_color",
-     color_table[11],
-     VAL_ATTR,
-     "Input box color"},
-
-    {"inputbox_border_color",
-     color_table[12],
-     VAL_ATTR,
-     "Input box border color"},
-
-    {"searchbox_color",
-     color_table[13],
-     VAL_ATTR,
-     "Search box color"},
-
-    {"searchbox_title_color",
-     color_table[14],
-     VAL_ATTR,
-     "Search box title color"},
-
-    {"searchbox_border_color",
-     color_table[15],
-     VAL_ATTR,
-     "Search box border color"},
-
-    {"position_indicator_color",
-     color_table[16],
-     VAL_ATTR,
-     "File position indicator color"},
-
-    {"menubox_color",
-     color_table[17],
-     VAL_ATTR,
-     "Menu box color"},
-
-    {"menubox_border_color",
-     color_table[18],
-     VAL_ATTR,
-     "Menu box border color"},
-
-    {"item_color",
-     color_table[19],
-     VAL_ATTR,
-     "Item color"},
-
-    {"item_selected_color",
-     color_table[20],
-     VAL_ATTR,
-     "Selected item color"},
-
-    {"tag_color",
-     color_table[21],
-     VAL_ATTR,
-     "Tag color"},
-
-    {"tag_selected_color",
-     color_table[22],
-     VAL_ATTR,
-     "Selected tag color"},
-
-    {"tag_key_color",
-     color_table[23],
-     VAL_ATTR,
-     "Tag key color"},
-
-    {"tag_key_selected_color",
-     color_table[24],
-     VAL_ATTR,
-     "Selected tag key color"},
-
-    {"check_color",
-     color_table[25],
-     VAL_ATTR,
-     "Check box color"},
-
-    {"check_selected_color",
-     color_table[26],
-     VAL_ATTR,
-     "Selected check box color"},
-
-    {"uarrow_color",
-     color_table[27],
-     VAL_ATTR,
-     "Up arrow color"},
-
-    {"darrow_color",
-     color_table[28],
-     VAL_ATTR,
-     "Down arrow color"},
-
-    {"itemhelp_color",
-     color_table[29],
-     VAL_ATTR,
-     "Item help-text color"}
 };				/* vars */
 
 /*
@@ -376,7 +227,7 @@ parse_line(char *line, char **var, char **value)
 	return LINE_BLANK;
     else if (line[i] == '#')	/* line is comment */
 	return LINE_COMMENT;
-    else if (line[i] == '=')	/* variables names can't strart with a '=' */
+    else if (line[i] == '=')	/* variables names can't start with a '=' */
 	return LINE_ERROR;
 
     /* set 'var' to variable name */
@@ -430,7 +281,7 @@ create_rc(const char *filename)
 {
 #ifdef HAVE_COLOR
     char buffer[MAX_LEN + 1];
-    unsigned i;
+    unsigned i, limit;
     FILE *rc_file;
 
     if ((rc_file = fopen(filename, "wt")) == NULL)
@@ -466,19 +317,54 @@ create_rc(const char *filename)
 	    fprintf(rc_file, "%s = %s\n", vars[i].name,
 		    *((bool *) vars[i].var) ? "ON" : "OFF");
 	    break;
-	case VAL_ATTR:
-	    fprintf(rc_file, "%s = %s\n", vars[i].name,
-		    attr_to_str(buffer,
-				((int *) vars[i].var)[0],
-				((int *) vars[i].var)[1],
-				((int *) vars[i].var)[2]));
-	    break;
 	}
+    }
+    limit = dlg_color_count();
+    for (i = 0; i < limit; ++i) {
+	fprintf(rc_file, "\n# %s\n", color_table[i].comment);
+	fprintf(rc_file, "%s = %s\n", color_table[i].name,
+		attr_to_str(buffer,
+			    color_table[i].fg,
+			    color_table[i].bg,
+			    color_table[i].hilite));
     }
 
     (void) fclose(rc_file);
 #endif
 }
+
+#ifdef HAVE_COLOR
+static int
+find_vars(char *name)
+{
+    int result = -1;
+    unsigned i;
+
+    for (i = 0; i < VAR_COUNT; i++) {
+	if (dlg_strcmp(vars[i].name, name) == 0) {
+	    result = i;
+	    break;
+	}
+    }
+    return result;
+}
+
+static int
+find_color(char *name)
+{
+    int result = -1;
+    int i;
+    int limit = dlg_color_count();
+
+    for (i = 0; i < limit; i++) {
+	if (dlg_strcmp(color_table[i].name, name) == 0) {
+	    result = i;
+	    break;
+	}
+    }
+    return result;
+}
+#endif
 
 /*
  * Parse the configuration file and set up variables
@@ -487,7 +373,7 @@ int
 parse_rc(void)
 {
 #ifdef HAVE_COLOR
-    unsigned i;
+    int i;
     int l = 1, parse, fg, bg, hl;
     char str[MAX_LEN + 1], *var, *value, *tempptr;
     FILE *rc_file = 0;
@@ -548,13 +434,7 @@ parse_rc(void)
 		break;
 	    case LINE_OK:
 		/* search table for matching config variable name */
-		for (i = 0; i < VAR_COUNT && strcmp(vars[i].name, var); i++) ;
-
-		if (i == VAR_COUNT) {	/* no match */
-		    fprintf(stderr, "\nParse error: unknown variable "
-			    "at line %d of configuration file.\n", l);
-		    return -1;	/* parse aborted */
-		} else {	/* variable found in table, set run time variables */
+		if ((i = find_vars(var)) >= 0) {
 		    switch (vars[i].type) {
 		    case VAL_INT:
 			*((int *) vars[i].var) = atoi(value);
@@ -581,22 +461,25 @@ parse_rc(void)
 			else {
 			    fprintf(stderr, "\nParse error: boolean value "
 				    "expected at line %d of configuration "
-				    "file.\n", l);
+				    "file (found %s).\n", l, value);
 			    return -1;	/* parse aborted */
 			}
-			break;
-		    case VAL_ATTR:
-			if (str_to_attr(value, &fg, &bg, &hl) == -1) {
-			    fprintf(stderr, "\nParse error: attribute "
-				    "value expected at line %d of configuration "
-				    "file.\n", l);
-			    return -1;	/* parse aborted */
-			}
-			((int *) vars[i].var)[0] = fg;
-			((int *) vars[i].var)[1] = bg;
-			((int *) vars[i].var)[2] = hl;
 			break;
 		    }
+		} else if ((i = find_color(var)) >= 0) {
+		    if (str_to_attr(value, &fg, &bg, &hl) == -1) {
+			fprintf(stderr, "\nParse error: attribute "
+				"value expected at line %d of configuration "
+				"file.\n", l);
+			return -1;	/* parse aborted */
+		    }
+		    color_table[i].fg = fg;
+		    color_table[i].bg = bg;
+		    color_table[i].hilite = hl;
+		} else {
+		    fprintf(stderr, "\nParse error: unknown variable "
+			    "at line %d of configuration file:\n\t%s\n", l, var);
+		    return -1;	/* parse aborted */
 		}
 		break;
 	    case LINE_ERROR:

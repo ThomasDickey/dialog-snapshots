@@ -1,9 +1,10 @@
 /*
- *  $Id: inputbox.c,v 1.38 2003/08/20 19:46:51 tom Exp $
+ *  $Id: inputbox.c,v 1.39 2003/08/30 14:33:59 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

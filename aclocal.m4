@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
-dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.35 2003/08/20 19:24:45 tom Exp $
+dnl -- Thomas E. Dickey
+dnl $Id: aclocal.m4,v 1.36 2003/08/24 18:01:19 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 10 updated: 2002/11/17 17:25:28

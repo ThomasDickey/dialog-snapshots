@@ -1,11 +1,12 @@
 /*
- *  $Id: checklist.c,v 1.61 2003/08/20 19:46:51 tom Exp $
+ *  $Id: checklist.c,v 1.62 2003/08/30 14:33:39 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
  *     Stuart Herbert - S.Herbert@sheffield.ac.uk: radiolist extension
  *     Alessandro Rubini - rubini@ipvvis.unipv.it: merged the two
+ *     Thomas E. Dickey - rewrote...
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

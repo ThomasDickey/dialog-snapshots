@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.22 2003/08/21 00:08:17 tom Exp $
+ *  $Id: formbox.c,v 1.24 2003/08/30 16:22:10 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -75,7 +75,7 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 	len = elt->name_len;
 	len = MIN(len, getmaxx(win) - elt->name_x);
 	if (len > 0) {
-	    wattrset(win, dialog_attr);
+	    wattrset(win, menubox_attr);
 	    (void) wprintw(win, "%-*s", len, elt->name);
 	    count = 1;
 	}
@@ -84,7 +84,7 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 	len = elt->text_flen;
 	len = MIN(len, getmaxx(win) - elt->text_x);
 	if (len > 0) {
-	    wattrset(win, choice ? item_selected_attr : dialog_attr);
+	    wattrset(win, choice ? form_active_text_attr : form_text_attr);
 	    (void) wprintw(win, "%-*s", len, elt->text);
 	    count = 1;
 	}
@@ -105,7 +105,7 @@ print_form(WINDOW *win, FORM_ELT * elt, int total, int scrollamt, int choice)
 	count += print_item(win, elt + n, scrollamt, n == choice);
     }
     if (count) {
-	wbkgdset(win, dialog_attr);
+	wbkgdset(win, menubox_attr);
 	wclrtobot(win);
 	(void) wnoutrefresh(win);
     }
@@ -398,7 +398,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     /* draw a box around the form items */
     draw_box(dialog, box_y, box_x, form_height + 2, form_width + 2,
-	     border_attr, dialog_attr);
+	     menubox_border_attr, menubox_attr);
 
     /* register the new window, along with its borders */
     mouse_mkbigregion(getbegy(form) - getbegy(dialog),
@@ -446,7 +446,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    dialog_vars.max_input = current->text_ilen;
 	    dlg_item_help(current->help);
 	    dlg_show_string(form, current->text, chr_offset,
-			    item_selected_attr,
+			    form_active_text_attr,
 			    current->text_y - scrollamt,
 			    current->text_x,
 			    current->text_flen, password, first);
@@ -633,7 +633,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    edit = dlg_edit_string(current->text, &chr_offset, key, fkey, first);
 	    if (edit) {
 		dlg_show_string(form, current->text, chr_offset,
-				item_selected_attr,
+				form_active_text_attr,
 				current->text_y - scrollamt,
 				current->text_x,
 				current->text_flen, password, first);

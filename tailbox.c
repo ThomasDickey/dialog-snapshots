@@ -1,9 +1,10 @@
 /*
- *  $Id: tailbox.c,v 1.34 2003/08/20 19:46:51 tom Exp $
+ *  $Id: tailbox.c,v 1.35 2003/08/30 14:34:20 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
  *  AUTHOR: Pasquale De Marco (demarco_p@abramo.it)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License

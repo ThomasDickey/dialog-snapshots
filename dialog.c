@@ -1,9 +1,10 @@
 /*
- * $Id: dialog.c,v 1.98 2003/08/10 21:36:04 tom Exp $
+ * $Id: dialog.c,v 1.100 2003/08/30 14:28:31 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
  *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -326,7 +327,7 @@ howmany_tags(char *argv[], int group)
     char temp[80];
 
     while (argv[0] != 0) {
-	if (!strcmp(argv[0], and_widget))
+	if (isOption(argv[0]))
 	    break;
 	if ((have = arg_rest(argv)) < group) {
 	    sprintf(temp, format, group, have);
@@ -335,12 +336,6 @@ howmany_tags(char *argv[], int group)
 
 	argv += group;
 	result++;
-    }
-    if (argv[0] != 0
-	&& strcmp(argv[0], and_widget) != 0
-	&& (have = arg_rest(argv)) < group) {
-	sprintf(temp, format, group, have);
-	Usage(temp);
     }
 
     return result;
@@ -874,20 +869,20 @@ main(int argc, char *argv[])
     if (argc < 2) {
 	Help();
     }
-
-    init_dialog();
-
 #ifdef HAVE_RC_FILE
     if (lookupOption(argv[1], 7) == o_create_rc) {
 	if (argc != 3) {
 	    sprintf(temp, "Expected a filename for %s", argv[1]);
 	    Usage(temp);
 	}
-	end_dialog();
+	if (parse_rc() == -1)	/* Read the configuration file */
+	    exiterr("dialog: parse_rc");
 	create_rc(argv[2]);
 	return DLG_EXIT_OK;
     }
 #endif
+
+    init_dialog();
 
     while (offset < argc && !esc_pressed) {
 	init_result(output, my_buffer);

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.41 2003/08/20 19:46:51 tom Exp $
+ *  $Id: textbox.c,v 1.42 2003/08/30 15:06:35 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -428,7 +428,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	    key = dlg_getc(dialog, &fkey);
 	    if (key == ESC)
 		return DLG_EXIT_ESC;
-	    if (key == '\n' && *input != '\0')
+	    if (key == '\n')
 		return DLG_EXIT_OK;
 	}
 	if (dlg_edit_string(input, &offset, key, fkey, first)) {
@@ -459,12 +459,12 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	    /* Get search term from user */
 	} else if (get_search_term(obj->text, search_term,
 				   height - 4,
-				   width - 2) == DLG_EXIT_ESC) {
-	    /* ESC pressed, reprint page to clear box */
+				   width - 2) == DLG_EXIT_ESC
+		   || search_term[0] == '\0') {
+	    /* ESC pressed, or no search term, reprint page to clear box */
 	    wattrset(obj->text, dialog_attr);
 	    back_lines(obj, obj->page_length);
-	    moved = TRUE;
-	    return moved;
+	    return TRUE;
 	}
 	/* Save variables for restoring in case search term can't be found */
 	tempinx = obj->in_buf;
