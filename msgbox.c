@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.31 2004/07/29 00:17:37 tom Exp $
+ *  $Id: msgbox.c,v 1.32 2004/07/29 22:01:43 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -32,41 +32,47 @@
  * or garbage (NetBSD).
  */
 static int
-show_message(WINDOW *dialog, const char *prompt, int offset, int page, int width)
+show_message(WINDOW *dialog,
+	     const char *prompt,
+	     int offset,
+	     int page,
+	     int width,
+	     int pauseopt)
 {
 #ifdef NCURSES_VERSION
-    int wide = width - (2 * MARGIN);
-    int y, x;
-    int percent;
-    WINDOW *dummy;
+    if (pauseopt) {
+	int wide = width - (2 * MARGIN);
+	int y, x;
+	int percent;
+	WINDOW *dummy;
 
-    dummy = newwin(LINES, width, 0, 0);
-    wbkgdset(dummy, dialog_attr);
-    wattrset(dummy, dialog_attr);
-    werase(dummy);
-    dlg_print_autowrap(dummy, prompt, LINES, wide);
-    getyx(dummy, y, x);
-    copywin(dummy, dialog, offset, MARGIN, MARGIN, MARGIN, page, wide, FALSE);
-    delwin(dummy);
+	dummy = newwin(LINES, width, 0, 0);
+	wbkgdset(dummy, dialog_attr);
+	wattrset(dummy, dialog_attr);
+	werase(dummy);
+	dlg_print_autowrap(dummy, prompt, LINES, wide);
+	getyx(dummy, y, x);
+	copywin(dummy, dialog, offset, MARGIN, MARGIN, MARGIN, page, wide, FALSE);
+	delwin(dummy);
 
-    /* if the text is incomplete, or we have scrolled, show the percentage */
-    if (y > 0 && wide > 4) {
-	percent = ((page + offset - 1) * 100.0 / y);
-	if (percent > 100)
-	    percent = 100;
-	if (offset != 0 || percent != 100) {
-	    wattrset(dialog, dialog_attr);
-	    wmove(dialog, MARGIN + page, wide - 4);
-	    wprintw(dialog, "%3d%%", percent);
+	/* if the text is incomplete, or we have scrolled, show the percentage */
+	if (y > 0 && wide > 4) {
+	    percent = ((page + offset - 1) * 100.0 / y);
+	    if (percent > 100)
+		percent = 100;
+	    if (offset != 0 || percent != 100) {
+		wattrset(dialog, dialog_attr);
+		wmove(dialog, MARGIN + page, wide - 4);
+		wprintw(dialog, "%3d%%", percent);
+	    }
 	}
+	return (1 + y - page);
     }
-    return (1 + y - page);
-#else
+#endif
     (void) offset;
     wattrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, page + 1 + (3 * MARGIN), width);
     return 0;
-#endif
 }
 
 /*
@@ -128,7 +134,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	while (!done) {
 	    if (show) {
 		getyx(dialog, y, x);
-		last = show_message(dialog, prompt, offset, page, width);
+		last = show_message(dialog, prompt, offset, page, width, pauseopt);
 		wmove(dialog, y, x);
 		wrefresh(dialog);
 		show = FALSE;
@@ -232,7 +238,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	    }
 	}
     } else {
-	show_message(dialog, prompt, offset, page, width);
+	show_message(dialog, prompt, offset, page, width, pauseopt);
 	key = '\n';
 	wrefresh(dialog);
     }
