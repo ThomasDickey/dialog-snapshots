@@ -690,7 +690,7 @@ void print_size(int height, int width) {
 
 void ctl_size(int height, int width) {
   char *tempstr=(char *) malloc((size_t) MAX_LEN+1);
-  if (size_err)
+  if (size_err) {
     if ((width > COLS) || (height > LINES)) {
       sprintf(tempstr,"\nWindow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n", height, width, LINES, COLS);
       exiterr(tempstr);
@@ -698,6 +698,7 @@ void ctl_size(int height, int width) {
       sprintf(tempstr,"\nWindow+Shadow too big. (Height, width) = (%d, %d). Max allowed (%d, %d).\n", height, width, SLINES, SCOLS);
       exiterr(tempstr);
     }
+  }
 }
 
 void tab_correct_str(char *prompt) {
@@ -714,11 +715,12 @@ void tab_correct_str(char *prompt) {
 void calc_listh(int *height, int *list_height, int item_no) {
     /* calculate new height and list_height */
     int lines = SLINES - (begin_set ? begin_y : 0);
-    if (lines - (*height) > 0)
+    if (lines - (*height) > 0) {
       if (lines - (*height) > item_no)
         *list_height=item_no;
       else
         *list_height=lines-(*height);
+    }
     (*height)+=(*list_height);
 }
 
