@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.82 2002/06/15 00:38:13 tom Exp $
+ * $Id: dialog.c,v 1.85 2002/08/13 23:47:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -42,6 +42,7 @@ typedef enum {
     ,o_cancel_label
     ,o_checklist
     ,o_clear
+    ,o_colors
     ,o_cr_wrap
     ,o_create_rc
     ,o_default_item
@@ -73,6 +74,7 @@ typedef enum {
     ,o_nocancel
     ,o_noitem
     ,o_ok_label
+    ,o_output_fd
     ,o_passwordbox
     ,o_print_maxsize
     ,o_print_size
@@ -133,6 +135,7 @@ static const Options options[] = {
     { "cancel-label",	o_cancel_label,		1, "<str>" },
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
+    { "colors",		o_colors,		1, "" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, NULL },
     { "default-item",	o_default_item,		1, "<str>" },
@@ -167,6 +170,7 @@ static const Options options[] = {
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
     { "ok-label",	o_ok_label,		1, "<str>" },
+    { "output-fd",	o_output_fd,		1, "<fd>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
@@ -372,7 +376,7 @@ optional_num(char **av, int n, int dft)
 static int
 show_result(int ret)
 {
-    if (ret == DLG_EXIT_OK) {
+    if (ret == DLG_EXIT_OK || ret == DLG_EXIT_EXTRA) {
 	fprintf(dialog_vars.output, "%s", dialog_vars.input_result);
 	fflush(dialog_vars.output);
     }
@@ -813,6 +817,9 @@ main(int argc, char *argv[])
 	    case o_separate_output:
 		dialog_vars.separate_output = TRUE;
 		break;
+	    case o_colors:
+		dialog_vars.colors = TRUE;
+		break;
 	    case o_cr_wrap:
 		dialog_vars.cr_wrap = TRUE;
 		break;
@@ -878,6 +885,13 @@ main(int argc, char *argv[])
 		break;
 	    case o_max_input:
 		dialog_vars.max_input = optionValue(argv, &offset);
+		break;
+	    case o_output_fd:
+		if ((j = optionValue(argv, &offset)) >= 0
+		    && (output = fdopen(j, "w")) != 0)
+		    dialog_vars.output = output;
+		else
+		    exiterr("Cannot open output-fd\n");
 		break;
 	    case o_stderr:
 		dialog_vars.output = output = stderr;

@@ -1,8 +1,23 @@
--- $Id: CHANGES,v 1.59 2002/06/22 10:26:40 tom Exp $
+-- $Id: CHANGES,v 1.60 2002/08/13 23:51:09 tom Exp $
 -- T.Dickey <dickey@herndon4.his.com>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2002/08/14
+	+ modify checklist.c and menubox.c to treat the extra button like the
+	  "Ok" button by making dialog print the chosen items (request by
+	  Tobias C Rittweiler).
+	+ add examples checklist6 and menubox6 to illustrate the --colors
+	  option.
+	+ implement -colors option, which allows one to highlight words in the
+	  titles and most text areas with color or video attributes (adapted
+	  from patch by Tobias C Rittweiler).
+	+ add examples inputbox4, inputbox5 to illustrate how to use the
+	  --output-fd option, and how to use dialog without any temporary
+	  file at all.
+	+ add --output-fd option (Debian #153984).
+	+ documented vi-style keys for calendar, textbox widgets in manpage.
 
 2002/06/22
 	+ improve mouse handling, e.g., for up/down scrolling in calendar,

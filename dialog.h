@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.92 2002/06/22 16:21:52 tom Exp $
+ *  $Id: dialog.h,v 1.93 2002/08/13 20:41:55 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -257,6 +257,7 @@ typedef struct {
     bool beep_signal;
     bool begin_set;
     bool cant_kill;
+    bool colors;
     bool cr_wrap;
     bool dlg_clear_screen;
     bool extra_button;
@@ -409,6 +410,7 @@ extern void killall_bg(int *retval);
 extern int dlg_default_item(char **items, int llen);
 extern void dlg_exit(int code) GCC_NORETURN;
 extern void dlg_item_help(char *txt);
+extern void dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);
 extern void dlg_set_focus(WINDOW *parent, WINDOW *win);
 extern void dlg_trim_string(char *src);
 #ifdef HAVE_STRCASECMP

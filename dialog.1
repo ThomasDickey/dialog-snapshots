@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.46 2002/06/15 12:20:16 tom Exp $
-.TH DIALOG 1 "" "$Date: 2002/06/15 12:20:16 $"
+.\" $Id: dialog.1,v 1.49 2002/08/13 23:28:58 tom Exp $
+.TH DIALOG 1 "" "$Date: 2002/08/13 23:28:58 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -83,6 +83,25 @@ The screen will be cleared to the
 on exit.
 This may be used alone, without other options.
 .
+.IP "\fB\-\-colors"
+Interpret embedded "\\Z" sequences in the dialog text by the follow character,
+which tells dialog to set colors or video attributes:
+0 through 7 are the ANSI used in curses:
+black,
+red,
+green,
+yellow,
+blue,
+magenta,
+cyan and
+white respectively.
+Bold is set by 'b', reset by 'B'.
+Reverse is set by 'r', reset by 'R'.
+Underline is set by 'u', reset by 'U'.
+The settings are cumulative, e.g., "\\Zb\\Z1" makes the following text
+bright red.
+Restore normal settings with "\\Zn".
+
 .IP "\fB\-\-cr-wrap"
 Interpret embedded newlines in the dialog text as a newline on the screen.
 Otherwise, \fBdialog\fR will only wrap lines where needed to fit inside the text box.
@@ -141,7 +160,7 @@ Some well-known ones such as "\fB--icon\fP" are ignored anyway,
 but this is a better choice for compatibility with other implementations.
 .
 .IP "\fB\-\-item-help"
-Interpret the tags data for checklist, radiolist and menu boxes 
+Interpret the tags data for checklist, radiolist and menu boxes
 adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
@@ -174,6 +193,11 @@ Suppress shadows that would be drawn to the right and bottom of each dialog box.
 .
 .IP "\fB\-\-ok-label \fIstring"
 Override the label used for "OK" buttons.
+.
+.IP "\fB\-\-output-fd \fIfd"
+Direct output to the given file descriptor.
+Most \fBdialog\fR scripts write to the standard error,
+but error messages may also be written there, depending on your script.
 .
 .IP "\fB\-\-print-maxsize"
 Print the maximum size of dialog boxes, i.e., the screen size,
@@ -268,6 +292,7 @@ If the values for day, month or year are missing or negative,
 the current date's corresponding values are used.
 You can increment or decrement any of those using the
 left-, up-, right- and down-arrows.
+Use vi-style h, j, k and l for moving around the array of days in a month.
 Use tab or backtab to move between windows.
 If the year is given as zero, the current date is used as an initial value.
 On exit, the date is printed in the form day/month/year.
@@ -442,13 +467,15 @@ A
 box lets you display the contents of a text file in a dialog box.
 It is like a simple text file viewer.
 The user can move through the file by using the
-.IR UP/DOWN ", " PGUP/PGDN
-.RI and " HOME/END" " keys available on most keyboards."
-If the lines are too long to be displayed in the box, the
-\fILEFT/RIGHT\fP
+\fIUP/DOWN\fR, \fIPGUP/PGDN\fR
+and \fIHOME/END\fR keys available on most keyboards.
+If the lines are too long to be displayed in the box,
+the \fILEFT/RIGHT\fP
 keys can be used to scroll the text region horizontally.
+You may also use vi-style keys h, j, k, l in place of the cursor keys,
+and B or N in place of the pageup/pagedown keys.
 For more convenience,
-forward and backward searching functions are also provided.
+vi-style forward and backward searching functions are also provided.
 .
 .IP "\fB\-\-timebox \fItext height [width hour minute second]"
 A dialog is displayed which allows you to select hour, minute and second.
