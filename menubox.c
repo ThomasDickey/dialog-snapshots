@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.26 2000/10/28 01:02:08 tom Exp $
+ *  $Id: menubox.c,v 1.27 2000/12/12 00:26:47 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -79,10 +79,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     if (menu_height == 0) {
 	min_width = calc_listw(item_no, items, MENUBOX_TAGS) + 10;
 	/* calculate height without items (4) */
-	prompt = auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
+	auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
 	calc_listh(&height, &menu_height, item_no);
-    } else
-	prompt = auto_size(title, prompt, &height, &width, 4 + menu_height, 26);
+    } else {
+	auto_size(title, prompt, &height, &width, 4 + menu_height, 26);
+    }
     print_size(height, width);
     ctl_size(height, width);
 
@@ -100,7 +101,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width, 1, 2);
 
     menu_width = width - 6;
     getyx(dialog, cur_y, cur_x);

@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.18 2000/10/07 15:52:12 tom Exp $
-.TH DIALOG 1 "" "$Date: 2000/10/07 15:52:12 $"
+.\" $Id: dialog.1,v 1.20 2000/12/08 11:48:56 Tomas.Pospisek Exp $
+.TH DIALOG 1 "" "$Date: 2000/12/08 11:48:56 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -121,6 +121,7 @@ SIGHUP is disabled for the background process.
 .IP "\fB\-\-no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.
 .
+.IP "\fB\-\-no-cancel"
 .IP "\fB\-\-nocancel"
 Suppress the "Cancel" button in checklist, inputbox and menubox modes.
 A script can still test if the user pressed the ESC key to cancel to quit.
@@ -216,10 +217,16 @@ On exit, a list of the
 strings of those entries that are turned on will be printed on
 .IR stderr "."
 .
-.IP "\fB\-\-fselect \fItext directory height width\fR"
+.IP "\fB\-\-fselect \fI text height width\fR"
 The file-selection dialog displays a text-entry window in which you can type
 a filename (or directory), and above that two windows with directory
 names and filenames.
+.sp
+Here
+.B text
+can be a filepath in which case the file and directory windows
+will display the contents of the path and the text-entry window will contain
+the preselected filename.
 .sp
 Use tab or arrow keys to move between the windows.
 Within the directory or filename windows, use the up/down arrow keys

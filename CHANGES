@@ -3,6 +3,17 @@
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2000/12/12
+	+ rewrote print_autowrap() and real_auto_size() to share common code
+	  justify_text(), which now does text flow even when the string
+	  contains newlines (fixes Debian #77199).
+	+ improve create_lock() function using open() with O_EXCL rather than
+	  fopen() (patch by Matt Kraai <kraai@debian.org> fixes Debian #78951).
+	+ correct description of --fselect in man page (patch by Tomas Pospisek
+	  <tpo@spin.ch> fixes Debian #77200).
+	+ add --no-cancel as alias for --nocancel for compatibility with
+	  Xdialog (report by Luis E Limon <luisl@abriasoft.com>).
+
 2000/10/27
 	+ some lint fixes using lclint (mostly void-casts, but some
 	  sign-extension fixes e.g., for ctype.h macros, and loop in

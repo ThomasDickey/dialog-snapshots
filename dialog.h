@@ -253,7 +253,7 @@ void end_dialog (void);
 void attr_clear (WINDOW * win, int height, int width, chtype attr);
 void put_backtitle(void);
 
-char *auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
+void auto_size(const char * title, char *prompt, int *height, int *width, int boxlines, int mincols);
 void auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
 
 char *make_lock_filename(const char *filename);
@@ -263,7 +263,6 @@ void wrefresh_lock_tailbg(WINDOW *win);
 void wrefresh_lock_sub(WINDOW *win);
 
 int exist_lock(char *filename);
-void while_exist_lock(char *filename);
 void create_lock(char *filename);
 void remove_lock(char *filename);
 
@@ -293,7 +292,7 @@ void color_setup (void);
 void draw_shadow (WINDOW * win, int height, int width, int y, int x);
 #endif
 
-void print_autowrap(WINDOW *win, const char *prompt, int width, int y, int x);
+void print_autowrap(WINDOW *win, const char *prompt, int height, int width, int y, int x);
 void draw_box (WINDOW * win, int y, int x, int height, int width, chtype boxchar,
 		chtype borderchar);
 

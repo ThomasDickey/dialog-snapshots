@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.33 2000/10/28 01:09:15 tom Exp $
+ *  $Id: checklist.c,v 1.34 2000/12/12 00:26:47 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -84,7 +84,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	list_height = 1;
 
     tab_correct_str(prompt);
-    prompt = auto_size(title, prompt, &height, &width, 4 + list_height, 26);
+    auto_size(title, prompt, &height, &width, 4 + list_height, 26);
 
     print_size(height, width);
     ctl_size(height, width);
@@ -113,7 +113,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    print_autowrap(dialog, prompt, width, 1, 2);
+    print_autowrap(dialog, prompt, height, width, 1, 2);
 
     list_width = width - 6;
     getyx(dialog, cur_y, cur_x);
