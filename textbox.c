@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.40 2003/07/12 14:56:22 tom Exp $
+ *  $Id: textbox.c,v 1.41 2003/08/20 19:46:51 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -654,6 +654,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		result = DLG_EXIT_ESC;
 		continue;
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		break;
 	    case ' ':

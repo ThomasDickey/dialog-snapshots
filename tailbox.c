@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.33 2003/07/20 19:34:00 tom Exp $
+ *  $Id: tailbox.c,v 1.34 2003/08/20 19:46:51 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -188,6 +188,7 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 	fkey = TRUE;
 	switch (ch) {
 	case '\n':
+	case '\r':
 	    ch = KEY_ENTER;
 	    break;
 	case 'H':

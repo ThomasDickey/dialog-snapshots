@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.20 2003/08/13 00:37:55 tom Exp $
+ *  $Id: formbox.c,v 1.22 2003/08/21 00:08:17 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -301,7 +301,7 @@ init_fe(char **items,
 	elt[i].text = ItemText(i);
 	elt[i].text_len = (elt[i].text_flen
 			   ? elt[i].text_flen
-			   : strlen(elt[i].text));
+			   : (int) strlen(elt[i].text));
 	elt[i].text_y = text_y - 1;
 	elt[i].text_x = text_x - 1;
 	elt[i].text_flen = text_flen;
@@ -484,6 +484,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		}
 		/* FALLTHRU */
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		break;
 	    case TAB:

@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl -- T.E.Dickey <dickey@herndon4.his.com>
-dnl $Id: aclocal.m4,v 1.34 2003/07/20 18:21:22 tom Exp $
+dnl $Id: aclocal.m4,v 1.35 2003/08/20 19:24:45 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 10 updated: 2002/11/17 17:25:28
@@ -890,12 +890,13 @@ AC_CHECK_HEADERS($cf_cv_ncurses_header)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_FUNCS version: 10 updated: 2001/07/17 17:04:37
+dnl CF_CURSES_FUNCS version: 11 updated: 2003/08/20 15:23:08
 dnl ---------------
 dnl Curses-functions are a little complicated, since a lot of them are macros.
 AC_DEFUN([CF_CURSES_FUNCS],
 [
 AC_REQUIRE([CF_XOPEN_CURSES])
+AC_REQUIRE([CF_CURSES_TERM_H])
 for cf_func in $1
 do
 	CF_UPPER(cf_tr_func,$cf_func)
@@ -910,11 +911,15 @@ do
 char * XCursesProgramName = "test";
 #else
 #include <${cf_cv_ncurses_header-curses.h}>
+#if defined(NCURSES_VERSION) && defined(HAVE_NCURSESW_TERM_H)
+#include <ncursesw/term.h>
+#else
 #if defined(NCURSES_VERSION) && defined(HAVE_NCURSES_TERM_H)
 #include <ncurses/term.h>
 #else
 #ifdef HAVE_TERM_H
 #include <term.h>
+#endif
 #endif
 #endif
 #endif],
@@ -1035,6 +1040,45 @@ if test ".$ac_cv_func_initscr" != .yes ; then
 fi
 fi
 
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CURSES_TERM_H version: 5 updated: 2003/08/20 15:23:08
+dnl ----------------
+dnl SVr4 curses should have term.h as well (where it puts the definitions of
+dnl the low-level interface).  This may not be true in old/broken implementations,
+dnl as well as in misconfigured systems (e.g., gcc configured for Solaris 2.4
+dnl running with Solaris 2.5.1).
+AC_DEFUN([CF_CURSES_TERM_H],
+[
+AC_CACHE_CHECK(for term.h, cf_cv_term_header,[
+
+# If we found <ncurses/curses.h>, look for <ncurses/term.h>, but always look
+# for <term.h> if we do not find the variant.
+for cf_header in \
+	`echo ${cf_cv_ncurses_header-curses.h} | sed -e 's%/.*%/%'`term.h \
+	term.h
+do
+	AC_TRY_COMPILE([
+#include <${cf_cv_ncurses_header-curses.h}>
+#include <${cf_header}>],
+	[WINDOW *x],
+	[cf_cv_term_header=$cf_header
+	 break],
+	[cf_cv_term_header=no])
+done
+])
+
+case $cf_cv_term_header in #(vi
+term.h) #(vi
+	AC_DEFINE(HAVE_TERM_H)
+	;;
+ncurses/term.h)
+	AC_DEFINE(HAVE_NCURSES_TERM_H)
+	;;
+ncursesw/term.h)
+	AC_DEFINE(HAVE_NCURSESW_TERM_H)
+	;;
+esac
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_DIRNAME version: 4 updated: 2002/12/21 19:25:52

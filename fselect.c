@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.36 2003/07/26 11:11:06 tom Exp $
+ * $Id: fselect.c,v 1.37 2003/08/20 19:46:51 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -566,6 +566,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		fkey = FALSE;
 		break;
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		break;
 	    case ' ':

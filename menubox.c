@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.55 2003/08/18 23:58:55 tom Exp $
+ *  $Id: menubox.c,v 1.57 2003/08/20 19:52:11 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -147,7 +147,7 @@ input_menu_edit(WINDOW *win, char **items, int choice)
     print_tag(win, items, choice, TRUE);
 
     /* taken out of inputbox.c - but somewhat modified */
-    while (key != '\n') {
+    while (key != '\n' && key != '\r') {
 	if (!first)
 	    key = mouse_wgetch(win, &fkey);
 	if (dlg_edit_string(result, &offset, key, fkey, first)) {
@@ -316,6 +316,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    fkey = TRUE;
 	    switch (key) {
 	    case '\n':
+	    case '\r':
 		key = KEY_ENTER;
 		break;
 	    case '-':

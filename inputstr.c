@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.23 2003/08/18 23:56:57 tom Exp $
+ * $Id: inputstr.c,v 1.27 2003/08/20 23:55:14 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -35,6 +35,8 @@ typedef struct _cache {
 } CACHE;
 
 #ifdef HAVE_WGET_WCH
+#define SAME_CACHE(c,s,l) (c->string != 0 && memcmp(c->string,s,l) == 0)
+
 static CACHE *cache_list;
 
 static void
@@ -84,6 +86,7 @@ save_cache(CACHE * cache, const char *string)
     }
 }
 #else
+#define SAME_CACHE(c,s,l) (c->string != 0)
 #define load_cache(cache, string)	/* nothing */
 #define save_cache(cache, string)	/* nothing */
 #endif
@@ -101,8 +104,7 @@ same_cache2(CACHE * cache, const char *string, unsigned i_len)
     if (cache->s_len != 0
 	&& cache->s_len >= s_len
 	&& cache->list != 0
-	&& cache->string != 0
-	&& memcmp(cache->string, string, s_len) == 0) {
+	&& SAME_CACHE(cache, string, s_len)) {
 	return TRUE;
     }
 
@@ -137,8 +139,7 @@ same_cache1(CACHE * cache, const char *string, unsigned i_len)
     unsigned s_len = strlen(string);
 
     if (cache->s_len == s_len
-	&& cache->string != 0
-	&& memcmp(cache->string, string, s_len) == 0) {
+	&& SAME_CACHE(cache, string, s_len)) {
 	return TRUE;
     }
 
@@ -253,6 +254,7 @@ dlg_index_wchars(const char *string)
 	    current += width;
 	    cache.list[inx] = cache.list[inx - 1] + width;
 #else
+	    (void) current;
 	    cache.list[inx] = inx;
 #endif
 	}
@@ -321,7 +323,7 @@ dlg_index_columns(const char *string)
 	}
 #else
 	for (inx = 0; inx < len; ++inx) {
-	    cache.list[inx + 1] = (isprint(string[inx])
+	    cache.list[inx + 1] = (isprint(UCH(string[inx]))
 				   ? 1
 				   : strlen(unctrl(string[inx])));
 	    if (inx > 0)
@@ -437,10 +439,12 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	    if (offset) {
 		int gap = indx[offset] - indx[offset - 1];
 		*chr_offset = indx[offset - 1];
-		for (i = *chr_offset;
-		     (string[i] = string[i + gap]) != '\0';
-		     i++) {
-		    ;
+		if (gap > 0) {
+		    for (i = *chr_offset;
+			 (string[i] = string[i + gap]) != '\0';
+			 i++) {
+			;
+		    }
 		}
 	    }
 	    break;
@@ -449,11 +453,17 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 		if (--limit == 0) {
 		    string[*chr_offset = 0] = '\0';
 		} else {
-		    int gap = indx[offset + 1] - indx[offset];
-		    for (i = indx[offset];
-			 (string[i] = string[i + gap]) != '\0';
-			 i++) {
-			;
+		    int gap = ((offset <= limit)
+			       ? (indx[offset + 1] - indx[offset])
+			       : 0);
+		    if (gap > 0) {
+			for (i = indx[offset];
+			     (string[i] = string[i + gap]) != '\0';
+			     i++) {
+			    ;
+			}
+		    } else if (offset > 0) {
+			string[indx[offset - 1]] = '\0';
 		    }
 		    if (*chr_offset > indx[limit])
 			*chr_offset = indx[limit];

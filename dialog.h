@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.114 2003/08/18 23:41:28 tom Exp $
+ *  $Id: dialog.h,v 1.115 2003/08/20 19:32:17 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -167,23 +167,23 @@
 #endif
 
 /* these definitions really would work for ncurses 1.8.6, etc. */
-#ifndef getparyx
+#ifndef HAVE_GETPARYX
 #define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
 #endif
 
-#ifndef getparx
+#ifndef HAVE_GETPARX
 #define getparx(win)		((win)?(win)->_parx:ERR)
 #endif
 
-#ifndef getpary
+#ifndef HAVE_GETPARY
 #define getpary(win)		((win)?(win)->_pary:ERR)
 #endif
 
-#ifndef getcurx
+#ifndef HAVE_GETCURX
 #define getcurx(win)		((win)?(win)->_curx:ERR)
 #endif
 
-#ifndef getcury
+#ifndef HAVE_GETCURY
 #define getcury(win)		((win)?(win)->_cury:ERR)
 #endif
 
