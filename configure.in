@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.23 2002/05/19 16:01:48 tom Exp $
+dnl $Id: configure.in,v 1.25 2003/01/27 01:30:24 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20000819)
@@ -41,28 +41,11 @@ AC_ARG_WITH(warnings,
 dnl
 dnl Checks for libraries.
 dnl
-CF_BUNDLED_INTL
+CF_BUNDLED_INTL(makefile,enable)
 CF_MATH_LIB(,sqrt(x))
 
-AC_MSG_CHECKING(if you want to link with dbmalloc for testing)
-AC_ARG_WITH(dbmalloc,
-	[  --with-dbmalloc         test: use Conor Cahill's dbmalloc library],
-	[use_dbmalloc=$withval],
-	[use_dbmalloc=no])
-AC_MSG_RESULT($use_dbmalloc)
-if test $use_dbmalloc = yes ; then
-	AC_CHECK_LIB(dbmalloc,debug_malloc)
-fi
-
-AC_MSG_CHECKING(if you want to link with dmalloc for testing)
-AC_ARG_WITH(dmalloc,
-	[  --with-dmalloc          test: use Gray Watson's dmalloc library],
-	[use_dmalloc=$withval],
-	[use_dmalloc=no])
-AC_MSG_RESULT($use_dmalloc)
-if test $use_dmalloc = yes ; then
-	AC_CHECK_LIB(dmalloc,dmalloc_debug)
-fi
+CF_WITH_DBMALLOC
+CF_WITH_DMALLOC
 
 use_ncurses=no
 AC_ARG_WITH(ncurses,
@@ -85,12 +68,6 @@ fi
 
 EXTRAOBJS=""
 cf_all_widgets=yes
-# For cdialog version 0.9a, libgpm can't be used because it doesn't
-# implement the wtimeout() function of ncurses.
-dnl CF_ARG_ENABLE(gpm,
-dnl 	[  --enable-gpm            include gpm support],
-dnl 	[EXTRAOBJS="$EXTRAOBJS mouse.o"
-dnl 	 AC_DEFINE(HAVE_LIBGPM)])
 
 CF_ARG_MSG_ENABLE([if you want config-file support],
 	rc-file,

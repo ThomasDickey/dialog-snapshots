@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.29 2002/06/15 11:10:52 tom Exp $
+ *  $Id: buttons.c,v 1.31 2003/01/27 01:41:07 tom Exp $
  *
  *  buttons.c
  *
@@ -319,10 +319,10 @@ dlg_ok_labels(void)
     int n = 0;
 
     labels[n++] = my_ok_label();
-    if (!dialog_vars.nocancel)
-	labels[n++] = my_cancel_label();
     if (dialog_vars.extra_button)
 	labels[n++] = my_extra_label();
+    if (!dialog_vars.nocancel)
+	labels[n++] = my_cancel_label();
     if (dialog_vars.help_button)
 	labels[n++] = my_help_label();
     labels[n] = 0;
@@ -340,10 +340,10 @@ dlg_ok_buttoncode(int button)
 
     if (button == 0) {
 	result = DLG_EXIT_OK;
-    } else if (!dialog_vars.nocancel && (button == n++)) {
-	result = DLG_EXIT_CANCEL;
     } else if (dialog_vars.extra_button && (button == n++)) {
 	result = DLG_EXIT_EXTRA;
+    } else if (!dialog_vars.nocancel && (button == n++)) {
+	result = DLG_EXIT_CANCEL;
     } else if (dialog_vars.help_button && (button == n)) {
 	result = DLG_EXIT_HELP;
     }

@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.49 2002/08/13 23:28:58 tom Exp $
-.TH DIALOG 1 "" "$Date: 2002/08/13 23:28:58 $"
+.\" $Id: dialog.1,v 1.51 2003/01/25 00:21:37 tom Exp $
+.TH DIALOG 1 "" "$Date: 2003/01/25 00:21:37 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -26,6 +26,7 @@ These types of dialog boxes are implemented
 .BR gauge ", "
 .BR infobox ", "
 .BR inputbox ", "
+.BR inputmenu ", "
 .BR menu ", "
 .BR msgbox " (message), "
 .BR password ", "
@@ -133,7 +134,7 @@ Normally the first item in the box is the default.
 Override the label used for "EXIT" buttons.
 .
 .IP "\fB\-\-extra-button"
-Show an extra button, between ok/cancel and help buttons.
+Show an extra button, between "Ok" and "Cancel" buttons.
 .
 .IP "\fB\-\-extra-label \fIstring"
 Override the label used for "Extra" buttons.
@@ -143,7 +144,7 @@ Prints the help message to standard error.
 The help message is printed if no options are given.
 .
 .IP "\fB\-\-help-button"
-Show a help-button after ok/cancel buttons,
+Show a help-button after "Ok" and "Cancel" buttons,
 i.e., in checklist, radiolist and menu boxes.
 If \fB\-\-item-help\fR is also given, on exit
 the return status will be the same as for the "Ok" button,
@@ -270,7 +271,6 @@ Same as "\fB\-\-print-version\fP".
 .\" ************************************************************************
 .TP
 \fBBox Options\fP
-.RS
 All dialog boxes have at least three parameters:
 .TP 5
 \fItext\fP
@@ -283,7 +283,6 @@ the height of the dialog box.
 the width of the dialog box.
 .PP
 Other parameters depend on the box type.
-.RE
 .IP "\fB\-\-calendar \fItext height width day month year"
 A
 \fBcalendar\fP
@@ -379,6 +378,28 @@ If the input string is longer than
 can fit in the dialog box, the input field will be scrolled.
 On exit, the input string will be printed on
 .IR stderr "."
+.
+.IP "\fB\-\-inputmenu \fItext height width menu-height \fR[ \fItag item \fR] \fI..."
+An \fBinputmenu\fP box is very similar to an ordinary \fBmenu\fP box.
+There are only a few differences between them:
+.RS
+.TP 4
+1.
+The entries are not automatically centered but left adjusted.
+.TP
+2.
+An extra button (called \fIRename\fP) is implied to rename
+the current item when it's pressed.
+.TP
+3.
+It is possible to rename the current entry by pressing the
+\fIRename\fP
+button.
+Then dialog will write the following on
+.IR stderr:
+.sp
+RENAMED <tag> <item>
+.RE
 .
 .IP "\fB\-\-menu \fItext height width menu-height \fR[ \fItag item \fR] \fI..."
 As its name suggests, a
@@ -580,6 +601,10 @@ Normally shell scripts cannot distinguish between -1 and 255.
 .TP 20
 \fI$HOME/.dialogrc\fP
 default configuration file
+.SH EXAMPLES
+The dialog sources contain several samples
+of how to use the different box options and how they look.
+Just take a look into the directory \fBsamples/\fP of the source.
 .SH DIAGNOSTICS
 Exit status is subject to being overridden by environment variables.
 Normally they are:
@@ -592,6 +617,16 @@ button.
 1
 if the
 .BR No " or " Cancel
+button is pressed.
+.TP 5
+2
+if the
+.BR Help
+button is pressed.
+.TP 5
+3
+if the
+.BR Extra
 button is pressed.
 .TP 5
 -1
@@ -609,3 +644,5 @@ Stuart Herbert (S.Herbert@sheffield.ac.uk) - patch for version 0.4
 Pako (demarco_p@abramo.it) - version 0.9a, "cdialog",
 .LP
 Thomas Dickey (updates for 0.9b)
+.SH CONTRIBUTORS
+Tobias C. Rittweiler (tobrit@freebits.de)

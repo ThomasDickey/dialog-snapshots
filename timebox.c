@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.13 2002/06/17 22:09:20 tom Exp $
+ * $Id: timebox.c,v 1.14 2003/01/30 21:05:32 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -280,5 +280,6 @@ dialog_timebox(const char *title,
     sprintf(dialog_vars.input_result, "%02d:%02d:%02d\n",
 	    hr_box.value, mn_box.value, sc_box.value);
     mouse_free_regions();
+    free(prompt);
     return result;
 }

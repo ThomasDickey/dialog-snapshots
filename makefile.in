@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.25 2002/05/19 17:51:51 tom Exp $
+# $Id: makefile.in,v 1.26 2003/01/31 02:05:21 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -98,8 +98,8 @@ install \
 install-strip \
 uninstall ::
 	@echo making $@
-@INTLDIR_MAKE@	@-test -f intl/Makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
-@MSG_DIR_MAKE@	@-test -f po/Makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
+@INTLDIR_MAKE@	@-test -f intl/makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
+@MSG_DIR_MAKE@	@-test -f po/makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
 
 clean	::
 	rm -f core *.o *~ tags TAGS $(ALL)

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.51 2002/08/13 23:57:01 tom Exp $
+ *  $Id: checklist.c,v 1.55 2003/01/30 23:54:35 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -179,7 +179,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		      KEY_MAX, 1, 1, 1 /* by lines */ );
 
     dlg_draw_arrows(dialog, scrollamt,
-		    scrollamt + choice < item_no - 1,
+		    scrollamt + max_choice < item_no - 1,
 		    box_x + check_x + 5,
 		    box_y,
 		    box_y + list_height + 1);
@@ -269,7 +269,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	if (!found
 	    && (key <= '9')
 	    && (key > '0')
-	    && (key - '1' <= max_choice)) {
+	    && (key - '1' < max_choice)) {
 	    found = TRUE;
 	    i = key - '1';
 	}
@@ -431,24 +431,31 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 	    if (status[i]) {
 		if (flag == FLAG_CHECK) {
 		    if (separate_output) {
-			fprintf(dialog_vars.output, "%s\n", ItemName(i));
+			dlg_add_result(ItemName(i));
+			dlg_add_result("\n");
 		    } else {
-			fprintf(dialog_vars.output, "\"%s\" ", ItemName(i));
+			dlg_add_result("\"");
+			dlg_add_result(ItemName(i));
+			dlg_add_result("\" ");
 		    }
 		} else {
-		    fprintf(dialog_vars.output, "%s", ItemName(i));
+		    dlg_add_result(ItemName(i));
 		}
 	    }
 	}
 	break;
     case DLG_EXIT_HELP:
+	dlg_add_result("HELP ");
 	if (USE_ITEM_HELP(ItemHelp(scrollamt + choice))) {
-	    fprintf(dialog_vars.output, "HELP %s", ItemHelp(scrollamt + choice));
-	    result = DLG_EXIT_OK;
+	    dlg_add_result(ItemHelp(scrollamt + choice));
+	    result = DLG_EXIT_OK;	/* this is inconsistent */
+	} else {
+	    dlg_add_result(ItemName(scrollamt + choice));
 	}
 	break;
     }
     mouse_free_regions();
     free(status);
+    free(prompt);
     return result;
 }
