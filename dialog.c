@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.100 2003/08/30 14:28:31 tom Exp $
+ * $Id: dialog.c,v 1.101 2003/09/23 22:49:34 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -238,7 +238,8 @@ unescape_argv(int *argcp, char **argv)
 	}
 	if (!escaped
 	    && argv[j] != 0
-	    && !strncmp(argv[j], "--", 2)) {
+	    && !strncmp(argv[j], "--", 2)
+	    && isalpha(argv[j][2])) {
 	    dialog_opts[j] = TRUE;
 	}
     }
@@ -269,7 +270,7 @@ isOption(const char *arg)
 		    break;
 		}
 	    }
-	} else if (!strncmp(arg, "--", 2)) {
+	} else if (!strncmp(arg, "--", 2) && isalpha(arg[2])) {
 	    result = TRUE;
 	}
     }
