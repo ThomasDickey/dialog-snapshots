@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.44 2004/09/18 16:36:40 tom Exp $
+ * $Id: fselect.c,v 1.47 2005/09/11 23:00:53 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2003,2004   Thomas E. Dickey
+ * Copyright 2000-2004,2005   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -406,6 +406,11 @@ usable_state(STATES state, LIST * dirs, LIST * files)
 int
 dialog_fselect(const char *title, const char *path, int height, int width)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+    bool resized = FALSE;
+#endif
     int tbox_y, tbox_x, tbox_width, tbox_height;
     int dbox_y, dbox_x, dbox_width, dbox_height;
     int fbox_y, fbox_x, fbox_width, fbox_height;
@@ -431,6 +436,14 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 
     dlg_does_output();
 
+    /* Set up the initial value */
+    strcpy(input, path);
+    offset = strlen(input);
+    *current = 0;
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
     dlg_auto_size(title, (char *) 0, &height, &width, 6, 25);
     height += MIN_HIGH + min_items;
     if (width < min_wide)
@@ -505,16 +518,18 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		 menubox_border_attr, menubox_attr);
     init_list(&f_list, dialog, w_file, MOUSE_F);
 
-    /* Set up the initial value */
-    strcpy(input, path);
-    offset = strlen(input);
-    *current = 0;
-
     while (result == DLG_EXIT_UNKNOWN) {
-	int edit = 0;
 
 	if (fill_lists(current, input, &d_list, &f_list, state < sTEXT))
 	    show_buttons = TRUE;
+
+#ifdef KEY_RESIZE
+	if (resized) {
+	    resized = FALSE;
+	    dlg_show_string(w_text, input, offset, inputbox_attr,
+			    0, 0, tbox_width, 0, first);
+	}
+#endif
 
 	/*
 	 * The last field drawn determines where the cursor is shown:
@@ -639,6 +654,22 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    case KEY_ENTER:
 		result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		continue;
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		show_buttons = TRUE;
+		*current = 0;
+		resized = TRUE;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    default:
 		if (key >= M_EVENT + MOUSE_T) {
 		    state = sTEXT;
@@ -663,7 +694,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	}
 
 	if (state < 0) {	/* Input box selected if we're editing */
-	    edit = dlg_edit_string(input, &offset, key, fkey, first);
+	    int edit = dlg_edit_string(input, &offset, key, fkey, first);
 
 	    if (edit) {
 		dlg_show_string(w_text, input, offset, inputbox_attr,

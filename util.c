@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.142 2004/12/22 01:17:02 tom Exp $
+ *  $Id: util.c,v 1.144 2005/09/09 22:48:17 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -252,7 +252,7 @@ init_dialog(FILE *input, FILE *output)
     if (fileno(input) != fileno(stdin)) {
 	if ((fd1 = dup(fileno(input))) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
-	    *stdin = *fdopen(fd1, "r");
+	    (void) dup2(fileno(input), fileno(stdin));
 	    dialog_state.pipe_input = fdopen(fd2, "r");
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
 		(void) dup2(fileno(stdin), 0);
@@ -1519,6 +1519,7 @@ dlg_add_result(char *string)
     unsigned have = strlen(dialog_vars.input_result);
     unsigned want = strlen(string) + have;
 
+    dlg_does_output();
     if (want >= MAX_LEN) {
 	if (dialog_vars.input_length == 0) {
 	    char *save = dialog_vars.input_result;

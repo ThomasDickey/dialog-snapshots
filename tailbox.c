@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.41 2004/09/19 22:47:44 tom Exp $
+ *  $Id: tailbox.c,v 1.42 2005/09/08 00:25:11 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -269,6 +269,10 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 int
 dialog_tailbox(const char *title, const char *file, int height, int width, int bg_task)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     int fkey;
     int x, y, result, thigh;
     WINDOW *dialog, *text;
@@ -276,13 +280,16 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     MY_OBJ *obj;
     FILE *fd;
 
-    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
-    dlg_print_size(height, width);
-    dlg_ctl_size(height, width);
-
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
 	dlg_exiterr("Can't open input file in dialog_tailbox().");
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
 
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
@@ -334,6 +341,19 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
 	int ch;
 	do {
 	    ch = dlg_getc(dialog, &fkey);
+#ifdef KEY_RESIZE
+	    if (fkey && ch == KEY_RESIZE) {
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+	    }
+#endif
 	}
 	while (handle_my_getc(&(obj->obj), ch, fkey, &result));
     }

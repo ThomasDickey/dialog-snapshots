@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-19 20:14-0500\n"
+"POT-Creation-Date: 2005-09-11 20:16-0400\n"
 "PO-Revision-Date: 2002-06-05 10:00GMT+2\n"
 "Last-Translator: kromJx <kromJx@crosswinds.net>\n"
 "Language-Team: <i18ngr@hellug.gr>\n"
@@ -48,19 +48,19 @@ msgstr "Μήνας"
 msgid "Year"
 msgstr "Έτος"
 
-#: dialog.c:672
+#: dialog.c:687
 msgid "Rename"
 msgstr ""
 
-#: fselect.c:426
+#: fselect.c:431
 msgid "Directories"
 msgstr "Φάκελοι"
 
-#: fselect.c:427
+#: fselect.c:432
 msgid "Files"
 msgstr "Αρχεία"
 
-#: textbox.c:437
+#: textbox.c:465
 #, fuzzy
 msgid "Search"
 msgstr "Search"

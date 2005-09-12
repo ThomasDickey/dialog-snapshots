@@ -1,9 +1,9 @@
 /*
- * $Id: inputstr.c,v 1.40 2004/12/23 00:46:15 tom Exp $
+ * $Id: inputstr.c,v 1.42 2005/09/11 23:00:53 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- * Copyright 2000-2003,2004	Thomas E. Dickey
+ * Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -520,6 +520,11 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	case KEY_ENTER:
 	    edit = 0;
 	    break;
+#ifdef KEY_RESIZE
+	case KEY_RESIZE:
+	    edit = 0;
+	    break;
+#endif
 	default:
 	    beep();
 	    break;

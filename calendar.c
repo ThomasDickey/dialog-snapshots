@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.38 2004/09/18 16:40:42 tom Exp $
+ * $Id: calendar.c,v 1.40 2005/09/11 23:00:53 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- * Copyright 2001-2003,2004	Thomas E. Dickey
+ * Copyright 2001-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -374,6 +374,10 @@ dialog_calendar(const char *title,
 		int month,
 		int year)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     BOX dy_box, mn_box, yr_box;
     int fkey;
     int key = 0;
@@ -428,6 +432,11 @@ dialog_calendar(const char *title,
     mincols += (0 * MARGIN) + (dlg_button_count(buttons) * 3) - 1;
     if (mincols < MIN_WIDE)
 	mincols = MIN_WIDE;
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+
     dlg_auto_size(title, prompt, &height, &width, 0, mincols);
     height += MIN_HIGH - 1;
     if (width < MIN_WIDE)
@@ -435,7 +444,6 @@ dialog_calendar(const char *title,
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 
-    /* FIXME: how to make this resizable? */
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
@@ -553,6 +561,19 @@ dialog_calendar(const char *title,
 		case DLGK_NEXT_FIELD:
 		    state = dlg_next_ok_buttonindex(state, sMONTH);
 		    break;
+#ifdef KEY_RESIZE
+		case KEY_RESIZE:
+		    /* reset data */
+		    height = old_height;
+		    width = old_width;
+		    /* repaint */
+		    dlg_clear();
+		    dlg_del_window(dialog);
+		    refresh();
+		    dlg_mouse_free_regions();
+		    goto retry;
+		    break;
+#endif
 		default:
 		    step = 0;
 		    key2 = -1;

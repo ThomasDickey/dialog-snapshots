@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.83 2004/12/20 20:42:58 tom Exp $
+ *  $Id: checklist.c,v 1.84 2005/09/07 23:56:56 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -123,6 +123,10 @@ int
 dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		 int list_height, int item_no, char **items, int flag)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     bool show_status = FALSE;
     bool separate_output = ((flag == FLAG_CHECK)
 			    && (dialog_vars.separate_output));
@@ -139,6 +143,11 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     const char **buttons = dlg_ok_labels();
 
     dlg_tab_correct_str(prompt);
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+
     if (list_height == 0) {
 	use_width = dlg_calc_listw(item_no, items, CHECKBOX_TAGS) + 10;
 	/* calculate height without items (4) */
@@ -500,6 +509,19 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
 				 FALSE, width);
 		break;
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    default:
 		if (key >= M_EVENT) {
 		    if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {

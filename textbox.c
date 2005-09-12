@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.57 2004/12/20 20:47:15 tom Exp $
+ *  $Id: textbox.c,v 1.61 2005/09/09 22:29:33 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -22,6 +22,9 @@
  */
 
 #include "dialog.h"
+
+#define PAGE_LENGTH	(height - 4)
+#define PAGE_WIDTH	(width - 2)
 
 typedef struct {
     DIALOG_CALLBACK obj;
@@ -161,7 +164,25 @@ read_high(MY_OBJ * obj, size_t size_read)
 }
 
 static long
-tabize(MY_OBJ * obj, long val, int pos)
+find_first(MY_OBJ * obj, char *buffer, long length)
+{
+    long recount = obj->page_length;
+    long result = 0;
+
+    while (length > 0) {
+	if (buffer[length] == '\n') {
+	    if (--recount < 0) {
+		result = length;
+		break;
+	    }
+	}
+	--length;
+    }
+    return result;
+}
+
+static long
+tabize(MY_OBJ * obj, long val, long *first_pos)
 {
     long fpos;
     long i, count, begin_line;
@@ -181,9 +202,12 @@ tabize(MY_OBJ * obj, long val, int pos)
 	dlg_exiterr("Error reading file in tabize().");
 
     begin_line = count = 0;
+    if (first_pos != 0)
+	*first_pos = 0;
+
     for (i = 0; i < val; i++) {
-	if (pos && count >= val) {
-	    count = i;		/* it's the retval */
+	if ((first_pos != 0) && (count >= val)) {
+	    *first_pos = find_first(obj, buftab, i);
 	    break;
 	}
 	if (buftab[i] == TAB)
@@ -238,7 +262,7 @@ get_line(MY_OBJ * obj)
     if (i <= MAX_LEN)
 	obj->line[i] = '\0';
     if (!obj->end_reached)
-	obj->in_buf++;		/* move pass '\n' */
+	obj->in_buf++;		/* move past '\n' */
 
     return obj->line;
 }
@@ -280,7 +304,7 @@ back_lines(MY_OBJ * obj, long n)
 		 */
 		/* Really possible to move backward BUF_SIZE/2 bytes? */
 		if (fpos < BUF_SIZE / 2 + obj->fd_bytes_read) {
-		    /* No, move less then */
+		    /* No, move less than */
 		    lseek_obj(obj, 0, SEEK_SET);
 		    val_to_tabize = fpos - obj->fd_bytes_read;
 		} else {	/* Move backward BUF_SIZE/2 bytes */
@@ -289,7 +313,7 @@ back_lines(MY_OBJ * obj, long n)
 		}
 		read_high(obj, BUF_SIZE);
 
-		obj->in_buf = tabize(obj, val_to_tabize, 0);
+		obj->in_buf = tabize(obj, val_to_tabize, (long *) 0);
 
 	    } else {		/* Beginning of file reached */
 		obj->begin_reached = TRUE;
@@ -311,7 +335,7 @@ back_lines(MY_OBJ * obj, long n)
 		if (fpos > obj->fd_bytes_read) {
 		    /* Really possible to move backward BUF_SIZE/2 bytes? */
 		    if (fpos < BUF_SIZE / 2 + obj->fd_bytes_read) {
-			/* No, move less then */
+			/* No, move less than */
 			lseek_obj(obj, 0, SEEK_SET);
 			val_to_tabize = fpos - obj->fd_bytes_read;
 		    } else {	/* Move backward BUF_SIZE/2 bytes */
@@ -320,7 +344,7 @@ back_lines(MY_OBJ * obj, long n)
 		    }
 		    read_high(obj, BUF_SIZE);
 
-		    obj->in_buf = tabize(obj, val_to_tabize, 0);
+		    obj->in_buf = tabize(obj, val_to_tabize, (long *) 0);
 
 		} else {	/* Beginning of file reached */
 		    obj->begin_reached = TRUE;
@@ -346,9 +370,9 @@ print_line(MY_OBJ * obj, int row, int width)
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
     (void) waddch(obj->text, ' ');
 #ifdef NCURSES_VERSION
-    (void) waddnstr(obj->text, line, MIN((int) strlen(line), width - 2));
+    (void) waddnstr(obj->text, line, MIN((int) strlen(line), PAGE_WIDTH));
 #else
-    line[MIN((int) strlen(line), width - 2)] = '\0';
+    line[MIN((int) strlen(line), PAGE_WIDTH)] = '\0';
     waddstr(obj->text, line);
 #endif
 
@@ -388,10 +412,14 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
     long size;
     int percent;
     int len;
-    char buffer[5];
+    long first = -1;
+    char buffer[80];
 
     fpos = ftell_obj(obj);
-    size = tabize(obj, obj->in_buf, 1);
+    if (dialog_vars.tab_correct)
+	size = tabize(obj, obj->in_buf, &first);
+    else
+	first = find_first(obj, obj->buf, size = obj->in_buf);
 
     wattrset(win, position_indicator_attr);
     percent = (!obj->file_size
@@ -405,7 +433,7 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 	percent = 100;
 
     (void) sprintf(buffer, "%d%%", percent);
-    (void) wmove(win, height - 3, width - 9);
+    (void) wmove(win, PAGE_LENGTH + 1, PAGE_WIDTH - 7);
     (void) waddstr(win, buffer);
     if ((len = strlen(buffer)) < 4) {
 	wattrset(win, border_attr);
@@ -414,10 +442,10 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 
     wattrset(win, save);
     dlg_draw_arrows2(win,
-		     fpos > obj->fd_bytes_read - size,
+		     first != 0,
 		     size < obj->fd_bytes_read,
-		     5, 0, height - 3,
-		     dialog_attr,
+		     5, 0, PAGE_LENGTH + 1,
+		     border_attr,
 		     border_attr);
 }
 
@@ -507,8 +535,8 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	    }
 	    /* Get search term from user */
 	} else if (get_search_term(obj->text, search_term,
-				   height - 4,
-				   width - 2) == DLG_EXIT_ESC
+				   PAGE_LENGTH,
+				   PAGE_WIDTH) == DLG_EXIT_ESC
 		   || search_term[0] == '\0') {
 	    /* ESC pressed, or no search term, reprint page to clear box */
 	    wattrset(obj->text, dialog_attr);
@@ -571,6 +599,10 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 int
 dialog_textbox(const char *title, const char *file, int height, int width)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     long fpos;
     int x, y, cur_x, cur_y;
     int key = 0, fkey;
@@ -581,12 +613,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     char search_term[MAX_LEN + 1];
     MY_OBJ obj;
     WINDOW *dialog;
-    bool moved = TRUE;
+    bool moved;
     int result = DLG_EXIT_UNKNOWN;
-
-    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
-    dlg_print_size(height, width);
-    dlg_ctl_size(height, width);
 
     search_term[0] = '\0';	/* no search term entered yet */
 
@@ -610,6 +638,15 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     read_high(&obj, BUF_SIZE);
 
+#ifdef KEY_RESIZE
+  retry:
+#endif
+    moved = TRUE;
+
+    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_print_size(height, width);
+    dlg_ctl_size(height, width);
+
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
 
@@ -618,19 +655,19 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     dlg_mouse_setbase(x, y);
 
     /* Create window for text region, used for scrolling text */
-    obj.text = dlg_sub_window(dialog, height - 4, width - 2, y + 1, x + 1);
+    obj.text = dlg_sub_window(dialog, PAGE_LENGTH, PAGE_WIDTH, y + 1, x + 1);
 
     /* register the new window, along with its borders */
-    dlg_mouse_mkbigregion(0, 0, height - 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
+    dlg_mouse_mkbigregion(0, 0, PAGE_LENGTH + 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
     dlg_draw_title(dialog, title);
 
-    dlg_draw_buttons(dialog, height - 2, 0, obj.buttons, FALSE, FALSE, width);
+    dlg_draw_buttons(dialog, PAGE_LENGTH + 2, 0, obj.buttons, FALSE, FALSE, width);
     (void) wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
-    dlg_attr_clear(obj.text, height - 4, width - 2, dialog_attr);
+    dlg_attr_clear(obj.text, PAGE_LENGTH, PAGE_WIDTH, dialog_attr);
 
     while (result == DLG_EXIT_UNKNOWN) {
 
@@ -643,11 +680,11 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		(void) scrollok(obj.text, TRUE);
 		(void) scroll(obj.text);	/* Scroll text region up one line */
 		(void) scrollok(obj.text, FALSE);
-		print_line(&obj, height - 5, width - 2);
+		print_line(&obj, PAGE_LENGTH - 1, PAGE_WIDTH);
 #ifndef NCURSES_VERSION
-		wmove(obj.text, height - 5, 0);
+		wmove(obj.text, PAGE_LENGTH - 1, 0);
 		waddch(obj.text, ' ');
-		wmove(obj.text, height - 5, width - 3);
+		wmove(obj.text, PAGE_LENGTH - 1, PAGE_WIDTH - 1);
 		waddch(obj.text, ' ');
 #endif
 		(void) wnoutrefresh(obj.text);
@@ -665,9 +702,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		(void) scrollok(obj.text, FALSE);
 		obj.page_length = 0;
 		passed_end = 0;
-		for (i = 0; i < height - 4; i++) {
+		for (i = 0; i < PAGE_LENGTH; i++) {
 		    if (!i) {
-			print_line(&obj, 0, width - 2);		/* print first line of page */
+			print_line(&obj, 0, PAGE_WIDTH);	/* print first line of page */
 			(void) wnoutrefresh(obj.text);
 		    } else
 			(void) get_line(&obj);	/* Called to update 'end_reached' and 'in_buf' */
@@ -677,10 +714,10 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 			passed_end = 1;
 		}
 #else
-		print_page(&obj, height - 4, width - 2);
+		print_page(&obj, PAGE_LENGTH, PAGE_WIDTH);
 #endif
 	    } else {
-		print_page(&obj, height - 4, width - 2);
+		print_page(&obj, PAGE_LENGTH, PAGE_WIDTH);
 	    }
 	    print_position(&obj, dialog, height, width);
 	    (void) wmove(dialog, cur_y, cur_x);		/* Restore cursor position */
@@ -790,7 +827,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    read_high(&obj, BUF_SIZE);
 		}
 		obj.in_buf = obj.bytes_read;
-		back_lines(&obj, height - 4);
+		back_lines(&obj, PAGE_LENGTH);
 		moved = TRUE;
 		break;
 	    case KEY_UP:	/* Previous line */
@@ -803,7 +840,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    case KEY_PPAGE:	/* Previous page */
 	    case M_EVENT + KEY_PPAGE:
 		if (!obj.begin_reached) {
-		    back_lines(&obj, obj.page_length + height - 4);
+		    back_lines(&obj, obj.page_length + PAGE_LENGTH);
 		    moved = TRUE;
 		}
 		break;
@@ -845,6 +882,21 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    moved = TRUE;
 		}
 		break;
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		back_lines(&obj, obj.page_length);
+		moved = TRUE;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    }
 	} else {
 	    beep();

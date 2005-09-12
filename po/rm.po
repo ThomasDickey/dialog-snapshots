@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-19 20:14-0500\n"
+"POT-Creation-Date: 2005-09-11 20:16-0400\n"
 "PO-Revision-Date: 2005-02-06 13:22+0100\n"
 "Last-Translator: Florian Verdet _goto <fvgoto@linuxbourg.ch>\n"
 "Language-Team: Rhaeto-Romance <gnu-rumantsch@guglielmtux.ch>\n"
@@ -54,19 +54,19 @@ msgstr "Mais"
 msgid "Year"
 msgstr "On"
 
-#: dialog.c:672
+#: dialog.c:687
 msgid "Rename"
 msgstr "Müdar nom"
 
-#: fselect.c:426
+#: fselect.c:431
 #, fuzzy
 msgid "Directories"
 msgstr "Registers"
 
-#: fselect.c:427
+#: fselect.c:432
 msgid "Files"
 msgstr "Datotecas"
 
-#: textbox.c:437
+#: textbox.c:465
 msgid "Search"
 msgstr "Tscherchar"

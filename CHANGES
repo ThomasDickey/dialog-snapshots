@@ -1,8 +1,45 @@
--- $Id: CHANGES,v 1.127 2005/03/06 17:39:20 tom Exp $
+-- $Id: CHANGES,v 1.138 2005/09/11 23:55:11 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/09/11
+	+ undo doubled adjustment for left/right margins when wrapping text
+	  for msgbox, gauge and pause (report by Xyba).
+	+ correct position of scrolled text in formbox broken by 2004/12/19
+	  changes (report by Konrad Jelen).
+	+ call dlg_does_output() from dlg_add_result(), ensuring that
+	  separators are used when combining widgets such as formbox (report by
+	  John Suykerbuyk).
+	+ fix marker in textbox.c to make it disappear at the top of the file
+	  (report by Patrick J. Volkerding).
+	+ fix marker shown in arrows.c for checklists, etc., which was "(+)"
+	  where it should have been "(-)" (report/patch by Patrick J. 
+	  Volkerding).
+	+ fix --input-fd (changes in glibc since 2003 made dialog hang on exit
+	  due to the way dialog updated stdin).
+	+ restore default value (a tab) for --separator or --separate-widget
+	  lost in 2003/11/26 changes (Debian #326918).
+	+ make several widgets handle SIGWINCH (calendar, checklist, formbox,
+	  fselect, inputbox, menubox, pause, tailbox, textbox, timebox).  Only
+	  msgbox and yesno had been done before.  Note that some still have
+	  fixed geometry requirements, so they cannot be shrunk below a given
+	  threshold.  Also, these changes do not address traversal, e.g., for
+	  tailboxbg.
+	+ make gauge widget handle SIGWINCH with ncurses (Debian #305705).
+	+ add configure option to control whether largefile support is
+	  compiled-in (Debian #298882).
+	+ update eu.po (Debian #312622, patch by Piarres Egana).
+	+ add/update po files from
+		http://www.iro.umontreal.ca/translation/maint/dialog/
+	  fi.po, rw.po, sr.po, tr.po, zh_TW.po
+	+ fixes for configure script:
+	  + improve script for determining gcc version
+	  + improve checks for Intel compiler and related warning options
+	  + improve checks for defining _XOPEN_SOURCE (or alternatives) and
+	    _POSIX_C_SOURCE
+	+ update config.guess, config.sub
 
 2005/03/06
 	+ add/update po files from

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.26 2004/12/20 23:42:40 tom Exp $
+ *  $Id: guage.c,v 1.30 2005/09/11 23:48:26 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -22,6 +22,7 @@
  */
 
 #include "dialog.h"
+#include <errno.h>
 
 #define MY_LEN (MAX_LEN)/2
 
@@ -30,14 +31,41 @@
 
 #define isMarker(buf) !strncmp(buf, "XXX", 3)
 
-static char *
+#define if_FINISH(status,statement) if ((status) == 0) statement
+
+#ifdef KEY_RESIZE
+#define if_RESIZE(status,statement) if ((status) < 0) statement
+#else
+#define if_RESIZE(status,statement)	/* nothing */
+#endif
+
+static int
 read_data(char *buffer, FILE *fp)
 {
-    char *result;
+    int result;
+
     if (feof(fp)) {
 	result = 0;
-    } else if ((result = fgets(buffer, MY_LEN, fp)) != 0) {
-	dlg_trim_string(result);
+    } else if (fgets(buffer, MY_LEN, fp) != 0) {
+	dlg_trim_string(buffer);
+	result = 1;
+    } else {
+	result = -1;
+#ifdef KEY_RESIZE
+	/*
+	 * Since we weren't doing getch's before, we won't necessarily
+	 * have a KEY_RESIZE returned.  Call getch() anyway to force it
+	 * to call resizeterm as-needed.
+	 */
+	if (errno == EINTR) {
+	    (void) getch();	/* allow it to call resizeterm() */
+	    refresh();
+	    dlg_clear();
+	    (void) getch();
+	} else {
+	    result = 0;
+	}
+#endif
     }
     return result;
 }
@@ -69,10 +97,27 @@ dialog_gauge(const char *title,
 	     int width,
 	     int percent)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     int i, x, y;
+    int status;
     char buf[MY_LEN];
     char prompt_buf[MY_LEN];
     WINDOW *dialog;
+
+    curs_set(0);
+
+#ifdef KEY_RESIZE
+    nodelay(stdscr, TRUE);
+    goto first_try;
+  retry:
+    dlg_del_window(dialog);
+    height = old_height;
+    width = old_width;
+  first_try:
+#endif
 
     dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
     dlg_print_size(height, width);
@@ -84,7 +129,6 @@ dialog_gauge(const char *title,
 
     dialog = dlg_new_window(height, width, y, x);
 
-    curs_set(0);
     do {
 	(void) werase(dialog);
 	dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -92,7 +136,7 @@ dialog_gauge(const char *title,
 	dlg_draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	dlg_print_autowrap(dialog, prompt, height, width - (2 * MARGIN));
+	dlg_print_autowrap(dialog, prompt, height, width);
 
 	dlg_draw_box(dialog,
 		     height - 4, 2 + MARGIN,
@@ -136,16 +180,20 @@ dialog_gauge(const char *title,
 
 	(void) wrefresh(dialog);
 
-	if (read_data(buf, dialog_state.pipe_input) == 0)
-	    break;
+	status = read_data(buf, dialog_state.pipe_input);
+	if_FINISH(status, break);
+	if_RESIZE(status, goto retry);
+
 	if (isMarker(buf)) {
 	    /*
 	     * Historically, next line should be percentage, but one of the
 	     * worse-written clones of 'dialog' assumes the number is missing.
 	     * (Gresham's Law applied to software).
 	     */
-	    if (read_data(buf, dialog_state.pipe_input) == 0)
-		break;
+	    status = read_data(buf, dialog_state.pipe_input);
+	    if_FINISH(status, break);
+	    if_RESIZE(status, goto retry);
+
 	    prompt_buf[0] = '\0';
 	    if (decode_percent(buf))
 		percent = atoi(buf);
@@ -153,18 +201,24 @@ dialog_gauge(const char *title,
 		strcpy(prompt_buf, buf);
 
 	    /* Rest is message text */
-	    while (read_data(buf, dialog_state.pipe_input) != 0
+	    while ((status = read_data(buf, dialog_state.pipe_input)) > 0
 		   && !isMarker(buf)) {
 		if (strlen(prompt_buf) + strlen(buf) < sizeof(prompt_buf) - 1) {
 		    strcat(prompt_buf, buf);
 		}
 	    }
+	    if_FINISH(status, break);
+	    if_RESIZE(status, goto retry);
+
 	    prompt = prompt_buf;
 	} else if (decode_percent(buf)) {
 	    percent = atoi(buf);
 	}
     } while (1);
 
+#ifdef KEY_RESIZE
+    nodelay(stdscr, FALSE);
+#endif
     curs_set(1);
     dlg_del_window(dialog);
     return (DLG_EXIT_OK);
