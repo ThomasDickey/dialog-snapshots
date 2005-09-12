@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.37 2004/04/22 00:17:38 tom Exp $
+dnl $Id: configure.in,v 1.38 2005/09/06 20:08:37 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -32,6 +32,7 @@ CF_DISABLE_ECHO
 CF_PROG_EXT
 CF_LIB_PREFIX
 CF_XOPEN_SOURCE
+CF_LARGEFILE
 
 AC_ARG_WITH(warnings,
 [  --with-warnings         turn on gcc warnings, for debugging],[

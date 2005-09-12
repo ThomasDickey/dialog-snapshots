@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.21 2004/09/18 16:37:11 tom Exp $
+ * $Id: timebox.c,v 1.24 2005/09/11 23:00:53 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- * Copyright 2001-2003,2004   Thomas E. Dickey
+ * Copyright 2001-2004,2005   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -133,6 +133,10 @@ dialog_timebox(const char *title,
 	       int minute,
 	       int second)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     BOX hr_box, mn_box, sc_box;
     int key = 0, key2, fkey;
     int button;
@@ -149,6 +153,10 @@ dialog_timebox(const char *title,
 
     dlg_does_output();
 
+#ifdef KEY_RESIZE
+  retry:
+#endif
+
     dlg_auto_size(title, prompt, &height, &width, 0, 0);
     height += MIN_HIGH;
     if (width < MIN_WIDE)
@@ -157,7 +165,6 @@ dialog_timebox(const char *title,
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 
-    /* FIXME: how to make this resizable? */
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
@@ -325,6 +332,22 @@ dialog_timebox(const char *title,
 			(void) DrawObject(obj);
 		    }
 		    break;
+#ifdef KEY_RESIZE
+		case KEY_RESIZE:
+		    /* reset data */
+		    height = old_height;
+		    width = old_width;
+		    hour = hr_box.value;
+		    minute = mn_box.value;
+		    second = sc_box.value;
+		    /* repaint */
+		    dlg_clear();
+		    dlg_del_window(dialog);
+		    refresh();
+		    dlg_mouse_free_regions();
+		    goto retry;
+		    break;
+#endif
 		default:
 		    if (obj != 0) {
 			int step = next_or_previous(key);

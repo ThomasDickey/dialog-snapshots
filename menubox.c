@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.79 2004/12/20 20:42:58 tom Exp $
+ *  $Id: menubox.c,v 1.80 2005/09/07 23:54:44 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -252,6 +252,10 @@ int
 dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    int menu_height, int item_no, char **items)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
     int button = dialog_state.visit_items ? -1 : dlg_defaultno_button();
@@ -266,6 +270,11 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     const char **buttons = dlg_ok_labels();
 
     dlg_tab_correct_str(prompt);
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+
     if (menu_height == 0) {
 	min_width = dlg_calc_listw(item_no, items, MENUBOX_TAGS) + 10;
 	/* calculate height without items (4) */
@@ -637,6 +646,19 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 				     buttons, button, FALSE, width);
 		}
 		break;
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    default:
 		flash();
 		break;

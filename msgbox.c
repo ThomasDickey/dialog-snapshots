@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.38 2004/11/18 21:57:00 tom Exp $
+ *  $Id: msgbox.c,v 1.39 2005/09/11 23:50:16 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -61,7 +61,7 @@ show_message(WINDOW *dialog,
 	wbkgdset(dummy, dialog_attr | ' ');
 	wattrset(dummy, dialog_attr);
 	werase(dummy);
-	dlg_print_autowrap(dummy, prompt, high, wide);
+	dlg_print_autowrap(dummy, prompt, high, width);
 	getyx(dummy, y, x);
 
 	copywin(dummy,		/* srcwin */

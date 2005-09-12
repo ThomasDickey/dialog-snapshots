@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.43 2004/09/19 22:09:50 tom Exp $
+ *  $Id: inputbox.c,v 1.44 2005/09/07 23:49:30 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -32,14 +32,18 @@ int
 dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		const char *init, const int password)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
     int x, y, box_y, box_x, box_width;
-    int show_buttons = TRUE;
+    int show_buttons;
     int col_offset = 0;
     int chr_offset = 0;
-    int key = 0, fkey = 0, code;
+    int key, fkey, code;
     int result = DLG_EXIT_UNKNOWN;
-    int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
-    int first = (state == sTEXT);
+    int state;
+    int first;
     char *input = dialog_vars.input_result;
     WINDOW *dialog;
     char *prompt = dlg_strclone(cprompt);
@@ -48,6 +52,21 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     dlg_does_output();
 
     dlg_tab_correct_str(prompt);
+
+    /* Set up the initial value */
+    if (!init)
+	input[0] = '\0';
+    else
+	strcpy((char *) input, init);
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+    show_buttons = TRUE;
+    state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
+    first = (state == sTEXT);
+    key = fkey = 0;
+
     if (init != NULL) {
 	dlg_auto_size(title, prompt, &height, &width, 5,
 		      MIN(MAX((int) strlen(init) + 7, 26),
@@ -82,12 +101,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     dlg_draw_box(dialog, y + 1, box_x - 1, 3, box_width + 2,
 		 border_attr, dialog_attr);
 
-    /* Set up the initial value */
-    if (!init)
-	input[0] = '\0';
-    else
-	strcpy((char *) input, init);
-
     while (result == DLG_EXIT_UNKNOWN) {
 	int edit = 0;
 
@@ -121,6 +134,9 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    if (edit) {
 		dlg_show_string(dialog, input, chr_offset, inputbox_attr,
 				box_y, box_x, box_width, password, first);
+		first = FALSE;
+		continue;
+	    } else if (first) {
 		first = FALSE;
 		continue;
 	    }
@@ -173,6 +189,19 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		break;
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    default:
 		beep();
 		break;

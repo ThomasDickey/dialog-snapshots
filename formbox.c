@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.32 2005/02/07 00:10:37 tom Exp $
+ *  $Id: formbox.c,v 1.34 2005/09/10 00:54:23 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -86,12 +86,12 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 			    elt->name,
 			    0,
 			    menubox_attr,
-			    elt->name_y,
+			    elt->name_y - scrollamt,
 			    elt->name_x,
 			    len,
 			    FALSE,
 			    FALSE);
-	    move_past(win, elt->name_y, elt->name_x + len);
+	    move_past(win, elt->name_y - scrollamt, elt->name_x + len);
 	    count = 1;
 	}
     }
@@ -103,12 +103,12 @@ print_item(WINDOW *win, FORM_ELT * elt, int scrollamt, bool choice)
 			    elt->text,
 			    0,
 			    choice ? form_active_text_attr : form_text_attr,
-			    elt->text_y,
+			    elt->text_y - scrollamt,
 			    elt->text_x,
 			    len,
 			    FALSE,
 			    FALSE);
-	    move_past(win, elt->text_y, elt->text_x + len);
+	    move_past(win, elt->text_y - scrollamt, elt->text_x + len);
 	    count = 1;
 	}
     }
@@ -353,7 +353,13 @@ int
 dialog_form(const char *title, const char *cprompt, int height, int width,
 	    int form_height, int item_no, char **items)
 {
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
+
 #define sTEXT -1
+
     bool show_status = FALSE;
     int form_width;
     int first = TRUE;
@@ -380,6 +386,11 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     elt = init_fe(items, item_no, &min_height, &min_width);
     dlg_tab_correct_str(prompt);
+
+#ifdef KEY_RESIZE
+  retry:
+#endif
+
     dlg_auto_size(title, prompt, &height, &width,
 		  1 + 3 * MARGIN,
 		  MAX(26, 2 + min_width));
@@ -585,6 +596,19 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		    continue;
 		}
 
+#ifdef KEY_RESIZE
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
+#endif
 	    default:
 #if USE_MOUSE
 		if (key >= M_EVENT) {

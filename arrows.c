@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.13 2004/12/20 20:42:58 tom Exp $
+ *  $Id: arrows.c,v 1.15 2005/09/11 23:00:53 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- * Copyright 2000-2003,2004   Thomas E. Dickey
+ * Copyright 2000-2004,2005   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -67,7 +67,7 @@ dlg_draw_arrows2(WINDOW *dialog,
     if (top_arrow) {
 	wattrset(dialog, merge_colors(uarrow_attr, attr));
 	(void) add_acs(dialog, ACS_UARROW);
-	(void) waddstr(dialog, "(+)");
+	(void) waddstr(dialog, "(-)");
     } else {
 	wattrset(dialog, attr);
 	(void) whline(dialog, ACS_HLINE, 4);

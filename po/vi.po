@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-19 20:14-0500\n"
+"POT-Creation-Date: 2005-09-11 20:16-0400\n"
 "PO-Revision-Date: 2005-01-21 20:15+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net> \n"
@@ -53,18 +53,18 @@ msgstr "Tháng"
 msgid "Year"
 msgstr "Năm"
 
-#: dialog.c:672
+#: dialog.c:687
 msgid "Rename"
 msgstr "Đổi tên"
 
-#: fselect.c:426
+#: fselect.c:431
 msgid "Directories"
 msgstr "Thư mục"
 
-#: fselect.c:427
+#: fselect.c:432
 msgid "Files"
 msgstr "Tập tin"
 
-#: textbox.c:437
+#: textbox.c:465
 msgid "Search"
 msgstr "Tìm kiếm"

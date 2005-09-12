@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.130 2005/01/16 16:53:48 tom Exp $
+ * $Id: dialog.c,v 1.132 2005/09/11 23:00:53 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -597,7 +597,10 @@ show_result(int ret)
     case DLG_EXIT_HELP:
     case DLG_EXIT_ITEM_HELP:
 	if (dialog_state.output_count > 1) {
-	    fputs(dialog_state.separate_str, dialog_state.output);
+	    fputs((dialog_state.separate_str
+		   ? dialog_state.separate_str
+		   : DEFAULT_SEPARATE_STR),
+		  dialog_state.output);
 	    either = TRUE;
 	}
 	if (dialog_vars.input_result[0] != '\0') {
@@ -958,7 +961,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright (C) 2004 Thomas E. Dickey",
+	"Copyright (C) 2005 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",

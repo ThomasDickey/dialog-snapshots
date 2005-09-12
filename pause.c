@@ -1,9 +1,10 @@
 /*
- *  $Id: pause.c,v 1.3 2004/12/20 23:42:34 tom Exp $
+ *  $Id: pause.c,v 1.5 2005/09/11 23:49:02 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
  *  AUTHOR: Yura Kalinichenko
+ *  and     Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -22,13 +23,15 @@
 
 #include "dialog.h"
 
+#define MY_TIMEOUT 50
+
 /*
- * Display a gauge, or progress meter.  Starts at percent% and reads stdin.  If
- * stdin is not XXX, then it is interpreted as a percentage, and the display is
- * updated accordingly.  Otherwise the next line is the percentage, and
- * subsequent lines up to another XXX are used for the new prompt.  Note that
- * the size of the window never changes, so the prompt can not get any larger
- * than the height and width specified.
+ * This is like gauge, but can be interrupted.
+ *
+ * A pause box displays a meter along the bottom of the box.  The meter
+ * indicates how many seconds remain until the end of the pause.  The pause
+ * exits when timeout is reached (status OK) or the user presses the Exit
+ * button (status CANCEL).
  */
 int
 dialog_pause(const char *title,
@@ -37,14 +40,28 @@ dialog_pause(const char *title,
 	     int width,
 	     int seconds)
 {
-    int i, x, y;
+#ifdef KEY_RESIZE
+    int old_height = height;
+    int old_width = width;
+#endif
+
+    int i, x, y, step;
     int seconds_orig;
     WINDOW *dialog;
     const char **buttons = dlg_exit_label();
     int key = 0, fkey;
     int status = DLG_EXIT_OK;
 
+    curs_set(0);
+
     seconds_orig = (seconds > 0) ? seconds : 1;
+
+#ifdef KEY_RESIZE
+  retry:
+    height = old_height;
+    width = old_width;
+#endif
+
     dlg_auto_size(title, prompt, &height, &width, 0, 0);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
@@ -57,7 +74,6 @@ dialog_pause(const char *title,
     dlg_mouse_setbase(x, y);
     nodelay(dialog, TRUE);
 
-    curs_set(0);
     do {
 	(void) werase(dialog);
 	dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -65,7 +81,7 @@ dialog_pause(const char *title,
 	dlg_draw_title(dialog, title);
 
 	wattrset(dialog, dialog_attr);
-	dlg_print_autowrap(dialog, prompt, height, width - (2 * MARGIN));
+	dlg_print_autowrap(dialog, prompt, height, width);
 
 	dlg_draw_box(dialog,
 		     height - 6, 2 + MARGIN,
@@ -111,11 +127,22 @@ dialog_pause(const char *title,
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
 	(void) wrefresh(dialog);
-	napms(1000);
-	key = dlg_mouse_wgetch_nowait(dialog, &fkey);
-	if (key != ERR) {
-	    status = DLG_EXIT_CANCEL;
-	    break;
+	for (step = 0; step < 1000; step += MY_TIMEOUT) {
+	    napms(MY_TIMEOUT);
+	    key = dlg_mouse_wgetch_nowait(dialog, &fkey);
+#ifdef KEY_RESIZE
+	    if (key == KEY_RESIZE) {
+		dlg_clear();	/* fill the background */
+		dlg_del_window(dialog);		/* delete this window */
+		refresh();	/* get it all onto the terminal */
+		goto retry;
+	    }
+#endif
+	    if (key != ERR) {
+		status = DLG_EXIT_CANCEL;
+		seconds = 0;
+		break;
+	    }
 	}
     } while (seconds-- > 0);
 
