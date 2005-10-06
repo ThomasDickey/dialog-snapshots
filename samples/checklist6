@@ -1,12 +1,12 @@
 #! /bin/sh
-# $Id: checklist6,v 1.3 2004/12/19 23:18:53 tom Exp $
+# $Id: checklist6,v 1.4 2005/10/05 23:43:22 tom Exp $
 # example showing the --colors option
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --help-button --item-help --colors --backtitle "\Z1Red Hat\Zn Software Linux" \
+$DIALOG --help-button --item-help --colors --backtitle "\Z1No Such\Zn Organization" \
 	--title "CHECKLIST BOX" \
         --checklist "Hi, this is a checklist box. You can use this to \n\
 present a list of choices which can be turned on or \n\

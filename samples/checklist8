@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: checklist8,v 1.2 2004/12/19 23:18:53 tom Exp $
+# $Id: checklist8,v 1.3 2005/10/05 23:43:22 tom Exp $
 # "checklist7" without --item-help
 : ${DIALOG=dialog}
 
@@ -8,7 +8,7 @@ trap "rm -f $tempfile" 0 1 2 5 15
 
 $DIALOG --help-button \
 	--colors \
-	--backtitle "\Z1Red Hat\Zn Software Linux" \
+	--backtitle "\Z1No Such\Zn Organization" \
 	--separate-output \
 	--title "CHECKLIST BOX" \
         --checklist "Hi, this is a checklist box. You can use this to \n\

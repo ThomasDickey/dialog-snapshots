@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.144 2005/09/09 22:48:17 tom Exp $
+ *  $Id: util.c,v 1.146 2005/10/05 23:55:38 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1371,12 +1371,21 @@ dlg_item_help(char *txt)
 {
     if (USE_ITEM_HELP(txt)) {
 	chtype attr = A_NORMAL;
+	int y, x;
 
 	wattrset(stdscr, itemhelp_attr);
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
 	(void) addch(' ');
 	dlg_print_text(stdscr, txt, COLS - 1, &attr);
+	if (itemhelp_attr & A_COLOR) {
+	    /* fill the remainder of the line with the window's attributes */
+	    getyx(stdscr, y, x);
+	    while (x < COLS) {
+		(void) addch(' ');
+		++x;
+	    }
+	}
 	(void) wnoutrefresh(stdscr);
     }
 }
@@ -1519,7 +1528,6 @@ dlg_add_result(char *string)
     unsigned have = strlen(dialog_vars.input_result);
     unsigned want = strlen(string) + have;
 
-    dlg_does_output();
     if (want >= MAX_LEN) {
 	if (dialog_vars.input_length == 0) {
 	    char *save = dialog_vars.input_result;

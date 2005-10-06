@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.80 2005/09/07 23:54:44 tom Exp $
+ *  $Id: menubox.c,v 1.81 2005/10/05 23:55:30 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -269,6 +269,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
 
+    dlg_does_output();
     dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE

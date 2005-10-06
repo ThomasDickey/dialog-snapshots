@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.138 2005/09/11 23:55:11 tom Exp $
+-- $Id: CHANGES,v 1.141 2005/10/06 00:02:24 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/10/05
+	+ improve fix for dlg_does_output(), eliminating redundant leading
+	  separator.
+	+ fill background color for item-help text (report by Peter Postma).
+	+ correct interaction between --separate-output and --output-separator
+	  broken in 2005/09/11 fix for Debian #326918 (Debian #331440).
+	+ update config.guess, config.sub
 
 2005/09/11
 	+ undo doubled adjustment for left/right margins when wrapping text

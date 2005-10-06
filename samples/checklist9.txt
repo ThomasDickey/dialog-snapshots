@@ -1,6 +1,6 @@
 --help-button \
 	--colors \
-	--backtitle "\Z1Red Hat\Zn Software Linux" \
+	--backtitle "\Z1No Such\Zn Organization" \
 	--separate-output \
 	--title "CHECKLIST BOX" \
         --checklist "Hi, this is a checklist box. You can use this to \n\

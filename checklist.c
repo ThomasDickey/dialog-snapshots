@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.84 2005/09/07 23:56:56 tom Exp $
+ *  $Id: checklist.c,v 1.85 2005/10/05 23:55:11 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -142,6 +142,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
 
+    dlg_does_output();
     dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE
