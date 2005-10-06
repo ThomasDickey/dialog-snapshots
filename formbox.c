@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.34 2005/09/10 00:54:23 tom Exp $
+ *  $Id: formbox.c,v 1.35 2005/10/05 23:55:20 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -385,6 +385,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     FORM_ELT *elt, *current;
 
     elt = init_fe(items, item_no, &min_height, &min_width);
+    dlg_does_output();
     dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE

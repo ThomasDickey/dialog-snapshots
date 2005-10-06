@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.132 2005/09/11 23:00:53 tom Exp $
+ * $Id: dialog.c,v 1.133 2005/10/05 22:42:29 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -596,7 +596,7 @@ show_result(int ret)
     case DLG_EXIT_EXTRA:
     case DLG_EXIT_HELP:
     case DLG_EXIT_ITEM_HELP:
-	if (dialog_state.output_count > 1) {
+	if ((dialog_state.output_count > 1) && !dialog_vars.separate_output) {
 	    fputs((dialog_state.separate_str
 		   ? dialog_state.separate_str
 		   : DEFAULT_SEPARATE_STR),
