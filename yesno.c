@@ -1,10 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.32 2004/09/19 23:09:34 tom Exp $
+ *  $Id: yesno.c,v 1.33 2005/10/30 20:32:38 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 1999-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,12 +18,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"
 
 /*
- * Display a dialog box with two buttons - Yes and No
+ * Display a dialog box with two buttons - Yes and No.
  */
 int
 dialog_yesno(const char *title, const char *cprompt, int height, int width)

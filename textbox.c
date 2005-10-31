@@ -1,10 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.61 2005/09/09 22:29:33 tom Exp $
+ *  $Id: textbox.c,v 1.62 2005/10/30 20:29:07 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors:
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"

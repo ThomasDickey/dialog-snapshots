@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.47 2005/09/11 23:00:53 tom Exp $
+ * $Id: fselect.c,v 1.48 2005/10/30 19:20:18 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -46,7 +46,7 @@
 #define HDR_HIGH 1
 #define BTN_HIGH (1 + 2 * MARGIN)	/* Ok/Cancel, also input-box */
 #define MIN_HIGH (HDR_HIGH - MARGIN + (BTN_HIGH * 2) + 4 * MARGIN)
-#define MIN_WIDE (2 * MAX(strlen(d_label), strlen(f_label)) + 6 * MARGIN + 2 * EXT_WIDE)
+#define MIN_WIDE (2 * MAX(dlg_count_columns(d_label), dlg_count_columns(f_label)) + 6 * MARGIN + 2 * EXT_WIDE)
 
 #define MOUSE_D (KEY_MAX + 0)
 #define MOUSE_F (KEY_MAX + 10000)

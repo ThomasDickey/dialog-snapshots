@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog 1.0-20050116\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2004-11-21 12:23+0530\n"
 "Last-Translator: Ravishankar Shrivastava <raviratlami@gmail.com>\n"
 "Language-Team: Ravishankar Shrivastava <raviratlami@yahoo.com>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "X-Poedit-Language: Hindi\n"
 "X-Poedit-Country: INDIA\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "हाàA"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "नहà@àB"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "à à@àU"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "रदàMद"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr ""
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr ""
 

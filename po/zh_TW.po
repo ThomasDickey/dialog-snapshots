@@ -1,5 +1,5 @@
-# Tranditional Chinese Messages for dialog
-# Copyright (C) 2003, 05 Free Software Foundation, Inc.
+# Traditional Chinese Messages for dialog
+# Copyright (C) 2005 Free Software Foundation, Inc.
 # This file is distributed under the same license as the dialog package.
 # Wei-Lun Chao <chaoweilun@pcmail.com.tw>, 2005
 #
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
-"PO-Revision-Date: 2005-05-12 15:15+0800\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"PO-Revision-Date: 2005-05-12 15:16+0800\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@pcmail.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
 "MIME-Version: 1.0\n"
@@ -16,31 +16,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "是"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "否"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "確定"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "取消"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "離開"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr "其他"
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "求助"
 

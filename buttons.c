@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.56 2004/12/20 20:42:58 tom Exp $
+ *  $Id: buttons.c,v 1.58 2005/10/30 20:06:27 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2003,2004	Thomas E. Dickey
+ * Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -36,13 +36,13 @@
 static void
 center_label(char *buffer, int longest, const char *label)
 {
-    int len = strlen(label);
+    int len = dlg_count_columns(label);
 
     if (len < longest) {
 	if ((len = (longest - len) / 2) > 0) {
 	    longest -= len;
 	    sprintf(buffer, "%*s", len, " ");
-	    buffer += strlen(buffer);
+	    buffer += len;
 	}
     }
     sprintf(buffer, "%-*s", longest, label);
@@ -91,7 +91,7 @@ string_to_char(const char **stringp)
 static void
 print_button(WINDOW *win, const char *label, int y, int x, int selected)
 {
-    int i, j;
+    int i;
     int state = 0;
     const int *indx = dlg_index_wchars(label);
     int limit = dlg_count_wchars(label);
@@ -135,8 +135,7 @@ print_button(WINDOW *win, const char *label, int y, int x, int selected)
 	    state = 2;
 	    break;
 	}
-	for (j = first; j < last; ++j)
-	    (void) waddch(win, CharOf(label[j]));
+	waddnstr(win, label + first, last - first);
     }
     wattrset(win, selected
 	     ? button_active_attr
@@ -158,7 +157,8 @@ dlg_button_count(const char **labels)
 }
 
 /*
- * Compute the size of the button array.
+ * Compute the size of the button array in columns.  Return the total number of
+ * columns in *length, and the longest button's columns in *longest
  */
 void
 dlg_button_sizes(const char **labels,
@@ -175,7 +175,7 @@ dlg_button_sizes(const char **labels,
 	    *length += 1;
 	    *longest = 1;
 	} else {
-	    int len = strlen(labels[n]);
+	    int len = dlg_count_columns(labels[n]);
 	    if (len > *longest)
 		*longest = len;
 	    *length += len;
@@ -256,6 +256,7 @@ dlg_draw_buttons(WINDOW *win,
     int final_y;
     int gap;
     int margin;
+    unsigned need;
     char *buffer;
 
     dlg_mouse_setbase(getbegx(win), getbegy(win));
@@ -272,12 +273,22 @@ dlg_draw_buttons(WINDOW *win,
 	x += margin;
     }
 
-    buffer = malloc((unsigned) longest + 1);
+    /*
+     * Allocate a buffer big enough for any label.
+     */
+    need = 0;
+    for (n = 0; labels[n] != 0; ++n) {
+	need += strlen(labels[n]) + 1;
+    }
+    buffer = malloc(need);
     assert_ptr(buffer, "dlg_draw_buttons");
 
+    /*
+     * Draw the labels.
+     */
     for (n = 0; labels[n] != 0; n++) {
 	center_label(buffer, longest, labels[n]);
-	mouse_mkbutton(y, x, strlen(buffer), n);
+	mouse_mkbutton(y, x, dlg_count_columns(buffer), n);
 	print_button(win, buffer, y, x,
 		     (selected == n) || (n == 0 && selected < 0));
 	if (selected == n)

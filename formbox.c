@@ -1,10 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.35 2005/10/05 23:55:20 tom Exp $
+ *  $Id: formbox.c,v 1.38 2005/10/30 20:38:36 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  AUTHOR: Valery Reznic (valery_reznic@users.sourceforge.net)
- *     and: Thomas E. Dickey
+ *  Copyright 2003-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  This is adapted from source contributed by
+ *	Valery Reznic (valery_reznic@users.sourceforge.net)
  */
 
 #include "dialog.h"
@@ -276,10 +278,10 @@ scroll_next(WINDOW *win, FORM_ELT elt[], int stepsize, int *choice, int *scrolla
 }
 
 static FORM_ELT *
-init_fe(char **items,
-	int item_no,
-	int *min_height,
-	int *min_width)
+make_FORM_ELTs(char **items,
+	       int item_no,
+	       int *min_height,
+	       int *min_width)
 {
     FORM_ELT *elt;
     int i;
@@ -384,7 +386,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     const char **buttons = dlg_ok_labels();
     FORM_ELT *elt, *current;
 
-    elt = init_fe(items, item_no, &min_height, &min_width);
+    elt = make_FORM_ELTs(items, item_no, &min_height, &min_width);
     dlg_does_output();
     dlg_tab_correct_str(prompt);
 
@@ -449,7 +451,6 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 
     show_buttons = TRUE;
     scroll_changed = TRUE;
-    field_changed = TRUE;
 
     choice = set_choice(elt, choice, item_no);
     current = &elt[choice];

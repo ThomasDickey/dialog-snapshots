@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2005-04-04 10:55-0700\n"
 "Last-Translator: Steven Michael Murphy <murf@e-tools.com>\n"
 "Language-Team: Kinyarwanda <translation-team-rw@lists.sourceforge.net>\n"
@@ -24,19 +24,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Yego"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Oya"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "OKE"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "Kureka"
 
@@ -44,17 +44,17 @@ msgstr "Kureka"
 # setup2/source\ui\app.src:STR_RESTART_BTN_NO.text
 # #-#-#-#-#  setup2.pot (PACKAGE VERSION)  #-#-#-#-#
 # setup2/source\ui\pages\phavefun.src:RESID_PAGE_PAGEHAVEFUN.STR_LOGOUT_BTN_NO.text
-#: buttons.c:391
+#: buttons.c:402
 #, fuzzy
 msgid "EXIT"
 msgstr "Gusohoka"
 
-#: buttons.c:399
+#: buttons.c:410
 #, fuzzy
 msgid "Extra"
 msgstr "Birenga"
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "Gufasha"
 

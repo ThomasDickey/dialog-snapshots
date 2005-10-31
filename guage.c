@@ -1,10 +1,9 @@
 /*
- *  $Id: guage.c,v 1.30 2005/09/11 23:48:26 tom Exp $
+ *  $Id: guage.c,v 1.31 2005/10/30 20:28:03 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  AUTHOR: Marc Ewing, Red Hat Software
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Marc Ewing, Red Hat Software
  */
 
 #include "dialog.h"

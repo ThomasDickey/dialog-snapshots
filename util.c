@@ -1,10 +1,9 @@
 /*
- *  $Id: util.c,v 1.146 2005/10/05 23:55:38 tom Exp $
+ *  $Id: util.c,v 1.150 2005/10/30 20:15:17 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"
@@ -493,15 +495,18 @@ centered(int width, const char *string)
 }
 
 /*
- * Print up to 'len' bytes from 'text', optionally rendering our escape
+ * Print up to 'cols' columns from 'text', optionally rendering our escape
  * sequence for attributes and color.
  */
 void
-dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
+dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 {
+    int y_origin, x_origin;
+    int y_after, x_after;
     chtype useattr;
 
-    while (len > 0 && (*txt != '\0')) {
+    getyx(win, y_origin, x_origin);
+    while (cols > 0 && (*txt != '\0')) {
 	if (dialog_vars.colors) {
 	    while (isOurEscape(txt)) {
 		int code;
@@ -568,7 +573,10 @@ dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr)
 	}
 #endif
 	(void) waddch(win, CharOf(*txt++) | useattr);
-	--len;
+	getyx(win, y_after, x_after);
+	if (y_after != y_origin || x_after >= cols + x_origin) {
+	    break;
+	}
     }
 }
 
@@ -1080,7 +1088,7 @@ dlg_exit(int code)
     }
 #ifdef NO_LEAKS
     _dlg_inputstr_leaks();
-#ifdef NCURSES_VERSION
+#if defined(NCURSES_VERSION) && defined(HAVE__NC_FREE_AND_EXIT)
     _nc_free_and_exit(code);
 #endif
 #endif
