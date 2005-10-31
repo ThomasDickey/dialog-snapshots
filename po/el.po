@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2002-06-05 10:00GMT+2\n"
 "Last-Translator: kromJx <kromJx@crosswinds.net>\n"
 "Language-Team: <i18ngr@hellug.gr>\n"
@@ -10,31 +10,31 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-7\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Ναι"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Όχι"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "¶κυρο"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "Έξοδος"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "Βοήθεια"
 

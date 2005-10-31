@@ -1,10 +1,9 @@
 /*
- *  $Id: pause.c,v 1.5 2005/09/11 23:49:02 tom Exp $
+ *  $Id: pause.c,v 1.6 2005/10/30 20:37:27 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  AUTHOR: Yura Kalinichenko
- *  and     Thomas E. Dickey
+ *  Copyright 2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  This is adapted from source contributed by
+ *	Yura Kalinichenko
  */
 
 #include "dialog.h"

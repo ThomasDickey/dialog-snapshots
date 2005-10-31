@@ -1,10 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.42 2005/09/08 00:25:11 tom Exp $
+ *  $Id: tailbox.c,v 1.43 2005/10/30 20:30:09 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  AUTHOR: Pasquale De Marco (demarco_p@abramo.it)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Pasquale De Marco (demarco_p@abramo.it)
  */
 
 #include "dialog.h"

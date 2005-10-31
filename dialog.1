@@ -1,4 +1,4 @@
-.\" $Id: dialog.1,v 1.84 2005/02/07 00:33:50 tom Exp $
+.\" $Id: dialog.1,v 1.86 2005/10/30 20:12:00 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2005/02/07 00:33:50 $"
+.TH DIALOG 1 "" "$Date: 2005/10/30 20:12:00 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -937,12 +937,25 @@ or \fBdialog\fP is exited by pressing the \fIESC\fP key.
 .SH BUGS
 Perhaps.
 .SH AUTHOR
-Savio Lam (lam836@cs.cuhk.hk) - version 0.3, "dialog"
 .LP
-Stuart Herbert (S.Herbert@sheffield.ac.uk) - patch for version 0.4
-.LP
-Pako (demarco_p@abramo.it) - version 0.9a, "cdialog",
-.LP
-Thomas Dickey (updates for 0.9b and beyond)
+Thomas E. Dickey (updates for 0.9b and beyond)
 .SH CONTRIBUTORS
-Tobias C. Rittweiler (tobrit@freebits.de)
+Tobias C. Rittweiler
+.LP
+Valery Reznic - the form widget.
+.LP
+Yura Kalinichenko adapted the guage widget as "pause".
+.PP
+This is a rewrite (except as needed to provide compatibility)
+of the earlier version of \fBdialog 0.9a\fP,
+which lists as authors:
+.RS
+.LP
+Savio Lam - version 0.3, "dialog"
+.LP
+Stuart Herbert - patch for version 0.4
+.LP
+Marc Ewing - the gauge widget.
+.LP
+Pasquale De Marco "Pako" - version 0.9a, "cdialog"
+.RE

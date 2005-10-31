@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2004-03-30 23:00+0100\n"
 "Last-Translator: Dafydd Harries <daf@muse.19inch.net>\n"
 "Language-Team: Welsh <cy@pengwyn.linux.org.uk>\n"
@@ -13,31 +13,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Ie"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Na"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "Iawn"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "Diddymu"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "GADAEL"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr "Ychwanegol"
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "Cymorth"
 

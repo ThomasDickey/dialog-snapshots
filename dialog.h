@@ -1,10 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.147 2004/12/20 00:01:11 Yura.Kalinichen Exp $
+ *  $Id: dialog.h,v 1.148 2005/10/30 20:31:09 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #ifndef DIALOG_H_included

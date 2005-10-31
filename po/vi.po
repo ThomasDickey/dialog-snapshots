@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2005-01-21 20:15+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net> \n"
@@ -15,31 +15,31 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Có"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Không"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "Được"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "Thôi"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "THOÁT"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr "Thêm"
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "Trợ giúp"
 

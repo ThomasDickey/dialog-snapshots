@@ -1,10 +1,9 @@
 /*
- *  $Id: rc.c,v 1.21 2004/09/21 02:14:58 tom Exp $
+ *  $Id: rc.c,v 1.23 2005/10/30 20:22:08 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"
@@ -374,15 +376,22 @@ dlg_parse_rc(void)
 {
 #ifdef HAVE_COLOR
     int i;
-    int l = 1, parse, fg, bg, hl;
-    char str[MAX_LEN + 1], *var, *value, *tempptr;
+    int l = 1;
+    int parse;
+    int fg = 0;
+    int bg = 0;
+    int hl;
+    char str[MAX_LEN + 1];
+    char *var;
+    char *value;
+    char *tempptr;
     FILE *rc_file = 0;
 
     /*
-     *  At start, 'dialog' determines the settings to use as follows:
+     *  At startup, dialog determines the settings to use as follows:
      *
-     *  a) if environment variable DIALOGRC is set, it's value determines the
-     *     name of the configuration file.
+     *  a) if the environment variable $DIALOGRC is set, its value determines
+     *     the name of the configuration file.
      *
      *  b) if the file in (a) can't be found, use the file $HOME/.dialogrc
      *     as the configuration file.
@@ -390,8 +399,7 @@ dlg_parse_rc(void)
      *  c) if the file in (b) can't be found, try using the GLOBALRC file.
      *     Usually this will be /etc/dialogrc.
      *
-     *  d) if the file in (c) can't be found, use compiled in defaults.
-     *
+     *  d) if the file in (c) cannot be found, use the compiled-in defaults.
      */
 
     /* try step (a) */

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2001-09-08 00:05+0200\n"
 "Last-Translator: Ivar Smolin <okul@linux.ee>\n"
 "Language-Team: Estonian <et@li.org>\n"
@@ -13,31 +13,31 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-15\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Jah"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Ei"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "Tühista"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "Lõpeta"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr ""
 

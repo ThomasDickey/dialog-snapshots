@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-11 20:16-0400\n"
+"POT-Creation-Date: 2005-10-30 14:37-0500\n"
 "PO-Revision-Date: 2005-02-06 13:22+0100\n"
 "Last-Translator: Florian Verdet _goto <fvgoto@linuxbourg.ch>\n"
 "Language-Team: Rhaeto-Romance <gnu-rumantsch@guglielmtux.ch>\n"
@@ -16,31 +16,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.2\n"
 
-#: buttons.c:359
+#: buttons.c:370
 msgid "Yes"
 msgstr "Schi"
 
-#: buttons.c:367
+#: buttons.c:378
 msgid "No"
 msgstr "Na"
 
-#: buttons.c:375
+#: buttons.c:386
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:383
+#: buttons.c:394
 msgid "Cancel"
 msgstr "Laschar star"
 
-#: buttons.c:391
+#: buttons.c:402
 msgid "EXIT"
 msgstr "SORTIR"
 
-#: buttons.c:399
+#: buttons.c:410
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:407
+#: buttons.c:418
 msgid "Help"
 msgstr "Agüd"
 

@@ -1,12 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.85 2005/10/05 23:55:11 tom Exp $
+ *  $Id: checklist.c,v 1.88 2005/10/30 20:13:55 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     Stuart Herbert - S.Herbert@sheffield.ac.uk: radiolist extension
- *     Alessandro Rubini - rubini@ipvvis.unipv.it: merged the two
- *     Thomas E. Dickey - rewrote...
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -21,6 +18,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors:
+ *	Savio Lam (lam836@cs.cuhk.hk)
+ *	Stuart Herbert - S.Herbert@sheffield.ac.uk: radiolist extension
+ *	Alessandro Rubini - rubini@ipvvis.unipv.it: merged the two
  */
 
 #include "dialog.h"
@@ -62,6 +64,7 @@ print_item(WINDOW *win, char **items, int status,
     chtype save = getattrs(win);
     int i;
     chtype attr = A_NORMAL;
+    const int *cols;
     const int *indx;
     int limit;
 
@@ -82,7 +85,6 @@ print_item(WINDOW *win, char **items, int status,
     if (strlen(ItemName(0)) != 0) {
 
 	indx = dlg_index_wchars(ItemName(0));
-	limit = dlg_count_wchars(ItemName(0));
 
 	wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
 	(void) waddnstr(win, ItemName(0), indx[1]);
@@ -99,13 +101,13 @@ print_item(WINDOW *win, char **items, int status,
     }
 
     if (strlen(ItemText(0)) != 0) {
-	indx = dlg_index_wchars(ItemText(0));
+	cols = dlg_index_columns(ItemText(0));
 	limit = dlg_limit_columns(ItemText(0), (getmaxx(win) - item_x - 1), 0);
 
 	if (limit > 0) {
 	    (void) wmove(win, choice, item_x);
 	    wattrset(win, selected ? item_selected_attr : item_attr);
-	    dlg_print_text(win, ItemText(0), indx[limit], &attr);
+	    dlg_print_text(win, ItemText(0), cols[limit], &attr);
 	}
     }
 
@@ -205,8 +207,8 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
     name_width = 0;
     /* Find length of longest item to center checklist */
     for (i = 0; i < item_no; i++) {
-	text_width = MAX(text_width, (int) strlen(ItemText(i)));
-	name_width = MAX(name_width, (int) strlen(ItemName(i)));
+	text_width = MAX(text_width, dlg_count_columns(ItemText(i)));
+	name_width = MAX(name_width, dlg_count_columns(ItemName(i)));
     }
 
     /* If the name+text is wider than the list is allowed, then truncate

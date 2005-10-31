@@ -1,10 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.39 2005/09/11 23:50:16 tom Exp $
+ *  $Id: msgbox.c,v 1.40 2005/10/30 20:26:06 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors:
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"

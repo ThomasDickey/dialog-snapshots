@@ -1,10 +1,9 @@
 /*
- * $Id: dialog.c,v 1.133 2005/10/05 22:42:29 tom Exp $
+ * $Id: dialog.c,v 1.135 2005/10/30 20:16:52 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  AUTHOR: Savio Lam (lam836@cs.cuhk.hk)
- *     and: Thomas E. Dickey
+ *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -19,6 +18,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *  An earlier version of this program lists as authors
+ *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
 #include "dialog.h"
@@ -30,8 +32,8 @@
 #include <locale.h>
 #endif
 
-#define JUMPARGS const char *t, char *av[], int *offset_add
-typedef int (jumperFn) (JUMPARGS);
+#define CALLARGS const char *t, char *av[], int *offset_add
+typedef int (callerFn) (CALLARGS);
 
 typedef enum {
     o_unknown = 0
@@ -137,7 +139,7 @@ typedef struct {
 typedef struct {
     eOptions code;
     int argmin, argmax;
-    jumperFn *jumper;
+    callerFn *jumper;
 } Mode;
 
 static bool *dialog_opts;
@@ -616,11 +618,11 @@ show_result(int ret)
 }
 
 /*
- * These are the program jumpers
+ * These are the widget callers.
  */
 
 static int
-j_yesno(JUMPARGS)
+call_yesno(CALLARGS)
 {
     *offset_add = 4;
     return dialog_yesno(t,
@@ -630,7 +632,7 @@ j_yesno(JUMPARGS)
 }
 
 static int
-j_msgbox(JUMPARGS)
+call_msgbox(CALLARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
@@ -640,7 +642,7 @@ j_msgbox(JUMPARGS)
 }
 
 static int
-j_infobox(JUMPARGS)
+call_infobox(CALLARGS)
 {
     *offset_add = 4;
     return dialog_msgbox(t,
@@ -650,7 +652,7 @@ j_infobox(JUMPARGS)
 }
 
 static int
-j_textbox(JUMPARGS)
+call_textbox(CALLARGS)
 {
     *offset_add = 4;
     return dialog_textbox(t,
@@ -660,7 +662,7 @@ j_textbox(JUMPARGS)
 }
 
 static int
-j_menu(JUMPARGS)
+call_menu(CALLARGS)
 {
     int tags = howmany_tags(av + 5, MENUBOX_TAGS);
     *offset_add = 5 + tags * MENUBOX_TAGS;
@@ -674,7 +676,7 @@ j_menu(JUMPARGS)
 }
 
 static int
-j_inputmenu(JUMPARGS)
+call_inputmenu(CALLARGS)
 {
     int tags = howmany_tags(av + 5, MENUBOX_TAGS);
 
@@ -698,7 +700,7 @@ j_inputmenu(JUMPARGS)
 }
 
 static int
-j_checklist(JUMPARGS)
+call_checklist(CALLARGS)
 {
     int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
     *offset_add = 5 + tags * CHECKBOX_TAGS;
@@ -711,7 +713,7 @@ j_checklist(JUMPARGS)
 }
 
 static int
-j_radiolist(JUMPARGS)
+call_radiolist(CALLARGS)
 {
     int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
     *offset_add = 5 + tags * CHECKBOX_TAGS;
@@ -724,7 +726,7 @@ j_radiolist(JUMPARGS)
 }
 
 static int
-j_inputbox(JUMPARGS)
+call_inputbox(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_inputbox(t,
@@ -735,7 +737,7 @@ j_inputbox(JUMPARGS)
 }
 
 static int
-j_passwordbox(JUMPARGS)
+call_passwordbox(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_inputbox(t,
@@ -747,7 +749,7 @@ j_passwordbox(JUMPARGS)
 
 #ifdef HAVE_XDIALOG
 static int
-j_calendar(JUMPARGS)
+call_calendar(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_calendar(t,
@@ -760,7 +762,7 @@ j_calendar(JUMPARGS)
 }
 
 static int
-j_fselect(JUMPARGS)
+call_fselect(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_fselect(t,
@@ -770,7 +772,7 @@ j_fselect(JUMPARGS)
 }
 
 static int
-j_timebox(JUMPARGS)
+call_timebox(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_timebox(t,
@@ -785,7 +787,7 @@ j_timebox(JUMPARGS)
 
 #ifdef HAVE_FORMBOX
 static int
-j_form(JUMPARGS)
+call_form(CALLARGS)
 {
     int tags = howmany_tags(av + 5, FORMBOX_TAGS);
     *offset_add = 5 + tags * FORMBOX_TAGS;
@@ -801,7 +803,7 @@ j_form(JUMPARGS)
 
 #ifdef HAVE_GAUGE
 static int
-j_gauge(JUMPARGS)
+call_gauge(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_gauge(t,
@@ -813,7 +815,7 @@ j_gauge(JUMPARGS)
 #endif
 
 static int
-j_pause(JUMPARGS)
+call_pause(CALLARGS)
 {
     *offset_add = arg_rest(av);
     return dialog_pause(t,
@@ -825,7 +827,7 @@ j_pause(JUMPARGS)
 
 #ifdef HAVE_TAILBOX
 static int
-j_tailbox(JUMPARGS)
+call_tailbox(CALLARGS)
 {
     *offset_add = 4;
     return dialog_tailbox(t,
@@ -836,7 +838,7 @@ j_tailbox(JUMPARGS)
 }
 
 static int
-j_tailboxbg(JUMPARGS)
+call_tailboxbg(CALLARGS)
 {
     *offset_add = 4;
     return dialog_tailbox(t,
@@ -849,31 +851,31 @@ j_tailboxbg(JUMPARGS)
 /* *INDENT-OFF* */
 static const Mode modes[] =
 {
-    {o_yesno,       4, 4, j_yesno},
-    {o_msgbox,      4, 4, j_msgbox},
-    {o_infobox,     4, 4, j_infobox},
-    {o_textbox,     4, 4, j_textbox},
-    {o_menu,        7, 0, j_menu},
-    {o_inputmenu,   7, 0, j_inputmenu},
-    {o_checklist,   8, 0, j_checklist},
-    {o_radiolist,   8, 0, j_radiolist},
-    {o_inputbox,    4, 5, j_inputbox},
-    {o_passwordbox, 4, 5, j_passwordbox},
-    {o_pause,       5, 5, j_pause},
+    {o_yesno,       4, 4, call_yesno},
+    {o_msgbox,      4, 4, call_msgbox},
+    {o_infobox,     4, 4, call_infobox},
+    {o_textbox,     4, 4, call_textbox},
+    {o_menu,        7, 0, call_menu},
+    {o_inputmenu,   7, 0, call_inputmenu},
+    {o_checklist,   8, 0, call_checklist},
+    {o_radiolist,   8, 0, call_radiolist},
+    {o_inputbox,    4, 5, call_inputbox},
+    {o_passwordbox, 4, 5, call_passwordbox},
+    {o_pause,       5, 5, call_pause},
 #ifdef HAVE_XDIALOG
-    {o_calendar,    4, 7, j_calendar},
-    {o_fselect,     4, 5, j_fselect},
-    {o_timebox,     4, 7, j_timebox},
+    {o_calendar,    4, 7, call_calendar},
+    {o_fselect,     4, 5, call_fselect},
+    {o_timebox,     4, 7, call_timebox},
 #endif
 #ifdef HAVE_FORMBOX
-    {o_form,       13, 0, j_form},
+    {o_form,       13, 0, call_form},
 #endif
 #ifdef HAVE_GAUGE
-    {o_gauge,       4, 5, j_gauge},
+    {o_gauge,       4, 5, call_gauge},
 #endif
 #ifdef HAVE_TAILBOX
-    {o_tailbox,     4, 4, j_tailbox},
-    {o_tailboxbg,   4, 4, j_tailboxbg},
+    {o_tailbox,     4, 4, call_tailbox},
+    {o_tailboxbg,   4, 4, call_tailboxbg},
 #endif
 };
 /* *INDENT-ON* */

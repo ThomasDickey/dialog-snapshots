@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
-dnl -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.49 2005/09/06 20:08:16 tom Exp $
+dnl Copyright 1999-2004,2005 -- Thomas E. Dickey
+dnl $Id: aclocal.m4,v 1.51 2005/10/30 20:15:59 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -2794,7 +2794,7 @@ AC_TRY_LINK([
 test $cf_cv_need_xopen_extension = yes && CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE_EXTENDED"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 22 updated: 2005/08/06 18:06:32
+dnl CF_XOPEN_SOURCE version: 23 updated: 2005/10/15 16:39:05
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality.
@@ -2812,9 +2812,6 @@ cf_POSIX_C_SOURCE=ifelse($2,,199506L,$2)
 case $host_os in #(vi
 aix[[45]]*) #(vi
 	CPPFLAGS="$CPPFLAGS -D_ALL_SOURCE"
-	;;
-darwin*) #(vi
-	# setting _XOPEN_SOURCE breaks things on Darwin
 	;;
 freebsd*) #(vi
 	# 5.x headers associate
