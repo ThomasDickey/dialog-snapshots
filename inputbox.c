@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.46 2005/10/30 20:34:33 tom Exp $
+ *  $Id: inputbox.c,v 1.47 2005/11/08 00:57:43 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -46,7 +46,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     int result = DLG_EXIT_UNKNOWN;
     int state;
     int first;
-    char *input = dialog_vars.input_result;
+    char *input;
     WINDOW *dialog;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
@@ -56,10 +56,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     dlg_tab_correct_str(prompt);
 
     /* Set up the initial value */
-    if (!init)
-	input[0] = '\0';
-    else
-	strcpy((char *) input, init);
+    input = dlg_set_result(init);
 
 #ifdef KEY_RESIZE
   retry:

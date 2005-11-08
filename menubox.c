@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.82 2005/10/30 20:24:09 tom Exp $
+ *  $Id: menubox.c,v 1.83 2005/11/08 00:38:09 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -630,7 +630,8 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 					ItemData(scrollamt + choice),
 					choice,
 					&tmp)) {
-			dialog_vars.input_result[0] = '\0';
+			if (dialog_vars.input_result)
+			    dialog_vars.input_result[0] = '\0';
 			dlg_add_result("RENAMED ");
 			dlg_add_result(ItemName(scrollamt + choice));
 			dlg_add_result(" ");

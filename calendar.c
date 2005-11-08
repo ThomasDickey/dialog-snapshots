@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.40 2005/09/11 23:00:53 tom Exp $
+ * $Id: calendar.c,v 1.41 2005/11/07 23:11:36 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -393,6 +393,7 @@ dialog_calendar(const char *title,
     char *prompt = dlg_strclone(subtitle);
     int longest;
     int mincols;
+    char buffer[MAX_LEN];
 
     dlg_does_output();
 
@@ -641,8 +642,9 @@ dialog_calendar(const char *title,
     }
 
     dlg_del_window(dialog);
-    sprintf(dialog_vars.input_result, "%02d/%02d/%0d\n",
+    sprintf(buffer, "%02d/%02d/%0d\n",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
+    dlg_add_result(buffer);
     dlg_mouse_free_regions();
     free(prompt);
     return result;

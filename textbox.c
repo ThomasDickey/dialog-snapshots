@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.62 2005/10/30 20:29:07 tom Exp $
+ *  $Id: textbox.c,v 1.63 2005/11/01 01:10:30 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -365,18 +365,22 @@ static void
 print_line(MY_OBJ * obj, int row, int width)
 {
     int i, y, x;
-    char *line;
+    char *line = get_line(obj);
+    const int *cols = dlg_index_columns(line);
+    const int *indx = dlg_index_wchars(line);
+    int limit = dlg_count_wchars(line);
+    int first = 0;
+    int last = limit;
 
-    line = get_line(obj);
-    line += MIN((int) strlen(line), obj->hscroll);	/* Scroll horizontally */
+    for (i = 0; i <= limit && cols[i] < obj->hscroll; ++i)
+	first = i;
+
+    for (i = first; i <= limit && cols[i] - cols[first] <= PAGE_WIDTH; ++i)
+	last = i;
+
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
     (void) waddch(obj->text, ' ');
-#ifdef NCURSES_VERSION
-    (void) waddnstr(obj->text, line, MIN((int) strlen(line), PAGE_WIDTH));
-#else
-    line[MIN((int) strlen(line), PAGE_WIDTH)] = '\0';
-    waddstr(obj->text, line);
-#endif
+    (void) waddnstr(obj->text, line + indx[first], indx[last] - indx[first]);
 
     getyx(obj->text, y, x);
     /* Clear 'residue' of previous line */
@@ -437,7 +441,7 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
     (void) sprintf(buffer, "%d%%", percent);
     (void) wmove(win, PAGE_LENGTH + 1, PAGE_WIDTH - 7);
     (void) waddstr(win, buffer);
-    if ((len = strlen(buffer)) < 4) {
+    if ((len = dlg_count_columns(buffer)) < 4) {
 	wattrset(win, border_attr);
 	whline(win, ACS_HLINE, 4 - len);
     }
@@ -609,9 +613,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     int x, y, cur_x, cur_y;
     int key = 0, fkey;
     int next = 0;
-#ifdef NCURSES_VERSION
     int i, passed_end;
-#endif
     char search_term[MAX_LEN + 1];
     MY_OBJ obj;
     WINDOW *dialog;
@@ -683,15 +685,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		(void) scroll(obj.text);	/* Scroll text region up one line */
 		(void) scrollok(obj.text, FALSE);
 		print_line(&obj, PAGE_LENGTH - 1, PAGE_WIDTH);
-#ifndef NCURSES_VERSION
-		wmove(obj.text, PAGE_LENGTH - 1, 0);
-		waddch(obj.text, ' ');
-		wmove(obj.text, PAGE_LENGTH - 1, PAGE_WIDTH - 1);
-		waddch(obj.text, ' ');
-#endif
 		(void) wnoutrefresh(obj.text);
 	    } else if (next > 0) {
-#ifdef NCURSES_VERSION
 		/*
 		 * We don't call print_page() here but use scrolling to ensure
 		 * faster screen update.  However, 'end_reached' and
@@ -715,9 +710,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    if (obj.end_reached && !passed_end)
 			passed_end = 1;
 		}
-#else
-		print_page(&obj, PAGE_LENGTH, PAGE_WIDTH);
-#endif
 	    } else {
 		print_page(&obj, PAGE_LENGTH, PAGE_WIDTH);
 	    }

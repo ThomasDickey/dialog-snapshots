@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.88 2005/10/30 20:13:55 tom Exp $
+ *  $Id: checklist.c,v 1.90 2005/11/08 00:22:21 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -102,7 +102,7 @@ print_item(WINDOW *win, char **items, int status,
 
     if (strlen(ItemText(0)) != 0) {
 	cols = dlg_index_columns(ItemText(0));
-	limit = dlg_limit_columns(ItemText(0), (getmaxx(win) - item_x - 1), 0);
+	limit = dlg_limit_columns(ItemText(0), (getmaxx(win) - item_x + 1), 0);
 
 	if (limit > 0) {
 	    (void) wmove(win, choice, item_x);
@@ -582,7 +582,7 @@ dialog_checklist(const char *title, const char *cprompt, int height, int width,
 		    dlg_add_result(ItemName(i));
 		    dlg_add_result("\n");
 		} else {
-		    if (*(dialog_vars.input_result))
+		    if (dialog_vars.input_result && *(dialog_vars.input_result))
 			dlg_add_result(" ");
 		    if (flag == FLAG_CHECK) {
 			dlg_add_quoted(ItemName(i));

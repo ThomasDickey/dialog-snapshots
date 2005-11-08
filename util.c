@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.150 2005/10/30 20:15:17 tom Exp $
+ *  $Id: util.c,v 1.154 2005/11/08 01:20:23 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -131,11 +131,12 @@ dlg_put_backtitle(void)
 
     if (dialog_vars.backtitle != NULL) {
 	chtype attr = A_NORMAL;
+	int backwidth = dlg_count_columns(dialog_vars.backtitle);
 
 	wattrset(stdscr, screen_attr);
 	(void) wmove(stdscr, 0, 1);
 	dlg_print_text(stdscr, dialog_vars.backtitle, COLS - 2, &attr);
-	for (i = 0; i < COLS - (int) strlen(dialog_vars.backtitle); i++)
+	for (i = 0; i < COLS - backwidth; i++)
 	    (void) waddch(stdscr, ' ');
 	(void) wmove(stdscr, 1, 1);
 	for (i = 0; i < COLS - 2; i++)
@@ -264,7 +265,8 @@ init_dialog(FILE *input, FILE *output)
 	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    dialog_state.pipe_input = fdopen(fd2, "r");
-	    *stdin = *freopen(device, "r", stdin);
+	    if (freopen(device, "r", stdin) == 0)
+		dlg_exiterr("cannot open tty-input");
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
 		(void) dup2(fileno(stdin), 0);
 	}
@@ -476,7 +478,7 @@ end_dialog(void)
 static int
 centered(int width, const char *string)
 {
-    int len = strlen(string);
+    int len = dlg_count_columns(string);
     int left;
     int hide = 0;
     int n;
@@ -593,6 +595,8 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
     const char *test_ptr = prompt;
     const int *cols = dlg_index_columns(prompt);
     const int *indx = dlg_index_wchars(prompt);
+    int wrap_inx = 0;
+    int test_inx = 0;
     int cur_x = lm;
     int hidden = 0;
     int limit = dlg_count_wchars(prompt);
@@ -602,13 +606,14 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
 
     /*
      * Set *test_ptr to the end of the line or the right margin (rm), whichever
-     * is less, and set *wrap_ptr to the end of the last word in the line.
+     * is less, and set wrap_ptr to the end of the last word in the line.
      */
     for (n = 0; n < limit; ++n) {
+	test_ptr = prompt + indx[test_inx];
 	if (*test_ptr == '\n' || *test_ptr == '\0' || cur_x >= (rm + hidden))
 	    break;
 	if (*test_ptr == ' ' && n != 0 && prompt[indx[n - 1]] != ' ') {
-	    wrap_ptr = prompt + indx[n];
+	    wrap_inx = n;
 	    *x = cur_x;
 	} else if (isOurEscape(test_ptr)) {
 	    hidden += 3;
@@ -617,39 +622,35 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
 	cur_x = lm + cols[n + 1];
 	if (cur_x > (rm + hidden))
 	    break;
-	test_ptr = prompt + indx[n + 1];
+	test_inx = n + 1;
     }
 
     /*
      * If the line doesn't reach the right margin in the middle of a word, then
      * we don't have to wrap it at the end of the previous word.
      */
+    test_ptr = prompt + indx[test_inx];
     if (*test_ptr == '\n' || *test_ptr == ' ' || *test_ptr == '\0') {
-	int i = 0;
-	while (&wrap_ptr[++i] < test_ptr) {
-	    ;
+	wrap_inx = test_inx;
+	while (wrap_inx > 0 && prompt[indx[wrap_inx - 1]] == ' ') {
+	    wrap_inx--;
 	}
-	while (wrap_ptr[i - 1] == ' ') {
-	    i--;
-	}
-	wrap_ptr += i;
-	*x += i;
-    }
-
-    /*
-     * If the line has no spaces, then wrap it anyway at the right margin
-     */
-    else if (*x == 1 && cur_x >= rm) {
+	*x += indx[wrap_inx];
+    } else if (*x == 1 && cur_x >= rm) {
+	/*
+	 * If the line has no spaces, then wrap it anyway at the right margin
+	 */
 	*x = rm;
-	wrap_ptr = test_ptr;
+	wrap_inx = test_inx;
     }
+    wrap_ptr = prompt + indx[wrap_inx];
 
     /*
      * Print the line if we have a window pointer.  Otherwise this routine
      * is just being called for sizing the window.
      */
     if (win) {
-	dlg_print_text(win, prompt, (wrap_ptr - prompt - hidden), attr);
+	dlg_print_text(win, prompt, (cols[wrap_inx] - hidden), attr);
     }
 
     /* *x tells the calling function how long the line was */
@@ -824,7 +825,7 @@ real_auto_size(const char *title,
 {
     int x = (dialog_vars.begin_set ? dialog_vars.begin_x : 2);
     int y = (dialog_vars.begin_set ? dialog_vars.begin_y : 1);
-    int title_length = title ? strlen(title) : 0;
+    int title_length = title ? dlg_count_columns(title) : 0;
     int nc = 4;
     int high;
     int wide;
@@ -849,7 +850,7 @@ real_auto_size(const char *title,
     } else if (prompt != 0) {
 	wide = MAX(title_length, mincols);
 	if (strchr(prompt, '\n') == 0) {
-	    double val = dialog_state.aspect_ratio * strlen(prompt);
+	    double val = dialog_state.aspect_ratio * dlg_count_columns(prompt);
 	    int tmp = sqrt(val);
 	    wide = MAX(wide, tmp);
 	    wide = MAX(wide, longest_word(prompt));
@@ -914,7 +915,10 @@ dlg_auto_sizefile(const char *title,
 		  int boxlines,
 		  int mincols)
 {
-    int count = 0, len = title ? strlen(title) : 0, nc = 4, numlines = 2;
+    int count = 0;
+    int len = title ? dlg_count_columns(title) : 0;
+    int nc = 4;
+    int numlines = 2;
     long offset;
     int ch;
     FILE *fd;
@@ -1184,9 +1188,9 @@ dlg_calc_listw(int item_no, char **items, int group)
 {
     int n, i, len1 = 0, len2 = 0;
     for (i = 0; i < (item_no * group); i += group) {
-	if ((n = strlen(items[i])) > len1)
+	if ((n = dlg_count_columns(items[i])) > len1)
 	    len1 = n;
-	if ((n = strlen(items[i + 1])) > len2)
+	if ((n = dlg_count_columns(items[i + 1])) > len2)
 	    len2 = n;
     }
     return len1 + len2;
@@ -1527,18 +1531,71 @@ dlg_set_focus(WINDOW *parent, WINDOW *win)
 }
 
 /*
- * Most of the time we can copy into a fixed buffer.  This handles the other
- * cases, e.g., checklist.c
+ * Free storage used for the result buffer.
+ */
+void
+dlg_clr_result(void)
+{
+    if (dialog_vars.input_length) {
+	dialog_vars.input_length = 0;
+	if (dialog_vars.input_result)
+	    free(dialog_vars.input_result);
+    }
+    dialog_vars.input_result = 0;
+}
+
+/*
+ * Setup a fixed-buffer for the result.
+ */
+char *
+dlg_set_result(const char *string)
+{
+    unsigned need = string ? strlen(string) + 1 : 0;
+
+    /* inputstr.c needs a fixed buffer */
+    if (need < MAX_LEN)
+	need = MAX_LEN;
+
+    /*
+     * If the buffer is not big enough, allocate a new one.
+     */
+    if (dialog_vars.input_length != 0
+	|| dialog_vars.input_result == 0
+	|| need > MAX_LEN) {
+
+	dlg_clr_result();
+
+	dialog_vars.input_length = need;
+	dialog_vars.input_result = malloc(need);
+	assert_ptr(dialog_vars.input_result, "dlg_set_result");
+    }
+
+    strcpy(dialog_vars.input_result, string ? string : "");
+
+    return dialog_vars.input_result;
+}
+
+/*
+ * Accumulate results in dynamically allocated buffer.
+ * If input_length is zero, it is a MAX_LEN buffer belonging to the caller.
  */
 void
 dlg_add_result(char *string)
 {
-    unsigned have = strlen(dialog_vars.input_result);
-    unsigned want = strlen(string) + have;
+    unsigned have = (dialog_vars.input_result
+		     ? strlen(dialog_vars.input_result)
+		     : 0);
+    unsigned want = strlen(string) + 1 + have;
 
-    if (want >= MAX_LEN) {
-	if (dialog_vars.input_length == 0) {
+    if ((want >= MAX_LEN)
+	|| (dialog_vars.input_length != 0)
+	|| (dialog_vars.input_result == 0)) {
+
+	if (dialog_vars.input_length == 0
+	    || dialog_vars.input_result == 0) {
+
 	    char *save = dialog_vars.input_result;
+
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = malloc(dialog_vars.input_length);
 	    assert_ptr(dialog_vars.input_result, "dlg_add_result malloc");

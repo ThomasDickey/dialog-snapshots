@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.148 2005/10/30 20:31:09 tom Exp $
+ *  $Id: dialog.h,v 1.149 2005/11/08 00:52:50 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -520,6 +520,7 @@ extern void dlg_killall_bg(int *retval);
 /* util.c */
 extern WINDOW * dlg_new_window(int height, int width, int y, int x);
 extern WINDOW * dlg_sub_window(WINDOW *win, int height, int width, int y, int x);
+extern char * dlg_set_result(const char *string);
 extern char * dlg_strclone(const char *cprompt);
 extern int dlg_box_x_ordinate(int width);
 extern int dlg_box_y_ordinate(int height);
@@ -534,6 +535,7 @@ extern void dlg_auto_sizefile(const char * title, const char *file, int *height,
 extern void dlg_beeping(void);
 extern void dlg_calc_listh(int *height, int *list_height, int item_no);
 extern void dlg_clear(void);
+extern void dlg_clr_result(void);
 extern void dlg_ctl_size(int height, int width);
 extern void dlg_del_window(WINDOW *win);
 extern void dlg_does_output(void);
@@ -635,7 +637,7 @@ extern int dlg_mouse_wgetch_nowait (WINDOW *, int *);
  */
 #ifdef NO_LEAKS
 extern void _dlg_inputstr_leaks(void);
-#ifdef NCURSES_VERSION
+#if defined(NCURSES_VERSION) && defined(HAVE__NC_FREE_AND_EXIT)
 extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
 #endif
 #endif
