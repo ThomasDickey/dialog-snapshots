@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.24 2005/09/11 23:00:53 tom Exp $
+ * $Id: timebox.c,v 1.25 2005/11/08 00:39:36 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -147,6 +147,7 @@ dialog_timebox(const char *title,
     STATES state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
+    char buffer[MAX_LEN];
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
@@ -366,8 +367,9 @@ dialog_timebox(const char *title,
     }
 
     dlg_del_window(dialog);
-    sprintf(dialog_vars.input_result, "%02d:%02d:%02d\n",
+    sprintf(buffer, "%02d:%02d:%02d\n",
 	    hr_box.value, mn_box.value, sc_box.value);
+    dlg_add_result(buffer);
     dlg_mouse_free_regions();
     free(prompt);
     return result;

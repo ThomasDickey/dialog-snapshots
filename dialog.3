@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.12 2005/01/16 16:59:48 tom Exp $
+.\" $Id: dialog.3,v 1.14 2005/11/08 01:09:45 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or
@@ -14,7 +14,7 @@
 .\" You should have received a copy of the GNU General Public License
 .\" along with this program; if not, write to the Free Software
 .\" Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-.TH DIALOG 3 "" "$Date: 2005/01/16 16:59:48 $"
+.TH DIALOG 3 "" "$Date: 2005/11/08 01:09:45 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -323,7 +323,10 @@ This flag is set to denote whether the menubox widget
 implements a menu versus a inputmenu widget.
 .
 .IP \fIDIALOG_VARS.input_result
-This is a dynamically-allocated buffer used by the widgets to return
+If \fIDIALOG_VARS.input_length\fP is zero,
+this is a pointer to user buffer (on the stack, or static).
+When \fIDIALOG_VARS.input_length\fP is nonzero,
+this is a dynamically-allocated buffer used by the widgets to return
 printable results to the calling application.
 .
 .IP \fIDIALOG_VARS.insecure
@@ -782,6 +785,7 @@ library as a string.
 .\" dlg_calc_listw(int item_no, char **items, int group);
 .\" dlg_char_to_button(int ch, const char **labels);
 .\" dlg_clear(void);
+.\" dlg_clr_result(void);
 .\" dlg_color_count(void);
 .\" dlg_color_setup(void);
 .\" dlg_count_columns(const char *string);
@@ -836,6 +840,7 @@ library as a string.
 .\" dlg_put_backtitle(void);
 .\" dlg_remove_callback(DIALOG_CALLBACK *p);
 .\" dlg_set_focus(WINDOW *parent, WINDOW *win);
+.\" dlg_set_result(const char *string);
 .\" dlg_show_string(WINDOW *win, const char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
 .\" dlg_strclone(const char *cprompt);
 .\" dlg_strcmp(const char *a, const char *b);

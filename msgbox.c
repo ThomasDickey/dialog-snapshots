@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.40 2005/10/30 20:26:06 tom Exp $
+ *  $Id: msgbox.c,v 1.41 2005/10/31 23:15:30 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -56,7 +56,7 @@ show_message(WINDOW *dialog,
 	 * If we're not limited by the screensize, allow text to possibly be
 	 * one character per line.
 	 */
-	if ((len = strlen(prompt)) > high)
+	if ((len = dlg_count_columns(prompt)) > high)
 	    high = len;
 #endif
 	dummy = newwin(high, width, 0, 0);

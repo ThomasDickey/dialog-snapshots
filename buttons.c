@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.58 2005/10/30 20:06:27 tom Exp $
+ *  $Id: buttons.c,v 1.60 2005/11/08 01:24:20 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -37,15 +37,18 @@ static void
 center_label(char *buffer, int longest, const char *label)
 {
     int len = dlg_count_columns(label);
+    int left = 0, right = 0;
 
+    *buffer = 0;
     if (len < longest) {
-	if ((len = (longest - len) / 2) > 0) {
-	    longest -= len;
-	    sprintf(buffer, "%*s", len, " ");
-	    buffer += len;
-	}
+	left = (longest - len) / 2;
+	right = (longest - len - left);
+	if (left > 0)
+	    sprintf(buffer, "%*s", left, " ");
     }
-    sprintf(buffer, "%-*s", longest, label);
+    strcat(buffer, label);
+    if (right > 0)
+	sprintf(buffer + strlen(buffer), "%*s", right, " ");
 }
 
 /*
@@ -276,7 +279,7 @@ dlg_draw_buttons(WINDOW *win,
     /*
      * Allocate a buffer big enough for any label.
      */
-    need = 0;
+    need = longest;
     for (n = 0; labels[n] != 0; ++n) {
 	need += strlen(labels[n]) + 1;
     }

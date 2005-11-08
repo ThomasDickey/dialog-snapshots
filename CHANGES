@@ -1,15 +1,28 @@
--- $Id: CHANGES,v 1.148 2005/10/30 20:44:39 tom Exp $
+-- $Id: CHANGES,v 1.154 2005/11/08 01:39:21 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/11/07
+	+ extend dlg_add_result() to allow caller to pass a null pointer
+	  for dialog_vars.input_result (Debian #336986).
+	+ correct length used for text portion of radio/checkboxes (report by
+	  Valentin Stoykov).
+	+ modify msgbox, textbox and center_label() to work properly for
+	  LANG=bg_BG.utf8 examples by Valentin Stoykov.
+	+ modify use of freopen() to work with opaque FILE type on DragonFly
+	  (report by Jeremy C Reed).
+	+ modify print_line() to compute columns, use that for the call to
+	  dlg_print_line().  Fix a few places where strlen() was used instead
+	  of dlg_count_columns() (reports by Valentin Stoykov).
 
 2005/10/30
 	+ reviewed changes since beginning development in 1999, decided that
 	  there are no appreciable portions of original code remaining.
 	  Marked sources to correspond.
 	+ improve cache performance for inputstr.c using tsearch() rather than
-	  a linked-list search.
+	  a linked-list search (Debian #294853).
 	+ remove a special case for darwin in CF_XOPEN_SOURCE configure macro.
 	+ add ms.po file from
 		http://www.iro.umontreal.ca/translation/maint/dialog/
