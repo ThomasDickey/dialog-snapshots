@@ -1,32 +1,35 @@
 /*
- *  $Id: rc.c,v 1.23 2005/10/30 20:22:08 tom Exp $
+ *  $Id: rc.c,v 1.27 2005/11/28 00:21:25 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
 
 #ifdef HAVE_COLOR
 #include <dlg_colors.h>
+
 /*
  * For matching color names with color values
  */
@@ -41,6 +44,7 @@ static const color_names_st color_names[] =
     {"CYAN", COLOR_CYAN},
     {"WHITE", COLOR_WHITE},
 };				/* color names */
+#define COLOR_COUNT	(sizeof(color_names) / sizeof(color_names))
 
 #define GLOBALRC "/etc/dialogrc"
 #define DIALOGRC ".dialogrc"
@@ -127,7 +131,8 @@ attr_to_str(char *str, int fg, int bg, int hl)
 static int
 str_to_attr(char *str, int *fg, int *bg, int *hl)
 {
-    int i = 0, j, get_fg = 1;
+    int i = 0, get_fg = 1;
+    unsigned j;
     char tempstr[MAX_LEN + 1], *part;
 
     if (str[0] != '(' || lastch(str) != ')')

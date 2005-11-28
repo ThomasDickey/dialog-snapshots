@@ -1,7 +1,7 @@
 Begin3
 Title:          dialog - Display dialog boxes in scripts
-Version:        1.0-20051107
-Entered-date:   07NOV05
+Version:        1.0-20051127
+Entered-date:   27NOV05
 Description:    Dialog is a program that will let you present a variety
                 of questions or display messages in nice looking color
                 non-graphical dialog boxes from a shell or perl script.
@@ -19,5 +19,5 @@ Primary-site:   http://invisible-island.net/dialog/
 Alternate-site: ftp://ftp.us.debian.org/debian/pool/main/d/dialog/
 Original-site:  ftp://sunsite.unc.edu/pub/Linux/utils/shell
 Platforms:      Linux *nix, OS/2 EMX
-Copying-policy: GPL
+Copying-policy: LGPL
 End

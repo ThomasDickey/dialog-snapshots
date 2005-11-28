@@ -1,29 +1,32 @@
 /*
- *  $Id: inputbox.c,v 1.47 2005/11/08 00:57:43 tom Exp $
+ *  $Id: inputbox.c,v 1.50 2005/11/28 00:17:03 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors:
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #define sTEXT -1
 
@@ -34,6 +37,22 @@ int
 dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		const char *init, const int password)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	INPUTSTR_BINDINGS,
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -81,6 +100,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "inputbox", binding);
 
     dlg_mouse_setbase(x, y);
 
@@ -142,49 +162,28 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	}
 
 	/* handle non-functionkeys */
-	if (!fkey) {
-
-	    if ((code = dlg_char_to_button(key, buttons)) >= 0) {
-		dlg_del_window(dialog);
-		result = code;
-		continue;
-	    }
-
-	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		break;
-	    case TAB:
-		key = KEY_RIGHT;
-		fkey = TRUE;
-		break;
-	    case ' ':
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		fkey = TRUE;
-		break;
-	    }
+	if (!fkey && (code = dlg_char_to_button(key, buttons)) >= 0) {
+	    dlg_del_window(dialog);
+	    result = code;
+	    continue;
 	}
 
 	/* handle functionkeys */
 	if (fkey) {
 	    switch (key) {
-	    case M_EVENT + 'i':	/* mouse enter events */
+	    case DLGK_MOUSE('i'):	/* mouse enter events */
 		state = 0;
 		/* FALLTHRU */
-	    case KEY_BTAB:
-	    case KEY_UP:
-	    case KEY_LEFT:
+	    case DLGK_FIELD_PREV:
 		show_buttons = TRUE;
 		state = dlg_prev_ok_buttonindex(state, sTEXT);
 		break;
-	    case KEY_DOWN:
-	    case KEY_RIGHT:
+	    case DLGK_FIELD_NEXT:
 		show_buttons = TRUE;
 		state = dlg_next_ok_buttonindex(state, sTEXT);
 		break;
-	    case KEY_ENTER:
+	    case ' ':		/* FIXME: conflict with inputstr.c */
+	    case DLGK_ENTER:
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		break;
@@ -205,6 +204,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		beep();
 		break;
 	    }
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
 	} else {
 	    beep();
 	}

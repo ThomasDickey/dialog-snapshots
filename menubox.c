@@ -1,29 +1,32 @@
 /*
- *  $Id: menubox.c,v 1.83 2005/11/08 00:38:09 tom Exp $
+ *  $Id: menubox.c,v 1.87 2005/11/28 00:17:38 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 static int menu_width, tag_x, item_x;
 
@@ -254,6 +257,29 @@ int
 dialog_menu(const char *title, const char *cprompt, int height, int width,
 	    int menu_height, int item_no, char **items)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	' ' ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	'+' ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,	'-' ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_LL ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -299,6 +325,7 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "menubox", binding);
 
     dlg_mouse_setbase(x, y);
 
@@ -388,20 +415,6 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	if (!fkey) {
 	    fkey = TRUE;
 	    switch (key) {
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		break;
-	    case '-':
-		key = KEY_UP;
-		break;
-	    case '+':
-		key = KEY_DOWN;
-		break;
-	    case ' ':
-	    case TAB:
-		key = KEY_RIGHT;
-		break;
 	    case ESC:
 		result = DLG_EXIT_ESC;
 		continue;
@@ -419,10 +432,10 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	     * push a KEY_ENTER back onto the input stream so we'll put the
 	     * cursor at the right place before handling the "keypress".
 	     */
-	    if (key >= (M_EVENT + KEY_MAX)) {
-		key -= (M_EVENT + KEY_MAX);
+	    if (key >= DLGK_MOUSE(KEY_MAX)) {
+		key -= DLGK_MOUSE(KEY_MAX);
 		i = RowToItem(key);
-		if (scrollamt + i < max_choice) {
+		if (i < max_choice) {
 		    found = TRUE;
 		} else {
 		    beep();
@@ -481,15 +494,14 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 	if (!found && fkey) {
 	    found = TRUE;
 	    switch (key) {
-	    case KEY_HOME:
+	    case DLGK_PAGE_FIRST:
 		i = -scrollamt;
 		break;
-	    case KEY_LL:
-	    case KEY_END:
+	    case DLGK_PAGE_LAST:
 		i = item_no - 1 - scrollamt;
 		break;
-	    case M_EVENT + KEY_PPAGE:
-	    case KEY_PPAGE:
+	    case DLGK_MOUSE(KEY_PPAGE):
+	    case DLGK_PAGE_PREV:
 		if (choice)
 		    i = 0;
 		else if (scrollamt != 0)
@@ -497,16 +509,16 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 		else
 		    continue;
 		break;
-	    case M_EVENT + KEY_NPAGE:
-	    case KEY_NPAGE:
+	    case DLGK_MOUSE(KEY_NPAGE):
+	    case DLGK_PAGE_NEXT:
 		i = MIN(choice + max_choice, item_no - scrollamt - 1);
 		break;
-	    case KEY_UP:
+	    case DLGK_ITEM_PREV:
 		i = choice - 1;
 		if (choice == 0 && scrollamt == 0)
 		    continue;
 		break;
-	    case KEY_DOWN:
+	    case DLGK_ITEM_NEXT:
 		i = choice + 1;
 		if (scrollamt + choice >= item_no - 1)
 		    continue;
@@ -607,18 +619,17 @@ dialog_menu(const char *title, const char *cprompt, int height, int width,
 
 	if (fkey) {
 	    switch (key) {
-	    case KEY_BTAB:
-	    case KEY_LEFT:
+	    case DLGK_FIELD_PREV:
 		button = dlg_prev_button(buttons, button);
 		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
 				 FALSE, width);
 		break;
-	    case KEY_RIGHT:
+	    case DLGK_FIELD_NEXT:
 		button = dlg_next_button(buttons, button);
 		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
 				 FALSE, width);
 		break;
-	    case KEY_ENTER:
+	    case DLGK_ENTER:
 		result = handle_button(dlg_ok_buttoncode(button),
 				       items,
 				       scrollamt + choice);

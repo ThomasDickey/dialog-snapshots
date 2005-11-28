@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.41 2005/03/06 16:54:14 tom Exp $
+# $Id: makefile.in,v 1.43 2005/11/27 22:50:06 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -65,6 +65,7 @@ OBJECTS = $(EXTRAOBJS) \
 	arrows$o \
 	buttons$o \
 	checklist$o \
+	dlg_keys$o \
 	inputbox$o \
 	inputstr$o \
 	menubox$o \
@@ -84,7 +85,8 @@ SRCS = $(OBJECTS:$o=.c)
 HDRS = \
 	dialog.h \
 	dlg_colors.h \
-	dlg_config.h
+	dlg_config.h \
+	dlg_keys.h
 
 LIB	= @LIB_PREFIX@dialog$a
 PROG	= dialog$x
@@ -103,7 +105,7 @@ all	:: $(ALL)
 @INTLDIR_MAKE@	@cd intl && $(MAKE) @cf_cv_makeflags@
 
 dialog$o \
-$(OBJECTS) : $(srcdir)/dialog.h dlg_config.h VERSION
+$(OBJECTS) : $(srcdir)/dialog.h $(srcdir)/dlg_keys.h dlg_config.h VERSION
 
 $(LIB) : $(LIB_OBJECT)
 	$(LIBTOOL_CREATE) $(LIB) $(LIB_OBJECT)

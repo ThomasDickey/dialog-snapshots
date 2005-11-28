@@ -1,23 +1,25 @@
 /*
- *  $Id: dialog.h,v 1.149 2005/11/08 00:52:50 tom Exp $
+ *  $Id: dialog.h,v 1.151 2005/11/27 19:00:15 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
@@ -317,15 +319,6 @@ extern int dlg_getpary(WINDOW *);
 #define itemhelp_attr                 DIALOG_ATR(29)
 #define form_active_text_attr         DIALOG_ATR(30)
 #define form_text_attr                DIALOG_ATR(31)
-
-/*
- * Internal keycodes are used for commands.
- */
-typedef enum {
-    DLGK_min = KEY_MAX + 1
-    , DLGK_NEXT_FIELD
-    , DLGK_PREV_FIELD
-} DLGK_xxx;
 
 #define DLGK_max (KEY_MAX + 256)
 

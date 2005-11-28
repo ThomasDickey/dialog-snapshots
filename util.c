@@ -1,29 +1,32 @@
 /*
- *  $Id: util.c,v 1.154 2005/11/08 01:20:23 tom Exp $
+ *  $Id: util.c,v 1.157 2005/11/27 16:22:23 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #include <stdarg.h>
 #include <sys/types.h>
@@ -73,7 +76,10 @@ DIALOG_VARS dialog_vars;
 
 #ifdef HAVE_COLOR
 #include <dlg_colors.h>
-#define COLOR_DATA(upr) , concat(upr,_FG), concat(upr,_BG), concat(upr,_HL)
+#define COLOR_DATA(upr) , \
+	concat(DLGC_FG_,upr), \
+	concat(DLGC_BG_,upr), \
+	concat(DLGC_HL_,upr)
 #else
 #define COLOR_DATA(upr)		/*nothing */
 #endif
@@ -1297,6 +1303,7 @@ dlg_del_window(WINDOW *win)
 	    if (p->shadow != 0)
 		delwin(p->shadow);
 	    delwin(p->normal);
+	    dlg_unregister_window(p->normal);
 	    if (r == 0) {
 		dialog_state.all_windows = q;
 	    } else {

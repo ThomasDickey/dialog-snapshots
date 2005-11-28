@@ -1,26 +1,30 @@
 /*
- * $Id: calendar.c,v 1.41 2005/11/07 23:11:36 tom Exp $
+ * $Id: calendar.c,v 1.44 2005/11/28 00:15:39 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
  * Copyright 2001-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
+
 #include <time.h>
 
 #define ONE_DAY  (60 * 60 * 24)
@@ -107,54 +111,25 @@ next_or_previous(int key, int two_d)
     int result = 0;
 
     switch (key) {
-    case M_EVENT + KEY_PPAGE:
-    case KEY_PPAGE:
-    case KEY_PREVIOUS:
-    case KEY_UP:
+    case DLGK_GRID_UP:
 	result = two_d ? -7 : -1;
 	break;
-    case KEY_LEFT:
-    case CHR_PREVIOUS:
-    case CHR_BACKSPACE:
+    case DLGK_GRID_LEFT:
 	result = -1;
 	break;
-    case M_EVENT + KEY_NPAGE:
-    case KEY_NPAGE:
-    case KEY_DOWN:
+    case DLGK_GRID_DOWN:
 	result = two_d ? 7 : 1;
 	break;
-    case KEY_RIGHT:
-    case CHR_NEXT:
-    case KEY_NEXT:
+    case DLGK_GRID_RIGHT:
 	result = 1;
 	break;
     default:
-	/*
-	 * We're already using the left/right arrow keys for traversal.  Use
-	 * vi-style for navigating around the days of the month.
-	 */
-	if (two_d) {
-	    switch (key) {
-	    case 'h':
-		result = -1;
-		break;
-	    case 'j':
-		result = 7;
-		break;
-	    case 'k':
-		result = -7;
-		break;
-	    case 'l':
-		result = 1;
-		break;
-	    }
-	} else {
-	    beep();
-	}
+	beep();
 	break;
     }
     return result;
 }
+
 /*
  * Draw the day-of-month selection box
  */
@@ -374,6 +349,35 @@ dialog_calendar(const char *title,
 		int month,
 		int year)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	DLGK_MOUSE(KEY_NPAGE) ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'h' ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  CHR_BACKSPACE ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  CHR_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'l' ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, CHR_NEXT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, KEY_NEXT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	'k' ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_PPAGE ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,  	DLGK_MOUSE(KEY_PPAGE) ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -448,6 +452,7 @@ dialog_calendar(const char *title,
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
+    dlg_register_window(dialog, "calendar", binding);
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);	/* mainbox */
     dlg_draw_bottom_box(dialog);
@@ -506,60 +511,32 @@ dialog_calendar(const char *title,
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
 
+	if (fkey && (key >= DLGK_MOUSE(KEY_MIN) && key <= DLGK_MOUSE(KEY_MAX))) {
+	    key = dlg_lookup_key(dialog, key - M_EVENT, &fkey);
+	}
+
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
 	} else {
-	    /* handle non-functionkeys */
-	    if (!fkey) {
-		fkey = TRUE;
-		switch (key) {
-		case ' ':
-		case '\n':
-		case '\r':
-		    key = KEY_ENTER;
-		    break;
-		case TAB:
-		    key = DLGK_NEXT_FIELD;
-		    break;
-		case CHR_PREVIOUS:
-		case CHR_NEXT:
-		case CHR_BACKSPACE:
-		case 'h':
-		case 'j':
-		case 'k':
-		case 'l':
-		    /* treat these as function-keys */
-		    break;
-		case ESC:
-		    result = DLG_EXIT_ESC;
-		    fkey = FALSE;
-		    break;
-		default:
-		    fkey = FALSE;
-		    break;
-		}
-	    }
-
-	    /* handle functionkeys */
+	    /* handle function-keys */
 	    if (fkey) {
 		switch (key) {
-		case M_EVENT + 'D':
+		case DLGK_MOUSE('D'):
 		    state = sDAY;
 		    break;
-		case M_EVENT + 'M':
+		case DLGK_MOUSE('M'):
 		    state = sMONTH;
 		    break;
-		case M_EVENT + 'Y':
+		case DLGK_MOUSE('Y'):
 		    state = sYEAR;
 		    break;
-		case KEY_ENTER:
+		case DLGK_ENTER:
 		    result = dlg_ok_buttoncode(button);
 		    break;
-		case DLGK_PREV_FIELD:
-		case KEY_BTAB:
+		case DLGK_FIELD_PREV:
 		    state = dlg_prev_ok_buttonindex(state, sMONTH);
 		    break;
-		case DLGK_NEXT_FIELD:
+		case DLGK_FIELD_NEXT:
 		    state = dlg_next_ok_buttonindex(state, sMONTH);
 		    break;
 #ifdef KEY_RESIZE
@@ -582,12 +559,12 @@ dialog_calendar(const char *title,
 			if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
 			    result = key2;
 			    break;
-			} else if (key >= (M_EVENT + KEY_MAX)) {
+			} else if (key >= DLGK_MOUSE(KEY_MAX)) {
 			    state = sDAY;
 			    obj = &dy_box;
 			    key2 = 1;
 			    step = (key
-				    - (M_EVENT + KEY_MAX)
+				    - DLGK_MOUSE(KEY_MAX)
 				    - day_cell_number(&current));
 			}
 		    }
@@ -637,6 +614,8 @@ dialog_calendar(const char *title,
 		    }
 		    break;
 		}
+	    } else if (key == ESC) {
+		result = DLG_EXIT_ESC;
 	    }
 	}
     }

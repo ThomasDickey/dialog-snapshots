@@ -1,29 +1,32 @@
 /*
- *  $Id: yesno.c,v 1.33 2005/10/30 20:32:38 tom Exp $
+ *  $Id: yesno.c,v 1.36 2005/11/28 00:18:34 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
  *  Copyright 1999-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 /*
  * Display a dialog box with two buttons - Yes and No.
@@ -31,6 +34,22 @@
 int
 dialog_yesno(const char *title, const char *cprompt, int height, int width)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
     int x, y;
     int key = 0, fkey;
     int button = dlg_defaultno_button();
@@ -60,7 +79,10 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 	(void) refresh();
     } else
 #endif
+    {
 	dialog = dlg_new_window(height, width, y, x);
+	dlg_register_window(dialog, "yesno", binding);
+    }
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
@@ -76,43 +98,22 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 	if ((result = dlg_char_to_button(key, buttons)) >= 0) {
 	    continue;
 	}
-	/* handle non-functionkeys */
-	if (!fkey) {
-	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		break;
-	    case TAB:
-		key = KEY_RIGHT;
-		fkey = TRUE;
-		break;
-	    case ' ':
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		fkey = TRUE;
-		break;
-	    }
-	}
-	/* handle functionkeys */
+	/* handle function keys */
 	if (fkey) {
 	    switch (key) {
-	    case KEY_BTAB:
-	    case KEY_UP:
-	    case KEY_DOWN:
-	    case KEY_LEFT:
-	    case KEY_RIGHT:
+	    case DLGK_FIELD_PREV:
+	    case DLGK_FIELD_NEXT:
 		button = !button;
 		dlg_draw_buttons(dialog,
 				 height - 2, 0,
 				 buttons, button,
 				 FALSE, width);
 		break;
-	    case M_EVENT + 0:
-	    case M_EVENT + 1:
-		button = (key == (M_EVENT + 1));
+	    case DLGK_MOUSE(0):
+	    case DLGK_MOUSE(1):
+		button = (key == DLGK_MOUSE(1));
 		/* FALLTHRU */
-	    case KEY_ENTER:
+	    case DLGK_ENTER:
 		result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
 		break;
 #ifdef KEY_RESIZE
@@ -126,6 +127,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 		beep();
 		break;
 	    }
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
 	} else {
 	    beep();
 	}
