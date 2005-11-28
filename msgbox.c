@@ -1,29 +1,32 @@
 /*
- *  $Id: msgbox.c,v 1.41 2005/10/31 23:15:30 tom Exp $
+ *  $Id: msgbox.c,v 1.43 2005/11/27 22:04:41 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors:
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 /*
  * Display the message in a scrollable window.  Actually the way it works is
@@ -113,6 +116,32 @@ int
 dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	      int pauseopt)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'J' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	'K' ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	'k' ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	'g' ),
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	'G' ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	'F' ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	'f' ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'B' ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'b' ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
     int x, y, last = 0, page;
     int key = 0, fkey;
     WINDOW *dialog = 0;
@@ -144,7 +173,10 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	(void) refresh();
     } else
 #endif
+    {
 	dialog = dlg_new_window(height, width, y, x);
+	dlg_register_window(dialog, "msgbox", binding);
+    }
     page = height - (1 + 3 * MARGIN);
 
     dlg_mouse_setbase(x, y);
@@ -170,48 +202,12 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		show = FALSE;
 	    }
 	    key = dlg_mouse_wgetch(dialog, &fkey);
-	    if (!fkey) {
+
+	    if (!fkey && dlg_char_to_button(key, buttons) == 0) {
+		key = DLGK_ENTER;
 		fkey = TRUE;
-		switch (key) {
-		case ESC:
-		    done = TRUE;
-		    continue;
-		case ' ':
-		case '\n':
-		case '\r':
-		    key = KEY_ENTER;
-		    break;
-		case 'F':
-		case 'f':
-		    key = KEY_NPAGE;
-		    break;
-		case 'B':
-		case 'b':
-		    key = KEY_PPAGE;
-		    break;
-		case 'g':
-		    key = KEY_HOME;
-		    break;
-		case 'G':
-		    key = KEY_END;
-		    break;
-		case 'K':
-		case 'k':
-		    key = KEY_UP;
-		    break;
-		case 'J':
-		case 'j':
-		    key = KEY_DOWN;
-		    break;
-		default:
-		    if (dlg_char_to_button(key, buttons) == 0) {
-			key = KEY_ENTER;
-		    } else {
-			fkey = FALSE;
-		    }
-		    break;
-		}
 	    }
+
 	    if (fkey) {
 		switch (key) {
 #ifdef KEY_RESIZE
@@ -221,34 +217,34 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    width = req_wide;
 		    goto restart;
 #endif
-		case KEY_ENTER:
+		case DLGK_ENTER:
 		    done = TRUE;
 		    break;
-		case KEY_HOME:
+		case DLGK_PAGE_FIRST:
 		    if (offset > 0) {
 			offset = 0;
 			show = TRUE;
 		    }
 		    break;
-		case KEY_END:
+		case DLGK_PAGE_LAST:
 		    if (offset < last) {
 			offset = last;
 			show = TRUE;
 		    }
 		    break;
-		case KEY_UP:
+		case DLGK_GRID_UP:
 		    if (offset > 0) {
 			--offset;
 			show = TRUE;
 		    }
 		    break;
-		case KEY_DOWN:
+		case DLGK_GRID_DOWN:
 		    if (offset < last) {
 			++offset;
 			show = TRUE;
 		    }
 		    break;
-		case KEY_PPAGE:
+		case DLGK_PAGE_PREV:
 		    if (offset > 0) {
 			offset -= page;
 			if (offset < 0)
@@ -256,7 +252,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 			show = TRUE;
 		    }
 		    break;
-		case KEY_NPAGE:
+		case DLGK_PAGE_NEXT:
 		    if (offset < last) {
 			offset += page;
 			if (offset > last)
@@ -271,6 +267,8 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 			beep();
 		    break;
 		}
+	    } else if (key == ESC) {
+		done = TRUE;
 	    } else {
 		beep();
 	    }

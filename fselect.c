@@ -1,26 +1,29 @@
 /*
- * $Id: fselect.c,v 1.49 2005/11/08 00:52:33 tom Exp $
+ * $Id: fselect.c,v 1.52 2005/11/28 00:16:44 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
  * Copyright 2000-2004,2005   Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -406,6 +409,25 @@ usable_state(STATES state, LIST * dirs, LIST * files)
 int
 dialog_fselect(const char *title, const char *path, int height, int width)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),	/* override inputstr */
+	INPUTSTR_BINDINGS,
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -454,6 +476,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
+    dlg_register_window(dialog, "fselect", binding);
+
     dlg_mouse_setbase(0, 0);
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -561,77 +585,56 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    key = dlg_mouse_wgetch(dialog, &fkey);
 	}
 
-	if (!fkey) {
+	if (!fkey && key == ' ') {
+	    key = DLGK_SELECT;
 	    fkey = TRUE;
-	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		fkey = FALSE;
-		break;
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		break;
-	    case ' ':
-		key = KEY_SELECT;
-		break;
-	    case TAB:
-		key = KEY_RIGHT;
-		break;
-	    case 0:
-		break;
-	    default:
-		fkey = FALSE;
-		break;
-	    }
 	}
 
 	if (fkey) {
 	    switch (key) {
-	    case M_EVENT + KEY_PREVIOUS:
+	    case DLGK_MOUSE(KEY_PREVIOUS):
 		state = sDIRS;
 		scroll_list(-1, which_list());
 		continue;
-	    case M_EVENT + KEY_NEXT:
+	    case DLGK_MOUSE(KEY_NEXT):
 		state = sDIRS;
 		scroll_list(1, which_list());
 		continue;
-	    case M_EVENT + KEY_PPAGE:
+	    case DLGK_MOUSE(KEY_PPAGE):
 		state = sFILES;
 		scroll_list(-1, which_list());
 		continue;
-	    case M_EVENT + KEY_NPAGE:
+	    case DLGK_MOUSE(KEY_NPAGE):
 		state = sFILES;
 		scroll_list(1, which_list());
 		continue;
-	    case KEY_PPAGE:
+	    case DLGK_PAGE_PREV:
 		scroll_list(-1, which_list());
 		continue;
-	    case KEY_NPAGE:
+	    case DLGK_PAGE_NEXT:
 		scroll_list(1, which_list());
 		continue;
-	    case KEY_UP:
+	    case DLGK_ITEM_PREV:
 		if (change_list(-1, which_list()))
 		    continue;
 		/* FALLTHRU */
-	    case KEY_LEFT:
-	    case KEY_BTAB:
+	    case DLGK_FIELD_PREV:
 		show_buttons = TRUE;
 		do {
 		    state = dlg_prev_ok_buttonindex(state, sDIRS);
 		} while (!usable_state(state, &d_list, &f_list));
 		continue;
-	    case KEY_DOWN:
+	    case DLGK_ITEM_NEXT:
 		if (change_list(1, which_list()))
 		    continue;
 		/* FALLTHRU */
-	    case KEY_RIGHT:
+	    case DLGK_FIELD_NEXT:
 		show_buttons = TRUE;
 		do {
 		    state = dlg_next_ok_buttonindex(state, sDIRS);
 		} while (!usable_state(state, &d_list, &f_list));
 		continue;
-	    case KEY_SELECT:
+	    case DLGK_SELECT:
 		completed = 0;
 		if (state == sFILES) {
 		    completed = data_of(&f_list);
@@ -651,7 +654,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		    continue;
 		}
 		/* FALLTHRU */
-	    case KEY_ENTER:
+	    case DLGK_ENTER:
 		result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		continue;
 #ifdef KEY_RESIZE
@@ -671,17 +674,17 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		break;
 #endif
 	    default:
-		if (key >= M_EVENT + MOUSE_T) {
+		if (key >= DLGK_MOUSE(MOUSE_T)) {
 		    state = sTEXT;
 		    continue;
-		} else if (key >= M_EVENT + MOUSE_F) {
+		} else if (key >= DLGK_MOUSE(MOUSE_F)) {
 		    state = sFILES;
-		    f_list.choice = (key - (M_EVENT + MOUSE_F)) + f_list.offset;
+		    f_list.choice = (key - DLGK_MOUSE(MOUSE_F)) + f_list.offset;
 		    display_list(&f_list);
 		    continue;
-		} else if (key >= M_EVENT + MOUSE_D) {
+		} else if (key >= DLGK_MOUSE(MOUSE_D)) {
 		    state = sDIRS;
-		    d_list.choice = (key - (M_EVENT + MOUSE_D)) + d_list.offset;
+		    d_list.choice = (key - DLGK_MOUSE(MOUSE_D)) + d_list.offset;
 		    display_list(&d_list);
 		    continue;
 		} else if (key >= M_EVENT
@@ -691,6 +694,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		}
 		break;
 	    }
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
 	}
 
 	if (state < 0) {	/* Input box selected if we're editing */

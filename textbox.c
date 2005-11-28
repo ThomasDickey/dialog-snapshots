@@ -1,29 +1,32 @@
 /*
- *  $Id: textbox.c,v 1.63 2005/11/01 01:10:30 tom Exp $
+ *  $Id: textbox.c,v 1.67 2005/11/28 00:18:05 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors:
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #define PAGE_LENGTH	(height - 4)
 #define PAGE_WIDTH	(width - 2)
@@ -605,6 +608,39 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 int
 dialog_textbox(const char *title, const char *file, int height, int width)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'J' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'j' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,  KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'H' ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'h' ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'L' ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'l' ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,    'K' ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,    'k' ),
+	DLG_KEYS_DATA( DLGK_GRID_UP,    KEY_UP ),
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST, 'g' ),
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST, KEY_HOME ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,  'G' ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,  KEY_END ),
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,  KEY_LL ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  ' ' ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  'B' ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  'b' ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
+	DLG_KEYS_DATA( DLGK_BEGIN,	'0' ),
+	DLG_KEYS_DATA( DLGK_BEGIN,	KEY_BEG ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -655,6 +691,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "textbox", binding);
 
     dlg_mouse_setbase(x, y);
 
@@ -722,63 +759,9 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
 
-	if (!fkey) {
+	if (!fkey && dlg_char_to_button(key, obj.buttons) == 0) {
 	    fkey = TRUE;
-	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		continue;
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		break;
-	    case ' ':
-		key = KEY_NPAGE;
-		break;
-	    case '0':
-		key = KEY_BEG;
-		break;
-	    case 'B':
-	    case 'b':
-		key = KEY_PPAGE;
-		break;
-	    case 'g':
-		key = KEY_HOME;
-		break;
-	    case 'G':
-		key = KEY_END;
-		break;
-	    case 'H':
-	    case 'h':
-		key = KEY_LEFT;
-		break;
-	    case 'K':
-	    case 'k':
-		key = KEY_UP;
-		break;
-	    case 'J':
-	    case 'j':
-		key = KEY_DOWN;
-		break;
-	    case 'L':
-	    case 'l':
-		key = KEY_RIGHT;
-		break;
-	    case '/':		/* Forward search */
-	    case 'n':		/* Repeat forward search */
-	    case '?':		/* Backward search */
-	    case 'N':		/* Repeat backward search */
-		moved = perform_search(&obj, height, width, key, search_term);
-		fkey = FALSE;
-		break;
-	    default:
-		if (dlg_char_to_button(key, obj.buttons) == 0) {
-		    key = KEY_ENTER;
-		} else {
-		    fkey = FALSE;
-		}
-		break;
-	    }
+	    key = DLGK_ENTER;
 	}
 
 	if (fkey) {
@@ -789,10 +772,10 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		else
 		    beep();
 		break;
-	    case KEY_ENTER:
+	    case DLGK_ENTER:
 		result = DLG_EXIT_OK;
 		break;
-	    case KEY_HOME:	/* First page */
+	    case DLGK_PAGE_FIRST:
 		if (!obj.begin_reached) {
 		    obj.begin_reached = 1;
 		    /* First page not in buffer? */
@@ -808,8 +791,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_END:	/* Last page */
-	    case KEY_LL:
+	    case DLGK_PAGE_LAST:
 		obj.end_reached = TRUE;
 		/* Last page not in buffer? */
 		fpos = ftell_obj(&obj);
@@ -824,35 +806,35 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		back_lines(&obj, PAGE_LENGTH);
 		moved = TRUE;
 		break;
-	    case KEY_UP:	/* Previous line */
+	    case DLGK_GRID_UP:	/* Previous line */
 		if (!obj.begin_reached) {
 		    back_lines(&obj, obj.page_length + 1);
 		    next = 1;
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_PPAGE:	/* Previous page */
-	    case M_EVENT + KEY_PPAGE:
+	    case DLGK_PAGE_PREV:	/* Previous page */
+	    case DLGK_MOUSE(KEY_PPAGE):
 		if (!obj.begin_reached) {
 		    back_lines(&obj, obj.page_length + PAGE_LENGTH);
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_DOWN:	/* Next line */
+	    case DLGK_GRID_DOWN:	/* Next line */
 		if (!obj.end_reached) {
 		    obj.begin_reached = 0;
 		    next = -1;
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_NPAGE:	/* Next page */
-	    case M_EVENT + KEY_NPAGE:
+	    case DLGK_PAGE_NEXT:	/* Next page */
+	    case DLGK_MOUSE(KEY_NPAGE):
 		if (!obj.end_reached) {
 		    obj.begin_reached = 0;
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_BEG:	/* Beginning of line */
+	    case DLGK_BEGIN:	/* Beginning of line */
 		if (obj.hscroll > 0) {
 		    obj.hscroll = 0;
 		    /* Reprint current page to scroll horizontally */
@@ -860,7 +842,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_LEFT:	/* Scroll left */
+	    case DLGK_GRID_LEFT:	/* Scroll left */
 		if (obj.hscroll > 0) {
 		    obj.hscroll--;
 		    /* Reprint current page to scroll horizontally */
@@ -868,7 +850,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		    moved = TRUE;
 		}
 		break;
-	    case KEY_RIGHT:	/* Scroll right */
+	    case DLGK_GRID_RIGHT:	/* Scroll right */
 		if (obj.hscroll < MAX_LEN) {
 		    obj.hscroll++;
 		    /* Reprint current page to scroll horizontally */
@@ -893,7 +875,21 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 #endif
 	    }
 	} else {
-	    beep();
+	    switch (key) {
+	    case ESC:
+		result = DLG_EXIT_ESC;
+		break;
+	    case '/':		/* Forward search */
+	    case 'n':		/* Repeat forward search */
+	    case '?':		/* Backward search */
+	    case 'N':		/* Repeat backward search */
+		moved = perform_search(&obj, height, width, key, search_term);
+		fkey = FALSE;
+		break;
+	    default:
+		beep();
+		break;
+	    }
 	}
     }
 

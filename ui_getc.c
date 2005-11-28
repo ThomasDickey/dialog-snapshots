@@ -1,26 +1,29 @@
 /*
- *  $Id: ui_getc.c,v 1.24 2004/12/22 23:10:33 tom Exp $
+ *  $Id: ui_getc.c,v 1.27 2005/11/27 16:38:28 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2003,2004	Thomas E. Dickey
+ * Copyright 2001-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -240,6 +243,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	last_getc = ch;
 	*fkey = (ch > KEY_MIN && ch < KEY_MAX);
 #endif
+	ch = dlg_lookup_key(win, ch, fkey);
 	current = time((time_t *) 0);
 
 	switch (ch) {

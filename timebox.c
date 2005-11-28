@@ -1,26 +1,30 @@
 /*
- * $Id: timebox.c,v 1.25 2005/11/08 00:39:36 tom Exp $
+ * $Id: timebox.c,v 1.30 2005/11/28 00:20:04 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
  * Copyright 2001-2004,2005   Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
+
 #include <time.h>
 
 #define ONE_HIGH 1
@@ -57,14 +61,10 @@ next_or_previous(int key)
     int result = 0;
 
     switch (key) {
-    case KEY_PPAGE:
-    case KEY_PREVIOUS:
-    case KEY_UP:
+    case DLGK_ITEM_PREV:
 	result = -1;
 	break;
-    case KEY_NPAGE:
-    case KEY_NEXT:
-    case KEY_DOWN:
+    case DLGK_ITEM_NEXT:
 	result = 1;
 	break;
     default:
@@ -133,6 +133,33 @@ dialog_timebox(const char *title,
 	       int minute,
 	       int second)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_FIRST,KEY_HOME ),
+	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_END ),
+	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_LL ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, CHR_NEXT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, CHR_BACKSPACE ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, CHR_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NPAGE),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PPAGE ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -169,6 +196,7 @@ dialog_timebox(const char *title,
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
+    dlg_register_window(dialog, "timebox", binding);
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
@@ -235,85 +263,40 @@ dialog_timebox(const char *title,
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
 	} else {
-	    /* handle non-functionkeys */
-	    if (!fkey) {
-		fkey = TRUE;
-		switch (key) {
-		case CHR_BACKSPACE:
-		case CHR_PREVIOUS:
-		    key = KEY_LEFT;
-		    break;
-		case CHR_NEXT:
-		    key = KEY_RIGHT;
-		    break;
-		case ' ':
-		case '\n':
-		case '\r':
-		    key = KEY_ENTER;
-		    break;
-		case TAB:
-		    key = KEY_RIGHT;
-		    break;
-		case ESC:
-		    result = DLG_EXIT_ESC;
-		    fkey = FALSE;
-		    break;
-		default:
-		    fkey = FALSE;
-		    if (isdigit(key)) {
-			if (obj != 0) {
-			    int digit = (key - '0');
-			    int value = (obj->value * 10) + digit;
-			    if (value < obj->period) {
-				obj->value = value;
-				(void) DrawObject(obj);
-			    } else {
-				beep();
-			    }
-			}
-		    } else {
-			beep();
-		    }
-		    break;
-		}
-	    }
-
-	    /* handle functionkeys */
+	    /* handle function-keys */
 	    if (fkey) {
 		switch (key) {
-		case M_EVENT + 0:
+		case DLGK_MOUSE(0):
 		    result = DLG_EXIT_OK;
 		    break;
-		case M_EVENT + 1:
+		case DLGK_MOUSE(1):
 		    result = DLG_EXIT_CANCEL;
 		    break;
-		case M_EVENT + 'H':
+		case DLGK_MOUSE('H'):
 		    state = sHR;
 		    break;
-		case M_EVENT + 'M':
+		case DLGK_MOUSE('M'):
 		    state = sMN;
 		    break;
-		case M_EVENT + 'S':
+		case DLGK_MOUSE('S'):
 		    state = sSC;
 		    break;
-		case KEY_ENTER:
+		case DLGK_ENTER:
 		    result = button;
 		    break;
-		case KEY_LEFT:
-		case KEY_BTAB:
+		case DLGK_FIELD_PREV:
 		    state = dlg_prev_ok_buttonindex(state, sHR);
 		    break;
-		case KEY_RIGHT:
+		case DLGK_FIELD_NEXT:
 		    state = dlg_next_ok_buttonindex(state, sHR);
 		    break;
-		case KEY_HOME:
+		case DLGK_FIELD_FIRST:
 		    if (obj != 0) {
 			obj->value = 0;
 			(void) DrawObject(obj);
 		    }
 		    break;
-		case KEY_END:
-		case KEY_LL:
+		case DLGK_FIELD_LAST:
 		    if (obj != 0) {
 			switch (state) {
 			case sHR:
@@ -327,7 +310,7 @@ dialog_timebox(const char *title,
 			(void) DrawObject(obj);
 		    }
 		    break;
-		case KEY_DC:
+		case DLGK_DELETE_RIGHT:
 		    if (obj != 0) {
 			obj->value /= 10;
 			(void) DrawObject(obj);
@@ -362,6 +345,21 @@ dialog_timebox(const char *title,
 		    }
 		    break;
 		}
+	    } else if (key == ESC) {
+		result = DLG_EXIT_ESC;
+	    } else if (isdigit(key)) {
+		if (obj != 0) {
+		    int digit = (key - '0');
+		    int value = (obj->value * 10) + digit;
+		    if (value < obj->period) {
+			obj->value = value;
+			(void) DrawObject(obj);
+		    } else {
+			beep();
+		    }
+		}
+	    } else {
+		beep();
 	    }
 	}
     }

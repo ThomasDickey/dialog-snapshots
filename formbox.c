@@ -1,29 +1,32 @@
 /*
- *  $Id: formbox.c,v 1.38 2005/10/30 20:38:36 tom Exp $
+ *  $Id: formbox.c,v 1.41 2005/11/28 00:16:10 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
  *  Copyright 2003-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  This is adapted from source contributed by
  *	Valery Reznic (valery_reznic@users.sourceforge.net)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 #define LLEN(n) ((n) * FORMBOX_TAGS)
 
@@ -355,6 +358,26 @@ int
 dialog_form(const char *title, const char *cprompt, int height, int width,
 	    int form_height, int item_no, char **items)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	INPUTSTR_BINDINGS,
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PREVIOUS ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -419,6 +442,7 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "formbox", binding);
 
     dlg_mouse_setbase(x, y);
 
@@ -503,36 +527,10 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		    result = code;
 		    continue;
 		}
-	    }
-
-	    fkey = TRUE;
-	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		continue;
-	    case CHR_NEXT:
-		key = KEY_NEXT;
-		break;
-	    case CHR_PREVIOUS:
-		key = KEY_PREVIOUS;
-		break;
-	    case ' ':
-		if (state == sTEXT) {
-		    fkey = FALSE;
-		    break;
+		if (key == ' ') {
+		    fkey = TRUE;
+		    key = DLGK_ENTER;
 		}
-		/* FALLTHRU */
-	    case '\n':
-	    case '\r':
-		key = KEY_ENTER;
-		break;
-	    case TAB:
-		state = dlg_next_ok_buttonindex(state, sTEXT);
-		show_buttons = TRUE;
-		continue;
-	    default:
-		fkey = FALSE;
-		break;
 	    }
 	}
 
@@ -543,29 +541,28 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    int move_by = 0;
 
 	    switch (key) {
-	    case M_EVENT + KEY_PPAGE:
-	    case KEY_PPAGE:
+	    case DLGK_MOUSE(KEY_PPAGE):
+	    case DLGK_PAGE_PREV:
 		do_scroll = TRUE;
 		move_by = -form_height;
 		break;
 
-	    case M_EVENT + KEY_NPAGE:
-	    case KEY_NPAGE:
+	    case DLGK_MOUSE(KEY_NPAGE):
+	    case DLGK_PAGE_NEXT:
 		do_scroll = TRUE;
 		move_by = form_height;
 		break;
 
-	    case KEY_ENTER:
+	    case DLGK_ENTER:
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
 		continue;
 
-	    case KEY_LEFT:
+	    case DLGK_GRID_LEFT:
 		if (state == sTEXT)
 		    break;
 		/* FALLTHRU */
-	    case KEY_UP:
-	    case KEY_PREVIOUS:
+	    case DLGK_ITEM_PREV:
 		if (state == sTEXT) {
 		    do_tab = TRUE;
 		    move_by = -1;
@@ -576,18 +573,22 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		    continue;
 		}
 
-	    case KEY_BTAB:
+	    case DLGK_FIELD_PREV:
 		state = dlg_prev_ok_buttonindex(state, sTEXT);
 		show_buttons = TRUE;
 		continue;
 
-	    case KEY_RIGHT:
+	    case DLGK_FIELD_NEXT:
+		state = dlg_next_ok_buttonindex(state, sTEXT);
+		show_buttons = TRUE;
+		continue;
+
+	    case DLGK_GRID_RIGHT:
 		if (state == sTEXT)
 		    break;
 		/* FALLTHRU */
 
-	    case KEY_DOWN:
-	    case KEY_NEXT:
+	    case DLGK_ITEM_NEXT:
 		if (state == sTEXT) {
 		    do_tab = TRUE;
 		    move_by = 1;
@@ -614,8 +615,8 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 	    default:
 #if USE_MOUSE
 		if (key >= M_EVENT) {
-		    if (key >= M_EVENT + KEY_MAX) {
-			int cell = key - (M_EVENT + KEY_MAX);
+		    if (key >= DLGK_MOUSE(KEY_MAX)) {
+			int cell = key - DLGK_MOUSE(KEY_MAX);
 			int row = (cell / getmaxx(form)) + scrollamt;
 			int col = (cell % getmaxx(form));
 			int n;
@@ -679,6 +680,9 @@ dialog_form(const char *title, const char *cprompt, int height, int width,
 		}
 		continue;
 	    }
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
+	    continue;
 	}
 
 	if (state == sTEXT) {	/* Input box selected */

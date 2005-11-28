@@ -1,29 +1,32 @@
 /*
- *  $Id: tailbox.c,v 1.43 2005/10/30 20:30:09 tom Exp $
+ *  $Id: tailbox.c,v 1.45 2005/11/27 21:53:11 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
  *  Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  *
  *  An earlier version of this program lists as authors
  *	Pasquale De Marco (demarco_p@abramo.it)
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 typedef struct {
     DIALOG_CALLBACK obj;
@@ -194,48 +197,26 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
     MY_OBJ *obj = (MY_OBJ *) cb;
     bool done = FALSE;
 
-    if (!fkey) {
+    if (!fkey && dlg_char_to_button(ch, obj->buttons) == 0) {
+	ch = DLGK_ENTER;
 	fkey = TRUE;
-	switch (ch) {
-	case '\n':
-	case '\r':
-	    ch = KEY_ENTER;
-	    break;
-	case 'H':
-	case 'h':
-	    ch = KEY_LEFT;
-	    break;
-	case 'L':
-	case 'l':
-	    ch = KEY_RIGHT;
-	    break;
-	case '0':
-	    ch = KEY_BEG;
-	    break;
-	default:
-	    if (dlg_char_to_button(ch, obj->buttons) == 0) {
-		ch = KEY_ENTER;
-	    } else {
-		fkey = FALSE;
-	    }
-	    break;
-	}
     }
+
     if (fkey) {
 	switch (ch) {
-	case KEY_ENTER:
+	case DLGK_ENTER:
 	    *result = DLG_EXIT_OK;
 	    done = TRUE;
 	    break;
-	case KEY_BEG:		/* Beginning of line */
+	case DLGK_BEGIN:	/* Beginning of line */
 	    obj->hscroll = 0;
 	    break;
-	case KEY_LEFT:		/* Scroll left */
+	case DLGK_GRID_LEFT:	/* Scroll left */
 	    if (obj->hscroll > 0) {
 		obj->hscroll -= 1;
 	    }
 	    break;
-	case KEY_RIGHT:	/* Scroll right */
+	case DLGK_GRID_RIGHT:	/* Scroll right */
 	    if (obj->hscroll < MAX_LEN)
 		obj->hscroll += 1;
 	    break;
@@ -271,6 +252,23 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 int
 dialog_tailbox(const char *title, const char *file, int height, int width, int bg_task)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	DLG_KEYS_DATA( DLGK_BEGIN,      '0' ),
+	DLG_KEYS_DATA( DLGK_BEGIN,      KEY_BEG ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'H' ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'h' ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,  KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'L' ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'l' ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT, KEY_RIGHT ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
@@ -298,6 +296,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     thigh = height - ((2 * MARGIN) + (bg_task ? 0 : 2));
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "tailbox", binding);
 
     dlg_mouse_setbase(x, y);
 

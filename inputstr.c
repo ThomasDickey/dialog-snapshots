@@ -1,26 +1,30 @@
 /*
- * $Id: inputstr.c,v 1.44 2005/10/30 19:25:37 tom Exp $
+ * $Id: inputstr.c,v 1.47 2005/11/27 23:28:18 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
  * Copyright 2000-2004,2005	Thomas E. Dickey
  *
- *  This program is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  as published by the Free Software Foundation; either version 2
- *  of the License, or (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
  */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
+
 #include <errno.h>
 
 #ifdef HAVE_SETLOCALE
@@ -484,19 +488,6 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	switch (key) {
 	case 0:
 	    break;
-	case CHR_BACKSPACE:
-	    key = KEY_BACKSPACE;
-	    break;
-	case 21:		/* ^U */
-	    key = KEY_DL;
-	    break;
-	case CHR_DELETE:
-	    key = KEY_DC;
-	    break;
-	case '\n':
-	case '\r':
-	    key = KEY_ENTER;
-	    break;
 	case ESC:
 	case TAB:
 	    fkey = FALSE;	/* this is used for navigation */
@@ -512,23 +503,23 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	case 0:		/* special case for loop entry */
 	    edit = force;
 	    break;
-	case KEY_LEFT:
+	case DLGK_GRID_LEFT:
 	    if (*chr_offset)
 		*chr_offset = indx[offset - 1];
 	    break;
-	case KEY_RIGHT:
+	case DLGK_GRID_RIGHT:
 	    if (offset < limit)
 		*chr_offset = indx[offset + 1];
 	    break;
-	case KEY_HOME:
+	case DLGK_BEGIN:
 	    if (*chr_offset)
 		*chr_offset = 0;
 	    break;
-	case KEY_END:
+	case DLGK_FINAL:
 	    if (offset < limit)
 		*chr_offset = indx[limit];
 	    break;
-	case KEY_BACKSPACE:
+	case DLGK_DELETE_LEFT:
 	    if (offset) {
 		int gap = indx[offset] - indx[offset - 1];
 		*chr_offset = indx[offset - 1];
@@ -541,7 +532,7 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 		}
 	    }
 	    break;
-	case KEY_DC:
+	case DLGK_DELETE_RIGHT:
 	    if (limit) {
 		if (--limit == 0) {
 		    string[*chr_offset = 0] = '\0';
@@ -563,10 +554,10 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 		}
 	    }
 	    break;
-	case KEY_DL:
+	case DLGK_DELETE_ALL:
 	    string[*chr_offset = 0] = '\0';
 	    break;
-	case KEY_ENTER:
+	case DLGK_ENTER:
 	    edit = 0;
 	    break;
 #ifdef KEY_RESIZE
@@ -574,6 +565,10 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	    edit = 0;
 	    break;
 #endif
+	case DLGK_FIELD_NEXT:
+	case DLGK_FIELD_PREV:
+	    edit = 0;
+	    break;
 	default:
 	    beep();
 	    break;

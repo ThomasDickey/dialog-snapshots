@@ -1,26 +1,29 @@
 /*
- * $Id: mousewget.c,v 1.16 2004/12/20 00:48:20 tom Exp $
+ * $Id: mousewget.c,v 1.19 2005/11/28 00:19:33 tom Exp $
  *
  * mousewget.c -- mouse/wgetch support for dialog
  *
- * Copyright 2000-2002,2003   Thomas E. Dickey
+ * Copyright 2000-2003,2005   Thomas E. Dickey
  *
- *   This program is free software; you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation; either version 2 of the License, or
- *   (at your option) any later version.
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation; either version 2.1 of the
+ *  License, or (at your option) any later version.
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
  *
- *   You should have received a copy of the GNU General Public License
- *   along with this program; if not, write to the Free Software
- *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- ********/
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to
+ *	Free Software Foundation, Inc.
+ *	51 Franklin St., Fifth Floor
+ *	Boston, MA 02110, USA.
+ */
 
-#include "dialog.h"
+#include <dialog.h>
+#include <dlg_keys.h>
 
 static int
 mouse_wgetch(WINDOW *win, int *fkey, bool ignore_errs)
@@ -38,7 +41,7 @@ mouse_wgetch(WINDOW *win, int *fkey, bool ignore_errs)
 
 	    if (getmouse(&event) != ERR) {
 		if ((p = dlg_mouse_region(event.y, event.x)) != 0) {
-		    key = M_EVENT + p->code;
+		    key = DLGK_MOUSE(p->code);
 		} else if ((p = dlg_mouse_bigregion(event.y, event.x)) != 0) {
 		    int x = event.x - p->x;
 		    int y = event.y - p->y;
