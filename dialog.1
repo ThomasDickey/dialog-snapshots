@@ -1,19 +1,21 @@
-.\" $Id: dialog.1,v 1.86 2005/10/30 20:12:00 tom Exp $
+.\" $Id: dialog.1,v 1.89 2005/12/08 01:09:03 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
-.\" This program is free software; you can redistribute it and/or
-.\" modify it under the terms of the GNU General Public License
-.\" as published by the Free Software Foundation; either version 2
-.\" of the License, or (at your option) any later version.
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU Lesser General Public License as
+.\" published by the Free Software Foundation; either version 2.1 of the
+.\" License, or (at your option) any later version.
 .\"
-.\" This program is distributed in the hope that it will be useful,
-.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
-.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-.\" GNU General Public License for more details.
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
 .\"
-.\" You should have received a copy of the GNU General Public License
-.\" along with this program; if not, write to the Free Software
-.\" Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.\" You should have received a copy of the GNU Lesser General Public
+.\" License along with this program; if not, write to
+.\"	Free Software Foundation, Inc.
+.\"	51 Franklin St., Fifth Floor
+.\"	Boston, MA 02110, USA.
 .de EX
 .ne 8
 .IP
@@ -27,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2005/10/30 20:12:00 $"
+.TH DIALOG 1 "" "$Date: 2005/12/08 01:09:03 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -394,14 +396,15 @@ so it can write to the display.
 Depending on the platform and your environment, that may fail.
 .
 .IP "\fB--tab-correct"
-Convert each tab character to one or more spaces.
+Convert each tab character to one or more spaces
+(for the \fBtextbox\fP widget; otherwise to a single space).
 Otherwise, tabs are rendered according to the curses library's interpretation.
 .
 .IP "\fB--tab-len \fIn"
 Specify the number of spaces that a tab character occupies if the
-"\fB--tab-correct\fP"
-option is given.
+"\fB--tab-correct\fP" option is given.
 The default is 8.
+This option is only effective for the \fBtextbox\fP widget.
 .
 .IP "\fB--timeout \fIsecs"
 Timeout (exit with error code)
@@ -683,6 +686,11 @@ See "\fB--insecure\fP" if you do not care about your password.
 On exit, the input string will be printed on \fBdialog\fP's output.
 .
 .
+.IP "\fB--passwordform \fItext height width formheight \fR[ \fIlabel y x item y x flen ilen \fR] \fI..."
+This is identical to \fB--form\fP except that all text fields are
+treated as \fBpassword\fP widgets rather than \fBinputbox\fP widgets.
+.
+.
 .IP "\fB--radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
 A
 \fBradiolist\fP
@@ -851,6 +859,29 @@ if the file in (c) is not found, use compiled in defaults.
 Edit the sample configuration file and copy it to some place that
 \fBdialog\fP
 can find, as stated in step 2 above.
+.
+.\" ************************************************************************
+.SH "KEY BINDINGS"
+You can override or add to key bindings in \fBdialog\fP
+by adding to the configuration file.
+\fBDialog\fP's \fBbindkey\fP command maps single keys to its internal coding.
+.ES
+bindkey \fIwidget\fP \fIcurses_key\fP \fIdialog_key\fP
+.EE
+The \fIwidget\fP name can be "*" (all widgets), or
+specific widgets such as \fBtextbox\fP.
+Specific widget bindings override the "*" bindings.
+User-defined bindings override the built-in bindings.
+.PP
+The \fIcurses_key\fP can be any of the names derived from
+\fBcurses.h\fP, e.g., "HELP" from "KEY_HELP".
+\fBDialog\fP also recognizes ANSI control characters such as "^A", "^?",
+as well as C1-controls such as "~A" and "~?".
+Finally, it allows any single character to be escaped with a backslash.
+.PP
+\fBDialog\fP's internal keycode names correspond to the 
+\fBDLG_KEYS_ENUM\fP type in
+\fBdlg_keys.h\fP, e.g., "HELP" from "DLGK_HELP".
 .
 .\" ************************************************************************
 .SH ENVIRONMENT

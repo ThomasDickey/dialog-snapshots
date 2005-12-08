@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.45 2005/11/27 21:53:11 tom Exp $
+ *  $Id: tailbox.c,v 1.48 2005/12/07 00:39:45 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -254,11 +254,9 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_BEGIN,      '0' ),
 	DLG_KEYS_DATA( DLGK_BEGIN,      KEY_BEG ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'H' ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'h' ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  KEY_LEFT ),
@@ -296,7 +294,6 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     thigh = height - ((2 * MARGIN) + (bg_task ? 0 : 2));
 
     dialog = dlg_new_window(height, width, y, x);
-    dlg_register_window(dialog, "tailbox", binding);
 
     dlg_mouse_setbase(x, y);
 
@@ -331,6 +328,9 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     obj->text = text;
     obj->buttons = buttons;
     dlg_add_callback(&(obj->obj));
+
+    dlg_register_window(dialog, "tailbox", binding);
+    dlg_register_buttons(dialog, "tailbox", buttons);
 
     /* Print last page of text */
     dlg_attr_clear(text, thigh, getmaxx(text), dialog_attr);

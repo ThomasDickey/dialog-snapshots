@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: textbox,v 1.6 2003/08/15 19:40:37 tom Exp $
+# $Id: textbox,v 1.7 2005/12/07 01:02:47 tom Exp $
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
@@ -42,6 +42,12 @@ $DIALOG --clear --title "TEXT BOX" --textbox "$tempfile" 22 77
 case $? in
   0)
     echo "OK";;
+  1)
+    echo "Button 1 (Cancel) pressed";;
+  2)
+    echo "Button 2 (Help) pressed";;
+  3)
+    echo "Button 3 (Extra) pressed";;
   255)
     echo "ESC pressed.";;
 esac

@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: form1,v 1.7 2004/09/12 22:37:21 tom Exp $
+# $Id: form1,v 1.8 2005/12/05 23:27:23 tom Exp $
 : ${DIALOG=dialog}
 
 backtitle="An Example for the use of --form:"
@@ -50,6 +50,14 @@ show=`echo "$value" |sed -e 's/^/	/'`
 		--backtitle "$backtitle" --no-collapse --cr-wrap \
 		--msgbox "Resulting data:\n\
 $show" 10 40
+		;;
+	2)
+		echo "Button 2 (Help) pressed."
+		exit
+		;;
+	3)
+		echo "Button 3 (Extra) pressed."
+		exit
 		;;
 	*)
 		echo "Return code was $returncode"

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.33 2005/11/28 00:21:25 tom Exp $
+ *  $Id: guage.c,v 1.35 2005/12/06 01:10:26 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -96,7 +96,7 @@ decode_percent(char *buffer)
  */
 int
 dialog_gauge(const char *title,
-	     const char *prompt,
+	     const char *cprompt,
 	     int height,
 	     int width,
 	     int percent)
@@ -109,9 +109,12 @@ dialog_gauge(const char *title,
     int status;
     char buf[MY_LEN];
     char prompt_buf[MY_LEN];
+    char *prompt = dlg_strclone(cprompt);
     WINDOW *dialog;
 
     curs_set(0);
+
+    dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE
     nodelay(stdscr, TRUE);
@@ -214,6 +217,8 @@ dialog_gauge(const char *title,
 	    if_FINISH(status, break);
 	    if_RESIZE(status, goto retry);
 
+	    if (prompt != prompt_buf)
+		free(prompt);
 	    prompt = prompt_buf;
 	} else if (decode_percent(buf)) {
 	    percent = atoi(buf);
@@ -225,5 +230,7 @@ dialog_gauge(const char *title,
 #endif
     curs_set(1);
     dlg_del_window(dialog);
+    if (prompt != prompt_buf)
+	free(prompt);
     return (DLG_EXIT_OK);
 }

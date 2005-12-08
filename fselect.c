@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.52 2005/11/28 00:16:44 tom Exp $
+ * $Id: fselect.c,v 1.57 2005/12/07 00:41:44 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -413,9 +413,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
     static DLG_KEYS_BINDING binding[] = {
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),	/* override inputstr */
 	INPUTSTR_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
@@ -477,6 +475,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
     dlg_register_window(dialog, "fselect", binding);
+    dlg_register_buttons(dialog, "fselect", buttons);
 
     dlg_mouse_setbase(0, 0);
 
@@ -583,6 +582,8 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
 	    key = dlg_mouse_wgetch(dialog, &fkey);
+	    if (dlg_result_key(key, fkey, &result))
+		break;
 	}
 
 	if (!fkey && key == ' ') {
@@ -687,15 +688,13 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		    d_list.choice = (key - DLGK_MOUSE(MOUSE_D)) + d_list.offset;
 		    display_list(&d_list);
 		    continue;
-		} else if (key >= M_EVENT
+		} else if (is_DLGK_MOUSE(key)
 			   && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
 		    result = code;
 		    continue;
 		}
 		break;
 	    }
-	} else if (key == ESC) {
-	    result = DLG_EXIT_ESC;
 	}
 
 	if (state < 0) {	/* Input box selected if we're editing */
@@ -709,7 +708,7 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 	    }
 	} else if (state >= 0 &&
 		   (code = dlg_char_to_button(key, buttons)) >= 0) {
-	    result = code;
+	    result = dlg_ok_buttoncode(code);
 	    break;
 	}
     }

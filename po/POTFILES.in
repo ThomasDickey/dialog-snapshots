@@ -5,6 +5,9 @@ checklist.c
 dialog.c
 dialog.h
 dlg_colors.h
+dlg_keys.c
+dlg_keys.h
+formbox.c
 fselect.c
 guage.c
 inputbox.c
@@ -18,5 +21,7 @@ rc.c
 tailbox.c
 textbox.c
 timebox.c
+ui_getc.c
 util.c
+version.c
 yesno.c

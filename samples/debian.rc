@@ -1,6 +1,18 @@
-# $Id: debian.rc,v 1.3 2003/08/30 16:27:42 tom Exp $
+# $Id: debian.rc,v 1.4 2005/12/01 01:18:57 tom Exp $
 # Run-time configuration file for dialog, matches Debian color scheme.
 # (these are the default values for dialog)
+
+# Set aspect-ration.
+aspect = 0
+
+# Set separator (for multiple widgets output).
+separate_widget = ""
+
+# Set tab-length (for textbox tab-conversion).
+tab_len = 0
+
+# Make tab-traversal for checklist, etc., include the list.
+visit_items = OFF
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON

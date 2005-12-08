@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.157 2005/11/27 16:22:23 tom Exp $
+ *  $Id: util.c,v 1.162 2005/12/04 21:48:15 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -510,7 +510,11 @@ void
 dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 {
     int y_origin, x_origin;
+    int y_before, x_before = 0;
     int y_after, x_after;
+    int tabbed = 0;
+    bool thisTab;
+    bool ended = FALSE;
     chtype useattr;
 
     getyx(win, y_origin, x_origin);
@@ -558,9 +562,9 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 		}
 		++txt;
 	    }
-	    if (*txt == '\n' || *txt == '\0')
-		break;
 	}
+	if (ended || *txt == '\n' || *txt == '\0')
+	    break;
 	useattr = (*attr) & A_ATTRIBUTES;
 #ifdef HAVE_COLOR
 	/*
@@ -580,10 +584,21 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	    }
 	}
 #endif
+	/*
+	 * Write the character, using curses to tell exactly how wide it
+	 * is.  If it is a tab, discount that, since the caller thinks
+	 * tabs are nonprinting, and curses will expand tabs to one or
+	 * more blanks.
+	 */
+	thisTab = (CharOf(*txt) == TAB);
+	if (thisTab)
+	    getyx(win, y_before, x_before);
 	(void) waddch(win, CharOf(*txt++) | useattr);
 	getyx(win, y_after, x_after);
-	if (y_after != y_origin || x_after >= cols + x_origin) {
-	    break;
+	if (thisTab && (y_after == y_origin))
+	    tabbed += (x_after - x_before);
+	if (y_after != y_origin || x_after >= cols + tabbed + x_origin) {
+	    ended = TRUE;
 	}
     }
 }
@@ -607,6 +622,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
     int hidden = 0;
     int limit = dlg_count_wchars(prompt);
     int n;
+    int tabbed = 0;
 
     *x = 1;
 
@@ -618,14 +634,16 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
 	test_ptr = prompt + indx[test_inx];
 	if (*test_ptr == '\n' || *test_ptr == '\0' || cur_x >= (rm + hidden))
 	    break;
-	if (*test_ptr == ' ' && n != 0 && prompt[indx[n - 1]] != ' ') {
+	if (*test_ptr == '\t' && n == 0) {
+	    tabbed = 8;		/* workaround for leading tabs */
+	} else if (*test_ptr == ' ' && n != 0 && prompt[indx[n - 1]] != ' ') {
 	    wrap_inx = n;
 	    *x = cur_x;
 	} else if (isOurEscape(test_ptr)) {
 	    hidden += 3;
 	    n += 2;
 	}
-	cur_x = lm + cols[n + 1];
+	cur_x = lm + tabbed + cols[n + 1];
 	if (cur_x > (rm + hidden))
 	    break;
 	test_inx = n + 1;
@@ -1161,17 +1179,19 @@ dlg_ctl_size(int height, int width)
     }
 }
 
+/*
+ * If the --tab-correct was not selected, convert tabs to single spaces.
+ */
 void
 dlg_tab_correct_str(char *prompt)
 {
     char *ptr;
 
-    if (!dialog_vars.tab_correct)
-	return;
-
-    while ((ptr = strchr(prompt, TAB)) != NULL) {
-	*ptr = ' ';
-	prompt = ptr;
+    if (dialog_vars.tab_correct) {
+	while ((ptr = strchr(prompt, TAB)) != NULL) {
+	    *ptr = ' ';
+	    prompt = ptr;
+	}
     }
 }
 
@@ -1189,6 +1209,7 @@ dlg_calc_listh(int *height, int *list_height, int item_no)
     (*height) += (*list_height);
 }
 
+/* obsolete */
 int
 dlg_calc_listw(int item_no, char **items, int group)
 {
@@ -1197,6 +1218,19 @@ dlg_calc_listw(int item_no, char **items, int group)
 	if ((n = dlg_count_columns(items[i])) > len1)
 	    len1 = n;
 	if ((n = dlg_count_columns(items[i + 1])) > len2)
+	    len2 = n;
+    }
+    return len1 + len2;
+}
+
+int
+dlg_calc_list_width(int item_no, DIALOG_LISTITEM * items)
+{
+    int n, i, len1 = 0, len2 = 0;
+    for (i = 0; i < item_no; ++i) {
+	if ((n = dlg_count_columns(items[i].name)) > len1)
+	    len1 = n;
+	if ((n = dlg_count_columns(items[i].text)) > len2)
 	    len2 = n;
     }
     return len1 + len2;
@@ -1367,6 +1401,7 @@ dlg_sub_window(WINDOW *parent, int height, int width, int y, int x)
     return win;
 }
 
+/* obsolete */
 int
 dlg_default_item(char **items, int llen)
 {
@@ -1380,6 +1415,22 @@ dlg_default_item(char **items, int llen)
 	}
     }
     return 0;
+}
+
+int
+dlg_default_listitem(DIALOG_LISTITEM * items)
+{
+    int count = 0;
+
+    if (dialog_vars.default_item != 0) {
+	while (items->name != 0) {
+	    if (!strcmp(dialog_vars.default_item, items->name))
+		break;
+	    ++items;
+	    count++;
+	}
+    }
+    return count;
 }
 
 /*

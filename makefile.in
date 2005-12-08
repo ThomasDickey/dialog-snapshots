@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.43 2005/11/27 22:50:06 tom Exp $
+# $Id: makefile.in,v 1.44 2005/12/08 01:35:19 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -156,6 +156,7 @@ install-lib :: $(LIB_DIRS) headers.sed
 	@ echo "** installing headers in $(includedir)"
 	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dialog.h
 	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dlg_colors.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dlg_keys.h
 	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) .         dlg_config.h
 	@ echo "** installing manpage"
 	$(INSTALL_DATA) $(srcdir)/dialog.3 $(MAN3DIR)
@@ -164,6 +165,7 @@ uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(libdir)/$(LIB)
 	$(RM) $(includedir)/dialog.h
 	$(RM) $(includedir)/dlg_colors.h
+	$(RM) $(includedir)/dlg_keys.h
 	$(RM) $(includedir)/dlg_config.h
 	$(RM) $(MAN3DIR)/dialog.3
 

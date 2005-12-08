@@ -1,6 +1,17 @@
-# $Id: whiptail.rc,v 1.1 2003/11/20 21:49:14 tom Exp $
+# $Id: whiptail.rc,v 1.2 2005/12/01 01:21:31 tom Exp $
 # Run-time configuration file for dialog, matches whiptail's color scheme.
-#
+
+# Set aspect-ration.
+aspect = 0
+
+# Set separator (for multiple widgets output).
+separate_widget = ""
+
+# Set tab-length (for textbox tab-conversion).
+tab_len = 0
+
+# Make tab-traversal for checklist, etc., include the list.
+visit_items = ON
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON

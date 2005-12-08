@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"POT-Creation-Date: 2005-12-07 20:39-0500\n"
 "PO-Revision-Date: 2002-06-05 10:00GMT+2\n"
 "Last-Translator: kromJx <kromJx@crosswinds.net>\n"
 "Language-Team: <i18ngr@hellug.gr>\n"
@@ -10,57 +10,57 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-7\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:370
+#: buttons.c:379
 msgid "Yes"
 msgstr "Ναι"
 
-#: buttons.c:378
+#: buttons.c:387
 msgid "No"
 msgstr "Όχι"
 
-#: buttons.c:386
+#: buttons.c:395
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:394
+#: buttons.c:403
 msgid "Cancel"
 msgstr "¶κυρο"
 
-#: buttons.c:402
+#: buttons.c:411
 msgid "EXIT"
 msgstr "Έξοδος"
 
-#: buttons.c:410
+#: buttons.c:419
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:418
+#: buttons.c:427
 msgid "Help"
 msgstr "Βοήθεια"
 
 #. Headline "Month"
-#: calendar.c:299
+#: calendar.c:274
 msgid "Month"
 msgstr "Μήνας"
 
 #. Headline "Year"
-#: calendar.c:319
+#: calendar.c:294
 msgid "Year"
 msgstr "Έτος"
 
-#: dialog.c:687
+#: dialog.c:694
 msgid "Rename"
 msgstr ""
 
-#: fselect.c:431
+#: fselect.c:451
 msgid "Directories"
 msgstr "Φάκελοι"
 
-#: fselect.c:432
+#: fselect.c:452
 msgid "Files"
 msgstr "Αρχεία"
 
-#: textbox.c:465
+#: textbox.c:483
 #, fuzzy
 msgid "Search"
 msgstr "Search"

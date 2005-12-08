@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-20041219\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"POT-Creation-Date: 2005-12-07 20:39-0500\n"
 "PO-Revision-Date: 2004-12-21 17:06+0100\n"
 "Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -14,56 +14,56 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:370
+#: buttons.c:379
 msgid "Yes"
 msgstr "Sí"
 
-#: buttons.c:378
+#: buttons.c:387
 msgid "No"
 msgstr "No"
 
-#: buttons.c:386
+#: buttons.c:395
 msgid "OK"
 msgstr "Aceptar"
 
-#: buttons.c:394
+#: buttons.c:403
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: buttons.c:402
+#: buttons.c:411
 msgid "EXIT"
 msgstr "Salir"
 
-#: buttons.c:410
+#: buttons.c:419
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:418
+#: buttons.c:427
 msgid "Help"
 msgstr "Ayuda"
 
 #. Headline "Month"
-#: calendar.c:299
+#: calendar.c:274
 msgid "Month"
 msgstr "Mes"
 
 #. Headline "Year"
-#: calendar.c:319
+#: calendar.c:294
 msgid "Year"
 msgstr "Año"
 
-#: dialog.c:687
+#: dialog.c:694
 msgid "Rename"
 msgstr "Renombrar"
 
-#: fselect.c:431
+#: fselect.c:451
 msgid "Directories"
 msgstr "Directorios"
 
-#: fselect.c:432
+#: fselect.c:452
 msgid "Files"
 msgstr "Ficheros"
 
-#: textbox.c:465
+#: textbox.c:483
 msgid "Search"
 msgstr "Buscar"

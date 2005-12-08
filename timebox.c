@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.30 2005/11/28 00:20:04 tom Exp $
+ * $Id: timebox.c,v 1.33 2005/12/06 20:33:19 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -136,10 +136,8 @@ dialog_timebox(const char *title,
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
 	DLG_KEYS_DATA( DLGK_FIELD_FIRST,KEY_HOME ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_END ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_LL ),
@@ -197,6 +195,7 @@ dialog_timebox(const char *title,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
     dlg_register_window(dialog, "timebox", binding);
+    dlg_register_buttons(dialog, "timebox", buttons);
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
@@ -259,6 +258,8 @@ dialog_timebox(const char *title,
 	    dlg_set_focus(dialog, obj->window);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
+	if (dlg_result_key(key, fkey, &result))
+	    break;
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
@@ -345,8 +346,6 @@ dialog_timebox(const char *title,
 		    }
 		    break;
 		}
-	    } else if (key == ESC) {
-		result = DLG_EXIT_ESC;
 	    } else if (isdigit(key)) {
 		if (obj != 0) {
 		    int digit = (key - '0');
