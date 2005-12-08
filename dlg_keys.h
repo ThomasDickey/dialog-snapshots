@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.h,v 1.8 2005/11/27 23:39:17 tom Exp $
+ *  $Id: dlg_keys.h,v 1.19 2005/12/07 01:43:14 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
@@ -27,6 +27,15 @@
 
 #include <dialog.h>
 
+#ifdef USE_WIDE_CURSES
+#include <wctype.h>
+#define dlg_toupper(ch) towupper(ch)
+#define dlg_isupper(ch) iswupper(ch)
+#else
+#define dlg_toupper(ch) toupper(ch)
+#define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
+#endif
+
 typedef struct {
     int is_function_key;
     int	curses_key;
@@ -42,6 +51,12 @@ typedef struct {
  */
 typedef enum {
     DLGK_MIN = KEY_MAX + 1,
+    /* predefined buttons */
+    DLGK_OK,
+    DLGK_CANCEL,
+    DLGK_EXTRA,
+    DLGK_HELP,
+    DLGK_ESC,
     /* moving from screen to screen (pages) */
     DLGK_PAGE_FIRST,
     DLGK_PAGE_LAST,
@@ -73,8 +88,15 @@ typedef enum {
     DLGK_SELECT
 } DLG_KEYS_ENUM;
 
-#define DLGK_MOUSE(code) ((code) + M_EVENT)
+#define is_DLGK_MOUSE(code)	((code) >= M_EVENT)
+#define DLGK_MOUSE(code)	((code) + M_EVENT)
 
+#define ENTERKEY_BINDINGS \
+	DLG_KEYS_DATA( DLGK_ENTER,	   '\n' ), \
+	DLG_KEYS_DATA( DLGK_ENTER,	   '\r' ), \
+	DLG_KEYS_DATA( DLGK_ENTER,	   KEY_ENTER )
+
+/* ^U == 21 */
 #define INPUTSTR_BINDINGS \
 	DLG_KEYS_DATA( DLGK_BEGIN,	   KEY_HOME ), \
 	DLG_KEYS_DATA( DLGK_DELETE_ALL,    21 ), \
@@ -86,8 +108,15 @@ typedef enum {
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,	   KEY_LEFT ), \
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	   KEY_RIGHT )
 
-extern int dlg_lookup_key(WINDOW * /*win */, int /* curses_key */, int * /*dialog_key */);
-extern void dlg_register_window(WINDOW * /* win */, const char * /* name */, DLG_KEYS_BINDING * /* binding */);
-extern void dlg_unregister_window(WINDOW * /* win */);
+extern int dlg_lookup_key(WINDOW * /*win*/, int /*curses_key*/, int * /*dialog_key*/);
+extern int dlg_result_key(int /*dialog_key*/, int /*fkey*/, int * /*resultp*/);
+extern void dlg_register_buttons(WINDOW * /*win*/, const char * /*name*/, const char ** /*buttons*/);
+extern void dlg_register_window(WINDOW * /*win*/, const char * /*name*/, DLG_KEYS_BINDING * /*binding*/);
+extern void dlg_unregister_window(WINDOW * /*win*/);
+
+#ifdef HAVE_RC_FILE
+extern int dlg_parse_bindkey(char * /*params*/);
+extern void dlg_dump_keys(FILE * /*fp*/);
+#endif
 
 #endif /* DLG_KEYS_H_included */

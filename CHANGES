@@ -1,15 +1,33 @@
--- $Id: CHANGES,v 1.158 2005/11/27 18:57:47 tom Exp $
+-- $Id: CHANGES,v 1.169 2005/12/08 01:10:51 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2005/11/27
+2005/12/07
 	+ change license to LGPL.
 	+ change naming convention in dlg_colors.h to make it easier to read,
 	  and incidentally remove the last chunk of code preventing relicense.
+	+ add --passwordform (request by Reznic Valery).
+	+ modify pause.c, msgbox.c to work with --help-button.
+	+ modify formbox.c, inputbox.c, textbox.c, yesno.c to work with extra
+	  button (adapted from Reznic Valery patch).
+	+ modify dlg_exit_label(), dlg_yes_labels() and dlg_ok_label() to allow
+	  help-button (prompted by Reznic Valery patch).
+	+ add zh_CN.po file from
+		http://www.iro.umontreal.ca/translation/maint/dialog/
+	+ provide alternate interfaces for dialog_checklist(), dialog_menu()
+	  and dialog_form():  dlg_checklist(), dlg_menu() and dlg_form()
+	  (discussion with Michael Gebetsroither).
+	+ add/use dlg_result_key() to allow binding function keys to the
+	  buttons.
+	+ implement user-definable key bindings in the rc-file.
 	+ modify inline cases for KEY_xxx values to use binding tables in new
 	  module dlg_keys.c
+	+ add several DIALOG_STATE items to the rc file:  aspect,
+	  separate_widget, tab_len and visit_links
+	+ add a tab-adjustment to dlg_print_text() to improve solution from
+	  2005/10/30, e.g., in the samples/form* scripts.
 	+ fix an off-by-one which made mouse-selection not work for menu items
 	  past the first page (GenToo #112024, patch by Harald van Dijk).
 

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 0.9a-20010527\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"POT-Creation-Date: 2005-12-07 20:39-0500\n"
 "PO-Revision-Date: 2004-12-19 20:14-0500\n"
 "Last-Translator: Martin Povolny <martin@solnet.cz>\n"
 "Language-Team:\n"
@@ -11,57 +11,57 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:370
+#: buttons.c:379
 msgid "Yes"
 msgstr "Ano"
 
-#: buttons.c:378
+#: buttons.c:387
 msgid "No"
 msgstr "Ne"
 
-#: buttons.c:386
+#: buttons.c:395
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:394
+#: buttons.c:403
 msgid "Cancel"
 msgstr "Storno"
 
-#: buttons.c:402
+#: buttons.c:411
 msgid "EXIT"
 msgstr "Konec"
 
-#: buttons.c:410
+#: buttons.c:419
 msgid "Extra"
 msgstr ""
 
-#: buttons.c:418
+#: buttons.c:427
 msgid "Help"
 msgstr ""
 
 #. Headline "Month"
-#: calendar.c:299
+#: calendar.c:274
 msgid "Month"
 msgstr "Mìsíc"
 
 #. Headline "Year"
-#: calendar.c:319
+#: calendar.c:294
 msgid "Year"
 msgstr "Rok"
 
-#: dialog.c:687
+#: dialog.c:694
 msgid "Rename"
 msgstr ""
 
-#: fselect.c:431
+#: fselect.c:451
 msgid "Directories"
 msgstr "Adresáøe"
 
-#: fselect.c:432
+#: fselect.c:452
 msgid "Files"
 msgstr "Soubory"
 
-#: textbox.c:465
+#: textbox.c:483
 #, fuzzy
 msgid "Search"
 msgstr "Search"

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.50 2005/11/28 00:17:03 tom Exp $
+ *  $Id: inputbox.c,v 1.55 2005/12/06 20:33:19 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -40,9 +40,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
 	INPUTSTR_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ),
@@ -101,6 +99,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     dialog = dlg_new_window(height, width, y, x);
     dlg_register_window(dialog, "inputbox", binding);
+    dlg_register_buttons(dialog, "inputbox", buttons);
 
     dlg_mouse_setbase(x, y);
 
@@ -133,15 +132,18 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, state, FALSE, width);
 	}
 
-	if (!first)
+	if (!first) {
 	    key = dlg_mouse_wgetch(dialog, &fkey);
+	    if (dlg_result_key(key, fkey, &result))
+		break;
+	}
 
 	/*
 	 * Handle mouse clicks first, since we want to know if this is a button,
 	 * or something that dlg_edit_string() should handle.
 	 */
 	if (fkey
-	    && key >= M_EVENT
+	    && is_DLGK_MOUSE(key)
 	    && (code = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
 	    result = code;
 	    continue;
@@ -164,7 +166,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	/* handle non-functionkeys */
 	if (!fkey && (code = dlg_char_to_button(key, buttons)) >= 0) {
 	    dlg_del_window(dialog);
-	    result = code;
+	    result = dlg_ok_buttoncode(code);
 	    continue;
 	}
 
@@ -204,8 +206,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		beep();
 		break;
 	    }
-	} else if (key == ESC) {
-	    result = DLG_EXIT_ESC;
 	} else {
 	    beep();
 	}

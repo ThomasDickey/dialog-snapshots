@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.43 2005/11/27 22:04:41 tom Exp $
+ *  $Id: msgbox.c,v 1.53 2005/12/07 00:01:04 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -118,10 +118,8 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'J' ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ),
@@ -138,16 +136,25 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'B' ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'b' ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
 
     int x, y, last = 0, page;
+    int button = 0;
     int key = 0, fkey;
+    int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog = 0;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_label();
     int offset = 0;
+    int check;
     bool show = TRUE;
 
 #ifdef KEY_RESIZE
@@ -176,6 +183,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     {
 	dialog = dlg_new_window(height, width, y, x);
 	dlg_register_window(dialog, "msgbox", binding);
+	dlg_register_buttons(dialog, "msgbox", buttons);
     }
     page = height - (1 + 3 * MARGIN);
 
@@ -187,13 +195,11 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     wattrset(dialog, dialog_attr);
 
     if (pauseopt) {
-	bool done = FALSE;
-
 	dlg_draw_bottom_box(dialog);
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
-	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
+	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
-	while (!done) {
+	while (result == DLG_EXIT_UNKNOWN) {
 	    if (show) {
 		getyx(dialog, y, x);
 		last = show_message(dialog, prompt, offset, page, width, pauseopt);
@@ -202,10 +208,12 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		show = FALSE;
 	    }
 	    key = dlg_mouse_wgetch(dialog, &fkey);
+	    if (dlg_result_key(key, fkey, &result))
+		break;
 
-	    if (!fkey && dlg_char_to_button(key, buttons) == 0) {
-		key = DLGK_ENTER;
-		fkey = TRUE;
+	    if (!fkey && (check = dlg_char_to_button(key, buttons)) >= 0) {
+		result = check ? DLG_EXIT_HELP : DLG_EXIT_OK;
+		break;
 	    }
 
 	    if (fkey) {
@@ -217,8 +225,26 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    width = req_wide;
 		    goto restart;
 #endif
+		case DLGK_FIELD_NEXT:
+		    button = dlg_next_button(buttons, button);
+		    if (button < 0)
+			button = 0;
+		    dlg_draw_buttons(dialog,
+				     height - 2, 0,
+				     buttons, button,
+				     FALSE, width);
+		    break;
+		case DLGK_FIELD_PREV:
+		    button = dlg_prev_button(buttons, button);
+		    if (button < 0)
+			button = 0;
+		    dlg_draw_buttons(dialog,
+				     height - 2, 0,
+				     buttons, button,
+				     FALSE, width);
+		    break;
 		case DLGK_ENTER:
-		    done = TRUE;
+		    result = button ? DLG_EXIT_HELP : DLG_EXIT_OK;
 		    break;
 		case DLGK_PAGE_FIRST:
 		    if (offset > 0) {
@@ -260,27 +286,28 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 			show = TRUE;
 		    }
 		    break;
+		case DLGK_MOUSE(0):
+		    result = DLG_EXIT_OK;
+		    break;
+		case DLGK_MOUSE(1):
+		    result = DLG_EXIT_HELP;
+		    break;
 		default:
-		    if (key >= M_EVENT)
-			done = TRUE;
-		    else
-			beep();
+		    beep();
 		    break;
 		}
-	    } else if (key == ESC) {
-		done = TRUE;
 	    } else {
 		beep();
 	    }
 	}
     } else {
 	show_message(dialog, prompt, offset, page, width, pauseopt);
-	key = '\n';
 	wrefresh(dialog);
+	result = DLG_EXIT_OK;
     }
 
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
     free(prompt);
-    return (key == ESC) ? DLG_EXIT_ESC : DLG_EXIT_OK;
+    return result;
 }

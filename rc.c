@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.27 2005/11/28 00:21:25 tom Exp $
+ *  $Id: rc.c,v 1.36 2005/12/01 21:05:16 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -27,6 +27,8 @@
 
 #include <dialog.h>
 
+#include <dlg_keys.h>
+
 #ifdef HAVE_COLOR
 #include <dlg_colors.h>
 
@@ -44,7 +46,8 @@ static const color_names_st color_names[] =
     {"CYAN", COLOR_CYAN},
     {"WHITE", COLOR_WHITE},
 };				/* color names */
-#define COLOR_COUNT	(sizeof(color_names) / sizeof(color_names))
+#define COLOR_COUNT	(sizeof(color_names) / sizeof(color_names[0]))
+#endif /* HAVE_COLOR */
 
 #define GLOBALRC "/etc/dialogrc"
 #define DIALOGRC ".dialogrc"
@@ -55,10 +58,11 @@ static const color_names_st color_names[] =
 #define VAL_BOOL 2
 
 /* Type of line in configuration file */
-#define LINE_BLANK    2
-#define LINE_COMMENT  1
-#define LINE_OK       0
-#define LINE_ERROR   -1
+typedef enum {
+    LINE_ERROR = -1,
+    LINE_EQUALS,
+    LINE_EMPTY
+} PARSE_LINE;
 
 /* number of configuration variables */
 #define VAR_COUNT        (sizeof(vars) / sizeof(vars_st))
@@ -82,8 +86,33 @@ typedef struct {
     const char *comment;	/* comment to put in "rc" file */
 } vars_st;
 
+/*
+ * This table should contain only references to dialog_state, since dialog_vars
+ * is reset specially in dialog.c before each widget.
+ */
 static const vars_st vars[] =
 {
+    {"aspect",
+     &dialog_state.aspect_ratio,
+     VAL_INT,
+     "Set aspect-ration."},
+
+    {"separate_widget",
+     &dialog_state.separate_str,
+     VAL_STR,
+     "Set separator (for multiple widgets output)."},
+
+    {"tab_len",
+     &dialog_state.tab_len,
+     VAL_INT,
+     "Set tab-length (for textbox tab-conversion)."},
+
+    {"visit_items",
+     &dialog_state.visit_items,
+     VAL_BOOL,
+     "Make tab-traversal for checklist, etc., include the list."},
+
+#ifdef HAVE_COLOR
     {"use_shadow",
      &dialog_state.use_shadow,
      VAL_BOOL,
@@ -93,8 +122,56 @@ static const vars_st vars[] =
      &dialog_state.use_colors,
      VAL_BOOL,
      "Turn color support ON or OFF"},
-
+#endif				/* HAVE_COLOR */
 };				/* vars */
+
+static int
+skip_whitespace(char *str, int n)
+{
+    while (whitespace(str[n]) && str[n] != '\0')
+	n++;
+    return n;
+}
+
+static int
+skip_keyword(char *str, int n)
+{
+    while (isalnum(CharOf(str[n])) && str[n] != '\0')
+	n++;
+    return n;
+}
+
+static int
+find_vars(char *name)
+{
+    int result = -1;
+    unsigned i;
+
+    for (i = 0; i < VAR_COUNT; i++) {
+	if (dlg_strcmp(vars[i].name, name) == 0) {
+	    result = i;
+	    break;
+	}
+    }
+    return result;
+}
+
+#ifdef HAVE_COLOR
+static int
+find_color(char *name)
+{
+    int result = -1;
+    int i;
+    int limit = dlg_color_count();
+
+    for (i = 0; i < limit; i++) {
+	if (dlg_strcmp(dlg_color_table[i].name, name) == 0) {
+	    result = i;
+	    break;
+	}
+    }
+    return result;
+}
 
 /*
  * Convert an attribute to a string representation like this:
@@ -146,8 +223,7 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 
     while (1) {
 	/* skip white space before fg/bg string */
-	while (whitespace(tempstr[i]) && tempstr[i] != '\0')
-	    i++;
+	i = skip_whitespace(tempstr, i);
 	if (tempstr[i] == '\0')
 	    return -1;		/* invalid representation */
 	part = tempstr + i;	/* set 'part' to start of fg/bg string */
@@ -163,9 +239,7 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 	    tempstr[i++] = '\0';
 
 	    /* skip white space before ',' */
-	    while (whitespace(tempstr[i]) && tempstr[i] != '\0')
-		i++;
-
+	    i = skip_whitespace(tempstr, i);
 	    if (tempstr[i] != ',')
 		return -1;	/* invalid representation */
 	}
@@ -186,15 +260,14 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
     /* get highlight */
 
     /* skip white space before highlight string */
-    while (whitespace(tempstr[i]) && tempstr[i] != '\0')
-	i++;
+    i = skip_whitespace(tempstr, i);
     if (tempstr[i] == '\0')
 	return -1;		/* invalid representation */
     part = tempstr + i;		/* set 'part' to start of highlight string */
 
     /* trim trailing white space from highlight string */
     i = strlen(part) - 1;
-    while (whitespace(part[i]))
+    while (whitespace(part[i]) && i > 0)
 	i--;
     part[i + 1] = '\0';
 
@@ -207,6 +280,30 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
 
     return 0;
 }
+#endif /* HAVE_COLOR */
+
+/*
+ * Check if the line begins with a special keyword; if so, return true while
+ * pointing params to its parameters.
+ */
+static int
+begins_with(char *line, const char *keyword, char **params)
+{
+    int i = skip_whitespace(line, 0);
+    int j = skip_keyword(line, i);
+
+    if ((j - i) == (int) strlen(keyword)) {
+	char save = line[j];
+	line[j] = 0;
+	if (!dlg_strcmp(keyword, line + i)) {
+	    *params = line + skip_whitespace(line, j + 1);
+	    return 1;
+	}
+	line[j] = save;
+    }
+
+    return 0;
+}
 
 /*
  * Parse a line in the configuration file
@@ -216,25 +313,23 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
  *
  * Return values:
  *
- * LINE_BLANK   - line is blank
- * LINE_COMMENT - line is comment
- * LINE_OK      - line is ok
+ * LINE_EMPTY   - line is blank or comment
+ * LINE_EQUALS  - line contains "variable = value"
  * LINE_ERROR   - syntax error in line
  */
-static int
+static PARSE_LINE
 parse_line(char *line, char **var, char **value)
 {
     int i = 0;
 
     /* ignore white space at beginning of line */
-    while (whitespace(line[i]) && line[i] != '\0')
-	i++;
+    i = skip_whitespace(line, i);
 
     if (line[i] == '\0')	/* line is blank */
-	return LINE_BLANK;
+	return LINE_EMPTY;
     else if (line[i] == '#')	/* line is comment */
-	return LINE_COMMENT;
-    else if (line[i] == '=')	/* variables names can't start with a '=' */
+	return LINE_EMPTY;
+    else if (line[i] == '=')	/* variable names cannot start with a '=' */
 	return LINE_ERROR;
 
     /* set 'var' to variable name */
@@ -252,8 +347,7 @@ parse_line(char *line, char **var, char **value)
 	line[i++] = '\0';
 
 	/* skip white space before '=' */
-	while (whitespace(line[i]) && line[i] != '\0')
-	    i++;
+	i = skip_whitespace(line, i);
 
 	if (line[i] != '=')	/* syntax error */
 	    return LINE_ERROR;
@@ -262,8 +356,7 @@ parse_line(char *line, char **var, char **value)
     }
 
     /* skip white space after '=' */
-    while (whitespace(line[i]) && line[i] != '\0')
-	i++;
+    i = skip_whitespace(line, i);
 
     if (line[i] == '\0')
 	return LINE_ERROR;
@@ -272,13 +365,12 @@ parse_line(char *line, char **var, char **value)
 
     /* trim trailing white space from 'value' */
     i = strlen(*value) - 1;
-    while (whitespace((*value)[i]))
+    while (whitespace((*value)[i]) && i > 0)
 	i--;
     (*value)[i + 1] = '\0';
 
-    return LINE_OK;		/* no syntax error in line */
+    return LINE_EQUALS;		/* no syntax error in line */
 }
-#endif
 
 /*
  * Create the configuration file
@@ -286,27 +378,28 @@ parse_line(char *line, char **var, char **value)
 void
 dlg_create_rc(const char *filename)
 {
-#ifdef HAVE_COLOR
-    char buffer[MAX_LEN + 1];
-    unsigned i, limit;
+    unsigned i;
     FILE *rc_file;
 
     if ((rc_file = fopen(filename, "wt")) == NULL)
 	dlg_exiterr("Error opening file for writing in dlg_create_rc().");
 
-    fprintf(rc_file, "#\
-\n# Run-time configuration file for dialog\
-\n#\
-\n# Automatically generated by \"dialog --create-rc <file>\"\
-\n#\
-\n#\
-\n# Types of values:\
-\n#\
-\n# Number     -  <number>\
-\n# String     -  \"string\"\
-\n# Boolean    -  <ON|OFF>\
-\n# Attribute  -  (foreground,background,highlight?)\
-\n#\n\n");
+    fprintf(rc_file, "#\n\
+# Run-time configuration file for dialog\n\
+#\n\
+# Automatically generated by \"dialog --create-rc <file>\"\n\
+#\n\
+#\n\
+# Types of values:\n\
+#\n\
+# Number     -  <number>\n\
+# String     -  \"string\"\n\
+# Boolean    -  <ON|OFF>\n"
+#ifdef HAVE_COLOR
+	    "\
+# Attribute  -  (foreground,background,highlight?)\n"
+#endif
+	);
 
     /* Print an entry for each configuration variable */
     for (i = 0; i < VAR_COUNT; i++) {
@@ -326,8 +419,10 @@ dlg_create_rc(const char *filename)
 	    break;
 	}
     }
-    limit = dlg_color_count();
-    for (i = 0; i < limit; ++i) {
+#ifdef HAVE_COLOR
+    for (i = 0; i < (unsigned) dlg_color_count(); ++i) {
+	char buffer[MAX_LEN + 1];
+
 	fprintf(rc_file, "\n# %s\n", dlg_color_table[i].comment);
 	fprintf(rc_file, "%s = %s\n", dlg_color_table[i].name,
 		attr_to_str(buffer,
@@ -335,43 +430,13 @@ dlg_create_rc(const char *filename)
 			    dlg_color_table[i].bg,
 			    dlg_color_table[i].hilite));
     }
+#endif /* HAVE_COLOR */
+#if 1
+    dlg_dump_keys(rc_file);
+#endif
 
     (void) fclose(rc_file);
-#endif
 }
-
-#ifdef HAVE_COLOR
-static int
-find_vars(char *name)
-{
-    int result = -1;
-    unsigned i;
-
-    for (i = 0; i < VAR_COUNT; i++) {
-	if (dlg_strcmp(vars[i].name, name) == 0) {
-	    result = i;
-	    break;
-	}
-    }
-    return result;
-}
-
-static int
-find_color(char *name)
-{
-    int result = -1;
-    int i;
-    int limit = dlg_color_count();
-
-    for (i = 0; i < limit; i++) {
-	if (dlg_strcmp(dlg_color_table[i].name, name) == 0) {
-	    result = i;
-	    break;
-	}
-    }
-    return result;
-}
-#endif
 
 /*
  * Parse the configuration file and set up variables
@@ -379,18 +444,18 @@ find_color(char *name)
 int
 dlg_parse_rc(void)
 {
-#ifdef HAVE_COLOR
     int i;
     int l = 1;
-    int parse;
-    int fg = 0;
-    int bg = 0;
-    int hl;
+    PARSE_LINE parse;
     char str[MAX_LEN + 1];
     char *var;
     char *value;
     char *tempptr;
+    int result = 0;
     FILE *rc_file = 0;
+#if 1
+    char *params;
+#endif
 
     /*
      *  At startup, dialog determines the settings to use as follows:
@@ -431,81 +496,90 @@ dlg_parse_rc(void)
     }
 
     /* Scan each line and set variables */
-    while (fgets(str, MAX_LEN, rc_file) != NULL) {
-	if (lastch(str) != '\n') {
+    while ((result == 0) && (fgets(str, MAX_LEN, rc_file) != NULL)) {
+	if (*str == '\0' || lastch(str) != '\n') {
 	    /* ignore rest of file if line too long */
 	    fprintf(stderr, "\nParse error: line %d of configuration"
 		    " file too long.\n", l);
-	    (void) fclose(rc_file);
-	    return -1;		/* parse aborted */
-	} else {
-	    lastch(str) = '\0';
-	    parse = parse_line(str, &var, &value);	/* parse current line */
+	    result = -1;	/* parse aborted */
+	    break;
+	}
 
-	    switch (parse) {
-	    case LINE_BLANK:	/* ignore blank lines and comments */
-	    case LINE_COMMENT:
-		break;
-	    case LINE_OK:
-		/* search table for matching config variable name */
-		if ((i = find_vars(var)) >= 0) {
-		    switch (vars[i].type) {
-		    case VAL_INT:
-			*((int *) vars[i].var) = atoi(value);
-			break;
-		    case VAL_STR:
-			if (!isquote(value[0]) || !isquote(lastch(value))
-			    || strlen(value) < 2) {
-			    fprintf(stderr, "\nParse error: string value "
-				    "expected at line %d of configuration "
-				    "file.\n", l);
-			    return -1;	/* parse aborted */
-			} else {
-			    /* remove the (") quotes */
-			    value++;
-			    lastch(value) = '\0';
-			    strcpy((char *) vars[i].var, value);
-			}
-			break;
-		    case VAL_BOOL:
-			if (!dlg_strcmp(value, "ON"))
-			    *((bool *) vars[i].var) = TRUE;
-			else if (!dlg_strcmp(value, "OFF"))
-			    *((bool *) vars[i].var) = FALSE;
-			else {
-			    fprintf(stderr, "\nParse error: boolean value "
-				    "expected at line %d of configuration "
-				    "file (found %s).\n", l, value);
-			    return -1;	/* parse aborted */
-			}
-			break;
-		    }
-		} else if ((i = find_color(var)) >= 0) {
-		    if (str_to_attr(value, &fg, &bg, &hl) == -1) {
-			fprintf(stderr, "\nParse error: attribute "
-				"value expected at line %d of configuration "
+	lastch(str) = '\0';
+	if (begins_with(str, "bindkey", &params)) {
+	    dlg_parse_bindkey(params);
+	    continue;
+	}
+	parse = parse_line(str, &var, &value);	/* parse current line */
+
+	switch (parse) {
+	case LINE_EMPTY:	/* ignore blank lines and comments */
+	    break;
+	case LINE_EQUALS:
+	    /* search table for matching config variable name */
+	    if ((i = find_vars(var)) >= 0) {
+		switch (vars[i].type) {
+		case VAL_INT:
+		    *((int *) vars[i].var) = atoi(value);
+		    break;
+		case VAL_STR:
+		    if (!isquote(value[0]) || !isquote(lastch(value))
+			|| strlen(value) < 2) {
+			fprintf(stderr, "\nParse error: string value "
+				"expected at line %d of configuration "
 				"file.\n", l);
-			return -1;	/* parse aborted */
+			result = -1;	/* parse aborted */
+		    } else {
+			/* remove the (") quotes */
+			value++;
+			lastch(value) = '\0';
+			strcpy((char *) vars[i].var, value);
 		    }
+		    break;
+		case VAL_BOOL:
+		    if (!dlg_strcmp(value, "ON"))
+			*((bool *) vars[i].var) = TRUE;
+		    else if (!dlg_strcmp(value, "OFF"))
+			*((bool *) vars[i].var) = FALSE;
+		    else {
+			fprintf(stderr, "\nParse error: boolean value "
+				"expected at line %d of configuration "
+				"file (found %s).\n", l, value);
+			result = -1;	/* parse aborted */
+		    }
+		    break;
+		}
+#ifdef HAVE_COLOR
+	    } else if ((i = find_color(var)) >= 0) {
+		int fg = 0;
+		int bg = 0;
+		int hl = 0;
+		if (str_to_attr(value, &fg, &bg, &hl) == -1) {
+		    fprintf(stderr, "\nParse error: attribute "
+			    "value expected at line %d of configuration "
+			    "file.\n", l);
+		    result = -1;	/* parse aborted */
+		} else {
 		    dlg_color_table[i].fg = fg;
 		    dlg_color_table[i].bg = bg;
 		    dlg_color_table[i].hilite = hl;
-		} else {
-		    fprintf(stderr, "\nParse error: unknown variable "
-			    "at line %d of configuration file:\n\t%s\n", l, var);
-		    return -1;	/* parse aborted */
 		}
-		break;
-	    case LINE_ERROR:
-		fprintf(stderr, "\nParse error: syntax error at line %d of "
-			"configuration file.\n", l);
-		return -1;	/* parse aborted */
+	    } else {
+#endif /* HAVE_COLOR */
+		fprintf(stderr, "\nParse error: unknown variable "
+			"at line %d of configuration file:\n\t%s\n", l, var);
+		result = -1;	/* parse aborted */
 	    }
+	    break;
+	case LINE_ERROR:
+	    fprintf(stderr, "\nParse error: syntax error at line %d of "
+		    "configuration file.\n", l);
+	    result = -1;	/* parse aborted */
+	    break;
 	}
 	l++;			/* next line */
     }
 
     (void) fclose(rc_file);
-#endif
-    return 0;			/* parse successful */
+    return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.67 2005/11/28 00:18:05 tom Exp $
+ *  $Id: textbox.c,v 1.77 2005/12/07 00:45:30 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -464,10 +464,19 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 static int
 get_search_term(WINDOW *dialog, char *input, int height, int width)
 {
-    chtype save = getattrs(dialog);
-    int box_x, box_y, key = 0;
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	INPUTSTR_BINDINGS,
+	ENTERKEY_BINDINGS,
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
+    int old_x, old_y;
+    int box_x, box_y;
     int box_height, box_width;
     int offset = 0;
+    int key = 0;
     int fkey = 0;
     bool first = TRUE;
     int result = DLG_EXIT_UNKNOWN;
@@ -475,6 +484,9 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     int len_caption = dlg_count_columns(caption);
     const int *indx;
     int limit;
+    WINDOW *widget;
+
+    getbegyx(dialog, old_y, old_x);
 
     box_height = 1 + (2 * MARGIN);
     box_width = len_caption + (2 * (MARGIN + 2));
@@ -488,15 +500,19 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     if (dialog_state.use_shadow)
 	dlg_draw_shadow(dialog, box_y, box_x, box_height, box_width);
 #endif
-    dlg_draw_box(dialog, box_y, box_x, box_height, box_width,
+    widget = newwin(box_height, box_width, old_y + box_y, old_x + box_x);
+    keypad(widget, TRUE);
+    dlg_register_window(widget, "searchbox", binding);
+
+    dlg_draw_box(widget, 0, 0, box_height, box_width,
 		 searchbox_attr,
 		 searchbox_border_attr);
-    wattrset(dialog, searchbox_title_attr);
-    (void) wmove(dialog, box_y, (width - len_caption) / 2);
+    wattrset(widget, searchbox_title_attr);
+    (void) wmove(widget, 0, (box_width - len_caption) / 2);
 
     indx = dlg_index_wchars(caption);
     limit = dlg_limit_columns(caption, len_caption, 0);
-    (void) waddnstr(dialog, caption + indx[0], indx[limit] - indx[0]);
+    (void) waddnstr(widget, caption + indx[0], indx[limit] - indx[0]);
 
     box_y++;
     box_x++;
@@ -505,22 +521,22 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 
     for (;;) {
 	if (!first) {
-	    key = dlg_getc(dialog, &fkey);
+	    key = dlg_getc(widget, &fkey);
 	    if (key == ESC) {
 		result = DLG_EXIT_ESC;
 		break;
-	    } else if (key == '\n') {
+	    } else if (key == DLGK_ENTER) {
 		result = DLG_EXIT_OK;
 		break;
 	    }
 	}
 	if (dlg_edit_string(input, &offset, key, fkey, first)) {
-	    dlg_show_string(dialog, input, offset, searchbox_attr,
-			    box_y, box_x, box_width, FALSE, first);
+	    dlg_show_string(widget, input, offset, searchbox_attr,
+			    1, 1, box_width, FALSE, first);
 	    first = FALSE;
 	}
     }
-    wattrset(dialog, save);
+    delwin(widget);
     return result;
 }
 
@@ -610,9 +626,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'J' ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'j' ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,  KEY_DOWN ),
@@ -637,6 +651,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
 	DLG_KEYS_DATA( DLGK_BEGIN,	'0' ),
 	DLG_KEYS_DATA( DLGK_BEGIN,	KEY_BEG ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -649,12 +665,13 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     int x, y, cur_x, cur_y;
     int key = 0, fkey;
     int next = 0;
-    int i, passed_end;
+    int i, code, passed_end;
     char search_term[MAX_LEN + 1];
     MY_OBJ obj;
     WINDOW *dialog;
     bool moved;
     int result = DLG_EXIT_UNKNOWN;
+    int button = dialog_vars.extra_button ? dlg_defaultno_button() : 0;
 
     search_term[0] = '\0';	/* no search term entered yet */
 
@@ -692,6 +709,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     dialog = dlg_new_window(height, width, y, x);
     dlg_register_window(dialog, "textbox", binding);
+    dlg_register_buttons(dialog, "textbox", obj.buttons);
 
     dlg_mouse_setbase(x, y);
 
@@ -699,12 +717,12 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     obj.text = dlg_sub_window(dialog, PAGE_LENGTH, PAGE_WIDTH, y + 1, x + 1);
 
     /* register the new window, along with its borders */
-    dlg_mouse_mkbigregion(0, 0, PAGE_LENGTH + 2, width, KEY_MAX, 1, 1, 3 /* cells */ );
+    dlg_mouse_mkbigregion(0, 0, PAGE_LENGTH + 2, width, KEY_MAX, 1, 1, 1 /* lines */ );
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
     dlg_draw_title(dialog, title);
 
-    dlg_draw_buttons(dialog, PAGE_LENGTH + 2, 0, obj.buttons, FALSE, FALSE, width);
+    dlg_draw_buttons(dialog, PAGE_LENGTH + 2, 0, obj.buttons, button, FALSE, width);
     (void) wnoutrefresh(dialog);
     getyx(dialog, cur_y, cur_x);	/* Save cursor position */
 
@@ -758,22 +776,45 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	next = 0;		/* ...but not scroll by a line */
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
+	if (dlg_result_key(key, fkey, &result))
+	    break;
 
-	if (!fkey && dlg_char_to_button(key, obj.buttons) == 0) {
-	    fkey = TRUE;
-	    key = DLGK_ENTER;
+	if (!fkey && (code = dlg_char_to_button(key, obj.buttons)) >= 0) {
+	    result = dlg_ok_buttoncode(code);
+	    break;
 	}
 
 	if (fkey) {
 	    switch (key) {
 	    default:
-		if (key >= M_EVENT)
-		    result = DLG_EXIT_OK;
-		else
+		if (is_DLGK_MOUSE(key)) {
+		    result = dlg_exit_buttoncode(key - M_EVENT);
+		    if (result < 0)
+			result = DLG_EXIT_OK;
+		} else {
 		    beep();
+		}
+		break;
+	    case DLGK_FIELD_NEXT:
+		button = dlg_next_button(obj.buttons, button);
+		if (button < 0)
+		    button = 0;
+		dlg_draw_buttons(dialog,
+				 height - 2, 0,
+				 obj.buttons, button,
+				 FALSE, width);
+		break;
+	    case DLGK_FIELD_PREV:
+		button = dlg_prev_button(obj.buttons, button);
+		if (button < 0)
+		    button = 0;
+		dlg_draw_buttons(dialog,
+				 height - 2, 0,
+				 obj.buttons, button,
+				 FALSE, width);
 		break;
 	    case DLGK_ENTER:
-		result = DLG_EXIT_OK;
+		result = dlg_exit_buttoncode(button);
 		break;
 	    case DLGK_PAGE_FIRST:
 		if (!obj.begin_reached) {
@@ -876,9 +917,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	    }
 	} else {
 	    switch (key) {
-	    case ESC:
-		result = DLG_EXIT_ESC;
-		break;
 	    case '/':		/* Forward search */
 	    case 'n':		/* Repeat forward search */
 	    case '?':		/* Backward search */

@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.8 2005/11/28 00:21:25 tom Exp $
+ *  $Id: pause.c,v 1.14 2005/12/07 00:01:27 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -26,6 +26,7 @@
  */
 
 #include <dialog.h>
+#include <dlg_keys.h>
 
 #define MY_TIMEOUT 50
 
@@ -39,24 +40,42 @@
  */
 int
 dialog_pause(const char *title,
-	     const char *prompt,
+	     const char *cprompt,
 	     int height,
 	     int width,
 	     int seconds)
 {
+    /* *INDENT-OFF* */
+    static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	END_KEYS_BINDING
+    };
+    /* *INDENT-ON* */
+
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
 #endif
 
     int i, x, y, step;
+    int button = 0;
     int seconds_orig;
     WINDOW *dialog;
     const char **buttons = dlg_exit_label();
     int key = 0, fkey;
-    int status = DLG_EXIT_OK;
+    int result = DLG_EXIT_UNKNOWN;
+    char *prompt = dlg_strclone(cprompt);
 
     curs_set(0);
+
+    dlg_tab_correct_str(prompt);
 
     seconds_orig = (seconds > 0) ? seconds : 1;
 
@@ -75,6 +94,9 @@ dialog_pause(const char *title,
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "pause", binding);
+    dlg_register_buttons(dialog, "pause", buttons);
+
     dlg_mouse_setbase(x, y);
     nodelay(dialog, TRUE);
 
@@ -129,28 +151,67 @@ dialog_pause(const char *title,
 
 	dlg_draw_bottom_box(dialog);
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
-	dlg_draw_buttons(dialog, height - 2, 0, buttons, FALSE, FALSE, width);
+	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	(void) wrefresh(dialog);
-	for (step = 0; step < 1000; step += MY_TIMEOUT) {
+
+	for (step = 0;
+	     (result == DLG_EXIT_UNKNOWN) && (step < 1000);
+	     step += MY_TIMEOUT) {
+
 	    napms(MY_TIMEOUT);
 	    key = dlg_mouse_wgetch_nowait(dialog, &fkey);
+	    if (dlg_result_key(key, fkey, &result))
+		break;
+
+	    switch (key) {
 #ifdef KEY_RESIZE
-	    if (key == KEY_RESIZE) {
+	    case KEY_RESIZE:
 		dlg_clear();	/* fill the background */
 		dlg_del_window(dialog);		/* delete this window */
 		refresh();	/* get it all onto the terminal */
 		goto retry;
-	    }
 #endif
-	    if (key != ERR) {
-		status = DLG_EXIT_CANCEL;
-		seconds = 0;
+	    case DLGK_FIELD_NEXT:
+		button = dlg_next_button(buttons, button);
+		if (button < 0)
+		    button = 0;
+		dlg_draw_buttons(dialog,
+				 height - 2, 0,
+				 buttons, button,
+				 FALSE, width);
+		break;
+	    case DLGK_FIELD_PREV:
+		button = dlg_prev_button(buttons, button);
+		if (button < 0)
+		    button = 0;
+		dlg_draw_buttons(dialog,
+				 height - 2, 0,
+				 buttons, button,
+				 FALSE, width);
+		break;
+	    case DLGK_ENTER:
+		/* Do not use dlg_exit_buttoncode() since we want to return
+		 * a cancel rather than ok if the timeout has not expired.
+		 */
+		result = button ? DLG_EXIT_HELP : DLG_EXIT_CANCEL;
+		break;
+	    case DLGK_MOUSE(0):
+		result = DLG_EXIT_CANCEL;
+		break;
+	    case DLGK_MOUSE(1):
+		result = DLG_EXIT_HELP;
+		break;
+	    case ERR:
+		break;
+	    default:
+		result = DLG_EXIT_CANCEL;
 		break;
 	    }
 	}
-    } while (seconds-- > 0);
+    } while ((result == DLG_EXIT_UNKNOWN) && (seconds-- > 0));
 
     curs_set(1);
     dlg_del_window(dialog);
-    return (status);
+    free(prompt);
+    return (result);
 }

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.44 2005/11/28 00:15:39 tom Exp $
+ * $Id: calendar.c,v 1.48 2005/12/06 20:33:19 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -351,10 +351,8 @@ dialog_calendar(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ),
@@ -453,8 +451,10 @@ dialog_calendar(const char *title,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
     dlg_register_window(dialog, "calendar", binding);
+    dlg_register_buttons(dialog, "calendar", buttons);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);	/* mainbox */
+    /* mainbox */
+    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
     dlg_draw_title(dialog, title);
 
@@ -510,6 +510,8 @@ dialog_calendar(const char *title,
 	    dlg_set_focus(dialog, obj->window);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
+	if (dlg_result_key(key, fkey, &result))
+	    break;
 
 	if (fkey && (key >= DLGK_MOUSE(KEY_MIN) && key <= DLGK_MOUSE(KEY_MAX))) {
 	    key = dlg_lookup_key(dialog, key - M_EVENT, &fkey);
@@ -517,105 +519,101 @@ dialog_calendar(const char *title,
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
-	} else {
+	} else if (fkey) {
 	    /* handle function-keys */
-	    if (fkey) {
-		switch (key) {
-		case DLGK_MOUSE('D'):
-		    state = sDAY;
-		    break;
-		case DLGK_MOUSE('M'):
-		    state = sMONTH;
-		    break;
-		case DLGK_MOUSE('Y'):
-		    state = sYEAR;
-		    break;
-		case DLGK_ENTER:
-		    result = dlg_ok_buttoncode(button);
-		    break;
-		case DLGK_FIELD_PREV:
-		    state = dlg_prev_ok_buttonindex(state, sMONTH);
-		    break;
-		case DLGK_FIELD_NEXT:
-		    state = dlg_next_ok_buttonindex(state, sMONTH);
-		    break;
+	    switch (key) {
+	    case DLGK_MOUSE('D'):
+		state = sDAY;
+		break;
+	    case DLGK_MOUSE('M'):
+		state = sMONTH;
+		break;
+	    case DLGK_MOUSE('Y'):
+		state = sYEAR;
+		break;
+	    case DLGK_ENTER:
+		result = dlg_ok_buttoncode(button);
+		break;
+	    case DLGK_FIELD_PREV:
+		state = dlg_prev_ok_buttonindex(state, sMONTH);
+		break;
+	    case DLGK_FIELD_NEXT:
+		state = dlg_next_ok_buttonindex(state, sMONTH);
+		break;
 #ifdef KEY_RESIZE
-		case KEY_RESIZE:
-		    /* reset data */
-		    height = old_height;
-		    width = old_width;
-		    /* repaint */
-		    dlg_clear();
-		    dlg_del_window(dialog);
-		    refresh();
-		    dlg_mouse_free_regions();
-		    goto retry;
-		    break;
+	    case KEY_RESIZE:
+		/* reset data */
+		height = old_height;
+		width = old_width;
+		/* repaint */
+		dlg_clear();
+		dlg_del_window(dialog);
+		refresh();
+		dlg_mouse_free_regions();
+		goto retry;
+		break;
 #endif
-		default:
-		    step = 0;
-		    key2 = -1;
-		    if (key >= M_EVENT) {
-			if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
-			    result = key2;
-			    break;
-			} else if (key >= DLGK_MOUSE(KEY_MAX)) {
-			    state = sDAY;
-			    obj = &dy_box;
-			    key2 = 1;
-			    step = (key
-				    - DLGK_MOUSE(KEY_MAX)
-				    - day_cell_number(&current));
-			}
+	    default:
+		step = 0;
+		key2 = -1;
+		if (is_DLGK_MOUSE(key)) {
+		    if ((key2 = dlg_ok_buttoncode(key - M_EVENT)) >= 0) {
+			result = key2;
+			break;
+		    } else if (key >= DLGK_MOUSE(KEY_MAX)) {
+			state = sDAY;
+			obj = &dy_box;
+			key2 = 1;
+			step = (key
+				- DLGK_MOUSE(KEY_MAX)
+				- day_cell_number(&current));
 		    }
-		    if (obj != 0) {
-			if (key2 < 0)
-			    step = next_or_previous(key, (obj == &dy_box));
-			if (step != 0) {
-			    struct tm old = current;
-
-			    /* see comment regarding mktime -TD */
-			    if (obj == &dy_box) {
-				now_time += ONE_DAY * step;
-			    } else if (obj == &mn_box) {
-				if (step > 0)
-				    now_time += ONE_DAY *
-					days_in_month(&current, 0);
-				else
-				    now_time -= ONE_DAY *
-					days_in_month(&current, -1);
-			    } else if (obj == &yr_box) {
-				if (step > 0)
-				    now_time += (ONE_DAY
-						 * days_in_year(&current, 0));
-				else
-				    now_time -= (ONE_DAY
-						 * days_in_year(&current, -1));
-			    }
-
-			    current = *localtime(&now_time);
-
-			    if (obj != &dy_box
-				&& (current.tm_mday != old.tm_mday
-				    || current.tm_mon != old.tm_mon
-				    || current.tm_year != old.tm_year))
-				DrawObject(&dy_box);
-			    if (obj != &mn_box && current.tm_mon != old.tm_mon)
-				DrawObject(&mn_box);
-			    if (obj != &yr_box && current.tm_year != old.tm_year)
-				DrawObject(&yr_box);
-			    (void) DrawObject(obj);
-			}
-		    } else if (state >= 0) {
-			if (next_or_previous(key, FALSE) < 0)
-			    state = dlg_prev_ok_buttonindex(state, sMONTH);
-			else if (next_or_previous(key, FALSE) > 0)
-			    state = dlg_next_ok_buttonindex(state, sMONTH);
-		    }
-		    break;
 		}
-	    } else if (key == ESC) {
-		result = DLG_EXIT_ESC;
+		if (obj != 0) {
+		    if (key2 < 0)
+			step = next_or_previous(key, (obj == &dy_box));
+		    if (step != 0) {
+			struct tm old = current;
+
+			/* see comment regarding mktime -TD */
+			if (obj == &dy_box) {
+			    now_time += ONE_DAY * step;
+			} else if (obj == &mn_box) {
+			    if (step > 0)
+				now_time += ONE_DAY *
+				    days_in_month(&current, 0);
+			    else
+				now_time -= ONE_DAY *
+				    days_in_month(&current, -1);
+			} else if (obj == &yr_box) {
+			    if (step > 0)
+				now_time += (ONE_DAY
+					     * days_in_year(&current, 0));
+			    else
+				now_time -= (ONE_DAY
+					     * days_in_year(&current, -1));
+			}
+
+			current = *localtime(&now_time);
+
+			if (obj != &dy_box
+			    && (current.tm_mday != old.tm_mday
+				|| current.tm_mon != old.tm_mon
+				|| current.tm_year != old.tm_year))
+			    DrawObject(&dy_box);
+			if (obj != &mn_box && current.tm_mon != old.tm_mon)
+			    DrawObject(&mn_box);
+			if (obj != &yr_box && current.tm_year != old.tm_year)
+			    DrawObject(&yr_box);
+			(void) DrawObject(obj);
+		    }
+		} else if (state >= 0) {
+		    if (next_or_previous(key, FALSE) < 0)
+			state = dlg_prev_ok_buttonindex(state, sMONTH);
+		    else if (next_or_previous(key, FALSE) > 0)
+			state = dlg_next_ok_buttonindex(state, sMONTH);
+		}
+		break;
 	    }
 	}
     }

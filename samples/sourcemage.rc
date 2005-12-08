@@ -1,4 +1,4 @@
-# $Id: sourcemage.rc,v 1.2 2003/11/20 21:15:54 tom Exp $
+# $Id: sourcemage.rc,v 1.3 2005/12/01 01:20:45 tom Exp $
 # Run-time configuration file for dialog, matches SourceMage color scheme.
 #
 # Types of values:
@@ -7,7 +7,18 @@
 # String     -  "string"
 # Boolean    -  <ON|OFF>
 # Attribute  -  (foreground,background,highlight?)
-#
+
+# Set aspect-ration.
+aspect = 0
+
+# Set separator (for multiple widgets output).
+separate_widget = ""
+
+# Set tab-length (for textbox tab-conversion).
+tab_len = 0
+
+# Make tab-traversal for checklist, etc., include the list.
+visit_items = OFF
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON

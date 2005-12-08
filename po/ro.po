@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"POT-Creation-Date: 2005-12-07 20:39-0500\n"
 "PO-Revision-Date: 2005-01-20 12:00-0500\n"
 "Last-Translator: Laurentiu Buzdugan <lbuz@rolix.org>\n"
 "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
@@ -20,56 +20,56 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: buttons.c:370
+#: buttons.c:379
 msgid "Yes"
 msgstr "Da"
 
-#: buttons.c:378
+#: buttons.c:387
 msgid "No"
 msgstr "Nu"
 
-#: buttons.c:386
+#: buttons.c:395
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:394
+#: buttons.c:403
 msgid "Cancel"
 msgstr "Renunţă"
 
-#: buttons.c:402
+#: buttons.c:411
 msgid "EXIT"
 msgstr "TERMINĂ"
 
-#: buttons.c:410
+#: buttons.c:419
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:418
+#: buttons.c:427
 msgid "Help"
 msgstr "Ajutor"
 
 #. Headline "Month"
-#: calendar.c:299
+#: calendar.c:274
 msgid "Month"
 msgstr "Luna"
 
 #. Headline "Year"
-#: calendar.c:319
+#: calendar.c:294
 msgid "Year"
 msgstr "An"
 
-#: dialog.c:687
+#: dialog.c:694
 msgid "Rename"
 msgstr "Redenumeşte"
 
-#: fselect.c:431
+#: fselect.c:451
 msgid "Directories"
 msgstr "Directoare"
 
-#: fselect.c:432
+#: fselect.c:452
 msgid "Files"
 msgstr "Fişiere"
 
-#: textbox.c:465
+#: textbox.c:483
 msgid "Search"
 msgstr "Căutare"

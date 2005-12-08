@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.62 2005/11/28 00:21:25 tom Exp $
+ *  $Id: buttons.c,v 1.68 2005/12/07 01:43:56 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -23,15 +23,7 @@
  */
 
 #include <dialog.h>
-
-#ifdef USE_WIDE_CURSES
-#include <wctype.h>
-#define dlg_toupper(ch) towupper(ch)
-#define dlg_isupper(ch) iswupper(ch)
-#else
-#define dlg_toupper(ch) toupper(ch)
-#define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
-#endif
+#include <dlg_keys.h>
 
 #define MIN_BUTTON (dialog_state.visit_items ? -1 : 0)
 
@@ -339,6 +331,24 @@ dlg_match_char(int ch, const char *string)
 }
 
 /*
+ * Find the first uppercase character in the label, which we may use for an
+ * abbreviation.
+ */
+int
+dlg_button_to_char(const char *label)
+{
+    int cmp = -1;
+
+    while (*label != 0) {
+	cmp = string_to_char(&label);
+	if (dlg_isupper(cmp)) {
+	    break;
+	}
+    }
+    return cmp;
+}
+
+/*
  * Given a list of button labels, and a character which may be the abbreviation
  * for one, find it, if it exists.  An abbreviation will be the first character
  * which happens to be capitalized in the label.
@@ -348,19 +358,13 @@ dlg_char_to_button(int ch, const char **labels)
 {
     if (labels != 0) {
 	int j;
-	const char *label;
 
 	ch = dlg_toupper(dlg_last_getc());
 	for (j = 0; labels[j] != 0; ++j) {
-	    label = labels[j];
-	    while (*label != 0) {
-		int cmp = string_to_char(&label);
-		if (ch == cmp) {
-		    dlg_flush_getc();
-		    return j;
-		} else if (dlg_isupper(cmp)) {
-		    break;
-		}
+	    int cmp = dlg_button_to_char(labels[j]);
+	    if (ch == cmp) {
+		dlg_flush_getc();
+		return j;
 	    }
 	}
     }
@@ -429,12 +433,40 @@ my_help_label(void)
 const char **
 dlg_exit_label(void)
 {
-    static const char *labels[3];
-    int n = 0;
+    const char **result;
 
-    labels[n++] = my_exit_label();
-    labels[n] = 0;
-    return labels;
+    if (dialog_vars.extra_button) {
+	result = dlg_ok_labels();
+    } else {
+	static const char *labels[3];
+	int n = 0;
+
+	labels[n++] = my_exit_label();
+	if (dialog_vars.help_button)
+	    labels[n++] = my_help_label();
+	labels[n] = 0;
+
+	result = labels;
+    }
+    return result;
+}
+
+/*
+ * Map the given button index for dlg_exit_labels() into our exit-code.
+ */
+int
+dlg_exit_buttoncode(int button)
+{
+    int result = DLG_EXIT_ERROR;
+
+    if (dialog_vars.extra_button) {
+	result = dlg_ok_buttoncode(button);
+    } else if (button == 0) {
+	result = DLG_EXIT_OK;
+    } else if (button == 1 && dialog_vars.help_button) {
+	result = DLG_EXIT_HELP;
+    }
+    return result;
 }
 
 const char **
@@ -444,6 +476,8 @@ dlg_ok_label(void)
     int n = 0;
 
     labels[n++] = my_ok_label();
+    if (dialog_vars.help_button)
+	labels[n++] = my_help_label();
     labels[n] = 0;
     return labels;
 }
@@ -544,13 +578,45 @@ dlg_defaultno_button(void)
 const char **
 dlg_yes_labels(void)
 {
-    static const char *labels[3];
-    int n = 0;
+    const char **result;
 
-    labels[n++] = my_yes_label();
-    labels[n++] = my_no_label();
-    labels[n] = 0;
-    return labels;
+    if (dialog_vars.extra_button) {
+	result = dlg_ok_labels();
+    } else {
+	static const char *labels[4];
+	int n = 0;
+
+	labels[n++] = my_yes_label();
+	labels[n++] = my_no_label();
+	if (dialog_vars.help_button)
+	    labels[n++] = my_help_label();
+	labels[n] = 0;
+
+	result = labels;
+    }
+
+    return result;
+}
+
+/*
+ * Map the given button index for dlg_yes_labels() into our exit-code.
+ */
+int
+dlg_yes_buttoncode(int button)
+{
+    int result = DLG_EXIT_ERROR;
+
+    if (dialog_vars.extra_button) {
+	result = dlg_ok_buttoncode(button);
+    } else if (button == 0) {
+	result = DLG_EXIT_OK;
+    } else if (button == 1) {
+	result = DLG_EXIT_CANCEL;
+    } else if (button == 2 && dialog_vars.help_button) {
+	result = DLG_EXIT_HELP;
+    }
+
+    return result;
 }
 
 /*

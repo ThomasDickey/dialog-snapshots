@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: uk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-30 14:37-0500\n"
+"POT-Creation-Date: 2005-12-07 20:39-0500\n"
 "PO-Revision-Date: 2004-02-12 20:17+0200\n"
 "Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
 "Language-Team: Ukrainian\n"
@@ -16,57 +16,57 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.2\n"
 
-#: buttons.c:370
+#: buttons.c:379
 msgid "Yes"
 msgstr "Так"
 
-#: buttons.c:378
+#: buttons.c:387
 msgid "No"
 msgstr "Ні"
 
-#: buttons.c:386
+#: buttons.c:395
 msgid "OK"
 msgstr "Гаразд"
 
-#: buttons.c:394
+#: buttons.c:403
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: buttons.c:402
+#: buttons.c:411
 msgid "EXIT"
 msgstr "ВИЙТИ"
 
-#: buttons.c:410
+#: buttons.c:419
 msgid "Extra"
 msgstr "Додатково"
 
-#: buttons.c:418
+#: buttons.c:427
 msgid "Help"
 msgstr "Допомога"
 
 #. Headline "Month"
-#: calendar.c:299
+#: calendar.c:274
 msgid "Month"
 msgstr "Місяць"
 
 #. Headline "Year"
-#: calendar.c:319
+#: calendar.c:294
 msgid "Year"
 msgstr "Рік"
 
-#: dialog.c:687
+#: dialog.c:694
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: fselect.c:431
+#: fselect.c:451
 msgid "Directories"
 msgstr "Каталоги"
 
-#: fselect.c:432
+#: fselect.c:452
 msgid "Files"
 msgstr "Файли"
 
-#: textbox.c:465
+#: textbox.c:483
 #, fuzzy
 msgid "Search"
 msgstr "Search"

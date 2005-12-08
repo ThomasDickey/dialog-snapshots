@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.137 2005/11/28 00:21:25 tom Exp $
+ * $Id: dialog.c,v 1.139 2005/12/08 01:03:55 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -34,6 +34,7 @@
 #include <locale.h>
 #endif
 
+#define PASSARGS             t,       av,        offset_add
 #define CALLARGS const char *t, char *av[], int *offset_add
 typedef int (callerFn) (CALLARGS);
 
@@ -92,6 +93,7 @@ typedef enum {
     ,o_ok_label
     ,o_output_fd
     ,o_passwordbox
+    ,o_passwordform
     ,o_pause
     ,o_print_maxsize
     ,o_print_size
@@ -213,6 +215,7 @@ static const Options options[] = {
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
+    { "passwordform",	o_passwordform,     	2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
     { "pause",		o_pause,		2, "<text> <height> <width> <seconds>" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
@@ -801,6 +804,19 @@ call_form(CALLARGS)
 		       numeric_arg(av, 4),
 		       tags, av + 5);
 }
+
+static int
+call_password_form(CALLARGS)
+{
+    int save = dialog_vars.formitem_type;
+    int result;
+
+    dialog_vars.formitem_type = 1;
+    result = call_form(PASSARGS);
+    dialog_vars.formitem_type = save;
+
+    return result;
+}
 #endif
 
 #ifdef HAVE_GAUGE
@@ -853,31 +869,32 @@ call_tailboxbg(CALLARGS)
 /* *INDENT-OFF* */
 static const Mode modes[] =
 {
-    {o_yesno,       4, 4, call_yesno},
-    {o_msgbox,      4, 4, call_msgbox},
-    {o_infobox,     4, 4, call_infobox},
-    {o_textbox,     4, 4, call_textbox},
-    {o_menu,        7, 0, call_menu},
-    {o_inputmenu,   7, 0, call_inputmenu},
-    {o_checklist,   8, 0, call_checklist},
-    {o_radiolist,   8, 0, call_radiolist},
-    {o_inputbox,    4, 5, call_inputbox},
-    {o_passwordbox, 4, 5, call_passwordbox},
-    {o_pause,       5, 5, call_pause},
+    {o_yesno,           4, 4, call_yesno},
+    {o_msgbox,          4, 4, call_msgbox},
+    {o_infobox,         4, 4, call_infobox},
+    {o_textbox,         4, 4, call_textbox},
+    {o_menu,            7, 0, call_menu},
+    {o_inputmenu,       7, 0, call_inputmenu},
+    {o_checklist,       8, 0, call_checklist},
+    {o_radiolist,       8, 0, call_radiolist},
+    {o_inputbox,        4, 5, call_inputbox},
+    {o_passwordbox,     4, 5, call_passwordbox},
+    {o_pause,           5, 5, call_pause},
 #ifdef HAVE_XDIALOG
-    {o_calendar,    4, 7, call_calendar},
-    {o_fselect,     4, 5, call_fselect},
-    {o_timebox,     4, 7, call_timebox},
+    {o_calendar,        4, 7, call_calendar},
+    {o_fselect,         4, 5, call_fselect},
+    {o_timebox,         4, 7, call_timebox},
 #endif
 #ifdef HAVE_FORMBOX
-    {o_form,       13, 0, call_form},
+    {o_passwordform,   13, 0, call_password_form},
+    {o_form,           13, 0, call_form},
 #endif
 #ifdef HAVE_GAUGE
-    {o_gauge,       4, 5, call_gauge},
+    {o_gauge,           4, 5, call_gauge},
 #endif
 #ifdef HAVE_TAILBOX
-    {o_tailbox,     4, 4, call_tailbox},
-    {o_tailboxbg,   4, 4, call_tailboxbg},
+    {o_tailbox,         4, 4, call_tailbox},
+    {o_tailboxbg,       4, 4, call_tailboxbg},
 #endif
 };
 /* *INDENT-ON* */
@@ -1240,8 +1257,14 @@ init_result(char *buffer)
 	    special_argc = count_argv(special_argv);
 	}
     }
-    if (special_argv != 0)
+    if (special_argv != 0) {
 	process_common_options(special_argc, special_argv, 0, FALSE);
+#ifdef NO_LEAKS
+	free(special_argv[0]);
+	free(special_argv);
+	first = TRUE;
+#endif
+    }
 }
 
 int

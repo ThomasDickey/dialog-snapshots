@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.36 2005/11/28 00:18:34 tom Exp $
+ *  $Id: yesno.c,v 1.44 2005/12/07 00:45:56 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -36,10 +36,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\n' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	'\r' ),
-	DLG_KEYS_DATA( DLGK_ENTER,	KEY_ENTER ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
@@ -52,6 +50,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 
     int x, y;
     int key = 0, fkey;
+    int code;
     int button = dlg_defaultno_button();
     WINDOW *dialog = 0;
     int result = DLG_EXIT_UNKNOWN;
@@ -82,6 +81,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     {
 	dialog = dlg_new_window(height, width, y, x);
 	dlg_register_window(dialog, "yesno", binding);
+	dlg_register_buttons(dialog, "yesno", buttons);
     }
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -95,26 +95,35 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 
     while (result == DLG_EXIT_UNKNOWN) {
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if ((result = dlg_char_to_button(key, buttons)) >= 0) {
-	    continue;
+	if (dlg_result_key(key, fkey, &result))
+	    break;
+	if ((code = dlg_char_to_button(key, buttons)) >= 0) {
+	    result = dlg_ok_buttoncode(code);
+	    break;
 	}
 	/* handle function keys */
 	if (fkey) {
 	    switch (key) {
-	    case DLGK_FIELD_PREV:
 	    case DLGK_FIELD_NEXT:
-		button = !button;
+		button = dlg_next_button(buttons, button);
+		if (button < 0)
+		    button = 0;
 		dlg_draw_buttons(dialog,
 				 height - 2, 0,
 				 buttons, button,
 				 FALSE, width);
 		break;
-	    case DLGK_MOUSE(0):
-	    case DLGK_MOUSE(1):
-		button = (key == DLGK_MOUSE(1));
-		/* FALLTHRU */
+	    case DLGK_FIELD_PREV:
+		button = dlg_prev_button(buttons, button);
+		if (button < 0)
+		    button = 0;
+		dlg_draw_buttons(dialog,
+				 height - 2, 0,
+				 buttons, button,
+				 FALSE, width);
+		break;
 	    case DLGK_ENTER:
-		result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
+		result = dlg_yes_buttoncode(button);
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
@@ -124,11 +133,15 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 		goto restart;
 #endif
 	    default:
-		beep();
+		if (is_DLGK_MOUSE(key)) {
+		    result = dlg_yes_buttoncode(key - M_EVENT);
+		    if (result < 0)
+			result = DLG_EXIT_OK;
+		} else {
+		    beep();
+		}
 		break;
 	    }
-	} else if (key == ESC) {
-	    result = DLG_EXIT_ESC;
 	} else {
 	    beep();
 	}

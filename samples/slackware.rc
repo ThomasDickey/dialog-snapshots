@@ -1,4 +1,4 @@
-# $Id: slackware.rc,v 1.5 2003/08/31 00:50:10 tom Exp $
+# $Id: slackware.rc,v 1.6 2005/12/01 01:20:16 tom Exp $
 # Run-time configuration file for dialog, matches Slackware color scheme.
 #
 # Types of values:
@@ -7,7 +7,18 @@
 # String     -  "string"
 # Boolean    -  <ON|OFF>
 # Attribute  -  (foreground,background,highlight?)
-#
+
+# Set aspect-ration.
+aspect = 0
+
+# Set separator (for multiple widgets output).
+separate_widget = ""
+
+# Set tab-length (for textbox tab-conversion).
+tab_len = 0
+
+# Make tab-traversal for checklist, etc., include the list.
+visit_items = OFF
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON

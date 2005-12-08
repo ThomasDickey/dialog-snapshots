@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: fselect,v 1.5 2003/10/09 22:45:06 tom Exp $
+# $Id: fselect,v 1.6 2005/12/07 01:55:53 tom Exp $
 : ${DIALOG=dialog}
 
 exec 3>&1
@@ -8,10 +8,14 @@ code=$?
 exec 3>&-
 
 case $code in
-	0)
-		echo "\"$FILE\" chosen";;
-	1)
-		echo "Cancel pressed.";;
-	255)
-		echo "Box closed.";;
+  0)
+    echo "\"$FILE\" chosen";;
+  1)
+    echo "Button 1 (Cancel) pressed";;
+  2)
+    echo "Button 2 (Help) pressed";;
+  3)
+    echo "Button 3 (Extra) pressed";;
+  255)
+    echo "Box closed.";;
 esac
