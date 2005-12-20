@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.50 2005/12/08 00:47:50 tom Exp $
+ *  $Id: formbox.c,v 1.51 2005/12/20 00:25:59 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -342,17 +342,20 @@ make_FORM_ELTs(DIALOG_FORMITEM * item,
 int
 dlg_default_formitem(DIALOG_FORMITEM * items)
 {
-    int count = 0;
+    int result = 0;
 
     if (dialog_vars.default_item != 0) {
+	int count = 0;
 	while (items->name != 0) {
-	    if (!strcmp(dialog_vars.default_item, items->name))
+	    if (!strcmp(dialog_vars.default_item, items->name)) {
+		result = count;
 		break;
+	    }
 	    ++items;
 	    count++;
 	}
     }
-    return count;
+    return result;
 }
 
 /*

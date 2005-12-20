@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.98 2005/12/06 22:00:33 tom Exp $
+ *  $Id: menubox.c,v 1.99 2005/12/20 00:22:02 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -741,7 +741,7 @@ dialog_menu(const char *title,
     int i;
     DIALOG_LISTITEM *listitems;
 
-    listitems = malloc(sizeof(*listitems) * item_no);
+    listitems = calloc(item_no + 1, sizeof(*listitems));
     assert_ptr(listitems, "dialog_menu");
 
     for (i = 0; i < item_no; ++i) {

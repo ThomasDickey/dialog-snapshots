@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.169 2005/12/08 01:10:51 tom Exp $
+-- $Id: CHANGES,v 1.172 2005/12/20 02:00:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2005/12/19
+	+ correct return-values of new functions dlg_default_listitem() and
+	  dlg_default_formitem() (Debian #344002).
+	+ add Swedish translation (Debian #343303, by Daniel Nylander)
+	+ begin function-summaries in dialog.3
+	+ update config.guess, config.sub
 
 2005/12/07
 	+ change license to LGPL.

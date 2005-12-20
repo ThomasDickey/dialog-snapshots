@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.162 2005/12/04 21:48:15 tom Exp $
+ *  $Id: util.c,v 1.163 2005/12/20 00:24:59 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1405,32 +1405,39 @@ dlg_sub_window(WINDOW *parent, int height, int width, int y, int x)
 int
 dlg_default_item(char **items, int llen)
 {
+    int result = 0;
+
     if (dialog_vars.default_item != 0) {
 	int count = 0;
 	while (*items != 0) {
-	    if (!strcmp(dialog_vars.default_item, *items))
-		return count;
+	    if (!strcmp(dialog_vars.default_item, *items)) {
+		result = count;
+		break;
+	    }
 	    items += llen;
 	    count++;
 	}
     }
-    return 0;
+    return result;
 }
 
 int
 dlg_default_listitem(DIALOG_LISTITEM * items)
 {
-    int count = 0;
+    int result = 0;
 
     if (dialog_vars.default_item != 0) {
+	int count = 0;
 	while (items->name != 0) {
-	    if (!strcmp(dialog_vars.default_item, items->name))
+	    if (!strcmp(dialog_vars.default_item, items->name)) {
+		result = count;
 		break;
+	    }
 	    ++items;
 	    count++;
 	}
     }
-    return count;
+    return result;
 }
 
 /*

@@ -1,5 +1,5 @@
 /*
- * $Id: inputstr.c,v 1.47 2005/11/27 23:28:18 tom Exp $
+ * $Id: inputstr.c,v 1.48 2005/12/20 00:22:36 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -297,7 +297,7 @@ dlg_count_wchars(const char *string)
 	    int part = dlg_count_wcbytes(cache.string, len);
 	    int save = cache.string[part];
 	    int code;
-	    wchar_t *temp = calloc(sizeof(wchar_t), len + 1);
+	    wchar_t *temp = calloc(len + 1, sizeof(wchar_t));
 
 	    cache.string[part] = '\0';
 	    memset(&state, 0, sizeof(state));
