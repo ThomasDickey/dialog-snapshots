@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.20 2005/12/08 01:06:54 tom Exp $
+.\" $Id: dialog.3,v 1.23 2005/12/20 01:48:53 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2005/12/08 01:06:54 $"
+.TH DIALOG 3 "" "$Date: 2005/12/20 01:48:53 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -129,7 +129,7 @@ The \fBdialog\fP application calls \fIinit_dialog\fP normally with
 \fIinput\fP set to the standard input, but optionally based on the
 "\fB--input-fd\fP" option.
 Since the application cannot read from
-a pipe (standard input) and at the same time read 
+a pipe (standard input) and at the same time read
 the curses input from the standard input,
 it must allow for reopening the latter from either
 a specific file descriptor,
@@ -495,7 +495,7 @@ the current year is used.
 .\" ************************************************************************
 .IP dialog_checklist
 implements the "\fB--checklist\fP and "\fB--radiolist\fP options
-depending on the \fIflag\fP parameter. 
+depending on the \fIflag\fP parameter.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -595,7 +595,7 @@ is the percentage to show in the progress bar.
 .RE
 .\" ************************************************************************
 .IP dialog_inputbox
-implements the "\fB--inputbox\fP or 
+implements the "\fB--inputbox\fP or
 "\fB--password\fP option, depending on the value of \fIpassword\fP.
 .RS
 .IP title
@@ -707,7 +707,7 @@ and it will be closed when the button is activated.
 .RE
 .\" ************************************************************************
 .IP dialog_textbox
-implements the "\fB--textbox\fP option. 
+implements the "\fB--textbox\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -722,7 +722,7 @@ If zero, the height is based on the screen size.
 .RE
 .\" ************************************************************************
 .IP dialog_timebox
-implements the "\fB--timebox\fP option. 
+implements the "\fB--timebox\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -749,7 +749,7 @@ the current second is used.
 .RE
 .\" ************************************************************************
 .IP dialog_yesno
-implements the "\fB--yesno\fP option. 
+implements the "\fB--yesno\fP option.
 .RS
 .IP title
 is the title on the top of the widget.
@@ -775,102 +775,932 @@ The only non-widget function whose name begins with "\fIdialog_\fP"
 is \fIdialog_version\fP, which returns the version number of the
 library as a string.
 .
-.\" dlg_add_callback(DIALOG_CALLBACK *p);
-.\" dlg_add_quoted(char *string);
-.\" dlg_add_result(char *string);
-.\" dlg_attr_clear(WINDOW * win, int height, int width, chtype attr);
-.\" dlg_auto_size(const char * title, const char *prompt, int *height, int *width, int boxlines, int mincols);
-.\" dlg_auto_sizefile(const char * title, const char *file, int *height, int *width, int boxlines, int mincols);
-.\" dlg_beeping(void);
-.\" dlg_box_x_ordinate(int width);
-.\" dlg_box_y_ordinate(int height);
-.\" dlg_button_count(const char **labels);
-.\" dlg_button_layout(const char **labels, int *limit);
-.\" dlg_button_sizes(const char **labels, int vertical, int *longest, int *length);
-.\" dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *step);
-.\" dlg_button_to_char(const char * label);
-.\" dlg_calc_list_width(int item_no, DIALOG_LISTITEM * items)
-.\" dlg_calc_listh(int *height, int *list_height, int item_no);
-.\" dlg_calc_listw(int item_no, char **items, int group);
-.\" dlg_char_to_button(int ch, const char **labels);
-.\" dlg_checklist(const char *title, const char *cprompt, int height, int width, int list_height, int item_no, DIALOG_LISTITEM * items, const char *states, int flag, int *current_item)
-.\" dlg_clear(void);
-.\" dlg_clr_result(void);
-.\" dlg_color_count(void);
-.\" dlg_color_setup(void);
-.\" dlg_count_columns(const char *string);
-.\" dlg_count_wchars(const char *string);
-.\" dlg_create_rc(const char *filename);
-.\" dlg_ctl_size(int height, int width);
-.\" dlg_default_formitem(DIALOG_FORMITEM * items)
-.\" dlg_default_item(char **items, int llen);
-.\" dlg_defaultno_button(void);
-.\" dlg_del_window(WINDOW *win);
-.\" dlg_does_output(void);
-.\" dlg_draw_arrows(WINDOW *dialog, int top_arrow, int bottom_arrow, int x, int top, int bottom);
-.\" dlg_draw_bottom_box(WINDOW *win);
-.\" dlg_draw_box(WINDOW * win, int y, int x, int height, int width, chtype boxchar, chtype borderchar);
-.\" dlg_draw_buttons(WINDOW *win, int y, int x, const char **labels, int selected, int vertical, int limit);
-.\" dlg_draw_shadow(WINDOW * win, int height, int width, int y, int x);
-.\" dlg_draw_title(WINDOW *win, const char *title);
-.\" dlg_dump_keys(FILE *fp);
-.\" dlg_edit_offset(char *string, int offset, int x_last);
-.\" dlg_edit_string(char *string, int *offset, int key, int fkey, bool force);
-.\" dlg_exit(int code) GCC_NORETURN;
-.\" dlg_exit_buttoncode(int button);
-.\" dlg_exit_label(void);
-.\" dlg_exiterr(const char *, ...)
-.\" dlg_flush_getc(void);
-.\" dlg_form(const char *title, const char *cprompt, int height, int width, int form_height, int item_no, DIALOG_FORMITEM * items, int *current_item)
-.\" dlg_free_formitems(DIALOG_FORMITEM * items)
-.\" dlg_getc(WINDOW *win, int *fkey);
-.\" dlg_getc_callbacks(int ch, int fkey, int *result);
-.\" dlg_index_columns(const char *string);
-.\" dlg_index_wchars(const char *string);
-.\" dlg_item_help(char *txt);
-.\" dlg_killall_bg(int *retval);
-.\" dlg_last_getc(void);
-.\" dlg_limit_columns(const char *string, int limit, int offset);
-.\" dlg_lookup_key(WINDOW *win, intcurses_key, int *dialog_key);
-.\" dlg_match_char(int ch, const char *string);
-.\" dlg_menu(const char *title, const char *cprompt, int height, int width, int menu_height, int item_no, DIALOG_LISTITEM * items, int *current_item, DIALOG_INPUTMENU rename_menutext)
-.\" dlg_mouse_bigregion (int y, int x);
-.\" dlg_mouse_free_regions (void);
-.\" dlg_mouse_mkbigregion (int y, int x, int height, int width, int code, int step_x, int step_y, int mode);
-.\" dlg_mouse_mkregion (int y, int x, int height, int width, int code);
-.\" dlg_mouse_region (int y, int x);
-.\" dlg_mouse_setbase (int x, int y);
-.\" dlg_mouse_wgetch (WINDOW *, int *);
-.\" dlg_mouse_wgetch_nowait (WINDOW *, int *);
-.\" dlg_new_window(int height, int width, int y, int x);
-.\" dlg_next_button(const char **labels, int button);
-.\" dlg_next_ok_buttonindex(int current, int extra);
-.\" dlg_ok_buttoncode(int button);
-.\" dlg_ok_label(void);
-.\" dlg_ok_labels(void);
-.\" dlg_parse_bindkey(char *params);
-.\" dlg_parse_rc(void);
-.\" dlg_prev_button(const char **labels, int button);
-.\" dlg_prev_ok_buttonindex(int current, int extra);
-.\" dlg_print_autowrap(WINDOW *win, const char *prompt, int height, int width);
-.\" dlg_print_size(int height, int width);
-.\" dlg_print_text(WINDOW *win, const char *txt, int len, chtype *attr);
-.\" dlg_put_backtitle(void);
-.\" dlg_register_buttons(WINDOW *win, const char *name, const char ** buttons);
-.\" dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING *binding);
-.\" dlg_remove_callback(DIALOG_CALLBACK *p);
-.\" dlg_result_key(intdialog_key, intfkey, int *resultp);
-.\" dlg_set_focus(WINDOW *parent, WINDOW *win);
-.\" dlg_set_result(const char *string);
-.\" dlg_show_string(WINDOW *win, const char *string, int offset, chtype attr, int y_base, int x_base, int x_last, bool hidden, bool force);
-.\" dlg_strclone(const char *cprompt);
-.\" dlg_strcmp(const char *a, const char *b);
-.\" dlg_sub_window(WINDOW *win, int height, int width, int y, int x);
-.\" dlg_tab_correct_str(char *prompt);
-.\" dlg_trim_string(char *src);
-.\" dlg_unregister_window(WINDOW *win);
-.\" dlg_yes_buttoncode(int button);
-.\" dlg_yes_labels(void);
+.PP
+Here is a brief summary of the utility functions and their parameters:
+.
+.TP 5
+.B dlg_add_callback
+Add a callback, used to allow polling input from multiple tailbox
+widgets.
+.RS
+.TP 5
+.B DIALOG_CALLBACK *\fIp\fP
+contains the callback information.
+.RE
+.
+.TP 5
+.B dlg_add_quoted
+Add a quoted string to the result buffer (see \fBdlg_add_result\fP).
+.RS
+.TP 5
+.B char * \fIstring
+is the string to add.
+.RE
+.
+.TP 5
+.B dlg_add_result
+Add a quoted string to the result buffer \fBdialog_vars.input_result\fP.
+.RE
+.TP 5
+.B char * \fIstring
+is the string to add.
+.RE
+.
+.TP 5
+.B dlg_attr_clear
+Set window to the given attribute.
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B int \fIheight
+is the number of rows to update.
+.TP 5
+.B int \fIwidth
+is the number of columns to update.
+.TP 5
+.B chtype \fIattr
+is the attribute, e.g., \fBA_BOLD\fP.
+.RE
+.
+.TP 5
+.B dlg_auto_size
+Automatically size the window used for a widget.
+If the given height or width are zero,
+justify the \fIprompt\fP text and return the actual limits.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title string to display at the top of the widget.
+.TP 5
+.B const char * \fIprompt
+is the message text which will be displayed in the widget,
+used here to determine how large the widget should be.
+.TP 5
+.B int * \fIheight
+is the nominal height.
+.TP 5
+.B int * \fIwidth
+is the nominal width.
+.TP 5
+.B int \fIboxlines
+is the number of lines to reserve in the vertical direction.
+.TP 5
+.B int \fImincols
+is the minimum number of columns to use.
+.RE
+.
+.TP 5
+.B dlg_auto_sizefile
+Like \fBdlg_auto_size\fP, but use a file contents to decide how large
+the widget should be.
+.RS
+.TP 5
+.B const char * \fItitle
+.TP 5
+.B const char * \fIfile
+.TP 5
+.B int * \fIheight
+.TP 5
+.B int \fI*width
+.TP 5
+.B int \fIboxlines
+.TP 5
+.B int \fImincols
+.RE
+.
+.TP 5
+.B dlg_beeping
+If \fBdialog_vars.beep_signal\fP is nonzero,
+this calls \fBbeep\fP once and sets
+\fBdialog_vars.beep_signal\fP to zero.
+.
+.TP 5
+.B dlg_box_x_ordinate
+.RS
+.TP 5
+.B int \fIwidth
+.RE
+.
+.TP 5
+.B dlg_box_y_ordinate
+.RS
+.TP 5
+.B int \fIheight
+.RE
+.
+.TP 5
+.B dlg_button_count
+.RS
+.TP 5
+.B const char ** \fIlabels
+.RE
+.
+.TP 5
+.B dlg_button_layout
+.RS
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int * \fIlimit
+.RE
+.
+.TP 5
+.B dlg_button_sizes
+.RS
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int \fIvertical
+.TP 5
+.B int * \fIlongest
+.TP 5
+.B int * \fIlength
+.RE
+.
+.TP 5
+.B dlg_button_x_step
+.RS
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int \fIlimit
+.TP 5
+.B int * \fIgap
+.TP 5
+.B int * \fImargin
+.TP 5
+.B int * \fIstep
+.RE
+.
+.TP 5
+.B dlg_button_to_char
+.RS
+.TP 5
+.B const char * \fIlabel
+.RE
+.
+.TP 5
+.B dlg_calc_list_width
+.RS
+.TP 5
+.B int \fIitem_no
+.TP 5
+.B DIALOG_LISTITEM * \fIitems
+.RE
+.
+.TP 5
+.B dlg_calc_listh
+.RS
+.TP 5
+.B int * \fIheight
+.TP 5
+.B int * \fIlist_height
+.TP 5
+.B int \fIitem_no
+.RE
+.
+.TP 5
+.B dlg_calc_listw
+.RS
+.TP 5
+.B int \fIitem_no
+.TP 5
+.B char ** \fIitems
+.TP 5
+.B int \fIgroup
+.RE
+.
+.TP 5
+.B dlg_char_to_button
+.RS
+.TP 5
+.B int \fIch
+.TP 5
+.B const char ** \fIlabels
+.RE
+.
+.TP 5
+.B dlg_checklist
+.RS
+.TP 5
+.B const char * \fItitle
+.TP 5
+.B const char * \fIcprompt
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B int \fIlist_height
+.TP 5
+.B int \fIitem_no
+.TP 5
+.B DIALOG_LISTITEM * \fIitems
+.TP 5
+.B const char * \fIstates
+.TP 5
+.B int \fIflag
+.TP 5
+.B int * \fIcurrent_item
+.RE
+.
+.TP 5
+.B dlg_clear
+.
+.TP 5
+.B dlg_clr_result
+.
+.TP 5
+.B dlg_color_count
+.
+.TP 5
+.B dlg_color_setup
+.
+.TP 5
+.B dlg_count_columns
+.RS
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_count_wchars
+.RS
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_create_rc
+.RS
+.TP 5
+.B const char * \fIfilename
+.RE
+.
+.TP 5
+.B dlg_ctl_size
+.RS
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.RE
+.
+.TP 5
+.B dlg_default_formitem
+.RS
+.TP 5
+.B DIALOG_FORMITEM * \fIitems
+.RE
+.
+.TP 5
+.B dlg_default_item
+.RS
+.TP 5
+.B char ** \fIitems
+.TP 5
+.B int \fIllen
+.RE
+.
+.TP 5
+.B dlg_defaultno_button
+.
+.TP 5
+.B dlg_del_window
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.RE
+.
+.TP 5
+.B dlg_does_output
+.
+.TP 5
+.B dlg_draw_arrows
+.RS
+.TP 5
+.B WINDOW * \fIdialog
+.TP 5
+.B int \fItop_arrow
+.TP 5
+.B int \fIbottom_arrow
+.TP 5
+.B \fIint x
+.TP 5
+.B int \fItop
+.TP 5
+.B int \fIbottom
+.RE
+.
+.TP 5
+.B dlg_draw_bottom_box
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.RE
+.
+.TP 5
+.B dlg_draw_box
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B chtype \fIboxchar
+.TP 5
+.B chtype \fIborderchar
+.RE
+.
+.TP 5
+.B dlg_draw_buttons
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int \fIselected
+.TP 5
+.B int \fIvertical
+.TP 5
+.B int \fIlimit
+.RE
+.
+.TP 5
+.B dlg_draw_shadow
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.RE
+.
+.TP 5
+.B dlg_draw_title
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B const char * \fItitle
+.RE
+.
+.TP 5
+.B dlg_dump_keys
+.RS
+.TP 5
+.B FILE * \fIfp
+.RE
+.
+.TP 5
+.B dlg_edit_offset
+.RS
+.TP 5
+.B char * \fIstring
+.TP 5
+.B int \fIoffset
+.TP 5
+.B int \fIx_last
+.RE
+.
+.TP 5
+.B dlg_edit_string
+.RS
+.TP 5
+.B char * \fIstring
+.TP 5
+.B int * \fIoffset
+.TP 5
+.B int \fIkey
+.TP 5
+.B int \fIfkey
+.TP 5
+.B bool \fIforce
+.RE
+.
+.TP 5
+.B dlg_exit
+.RS
+.TP 5
+.B int \fIcode
+.RE
+.
+.TP 5
+.B dlg_exit_buttoncode
+.RS
+.TP 5
+.B int \fIbutton
+.RE
+.
+.TP 5
+.B dlg_exit_label
+.
+.TP 5
+.B dlg_exiterr
+Quit program killing all \fBtailboxbg\fP widgets.
+.RS
+.TP 5
+.B const char * \fIfmt
+.TP 5
+...
+.RE
+.
+.TP 5
+.B dlg_flush_getc
+.
+.TP 5
+.B dlg_form
+.RS
+.TP 5
+.B const char * \fItitle
+.TP 5
+.B const char * \fIcprompt
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B int \fIform_height
+.TP 5
+.B int \fIitem_no
+.TP 5
+.B DIALOG_FORMITEM * \fIitems
+.TP 5
+.B int * \fIcurrent_item
+.RE
+.
+.TP 5
+.B dlg_free_formitems
+.RS
+.TP 5
+.B DIALOG_FORMITEM * \fIitems
+.RE
+.
+.TP 5
+.B dlg_getc
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B int * \fIfkey
+.RE
+.
+.TP 5
+.B dlg_getc_callbacks
+.RS
+.TP 5
+.B int \fIch
+.TP 5
+.B int \fIfkey
+.TP 5
+.B int * \fIresult
+.RE
+.
+.TP 5
+.B dlg_index_columns
+.RS
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_index_wchars
+.RS
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_item_help
+.RS
+.TP 5
+.B char * \fItxt
+.RE
+.
+.TP 5
+.B dlg_killall_bg
+.RS
+.TP 5
+.B int * \fIretval
+.RE
+.
+.TP 5
+.B dlg_last_getc
+.
+.TP 5
+.B dlg_limit_columns
+.RS
+.TP 5
+.B const char * \fIstring
+.TP 5
+.B int \fIlimit
+.TP 5
+.B int \fIoffset
+.RE
+.
+.TP 5
+.B dlg_lookup_key
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B int \fIcurses_key
+.TP 5
+.B int * \fIdialog_key
+.RE
+.
+.TP 5
+.B dlg_match_char
+.RS
+.TP 5
+.B int \fIch
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_menu
+.RS
+.TP 5
+.B const char * \fItitle
+.TP 5
+.B const char * \fIcprompt
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B int \fImenu_height
+.TP 5
+.B int \fIitem_no
+.TP 5
+.B DIALOG_LISTITEM * \fIitems
+.TP 5
+.B int * \fIcurrent_item
+.TP 5
+.B DIALOG_INPUTMENU \fIrename_menutext
+.RE
+.
+.TP 5
+.B dlg_mouse_bigregion
+.RS
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.RE
+.
+.TP 5
+.B dlg_mouse_free_regions
+.
+.TP 5
+.B dlg_mouse_mkbigregion
+.RS
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B int \fIcode
+.TP 5
+.B int \fIstep_x
+.TP 5
+.B int \fIstep_y
+.TP 5
+.B int \fImode
+.RE
+.
+.TP 5
+.B dlg_mouse_mkregion
+.RS
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B int \fIcode
+.RE
+.
+.TP 5
+.B dlg_mouse_region
+.RS
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.RE
+.
+.TP 5
+.B dlg_mouse_setbase
+.RS
+.TP 5
+.B \fIint x
+.TP 5
+.B \fIint y
+.RE
+.
+.TP 5
+.B dlg_mouse_wgetch
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B int * \fIfkey
+.RE
+.
+.TP 5
+.B dlg_mouse_wgetch_nowait
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B int * \fIfkey
+.RE
+.
+.TP 5
+.B dlg_new_window
+.RS
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.RE
+.
+.TP 5
+.B dlg_next_button
+.RS
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int \fIbutton
+.RE
+.
+.TP 5
+.B dlg_next_ok_buttonindex
+.RS
+.TP 5
+.B int \fIcurrent
+.TP 5
+.B int \fIextra
+.RE
+.
+.TP 5
+.B dlg_ok_buttoncode
+.RS
+.TP 5
+.B int \fIbutton
+.RE
+.
+.TP 5
+.B dlg_ok_label
+.
+.TP 5
+.B dlg_ok_labels
+.
+.TP 5
+.B dlg_parse_bindkey
+.RS
+.TP 5
+.B char * \fIparams
+.RE
+.
+.TP 5
+.B dlg_parse_rc
+.
+.TP 5
+.B dlg_prev_button
+.RS
+.TP 5
+.B const char ** \fIlabels
+.TP 5
+.B int \fIbutton
+.RE
+.
+.TP 5
+.B dlg_prev_ok_buttonindex
+.RS
+.TP 5
+.B int \fIcurrent
+.TP 5
+.B int \fIextra
+.RE
+.
+.TP 5
+.B dlg_print_autowrap
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B const char * \fIprompt
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.RE
+.
+.TP 5
+.B dlg_print_size
+.RS
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.RE
+.
+.TP 5
+.B dlg_print_text
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B const char * \fItxt
+.TP 5
+.B int \fIlen
+.TP 5
+.B chtype * \fIattr
+.RE
+.
+.TP 5
+.B dlg_put_backtitle
+.
+.TP 5
+.B dlg_register_buttons
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B const char * \fIname
+.TP 5
+.B const char ** \fIbuttons
+.RE
+.
+.TP 5
+.B dlg_register_window
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B const char * \fIname
+.TP 5
+.B DLG_KEYS_BINDING * \fIbinding
+.RE
+.
+.TP 5
+.B dlg_remove_callback
+.RS
+.TP 5
+.B DIALOG_CALLBACK \fI* p
+contains the callback information.
+.RE
+.
+.TP 5
+.B dlg_result_key
+.RS
+.TP 5
+.B int \fIdialog_key
+.TP 5
+.B int \fIfkey
+.TP 5
+.B int * \fIresultp
+.RE
+.
+.TP 5
+.B dlg_set_focus
+.RS
+.TP 5
+.B WINDOW * \fIparent
+.TP 5
+.B WINDOW * \fIwin
+.RE
+.
+.TP 5
+.B dlg_set_result
+.RS
+.TP 5
+.B const char * \fIstring
+.RE
+.
+.TP 5
+.B dlg_show_string
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B const char * \fIstring
+.TP 5
+.B int \fIoffset
+.TP 5
+.B chtype \fIattr
+.TP 5
+.B int \fIy_base
+.TP 5
+.B int \fIx_base
+.TP 5
+.B int \fIx_last
+.TP 5
+.B bool \fIhidden
+.TP 5
+.B bool \fIforce
+.RE
+.
+.TP 5
+.B dlg_strclone
+.RS
+.TP 5
+.B const char * \fIcprompt
+.RE
+.
+.TP 5
+.B dlg_strcmp
+.RS
+.TP 5
+.B const char \fI* a
+.TP 5
+.B const char \fI* b
+.RE
+.
+.TP 5
+.B dlg_sub_window
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.TP 5
+.B int \fIheight
+.TP 5
+.B int \fIwidth
+.TP 5
+.B \fIint y
+.TP 5
+.B \fIint x
+.RE
+.
+.TP 5
+.B dlg_tab_correct_str
+.RS
+.TP 5
+.B char * \fIprompt
+.RE
+.
+.TP 5
+.B dlg_trim_string
+.RS
+.TP 5
+.B char * \fIsrc
+.RE
+.
+.TP 5
+.B dlg_unregister_window
+.RS
+.TP 5
+.B WINDOW * \fIwin
+.RE
+.
+.TP 5
+.B dlg_yes_buttoncode
+.RS
+.TP 5
+.B int \fIbutton
+.RE
+.
+.TP 5
+.B dlg_yes_labels
 .
 .\" ************************************************************************
 .SH AUTHOR

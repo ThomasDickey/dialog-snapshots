@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.103 2005/12/06 20:33:19 tom Exp $
+ *  $Id: checklist.c,v 1.104 2005/12/20 01:51:38 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -610,7 +610,7 @@ dialog_checklist(const char *title,
     bool show_status = FALSE;
     int current = 0;
 
-    listitems = malloc(sizeof(*listitems) * item_no);
+    listitems = calloc(item_no + 1, sizeof(*listitems));
     assert_ptr(listitems, "dialog_checklist");
 
     for (i = 0; i < item_no; ++i) {

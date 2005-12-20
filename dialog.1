@@ -1,4 +1,4 @@
-.\" $Id: dialog.1,v 1.89 2005/12/08 01:09:03 tom Exp $
+.\" $Id: dialog.1,v 1.90 2005/12/20 00:59:17 tom Exp $
 .\" Copyright 2005  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2005/12/08 01:09:03 $"
+.TH DIALOG 1 "" "$Date: 2005/12/20 00:59:17 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -656,6 +656,11 @@ box is that a \fBmessage\fP box has only a single \fBOK\fP button.
 You can use this dialog box to display any message you like.
 After reading the message, the user can press the \fIENTER\fP key so that
 \fBdialog\fP will exit and the calling shell script can continue its operation.
+.IP
+If the message is too large for the space,
+\fBdialog\fP may allow you to scroll it,
+provided that the underlying curses implementation is capable enough.
+In this case, a percentage is shown in the base of the widget.
 .IP
 On exit, no text is written to \fBdialog\fP's output.
 Only an "OK" button is provided for input,
