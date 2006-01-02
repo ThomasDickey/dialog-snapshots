@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.99 2005/12/20 00:22:02 tom Exp $
+ *  $Id: menubox.c,v 1.100 2006/01/02 01:51:18 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -760,5 +760,6 @@ dialog_menu(const char *title,
 		      &choice,
 		      dlg_renamed_menutext);
 
+    free(listitems);
     return result;
 }
