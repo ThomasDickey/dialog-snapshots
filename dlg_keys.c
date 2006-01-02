@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.16 2005/12/07 01:48:52 tom Exp $
+ *  $Id: dlg_keys.c,v 1.17 2006/01/02 02:03:11 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2005	Thomas E. Dickey
+ *  Copyright 2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -104,6 +104,9 @@ dlg_register_buttons(WINDOW *win, const char *name, const char **buttons)
     int n;
     LIST_BINDINGS *p;
     DLG_KEYS_BINDING *q;
+
+    if (buttons == 0)
+	return;
 
     for (n = 0; buttons[n] != 0; ++n) {
 	int curses_key = dlg_button_to_char(buttons[n]);
