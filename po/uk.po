@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: uk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2004-02-12 20:17+0200\n"
 "Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
 "Language-Team: Ukrainian\n"
@@ -54,7 +54,7 @@ msgstr "Місяць"
 msgid "Year"
 msgstr "Рік"
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr "Перейменувати"
 

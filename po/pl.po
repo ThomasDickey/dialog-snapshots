@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2003-06-21 17:07+0200\n"
 "Last-Translator: Jaroslaw Swierczynski <swiergot@intersec.pl>\n"
 "Language-Team: Polish <po@lists.intersec.pl>\n"
@@ -52,7 +52,7 @@ msgstr "Miesi±c"
 msgid "Year"
 msgstr "Rok"
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr "Zmieñ nazwê"
 

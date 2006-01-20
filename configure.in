@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.41 2005/10/30 17:57:31 tom Exp $
+dnl $Id: configure.in,v 1.42 2006/01/18 22:56:41 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -101,8 +101,8 @@ CF_ARG_MSG_ENABLE([if you want the form dialog],
 
 CF_ARG_MSG_ENABLE([if you want the gauge dialog],
 	gauge,
-	[  --disable-gauge         do not include the gauge dialog],
-	[EXTRAOBJS="$EXTRAOBJS guage\$o"
+	[  --disable-gauge         do not include the gauge dialogs],
+	[EXTRAOBJS="$EXTRAOBJS guage\$o pause\$o progressbox\$o"
 	 AC_DEFINE(HAVE_GAUGE)],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the tailbox dialog],

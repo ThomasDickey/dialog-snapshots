@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.163 2005/12/20 00:24:59 tom Exp $
+ *  $Id: util.c,v 1.165 2006/01/18 21:11:08 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -659,7 +659,7 @@ print_line(WINDOW *win, chtype *attr, const char *prompt, int lm, int rm, int *x
 	while (wrap_inx > 0 && prompt[indx[wrap_inx - 1]] == ' ') {
 	    wrap_inx--;
 	}
-	*x += indx[wrap_inx];
+	*x = lm + indx[wrap_inx];
     } else if (*x == 1 && cur_x >= rm) {
 	/*
 	 * If the line has no spaces, then wrap it anyway at the right margin

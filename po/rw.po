@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2005-04-04 10:55-0700\n"
 "Last-Translator: Steven Michael Murphy <murf@e-tools.com>\n"
 "Language-Team: Kinyarwanda <translation-team-rw@lists.sourceforge.net>\n"
@@ -68,7 +68,7 @@ msgstr "Ukwezi"
 msgid "Year"
 msgstr "Umwaka"
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr "Guhindura izina"
 

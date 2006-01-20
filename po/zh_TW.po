@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2005-05-12 15:16+0800\n"
 "Last-Translator: Wei-Lun Chao <chaoweilun@pcmail.com.tw>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -54,7 +54,7 @@ msgstr "月"
 msgid "Year"
 msgstr "年"
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr "更名"
 

@@ -1,5 +1,5 @@
-.\" $Id: dialog.1,v 1.90 2005/12/20 00:59:17 tom Exp $
-.\" Copyright 2005  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.92 2006/01/19 19:33:47 tom Exp $
+.\" Copyright 2005,2006  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License as
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2005/12/20 00:59:17 $"
+.TH DIALOG 1 "" "$Date: 2006/01/19 19:33:47 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -62,6 +62,7 @@ These types of dialog boxes are implemented
 .BR msgbox " (message), "
 .BR password ", "
 .BR pause ", "
+.BR progressbox ", "
 .BR radiolist ", "
 .BR tailbox ", "
 .BR tailboxbg ", "
@@ -108,7 +109,7 @@ since the command-line may be rewritten as these are expanded.
 The "\fB--file\fP" option tells \fBdialog\fP to read parameters from
 the file named as its value.
 .RS
-.B dialog --file parameterfile
+.B dialog --file \fIparameterfile
 .RE
 Blanks not within double-quotes are discarded
 (use backslashes to quote single characters).
@@ -696,6 +697,15 @@ This is identical to \fB--form\fP except that all text fields are
 treated as \fBpassword\fP widgets rather than \fBinputbox\fP widgets.
 .
 .
+.IP "\fB--progressbox \fItext height width"
+.IP "\fB--progressbox \fIheight width"
+A \fBprogressbox\fP is similar to an \fBtailbox\fP,
+except that it will exit when it reaches the end of the file.
+If three parameters are given, it displays the text under the title,
+delineated from the scrolling file's contents.
+If only two parameters are given, this text is omitted.
+.
+.
 .IP "\fB--radiolist \fItext height width list-height \fR [ \fItag item status \fR] \fI..."
 A
 \fBradiolist\fP
@@ -978,9 +988,9 @@ Thomas E. Dickey (updates for 0.9b and beyond)
 .SH CONTRIBUTORS
 Tobias C. Rittweiler
 .LP
-Valery Reznic - the form widget.
+Valery Reznic - the form and progressbox widgets.
 .LP
-Yura Kalinichenko adapted the guage widget as "pause".
+Yura Kalinichenko adapted the gauge widget as "pause".
 .PP
 This is a rewrite (except as needed to provide compatibility)
 of the earlier version of \fBdialog 0.9a\fP,

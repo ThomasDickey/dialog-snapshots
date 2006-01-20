@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.104 2005/12/20 01:51:38 tom Exp $
+ *  $Id: checklist.c,v 1.105 2006/01/18 21:10:55 Peter.Postma Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -49,7 +49,7 @@ print_arrows(WINDOW *win,
 	     int list_height)
 {
     dlg_draw_arrows2(win, scrollamt,
-		     scrollamt + choice < item_no - 1,
+		     scrollamt + choice < item_no,
 		     box_x + check_x + 5,
 		     box_y,
 		     box_y + list_height + 1,
@@ -284,7 +284,7 @@ dlg_checklist(const char *title,
 
     print_arrows(dialog,
 		 box_x, box_y,
-		 scrollamt, choice, item_no, list_height);
+		 scrollamt, max_choice, item_no, list_height);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -518,7 +518,7 @@ dlg_checklist(const char *title,
 		    (void) wnoutrefresh(list);
 		    print_arrows(dialog,
 				 box_x, box_y,
-				 scrollamt, choice, item_no, list_height);
+				 scrollamt, max_choice, item_no, list_height);
 		} else {
 		    /* De-highlight current item */
 		    print_item(list,

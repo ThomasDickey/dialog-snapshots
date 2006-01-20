@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.100 2006/01/02 01:51:18 tom Exp $
+ *  $Id: menubox.c,v 1.102 2006/01/18 00:40:00 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -717,6 +717,7 @@ dlg_menu(const char *title,
     }
 
     dlg_mouse_free_regions();
+    dlg_unregister_window(menu);
     dlg_del_window(dialog);
     free(prompt);
 
@@ -758,7 +759,7 @@ dialog_menu(const char *title,
 		      item_no,
 		      listitems,
 		      &choice,
-		      dlg_renamed_menutext);
+		      dialog_vars.input_menu ? dlg_renamed_menutext : 0);
 
     free(listitems);
     return result;
