@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog 1.0-20050116\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2004-11-21 12:23+0530\n"
 "Last-Translator: Ravishankar Shrivastava <raviratlami@gmail.com>\n"
 "Language-Team: Ravishankar Shrivastava <raviratlami@yahoo.com>\n"
@@ -55,7 +55,7 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr ""
 

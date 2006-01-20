@@ -689,7 +689,7 @@ Optional Packages:
   --disable-rc-file       do not include config-file support
   --disable-Xdialog       do not include Xdialog-style dialogs
   --disable-form          do not include the form dialog
-  --disable-gauge         do not include the gauge dialog
+  --disable-gauge         do not include the gauge dialogs
   --disable-tailbox       do not include the tailbox dialog
   --enable-widec          enable wide-curses features
 
@@ -8410,7 +8410,7 @@ fi;
 echo "$as_me:8410: result: $enableval" >&5
 echo "${ECHO_T}$enableval" >&6
 if test "$enableval" != no ; then
-EXTRAOBJS="$EXTRAOBJS guage\$o"
+EXTRAOBJS="$EXTRAOBJS guage\$o pause\$o progressbox\$o"
 	 cat >>confdefs.h <<\EOF
 #define HAVE_GAUGE 1
 EOF

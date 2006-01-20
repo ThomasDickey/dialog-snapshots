@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.166 2005/12/08 00:40:03 tom Exp $
+ *  $Id: dialog.h,v 1.167 2006/01/18 22:52:45 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -460,6 +460,7 @@ extern int dialog_inputbox(const char * /*title*/, const char * /*cprompt*/, int
 extern int dialog_menu(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*menu_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_msgbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*pauseopt*/);
 extern int dialog_pause(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*seconds*/);
+extern int dialog_progressbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/);
 extern int dialog_tailbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/, int /*bg_task*/);
 extern int dialog_textbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/);
 extern int dialog_timebox(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*hour*/, int /*minute*/, int /*second*/);

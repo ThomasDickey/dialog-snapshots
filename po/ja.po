@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 0.9a\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2000-10-06 18:02+09:00\n"
 "Last-Translator: Hirofumi Takeda <takepin@turbolinux.co.jp>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr ""
 

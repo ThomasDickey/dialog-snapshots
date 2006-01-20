@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.139 2005/12/08 01:03:55 tom Exp $
+ * $Id: dialog.c,v 1.142 2006/01/18 22:51:37 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -98,6 +98,7 @@ typedef enum {
     ,o_print_maxsize
     ,o_print_size
     ,o_print_version
+    ,o_progressbox
     ,o_radiolist
     ,o_screen_center
     ,o_separate_output
@@ -241,6 +242,7 @@ static const Options options[] = {
     { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
     { "trim",		o_trim,			1, "" },
+    { "progressbox",	o_progressbox,		2, "<height> <width>" },
     { "visit-items", 	o_visit_items,		1, "" },
     { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
@@ -832,6 +834,7 @@ call_gauge(CALLARGS)
 }
 #endif
 
+#ifdef HAVE_GAUGE
 static int
 call_pause(CALLARGS)
 {
@@ -842,6 +845,27 @@ call_pause(CALLARGS)
 			numeric_arg(av, 3),
 			numeric_arg(av, 4));
 }
+#endif
+
+#ifdef HAVE_GAUGE
+static int
+call_progressbox(CALLARGS)
+{
+    *offset_add = arg_rest(av);
+    /* the original version does not accept a prompt string, but for
+     * consistency we allow it.
+     */
+    return ((*offset_add == 4)
+	    ? dialog_progressbox(t,
+				 av[1],
+				 numeric_arg(av, 2),
+				 numeric_arg(av, 3))
+	    : dialog_progressbox(t,
+				 "",
+				 numeric_arg(av, 1),
+				 numeric_arg(av, 2)));
+}
+#endif
 
 #ifdef HAVE_TAILBOX
 static int
@@ -879,7 +903,6 @@ static const Mode modes[] =
     {o_radiolist,       8, 0, call_radiolist},
     {o_inputbox,        4, 5, call_inputbox},
     {o_passwordbox,     4, 5, call_passwordbox},
-    {o_pause,           5, 5, call_pause},
 #ifdef HAVE_XDIALOG
     {o_calendar,        4, 7, call_calendar},
     {o_fselect,         4, 5, call_fselect},
@@ -891,6 +914,8 @@ static const Mode modes[] =
 #endif
 #ifdef HAVE_GAUGE
     {o_gauge,           4, 5, call_gauge},
+    {o_pause,           5, 5, call_pause},
+    {o_progressbox,     3, 4, call_progressbox},
 #endif
 #ifdef HAVE_TAILBOX
     {o_tailbox,         4, 4, call_tailbox},

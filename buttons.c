@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.68 2005/12/07 01:43:56 tom Exp $
+ *  $Id: buttons.c,v 1.69 2006/01/20 00:05:54 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2004,2005	Thomas E. Dickey
+ * Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -428,7 +428,7 @@ my_help_label(void)
 }
 
 /*
- * These functions return a list of button labels.
+ * Return a list of button labels.
  */
 const char **
 dlg_exit_label(void)
@@ -452,7 +452,7 @@ dlg_exit_label(void)
 }
 
 /*
- * Map the given button index for dlg_exit_labels() into our exit-code.
+ * Map the given button index for dlg_exit_label() into our exit-code.
  */
 int
 dlg_exit_buttoncode(int button)

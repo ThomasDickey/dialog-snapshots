@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-12-07 20:39-0500\n"
+"POT-Creation-Date: 2006-01-19 20:24-0500\n"
 "PO-Revision-Date: 2002-05-09 17:56+0200\n"
 "Last-Translator: Michael Piefel <piefel@informatik.hu-berlin.de>\n"
 "Language-Team: German <de@li.org>\n"
@@ -52,7 +52,7 @@ msgstr "Monat"
 msgid "Year"
 msgstr "Jahr"
 
-#: dialog.c:694
+#: dialog.c:696
 msgid "Rename"
 msgstr "Bearbeiten"
 
