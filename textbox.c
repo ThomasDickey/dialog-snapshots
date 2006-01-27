@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.77 2005/12/07 00:45:30 tom Exp $
+ *  $Id: textbox.c,v 1.78 2006/01/27 01:29:50 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -912,7 +912,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    }
 	} else {

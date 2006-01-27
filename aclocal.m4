@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl Copyright 1999-2004,2005 -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.51 2005/10/30 20:15:59 tom Exp $
+dnl $Id: aclocal.m4,v 1.52 2006/01/27 00:59:52 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -867,7 +867,7 @@ if test $cf_cv_chtype_decl = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_CPPFLAGS version: 7 updated: 2003/06/06 00:48:41
+dnl CF_CURSES_CPPFLAGS version: 8 updated: 2005/12/31 13:26:39
 dnl ------------------
 dnl Look for the curses headers.
 AC_DEFUN([CF_CURSES_CPPFLAGS],[
@@ -888,27 +888,8 @@ esac
 ])
 test "$cf_cv_curses_incdir" != no && CPPFLAGS="$cf_cv_curses_incdir $CPPFLAGS"
 
-AC_CACHE_CHECK(if we have identified curses headers,cf_cv_ncurses_header,[
-cf_cv_ncurses_header=none
-for cf_header in \
-	curses.h \
-	ncurses.h \
-	ncurses/curses.h \
-	ncurses/ncurses.h
-do
-AC_TRY_COMPILE([#include <${cf_header}>],
-	[initscr(); tgoto("?", 0,0)],
-	[cf_cv_ncurses_header=$cf_header; break],[])
-done
-])
-
-if test "$cf_cv_ncurses_header" = none ; then
-	AC_MSG_ERROR(No curses header-files found)
-fi
-
-# cheat, to get the right #define's for HAVE_NCURSES_H, etc.
-AC_CHECK_HEADERS($cf_cv_ncurses_header)
-
+CF_CURSES_HEADER
+CF_TERM_HEADER
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_CURSES_FUNCS version: 12 updated: 2003/11/06 19:59:57
@@ -963,6 +944,35 @@ exit(foo == 0);
 		AC_DEFINE_UNQUOTED(HAVE_${cf_tr_func})
 	fi
 done
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CURSES_HEADER version: 1 updated: 2005/12/31 13:28:25
+dnl ----------------
+dnl Find a "curses" header file, e.g,. "curses.h", or one of the more common
+dnl variations of ncurses' installs.
+dnl
+dnl See also CF_NCURSES_HEADER, which sets the same cache variable.
+AC_DEFUN([CF_CURSES_HEADER],[
+AC_CACHE_CHECK(if we have identified curses headers,cf_cv_ncurses_header,[
+cf_cv_ncurses_header=none
+for cf_header in \
+	curses.h \
+	ncurses.h \
+	ncurses/curses.h \
+	ncurses/ncurses.h
+do
+AC_TRY_COMPILE([#include <${cf_header}>],
+	[initscr(); tgoto("?", 0,0)],
+	[cf_cv_ncurses_header=$cf_header; break],[])
+done
+])
+
+if test "$cf_cv_ncurses_header" = none ; then
+	AC_MSG_ERROR(No curses header-files found)
+fi
+
+# cheat, to get the right #define's for HAVE_NCURSES_H, etc.
+AC_CHECK_HEADERS($cf_cv_ncurses_header)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_CURSES_LIBS version: 23 updated: 2003/11/06 19:59:57
@@ -1815,7 +1825,7 @@ printf("old\n");
 	,[$1=no])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_CPPFLAGS version: 17 updated: 2003/11/06 19:59:57
+dnl CF_NCURSES_CPPFLAGS version: 18 updated: 2005/12/31 13:26:39
 dnl -------------------
 dnl Look for the SVr4 curses clone 'ncurses' in the standard places, adjusting
 dnl the CPPFLAGS variable so we can include its header.
@@ -1856,9 +1866,27 @@ AC_CACHE_CHECK(for $cf_ncuhdr_root header in include-path, cf_cv_ncurses_h,[
 	done
 ])
 
+CF_NCURSES_HEADER
+CF_TERM_HEADER
+
+# some applications need this, but should check for NCURSES_VERSION
+AC_DEFINE(NCURSES)
+
+CF_NCURSES_VERSION
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_NCURSES_HEADER version: 1 updated: 2005/12/31 13:28:37
+dnl -----------------
+dnl Find a "curses" header file, e.g,. "curses.h", or one of the more common
+dnl variations of ncurses' installs.
+dnl
+dnl See also CF_CURSES_HEADER, which sets the same cache variable.
+AC_DEFUN([CF_NCURSES_HEADER],[
+
 if test "$cf_cv_ncurses_h" != no ; then
 	cf_cv_ncurses_header=$cf_cv_ncurses_h
 else
+
 AC_CACHE_CHECK(for $cf_ncuhdr_root include-path, cf_cv_ncurses_h2,[
 	test -n "$verbose" && echo
 	CF_HEADER_PATH(cf_search,$cf_ncuhdr_root)
@@ -1894,7 +1922,7 @@ AC_CACHE_CHECK(for $cf_ncuhdr_root include-path, cf_cv_ncurses_h2,[
 
 fi
 
-AC_DEFINE(NCURSES)
+# Set definitions to allow ifdef'ing for ncurses.h
 
 case $cf_cv_ncurses_header in # (vi
 *ncurses.h)
@@ -1911,7 +1939,6 @@ ncursesw/curses.h|ncursesw/ncurses.h)
 	;;
 esac
 
-CF_NCURSES_VERSION
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_NCURSES_LIBS version: 12 updated: 2004/04/27 16:26:05
@@ -2094,7 +2121,7 @@ ifelse($1,,,[$1=$PATHSEP])
 	AC_SUBST(PATHSEP)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PATH_SYNTAX version: 9 updated: 2002/09/17 23:03:38
+dnl CF_PATH_SYNTAX version: 10 updated: 2006/01/02 19:36:00
 dnl --------------
 dnl Check the argument to see that it looks like a pathname.  Rewrite it if it
 dnl begins with one of the prefix/exec_prefix variables, and then again if the
@@ -2116,7 +2143,7 @@ case ".[$]$1" in #(vi
     ;;
   esac
   ;; #(vi
-.NONE/*)
+.no|.NONE/*)
   $1=`echo [$]$1 | sed -e s%NONE%$ac_default_prefix%`
   ;;
 *)
@@ -2386,6 +2413,53 @@ if test ".$SYS_NAME" != ".$cf_cv_system_name" ; then
 	AC_MSG_RESULT("Cached system name does not agree with actual")
 	AC_ERROR("Please remove config.cache and try again.")
 fi])
+dnl ---------------------------------------------------------------------------
+dnl CF_TERM_HEADER version: 1 updated: 2005/12/31 13:26:39
+dnl --------------
+dnl Look for term.h, which is part of X/Open curses.  It defines the interface
+dnl to terminfo database.  Usually it is in the same include-path as curses.h,
+dnl but some packagers change this, breaking various applications.
+AC_DEFUN([CF_TERM_HEADER],[
+AC_CACHE_CHECK(for terminfo header, cf_cv_term_header,[
+case ${cf_cv_ncurses_header} in #(vi
+*/ncurses.h|*/ncursesw.h) #(vi
+	cf_term_header=`echo "$cf_cv_ncurses_header" | sed -e 's%ncurses[[^.]]*\.h$%term.h%'`
+	;;
+*)
+	cf_term_header=term.h
+	;;
+esac
+
+for cf_test in $cf_term_header "ncurses/term.h" "ncursesw/term.h"
+do
+AC_TRY_COMPILE([#include <stdio.h>
+#include <${cf_cv_ncurses_header-curses.h}>
+#include <$cf_test>
+],[int x = auto_left_margin],[
+	cf_cv_term_header="$cf_test"],[
+	cf_cv_term_header=unknown
+	])
+	test "$cf_cv_term_header" != unknown && break
+done
+])
+
+# Set definitions to allow ifdef'ing to accommodate subdirectories
+
+case $cf_cv_term_header in # (vi
+*term.h)
+	AC_DEFINE(HAVE_TERM_H)
+	;;
+esac
+
+case $cf_cv_term_header in # (vi
+ncurses/term.h) #(vi
+	AC_DEFINE(HAVE_NCURSES_TERM_H)
+	;;
+ncursesw/term.h)
+	AC_DEFINE(HAVE_NCURSESW_TERM_H)
+	;;
+esac
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_UNION_WAIT version: 5 updated: 1997/11/23 14:49:44
 dnl -------------

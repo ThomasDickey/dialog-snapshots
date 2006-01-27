@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.105 2006/01/18 21:10:55 Peter.Postma Exp $
+ *  $Id: checklist.c,v 1.106 2006/01/27 01:29:08 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -565,7 +565,6 @@ dlg_checklist(const char *title,
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    default:
 		if (was_mouse) {

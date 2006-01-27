@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.102 2006/01/18 00:40:00 tom Exp $
+ *  $Id: menubox.c,v 1.104 2006/01/27 01:29:08 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -251,6 +251,15 @@ dlg_renamed_menutext(DIALOG_LISTITEM * items, int current, char *newtext)
     dlg_add_result(" ");
     dlg_add_result(newtext);
     return DLG_EXIT_EXTRA;
+}
+
+static int
+dlg_dummy_menutext(DIALOG_LISTITEM * items, int current, char *newtext)
+{
+    (void) items;
+    (void) current;
+    (void) newtext;
+    return DLG_EXIT_ERROR;
 }
 
 /*
@@ -652,7 +661,8 @@ dlg_menu(const char *title,
 		 */
 		if (result == DLG_EXIT_ERROR) {
 		    result = DLG_EXIT_UNKNOWN;
-		} else if (rename_menutext == dlg_renamed_menutext) {
+		} else if (rename_menutext == dlg_renamed_menutext
+			   || rename_menutext == dlg_dummy_menutext) {
 		    result = handle_button(result,
 					   items,
 					   scrollamt + choice);
@@ -707,7 +717,6 @@ dlg_menu(const char *title,
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    default:
 		flash();
@@ -759,7 +768,7 @@ dialog_menu(const char *title,
 		      item_no,
 		      listitems,
 		      &choice,
-		      dialog_vars.input_menu ? dlg_renamed_menutext : 0);
+		      dialog_vars.input_menu ? dlg_renamed_menutext : dlg_dummy_menutext);
 
     free(listitems);
     return result;

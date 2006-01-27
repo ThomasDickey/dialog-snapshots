@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.55 2005/12/06 20:33:19 tom Exp $
+ *  $Id: inputbox.c,v 1.56 2006/01/27 01:29:50 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -200,7 +200,6 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    default:
 		beep();

@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.179 2006/01/20 01:21:38 tom Exp $
+-- $Id: CHANGES,v 1.182 2006/01/27 01:34:03 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2006/01/26
+	+ fix fselect.c to compile properly with Intel compiler and largefile
+	  option.
+	+ improve configure script checks for curses headers to work around
+	  breakage in some packages, e.g., cygwin.
+	+ amend correction to menubox, fixes normal menus (Debian #349969).
 
 2006/01/19
 	+ completed dialog.3 manpage
