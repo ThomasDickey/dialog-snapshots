@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.33 2005/12/06 20:33:19 tom Exp $
+ * $Id: timebox.c,v 1.34 2006/01/27 01:29:50 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- * Copyright 2001-2004,2005   Thomas E. Dickey
+ * Copyright 2001-2005,2006   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -331,7 +331,6 @@ dialog_timebox(const char *title,
 		    refresh();
 		    dlg_mouse_free_regions();
 		    goto retry;
-		    break;
 #endif
 		default:
 		    if (obj != 0) {

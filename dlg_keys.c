@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.17 2006/01/02 02:03:11 tom Exp $
+ *  $Id: dlg_keys.c,v 1.18 2006/01/27 01:43:19 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -421,7 +421,7 @@ static const CODENAME dialog_names[] =
 static char *
 skip_white(char *s)
 {
-    while (*s != '\0' && isspace(*s))
+    while (*s != '\0' && isspace(CharOf(*s)))
 	++s;
     return s;
 }
@@ -429,7 +429,7 @@ skip_white(char *s)
 static char *
 skip_black(char *s)
 {
-    while (*s != '\0' && !isspace(*s))
+    while (*s != '\0' && !isspace(CharOf(*s)))
 	++s;
     return s;
 }
@@ -586,12 +586,12 @@ dlg_parse_bindkey(char *params)
 		modified = *p;
 	    } else if (*p == '~') {
 		modified = *p;
-	    } else if (isspace(*p)) {
+	    } else if (isspace(CharOf(*p))) {
 		break;
 	    }
 	    ++p;
 	}
-	if (!isspace(*p)) {
+	if (!isspace(CharOf(*p))) {
 	    ;
 	} else {
 	    *p++ = '\0';

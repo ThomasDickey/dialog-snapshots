@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.51 2005/12/20 00:25:59 tom Exp $
+ *  $Id: formbox.c,v 1.52 2006/01/27 01:29:50 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2003-2004,2005	Thomas E. Dickey
+ *  Copyright 2003-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -623,7 +623,6 @@ dlg_form(const char *title,
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    default:
 #if USE_MOUSE

@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.57 2005/12/07 00:41:44 tom Exp $
+ * $Id: fselect.c,v 1.59 2006/01/27 01:47:36 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2004,2005   Thomas E. Dickey
+ * Copyright 2000-2005,2006   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -44,6 +44,16 @@
 #  include <ndir.h>
 # endif
 #endif
+
+# if defined(_FILE_OFFSET_BITS) && defined(HAVE_STRUCT_DIRENT64)
+#  if !defined(_LP64) && (_FILE_OFFSET_BITS == 64)
+#   define      DIRENT  struct dirent64
+#  else
+#   define      DIRENT  struct dirent
+#  endif
+# else
+#  define       DIRENT  struct dirent
+# endif
 
 #define EXT_WIDE 1
 #define HDR_HIGH 1
@@ -327,7 +337,7 @@ static bool
 fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     DIR *dp;
-    struct dirent *de;
+    DIRENT *de;
     struct stat sb;
     int n;
     char path[MAX_LEN + 1];
@@ -672,7 +682,6 @@ dialog_fselect(const char *title, const char *path, int height, int width)
 		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
-		break;
 #endif
 	    default:
 		if (key >= DLGK_MOUSE(MOUSE_T)) {
