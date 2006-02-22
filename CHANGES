@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.182 2006/01/27 01:34:03 tom Exp $
+-- $Id: CHANGES,v 1.183 2006/02/22 01:21:53 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2006/02/21
+	+ fix logic in split-out dlg_menu() to separate inputmenu and menu
+	  handling (report by Auke Kok).
 
 2006/01/26
 	+ fix fselect.c to compile properly with Intel compiler and largefile
