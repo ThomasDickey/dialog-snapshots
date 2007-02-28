@@ -1,10 +1,10 @@
-.\" $Id: dialog.1,v 1.92 2006/01/19 19:33:47 tom Exp $
-.\" Copyright 2005,2006  Thomas E. Dickey
+'\" t
+.\" $Id: dialog.1,v 1.107 2007/02/22 21:02:54 tom Exp $
+.\" Copyright 2005-2006,2007  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
-.\" it under the terms of the GNU Lesser General Public License as
-.\" published by the Free Software Foundation; either version 2.1 of the
-.\" License, or (at your option) any later version.
+.\" it under the terms of the GNU Lesser General Public License, version 2.1
+.\" as published by the Free Software Foundation.
 .\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2006/01/19 19:33:47 $"
+.TH DIALOG 1 "" "$Date: 2007/02/22 21:02:54 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -50,8 +50,12 @@ These types of dialog boxes are implemented
 (though not all are necessarily compiled into \fBdialog\fR):
 .RS
 .LP
+.nh
+.na
 .BR calendar ", "
 .BR checklist ", "
+.BR dselect ", "
+.BR editbox ", "
 .BR form ", "
 .BR fselect ", "
 .BR gauge ", "
@@ -59,8 +63,11 @@ These types of dialog boxes are implemented
 .BR inputbox ", "
 .BR inputmenu ", "
 .BR menu ", "
+.BR mixedform ", "
+.BR mixedgauge ", "
 .BR msgbox " (message), "
-.BR password ", "
+.BR passwordbox ", "
+.BR passwordform ", "
 .BR pause ", "
 .BR progressbox ", "
 .BR radiolist ", "
@@ -69,6 +76,8 @@ These types of dialog boxes are implemented
 .BR textbox ", "
 .BR timebox ", and "
 .BR yesno " (yes/no)."
+.ad
+.hy
 .RE
 .PP
 You can put more than one dialog box into a script:
@@ -118,6 +127,11 @@ replacing "\fB--file\fP" and its option value.
 Interpretation of the command-line resumes from that point.
 .
 .SS \fBCommon Options\fP
+.
+.IP "\fB--ascii-lines
+Rather than draw graphics lines around boxes,
+draw ASCII "+" and "-" in the same place.
+See also "\fB--no-lines\fR".
 .
 .IP "\fB--aspect \fIratio"
 This gives you some control over the box dimensions when using auto
@@ -290,6 +304,15 @@ Interpret the tags data for checklist, radiolist and menu boxes
 adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
+.IP "\fB--keep-tite"
+Normally \fBdialog\fP checks to see if it is running in an \fBxterm\fP,
+and in that case tries to suppress the initialization strings that
+would make it switch to the alternate screen.
+Switching between the normal and alternate screens
+is visually distracting in a script which runs \fBdialog\fP
+several times.
+Use this option to allow \fBdialog\fP to use those initialization strings. 
+.
 .IP "\fB--keep-window"
 Normally when \fBdialog\fR performs several \fBtailboxbg\fR widgets
 connected by "\fB--and-widget\fR",
@@ -328,6 +351,10 @@ SIGHUP is disabled for the background process.
 .
 .IP "\fB--no-label \fIstring"
 Override the label used for "No" buttons.
+.
+.IP "\fB--no-lines
+Rather than draw lines around boxes, draw spaces in the same place.
+See also "\fB--ascii-lines\fR".
 .
 .IP "\fB--no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.
@@ -418,6 +445,10 @@ Specifies a
 \fItitle\fP
 string to be displayed at the top of the dialog box.
 .
+.IP "\fB--trace \fIfilename"
+logs keystrokes to the given file.
+Use control/T to log a picture of the current dialog window.
+.
 .IP "\fB--trim"
 eliminate leading blanks,
 trim literal newlines and repeated blanks from message text.
@@ -491,10 +522,47 @@ the strings will be quoted to make it simple for scripts to separate them.
 See the "\fB--single-quoted\fP" option, which modifies the quoting behavior.
 .
 .
+.IP "\fB--dselect \fIfilepath height width\fR"
+The directory-selection dialog displays a text-entry window in which you can type
+a directory, and above that a windows with directory names.
+.IP
+Here
+\fBfilepath\fP
+can be a filepath in which case the directory window
+will display the contents of the path and the text-entry window will contain
+the preselected directory.
+.IP
+Use tab or arrow keys to move between the windows.
+Within the directory window, use the up/down arrow keys
+to scroll the current selection.
+Use the space-bar to copy the current selection into the text-entry
+window.
+.IP
+Typing any printable characters switches focus to the text-entry window,
+entering that character as well as scrolling the directory
+window to the closest match.
+.IP
+Use a carriage return or the "OK" button to accept the current value
+in the text-entry window and exit.
+.IP
+On exit, the contents of the text-entry window are written to \fBdialog\fP's output.
+.
+.IP "\fB--editbox \fIfilepath height width\fR"
+The edit-box dialog displays a copy of the file.
+You may edit it using 
+the \fIbackspace\fP, \fIdelete\fP and cursor keys
+to correct typing errors.
+It also recognizes pageup/pagedown.
+Unlike the \fB--inputbox\fP,
+you must tab to the "OK" or "Cancel" buttons to close the dialog.
+Pressing the "Enter" key within the box will split the corresponding line.
+.IP
+On exit, the contents of the edit window are written to \fBdialog\fP's output.
+.
 .nf
 .IP "\fB--form \fItext height width formheight \fR[ \fIlabel y x item y x flen ilen \fR] \fI..."
 .fi
-The form \fBdialog\fP displays a form consisting of labels and fields,
+The \fBform\fP dialog displays a form consisting of labels and fields,
 which are positioned on a scrollable window by coordinates given in the script.
 The field length \fIflen\fR and input-length \fIilen\fR tell how long
 the field can be.
@@ -526,7 +594,7 @@ is not written out.
 .
 .
 .IP "\fB--fselect \fIfilepath height width\fR"
-The file-selection dialog displays a text-entry window in which you can type
+The \fBfselect\fP (file-selection) dialog displays a text-entry window in which you can type
 a filename (or directory), and above that two windows with directory
 names and filenames.
 .IP
@@ -545,6 +613,10 @@ window.
 Typing any printable characters switches focus to the text-entry window,
 entering that character as well as scrolling the directory and filename
 windows to the closest match.
+.IP
+Typing the space character forces \fBdialog\fP to complete the current
+name (up to the point where there may be a match against more than one
+entry).
 .IP
 Use a carriage return or the "OK" button to accept the current value
 in the text-entry window and exit.
@@ -650,6 +722,41 @@ of the chosen menu entry will be printed on \fBdialog\fP's output.
 If the "\fB--help-button\fR" option is given, the corresponding help
 text will be printed if the user selects the help button.
 .
+.nf
+.IP "\fB--mixedform \fItext height width formheight \fR[ \fIlabel y x item y x flen ilen itype \fR] \fI..."
+.fi
+The \fBmixedform\fP dialog displays a form consisting of labels and fields,
+much like the \fB--form\fP dialog.
+It differs by adding a field-type parameter to each field's description.
+Each bit in the type denotes an attribute of the field:
+.RS
+.TP 5
+1
+hidden, e.g., a password field.
+.TP 5
+2
+readonly, e.g., a label.
+.RE
+.
+.IP "\fB--mixedgauge \fItext height width percent \fR[ \fItag1 item1 \fR] \fI..."
+A
+\fBmixedgauge\fP
+box displays a meter along the bottom of the box.
+The meter indicates the percentage.
+.IP
+It also displays a list of the \fItag\fP- and \fIitem\fP-values at the
+top of the box.
+See dialog(3) for the tag values.
+.IP
+The \fItext\fP is shown as a caption between the list and meter.
+The \fIpercent\fR value denotes the initial percentage shown in the meter.
+.IP
+No provision is made for reading data from the standard input as \fB--gauge\fP
+does.
+.IP
+On exit, no text is written to \fBdialog\fP's output.
+The widget accepts no input, so the exit status is always OK.
+.
 .IP "\fB--msgbox \fItext height width"
 A \fBmessage\fP box is very similar to a \fByes/no\fP box.
 The only difference between a \fBmessage\fP box and a \fByes/no\fP
@@ -692,7 +799,9 @@ See "\fB--insecure\fP" if you do not care about your password.
 On exit, the input string will be printed on \fBdialog\fP's output.
 .
 .
+.nf
 .IP "\fB--passwordform \fItext height width formheight \fR[ \fIlabel y x item y x flen ilen \fR] \fI..."
+.fi
 This is identical to \fB--form\fP except that all text fields are
 treated as \fBpassword\fP widgets rather than \fBinputbox\fP widgets.
 .
@@ -719,7 +828,7 @@ that you can indicate which entry is currently selected, by setting its
 On exit, the name of the selected item is written to \fBdialog\fP's output.
 .
 .
-.IP "\fB--tailbox file height width"
+.IP "\fB--tailbox \fIfile height width"
 Display text from a file in a dialog box, as in a "tail -f" command.
 Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
 A '0' resets the scrolling.
@@ -729,7 +838,7 @@ Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
 .
-.IP "\fB--tailboxbg file height width"
+.IP "\fB--tailboxbg \fIfile height width"
 Display text from a file in a dialog box as a background task,
 as in a "tail -f &" command.
 Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
@@ -758,7 +867,7 @@ it was unworkable.
 Some older scripts may not work properly with the polled scheme.
 .
 .
-.IP "\fB--textbox file height width"
+.IP "\fB--textbox \fIfile height width"
 A
 \fBtext\fP
 box lets you display the contents of a text file in a dialog box.
@@ -894,7 +1003,7 @@ The \fIcurses_key\fP can be any of the names derived from
 as well as C1-controls such as "~A" and "~?".
 Finally, it allows any single character to be escaped with a backslash.
 .PP
-\fBDialog\fP's internal keycode names correspond to the 
+\fBDialog\fP's internal keycode names correspond to the
 \fBDLG_KEYS_ENUM\fP type in
 \fBdlg_keys.h\fP, e.g., "HELP" from "DLGK_HELP".
 .
@@ -980,12 +1089,122 @@ if errors occur inside \fBdialog\fP
 or \fBdialog\fP is exited by pressing the \fIESC\fP key.
 .
 .\" ************************************************************************
+.SH COMPATIBILITY
+You may want to write scripts which run with other \fBdialog\fP "clones".
+.SS ORIGINAL DIALOG
+First, there is the "original" \fBdialog\fP program to consider (versions
+0.3 to 0.9).
+It had some misspelled (or inconsistent) options.
+The \fBdialog\fP program maps those deprecated options to the preferred ones.
+They include:
+.RS
+.TS
+l l
+_ _
+l l.
+\fIOption\fR	\fITreatment\fR
+\fB--beep-after\fP	ignored
+\fB--guage\fP	mapped to \fB--gauge\fP
+.TE
+.RE
+.SS XDIALOG
+Technically, "\fBXdialog\fP",
+this is an X application.
+With some care, it is possible to write useful scripts that work
+with both \fBXdialog\fP and \fBdialog\fP.
+.PP
+The \fBdialog\fP program ignores these options which are recognized
+by \fBXdialog\fP:
+.RS
+.TS
+l l
+_ _
+l l.
+\fIOption\fR	\fITreatment\fR
+\fB--allow-close\fP	ignored
+\fB--auto-placement\fP	ignored
+\fB--fixed-font\fP	ignored
+\fB--icon\fP	ignored
+\fB--keep-colors\fP	ignored
+\fB--no-close\fP	ignored
+\fB--no-cr-wrap\fP	ignored
+\fB--screen-center\fP	ignored
+\fB--separator\fP	mapped to \fB--separate-output\fP
+\fB--smooth\fP	ignored
+\fB--under-mouse\fP	ignored
+\fB--wmclass\fP	ignored
+.TE
+.RE
+.PP
+\fBXdialog\fP's manpage has a section discussing its compatibility with \fBdialog\fP.
+.SS WHIPTAIL
+Then there is \fBwhiptail\fP.
+For practical purposes, it is maintained by Debian.
+Its documentation claims
+.RS
+.sp
+.nf
+whiptail(1) is a lightweight replacement for dialog(1),
+to provide dialog boxes for shell scripts. It is built on the 
+newt windowing library rather than the ncurses library, allowing
+it to be smaller in embedded enviroments such as installers,
+rescue disks, etc.
+.sp
+whiptail is designed to be drop-in compatible with dialog, but
+has less features: some dialog boxes are not implemented, such
+as tailbox, timebox, calendarbox, etc.
+.fi
+.RE
+.PP
+Comparing actual sizes (Debian testing, 2007/1/10):
+The total of sizes for \fBwhiptail\fP, the newt, popt and slang libraries is 757kb.
+The comparable number for \fBdialog\fP (counting ncurses) is 520kb.
+Disregard the first paragraph.
+.PP
+The second paragraph is misleading, since \fBwhiptail\fP
+also does not work for common options of dialog, such as the gauge box.
+\fBwhiptail\fP is less compatible with \fBdialog\fP than the decade-old
+original dialog 0.4 program.
+.PP
+\fBwhiptail\fP's manpage borrows features from \fBdialog\fP, e.g.,
+\fB--default-item\fP, \fB--output-fd\fP,
+but oddly cites only \fBdialog\fP versions up to 0.4 as a source.
+That is, its manpage refers to features which
+were borrowed from more recent versions of \fBdialog\fP, e.g.,
+the \fB--gauge\fP and \fB--password\fP boxes,
+as well as options such as \fB-separate-output\fP.
+Somewhat humorously, one may note that the \fBpopt\fP feature
+(undocumented in its manpage)
+of using a "--" as an escape was documented in \fBdialog\fP's manpage about
+a year before it was mentioned in \fBwhiptail\fP's manpage.
+\fBwhiptail\fP's manpage incorrectly attributes that to \fBgetopt\fP
+(and is inaccurate anyway).
+.PP
+Debian uses \fBwhiptail\fP for the official \fBdialog\fP variation.
+.PP
+The \fBdialog\fP program ignores or maps these options which are recognized
+by \fBwhiptail\fP:
+.RS
+.TS
+l l
+_ _
+l l.
+\fIOption\fR	\fITreatment\fR
+\fB--fb\fP	ignored
+\fB--fullbutton\fP	ignored
+\fB--nocancel\fP	mapped to \fB--no-cancel\fP
+\fB--noitem\fP	ignored
+.TE
+.RE
+.\" ************************************************************************
 .SH BUGS
 Perhaps.
 .SH AUTHOR
 .LP
 Thomas E. Dickey (updates for 0.9b and beyond)
 .SH CONTRIBUTORS
+Kiran Cherupally - the mixed form and mixed gauge widgets.
+.LP
 Tobias C. Rittweiler
 .LP
 Valery Reznic - the form and progressbox widgets.

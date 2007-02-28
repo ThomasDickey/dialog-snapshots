@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-19 20:24-0500\n"
+"POT-Creation-Date: 2007-02-25 16:06-0500\n"
 "PO-Revision-Date: 2005-08-21 12:53-0400\n"
 "Last-Translator: Aleksandar Jelenak <jelenak@verizon.net>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
@@ -43,27 +43,68 @@ msgid "Help"
 msgstr "Помоћ"
 
 #. Headline "Month"
-#: calendar.c:274
+#: calendar.c:273
 msgid "Month"
 msgstr "Месец"
 
 #. Headline "Year"
-#: calendar.c:294
+#: calendar.c:293
 msgid "Year"
 msgstr "Година"
 
-#: dialog.c:696
+#: dialog.c:727
 msgid "Rename"
 msgstr "Преименуј"
 
-#: fselect.c:451
+#: fselect.c:548
 msgid "Directories"
 msgstr "Директоријуми"
 
-#: fselect.c:452
+#: fselect.c:549
 msgid "Files"
 msgstr "Датотеке"
 
-#: textbox.c:483
+#: mixedgauge.c:58
+msgid "Succeeded"
+msgstr ""
+
+#: mixedgauge.c:61
+#, fuzzy
+msgid "Failed"
+msgstr "Датотеке"
+
+#: mixedgauge.c:64
+msgid "Passed"
+msgstr ""
+
+#: mixedgauge.c:67
+msgid "Completed"
+msgstr ""
+
+#: mixedgauge.c:70
+msgid "Checked"
+msgstr ""
+
+#: mixedgauge.c:73
+msgid "Done"
+msgstr ""
+
+#: mixedgauge.c:76
+msgid "Skipped"
+msgstr ""
+
+#: mixedgauge.c:79
+msgid "In Progress"
+msgstr ""
+
+#: mixedgauge.c:85
+msgid "N/A"
+msgstr ""
+
+#: mixedgauge.c:193
+msgid "Overall Progress"
+msgstr ""
+
+#: textbox.c:489
 msgid "Search"
 msgstr "Претрага"

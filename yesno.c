@@ -1,14 +1,13 @@
 /*
- *  $Id: yesno.c,v 1.44 2005/12/07 00:45:56 tom Exp $
+ *  $Id: yesno.c,v 1.46 2007/02/23 21:39:34 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2004,2005	Thomas E. Dickey
+ *  Copyright 1999-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -72,11 +71,9 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     y = dlg_box_y_ordinate(height);
 
 #ifdef KEY_RESIZE
-    if (dialog != 0) {
-	(void) wresize(dialog, height, width);
-	(void) mvwin(dialog, y, x);
-	(void) refresh();
-    } else
+    if (dialog != 0)
+	dlg_move_window(dialog, height, width, y, x);
+    else
 #endif
     {
 	dialog = dlg_new_window(height, width, y, x);

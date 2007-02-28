@@ -1,14 +1,13 @@
 /*
- *  $Id: dlg_colors.h,v 1.12 2005/11/27 15:04:03 tom Exp $
+ *  $Id: dlg_colors.h,v 1.15 2007/02/18 18:23:29 tom Exp $
  *
  *  colors.h -- color attribute definitions
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -80,6 +79,10 @@
 #define DLGC_FG_BUTTON_LABEL_INACTIVE  COLOR_BLACK
 #define DLGC_BG_BUTTON_LABEL_INACTIVE  COLOR_WHITE
 #define DLGC_HL_BUTTON_LABEL_INACTIVE  TRUE
+
+#define DLGC_FG_FORM_ITEM_READONLY     COLOR_CYAN
+#define DLGC_BG_FORM_ITEM_READONLY     COLOR_WHITE
+#define DLGC_HL_FORM_ITEM_READONLY     TRUE
 
 #define DLGC_FG_INPUTBOX               COLOR_BLACK
 #define DLGC_BG_INPUTBOX               COLOR_WHITE

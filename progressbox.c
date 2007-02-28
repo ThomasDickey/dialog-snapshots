@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.4 2006/01/19 00:03:20 tom Exp $
+ *  $Id: progressbox.c,v 1.6 2007/02/22 22:02:49 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -139,7 +139,7 @@ dialog_progressbox(const char *title, const char *cprompt, int height, int width
 	++y2;
 	wmove(dialog, y2, MARGIN);
 	for (i = 0; i < getmaxx(dialog) - 2 * MARGIN; i++)
-	    (void) waddch(dialog, ACS_HLINE);
+	    (void) waddch(dialog, dlg_boxchar(ACS_HLINE));
 	y += y2;
 	thigh -= y2;
     }
@@ -156,7 +156,7 @@ dialog_progressbox(const char *title, const char *cprompt, int height, int width
     (void) wmove(dialog, thigh, (MARGIN + 1));
     (void) wnoutrefresh(dialog);
 
-    obj = (MY_OBJ *) calloc(1, sizeof(MY_OBJ));
+    obj = dlg_calloc(MY_OBJ, 1);
     assert_ptr(obj, "dialog_progressbox");
 
     obj->obj.input = fd;

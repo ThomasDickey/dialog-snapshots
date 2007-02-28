@@ -1,14 +1,13 @@
 /*
- *  $Id: textbox.c,v 1.78 2006/01/27 01:29:50 tom Exp $
+ *  $Id: textbox.c,v 1.89 2007/02/26 23:14:12 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2005,2006	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -79,7 +78,7 @@ ftell_obj(MY_OBJ * obj)
 static char *
 xalloc(long size)
 {
-    char *result = malloc(size);
+    char *result = dlg_malloc(char, size);
     assert_ptr(result, "xalloc");
     return result;
 }
@@ -367,28 +366,35 @@ back_lines(MY_OBJ * obj, long n)
 static void
 print_line(MY_OBJ * obj, int row, int width)
 {
-    int i, y, x;
-    char *line = get_line(obj);
-    const int *cols = dlg_index_columns(line);
-    const int *indx = dlg_index_wchars(line);
-    int limit = dlg_count_wchars(line);
-    int first = 0;
-    int last = limit;
+    if (wmove(obj->text, row, 0) != ERR) {
+	int i, y, x;
+	char *line = get_line(obj);
+	const int *cols = dlg_index_columns(line);
+	const int *indx = dlg_index_wchars(line);
+	int limit = dlg_count_wchars(line);
+	int first = 0;
+	int last = limit;
 
-    for (i = 0; i <= limit && cols[i] < obj->hscroll; ++i)
-	first = i;
+	if (width > getmaxx(obj->text))
+	    width = getmaxx(obj->text);
+	--width;		/* for the leading ' ' */
 
-    for (i = first; i <= limit && cols[i] - cols[first] <= PAGE_WIDTH; ++i)
-	last = i;
+	for (i = 0; i <= limit && cols[i] < obj->hscroll; ++i)
+	    first = i;
 
-    (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
-    (void) waddch(obj->text, ' ');
-    (void) waddnstr(obj->text, line + indx[first], indx[last] - indx[first]);
+	for (i = first; (i <= limit) && ((cols[i] - cols[first]) < width); ++i)
+	    last = i;
 
-    getyx(obj->text, y, x);
-    /* Clear 'residue' of previous line */
-    for (i = 0; i < width - x; i++)
 	(void) waddch(obj->text, ' ');
+	(void) waddnstr(obj->text, line + indx[first], indx[last] - indx[first]);
+
+	getyx(obj->text, y, x);
+	if (y == row) {		/* Clear 'residue' of previous line */
+	    for (i = 0; i <= width - x; i++) {
+		(void) waddch(obj->text, ' ');
+	    }
+	}
+    }
 }
 
 /*
@@ -446,14 +452,14 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
     (void) waddstr(win, buffer);
     if ((len = dlg_count_columns(buffer)) < 4) {
 	wattrset(win, border_attr);
-	whline(win, ACS_HLINE, 4 - len);
+	whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
     }
 
     wattrset(win, save);
     dlg_draw_arrows2(win,
 		     first != 0,
 		     size < obj->fd_bytes_read,
-		     5, 0, PAGE_LENGTH + 1,
+		     ARROWS_COL, 0, PAGE_LENGTH + 1,
 		     border_attr,
 		     border_attr);
 }
@@ -500,7 +506,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     if (dialog_state.use_shadow)
 	dlg_draw_shadow(dialog, box_y, box_x, box_height, box_width);
 #endif
-    widget = newwin(box_height, box_width, old_y + box_y, old_x + box_x);
+    widget = dlg_new_window(box_height, box_width, old_y + box_y, old_x + box_x);
     keypad(widget, TRUE);
     dlg_register_window(widget, "searchbox", binding);
 
@@ -517,17 +523,25 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     box_y++;
     box_x++;
     box_width -= 2;
-    input[0] = '\0';
+    offset = dlg_count_columns(input);
 
-    for (;;) {
+    while (result == DLG_EXIT_UNKNOWN) {
 	if (!first) {
 	    key = dlg_getc(widget, &fkey);
-	    if (key == ESC) {
+	    if (fkey) {
+		switch (fkey) {
+#ifdef KEY_RESIZE
+		case KEY_RESIZE:
+		    result = DLG_EXIT_CANCEL;
+		    continue;
+#endif
+		case DLGK_ENTER:
+		    result = DLG_EXIT_OK;
+		    continue;
+		}
+	    } else if (key == ESC) {
 		result = DLG_EXIT_ESC;
-		break;
-	    } else if (key == DLGK_ENTER) {
-		result = DLG_EXIT_OK;
-		break;
+		continue;
 	    }
 	}
 	if (dlg_edit_string(input, &offset, key, fkey, first)) {
@@ -536,7 +550,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 	    first = FALSE;
 	}
     }
-    delwin(widget);
+    dlg_del_window(widget);
     return result;
 }
 
@@ -546,6 +560,7 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
     int dir;
     long tempinx;
     long fpos;
+    int result;
     bool found;
     bool temp, temp1;
     bool moved = FALSE;
@@ -559,10 +574,17 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 		return FALSE;
 	    }
 	    /* Get search term from user */
-	} else if (get_search_term(obj->text, search_term,
-				   PAGE_LENGTH,
-				   PAGE_WIDTH) == DLG_EXIT_ESC
+	} else if ((result = get_search_term(obj->text, search_term,
+					     PAGE_LENGTH,
+					     PAGE_WIDTH)) != DLG_EXIT_OK
 		   || search_term[0] == '\0') {
+#ifdef KEY_RESIZE
+	    if (result == DLG_EXIT_CANCEL) {
+		ungetch(key);
+		ungetch(KEY_RESIZE);
+		return TRUE;
+	    }
+#endif
 	    /* ESC pressed, or no search term, reprint page to clear box */
 	    wattrset(obj->text, dialog_attr);
 	    back_lines(obj, obj->page_length);

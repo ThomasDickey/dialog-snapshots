@@ -1,14 +1,13 @@
 /*
- *  $Id: rc.c,v 1.36 2005/12/01 21:05:16 tom Exp $
+ *  $Id: rc.c,v 1.39 2007/01/09 22:17:15 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -68,7 +67,7 @@ typedef enum {
 #define VAR_COUNT        (sizeof(vars) / sizeof(vars_st))
 
 /* check if character is white space */
-#define whitespace(c)    (c == ' ' || c == '\t')
+#define whitespace(c)    (c == ' ' || c == TAB)
 
 /* check if character is string quoting characters */
 #define isquote(c)       (c == '"' || c == '\'')

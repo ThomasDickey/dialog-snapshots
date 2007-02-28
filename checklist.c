@@ -1,14 +1,13 @@
 /*
- *  $Id: checklist.c,v 1.106 2006/01/27 01:29:08 tom Exp $
+ *  $Id: checklist.c,v 1.111 2007/02/22 21:58:54 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2005,2006	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -50,7 +49,7 @@ print_arrows(WINDOW *win,
 {
     dlg_draw_arrows2(win, scrollamt,
 		     scrollamt + choice < item_no,
-		     box_x + check_x + 5,
+		     box_x + check_x + ARROWS_COL,
 		     box_y,
 		     box_y + list_height + 1,
 		     menubox_attr,
@@ -254,9 +253,10 @@ dlg_checklist(const char *title,
      */
     use_width = (list_width - 6);
     if (text_width + name_width > use_width) {
-	int need = 0.25 * use_width;
+	int need = (int) (0.25 * use_width);
 	if (name_width > need) {
-	    int want = use_width * ((double) name_width) / (text_width + name_width);
+	    int want = (int) (use_width * ((double) name_width) /
+			      (text_width + name_width));
 	    name_width = (want > need) ? want : need;
 	}
 	text_width = use_width - name_width;
@@ -609,13 +609,14 @@ dialog_checklist(const char *title,
     bool show_status = FALSE;
     int current = 0;
 
-    listitems = calloc(item_no + 1, sizeof(*listitems));
+    listitems = dlg_calloc(DIALOG_LISTITEM, item_no + 1);
     assert_ptr(listitems, "dialog_checklist");
 
     for (i = 0; i < item_no; ++i) {
 	listitems[i].name = ItemName(i);
 	listitems[i].text = ItemText(i);
-	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) : "";
+	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) :
+	    dlg_strempty();
 	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
     }
 
@@ -650,17 +651,6 @@ dialog_checklist(const char *title,
 		dlg_add_result(listitems[current].help);
 	    }
 	    result = DLG_EXIT_ITEM_HELP;
-	} else {
-	    if (show_status) {
-		if (separate_output) {
-		    dlg_add_result(listitems[current].name);
-		    dlg_add_result("\n");
-		} else {
-		    dlg_add_quoted(listitems[current].name);
-		}
-	    } else {
-		dlg_add_result(listitems[current].name);
-	    }
 	}
 	break;
     }

@@ -1,14 +1,13 @@
 /*
- *  $Id: dlg_keys.h,v 1.19 2005/12/07 01:43:14 tom Exp $
+ *  $Id: dlg_keys.h,v 1.21 2007/02/21 22:40:29 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
  *  Copyright 2005	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -85,7 +84,8 @@ typedef enum {
     DLGK_ENTER,
     DLGK_BEGIN,
     DLGK_FINAL,
-    DLGK_SELECT
+    DLGK_SELECT,
+    DLGK_TRACE
 } DLG_KEYS_ENUM;
 
 #define is_DLGK_MOUSE(code)	((code) >= M_EVENT)
@@ -99,7 +99,7 @@ typedef enum {
 /* ^U == 21 */
 #define INPUTSTR_BINDINGS \
 	DLG_KEYS_DATA( DLGK_BEGIN,	   KEY_HOME ), \
-	DLG_KEYS_DATA( DLGK_DELETE_ALL,    21 ), \
+	DLG_KEYS_DATA( DLGK_DELETE_ALL,    CHR_KILL ), \
 	DLG_KEYS_DATA( DLGK_DELETE_LEFT,   CHR_BACKSPACE ), \
 	DLG_KEYS_DATA( DLGK_DELETE_LEFT,   KEY_BACKSPACE ), \
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,  CHR_DELETE ), \

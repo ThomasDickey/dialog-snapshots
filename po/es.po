@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-20041219\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-19 20:24-0500\n"
+"POT-Creation-Date: 2007-02-25 16:06-0500\n"
 "PO-Revision-Date: 2004-12-21 17:06+0100\n"
 "Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -43,27 +43,68 @@ msgid "Help"
 msgstr "Ayuda"
 
 #. Headline "Month"
-#: calendar.c:274
+#: calendar.c:273
 msgid "Month"
 msgstr "Mes"
 
 #. Headline "Year"
-#: calendar.c:294
+#: calendar.c:293
 msgid "Year"
 msgstr "Año"
 
-#: dialog.c:696
+#: dialog.c:727
 msgid "Rename"
 msgstr "Renombrar"
 
-#: fselect.c:451
+#: fselect.c:548
 msgid "Directories"
 msgstr "Directorios"
 
-#: fselect.c:452
+#: fselect.c:549
 msgid "Files"
 msgstr "Ficheros"
 
-#: textbox.c:483
+#: mixedgauge.c:58
+msgid "Succeeded"
+msgstr ""
+
+#: mixedgauge.c:61
+#, fuzzy
+msgid "Failed"
+msgstr "Ficheros"
+
+#: mixedgauge.c:64
+msgid "Passed"
+msgstr ""
+
+#: mixedgauge.c:67
+msgid "Completed"
+msgstr ""
+
+#: mixedgauge.c:70
+msgid "Checked"
+msgstr ""
+
+#: mixedgauge.c:73
+msgid "Done"
+msgstr ""
+
+#: mixedgauge.c:76
+msgid "Skipped"
+msgstr ""
+
+#: mixedgauge.c:79
+msgid "In Progress"
+msgstr ""
+
+#: mixedgauge.c:85
+msgid "N/A"
+msgstr ""
+
+#: mixedgauge.c:193
+msgid "Overall Progress"
+msgstr ""
+
+#: textbox.c:489
 msgid "Search"
 msgstr "Buscar"

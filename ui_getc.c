@@ -1,14 +1,13 @@
 /*
- *  $Id: ui_getc.c,v 1.27 2005/11/27 16:38:28 tom Exp $
+ *  $Id: ui_getc.c,v 1.34 2007/02/27 20:51:12 tom Exp $
  *
- *  ui_getc.c - user interface glue for getc()
+ * ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2004,2005	Thomas E. Dickey
+ * Copyright 2001-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,6 +23,10 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+
+#ifdef NEED_WCHAR_H
+#include <wchar.h>
+#endif
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -185,6 +188,7 @@ dlg_getc(WINDOW *win, int *fkey)
     int ch = ERR;
     int result;
     bool done = FALSE;
+    bool literal = FALSE;
     DIALOG_CALLBACK *p;
     int interval = dialog_vars.timeout_secs;
     time_t expired = time((time_t *) 0) + dialog_vars.timeout_secs;
@@ -229,9 +233,8 @@ dlg_getc(WINDOW *win, int *fkey)
 		last_getc = my_wchar;
 		break;
 	    case ERR:
-		ch = ERR;
-		last_getc = ERR;
-		break;
+		napms(50);
+		continue;
 	    default:
 		break;
 	    }
@@ -240,13 +243,31 @@ dlg_getc(WINDOW *win, int *fkey)
 	}
 #else
 	ch = wgetch(win);
+	if (ch == ERR) {
+	    napms(50);
+	    continue;
+	}
 	last_getc = ch;
 	*fkey = (ch > KEY_MIN && ch < KEY_MAX);
 #endif
+	if (literal) {
+	    done = TRUE;
+	    continue;
+	}
+
 	ch = dlg_lookup_key(win, ch, fkey);
+	dlg_trace_chr(ch, *fkey);
+
 	current = time((time_t *) 0);
 
 	switch (ch) {
+	case CHR_LITERAL:
+	    if (!literal) {
+		literal = TRUE;
+		keypad(win, FALSE);
+		continue;
+	    }
+	    break;
 	case CHR_REPAINT:
 	    (void) touchwin(win);
 	    (void) wrefresh(curscr);
@@ -290,12 +311,19 @@ dlg_getc(WINDOW *win, int *fkey)
 		    dialog_state.getc_redirect = 0;
 		    win = save_win;
 		}
-		break;
 	    } else {
 		done = TRUE;
 	    }
+	    break;
+#ifdef HAVE_DLG_TRACE
+	case CHR_TRACE:
+	    dlg_trace_win(win);
+	    break;
+#endif
 	}
     }
+    if (literal)
+	keypad(win, TRUE);
     return ch;
 }
 
@@ -374,6 +402,7 @@ dlg_killall_bg(int *retval)
 			(void) signal(SIGHUP, finish_bg);
 		    (void) signal(SIGINT, finish_bg);
 		    (void) signal(SIGQUIT, finish_bg);
+		    (void) signal(SIGSEGV, finish_bg);
 		    while (dialog_state.getc_callbacks != 0) {
 			int fkey = 0;
 			dlg_getc_callbacks(ERR, fkey, retval);

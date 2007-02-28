@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.46 2006/01/18 22:42:18 tom Exp $
+# $Id: makefile.in,v 1.52 2007/02/27 21:14:49 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -16,12 +16,19 @@ o		= .@OBJEXT@
 a		= @LIB_SUFFIX@
 
 DESTDIR		=
-bindir		= $(DESTDIR)@bindir@
-includedir	= $(DESTDIR)@includedir@
-libdir		= $(DESTDIR)@libdir@
-mandir		= $(DESTDIR)@mandir@
-MAN1DIR		= $(mandir)/man1
-MAN3DIR		= $(mandir)/man3
+
+bindir		= @bindir@
+includedir	= @includedir@
+libdir		= @libdir@
+mandir		= @mandir@
+
+BINDIR		= $(DESTDIR)$(bindir)
+INCLUDEDIR	= $(DESTDIR)$(includedir)
+LIBDIR		= $(DESTDIR)$(libdir)
+MANDIR		= $(DESTDIR)$(mandir)
+
+MAN1DIR		= $(MANDIR)/man1
+MAN3DIR		= $(MANDIR)/man3
 
 # see po/makefile
 localedir       = $(prefix)/@DATADIRNAME@/locale
@@ -52,6 +59,7 @@ INSTALL_DATA	= @INSTALL_DATA@
 
 LINK		= $(LIBTOOL_LINK) $(CC)
 
+PACKAGE		= `echo @PACKAGE@ |sed @program_transform_name@`
 #
 # Standard .c to .o compile line.
 #
@@ -66,6 +74,7 @@ OBJECTS = $(EXTRAOBJS) \
 	buttons$o \
 	checklist$o \
 	dlg_keys$o \
+	editbox$o \
 	inputbox$o \
 	inputstr$o \
 	menubox$o \
@@ -91,8 +100,8 @@ LIB	= @LIB_PREFIX@dialog$a
 PROG	= dialog$x
 ALL	= $(LIB) $(PROG)
 
-BIN_DIRS	= $(bindir) $(MAN1DIR)
-LIB_DIRS	= $(libdir) $(includedir) $(MAN3DIR)
+BIN_DIRS	= $(BINDIR) $(MAN1DIR)
+LIB_DIRS	= $(LIBDIR) $(INCLUDEDIR)
 
 all	:: $(ALL)
 
@@ -116,6 +125,7 @@ dialog$x : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
 clean	\
 distclean \
 install \
+install-full \
 install-strip \
 uninstall ::
 	@echo making $@
@@ -133,49 +143,73 @@ distclean :: clean
 	$(RM) intl/libintl.h intl/po2tbl.sed
 	$(RM) makefile dlg_config.h config.cache config.log config.status
 	$(RM) samples/install/makefile
+	$(RM) dialog-config
 
-install :: $(PROG) $(bindir)
-	$(INSTALL_PROGRAM) $(PROG) $(bindir)
+install :: install-bin install-man
+	@echo "made $@"
 
-install-strip :: $(PROG) $(bindir)
-	$(INSTALL_PROGRAM) -s $(PROG) $(bindir)
+install-full :: install-lib install-bin install-man
+	@echo "made $@"
 
-install-strip \
-install :: $(MAN1DIR)
-	$(INSTALL_DATA) $(srcdir)/dialog.1 $(MAN1DIR)
+install-strip :: $(PROG) $(BINDIR)
+	$(INSTALL_PROGRAM) -s $(PROG) $(BINDIR)
 
-uninstall ::
-	$(RM) $(bindir)/$(PROG)
-	$(RM) $(MAN1DIR)/dialog.1
+uninstall :: uninstall-bin uninstall-man
+	@echo "made $@"
+
+uninstall-full :: uninstall-bin uninstall-man uninstall-lib
+	@echo "made $@"
+
+install-bin : $(PROG) $(BINDIR) 
+	$(INSTALL_PROGRAM) $(PROG) $(BINDIR)/$(PACKAGE)$x
+
+uninstall-bin :
+	$(RM) $(BINDIR)/$(PACKAGE)$x
+
+install-man :: $(MAN1DIR)
+	$(INSTALL_DATA) $(srcdir)/dialog.1 $(MAN1DIR)/$(PACKAGE).1
+
+uninstall-man ::
+	$(RM) $(MAN1DIR)/$(PACKAGE).1
 
 # most users do not want/need the library, so the install rules are distinct.
+install-lib :: $(BINDIR) dialog-config
+	@ echo "** installing config script in $(BINDIR)"
+	@ $(INSTALL_PROGRAM) dialog-config $(BINDIR)
+
 install-lib :: $(LIB_DIRS) headers.sed
-	@ echo "** installing library in $(libdir)"
-	$(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(libdir)
-	@ echo "** installing headers in $(includedir)"
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dialog.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dlg_colors.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) $(srcdir) dlg_keys.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(includedir) .         dlg_config.h
-	@ echo "** installing manpage"
-	$(INSTALL_DATA) $(srcdir)/dialog.3 $(MAN3DIR)
+	@ echo "** installing library in $(LIBDIR)"
+	@ $(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(LIBDIR)
+	@ echo "** installing headers in $(INCLUDEDIR)"
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dialog.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_colors.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_keys.h
+	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
+
+uninstall-lib :: $(BINDIR)
+	$(RM) $(BINDIR)/dialog-config
 
 uninstall-lib :: $(LIB_DIRS)
-	- $(LIBTOOL_UNINSTALL) $(RM) $(libdir)/$(LIB)
-	$(RM) $(includedir)/dialog.h
-	$(RM) $(includedir)/dlg_colors.h
-	$(RM) $(includedir)/dlg_keys.h
-	$(RM) $(includedir)/dlg_config.h
-	$(RM) $(MAN3DIR)/dialog.3
+	- $(LIBTOOL_UNINSTALL) $(RM) $(LIBDIR)/$(LIB)
+	$(RM) $(INCLUDEDIR)/dialog.h
+	$(RM) $(INCLUDEDIR)/dlg_colors.h
+	$(RM) $(INCLUDEDIR)/dlg_keys.h
+	$(RM) $(INCLUDEDIR)/dlg_config.h
+
+install-man :: $(MAN3DIR)
+	$(INSTALL_DATA) $(srcdir)/dialog.3 $(MAN3DIR)/$(PACKAGE).3
+
+uninstall-man ::
+	$(RM) $(MAN3DIR)/$(PACKAGE).3
 
 headers.sed : $(srcdir)/headers.sh
-	$(SHELL) $(srcdir)/headers.sh $(includedir) $(srcdir)
+	$(SHELL) $(srcdir)/headers.sh $(INCLUDEDIR) $(srcdir)
 
 $(MAN1DIR) \
 $(MAN3DIR) \
-$(bindir) \
-$(includedir) \
-$(libdir) : ; $(srcdir)/mkdirs.sh $@
+$(BINDIR) \
+$(INCLUDEDIR) \
+$(LIBDIR) : ; $(srcdir)/mkdirs.sh $@
 
 @MAKE_LOWER_TAGS@tags :
 @MAKE_LOWER_TAGS@	ctags $(SRCS) $(HDRS)

@@ -1,14 +1,13 @@
 /*
- *  $Id: buttons.c,v 1.69 2006/01/20 00:05:54 tom Exp $
+ *  $Id: buttons.c,v 1.76 2007/02/27 21:05:27 tom Exp $
  *
- *  buttons.c -- draw buttons, e.g., OK/Cancel
+ * buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2005,2006	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -24,6 +23,10 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+
+#ifdef NEED_WCHAR_H
+#include <wchar.h>
+#endif
 
 #define MIN_BUTTON (dialog_state.visit_items ? -1 : 0)
 
@@ -58,22 +61,23 @@ string_to_char(const char **stringp)
     int have = strlen(string);
     int check;
     int len;
-    wchar_t cmp2;
+    wchar_t cmp2[2];
     mbstate_t state;
 
     memset(&state, 0, sizeof(state));
     len = mbrlen(string, have, &state);
     if (len > 0 && len <= have) {
 	memset(&state, 0, sizeof(state));
-	check = mbrtowc(&cmp2, string, len, &state);
+	memset(cmp2, 0, sizeof(cmp2));
+	check = mbrtowc(cmp2, string, len, &state);
 	if (check <= 0)
-	    cmp2 = 0;
+	    cmp2[0] = 0;
 	*stringp += len;
     } else {
-	cmp2 = UCH(*string);
+	cmp2[0] = UCH(*string);
 	*stringp += 1;
     }
-    result = cmp2;
+    result = cmp2[0];
 #else
     const char *string = *stringp;
     result = UCH(*string);
@@ -86,7 +90,7 @@ string_to_char(const char **stringp)
  * Print a button
  */
 static void
-print_button(WINDOW *win, const char *label, int y, int x, int selected)
+print_button(WINDOW *win, char *label, int y, int x, int selected)
 {
     int i;
     int state = 0;
@@ -277,7 +281,7 @@ dlg_draw_buttons(WINDOW *win,
     for (n = 0; labels[n] != 0; ++n) {
 	need += strlen(labels[n]) + 1;
     }
-    buffer = malloc(need);
+    buffer = dlg_malloc(char, need);
     assert_ptr(buffer, "dlg_draw_buttons");
 
     /*

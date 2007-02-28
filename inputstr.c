@@ -1,14 +1,13 @@
 /*
- * $Id: inputstr.c,v 1.48 2005/12/20 00:22:36 tom Exp $
+ * $Id: inputstr.c,v 1.61 2007/02/27 20:51:12 tom Exp $
  *
- *  inputstr.c -- functions for input/display of a string
+ * inputstr.c -- functions for input/display of a string
  *
- * Copyright 2000-2004,2005	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,9 +36,21 @@
 #undef HAVE_TSEARCH
 #endif
 
+#ifdef NEED_WCHAR_H
+#include <wchar.h>
+#endif
+
+#if defined(USE_WIDE_CURSES)
+#define USE_CACHING 1
+#elif defined(HAVE_XDIALOG)
+#define USE_CACHING 1		/* editbox really needs caching! */
+#else
+#define USE_CACHING 0
+#endif
+
 typedef struct _cache {
     struct _cache *next;
-#ifdef USE_WIDE_CURSES
+#if USE_CACHING
     struct _cache *cache_at;	/* unique: associate caches by CACHE */
     const char *string_at;	/* unique: associate caches by char* */
 #endif
@@ -49,7 +60,7 @@ typedef struct _cache {
     int *list;			/* indices into the string */
 } CACHE;
 
-#ifdef USE_WIDE_CURSES
+#if USE_CACHING
 #define SAME_CACHE(c,s,l) (c->string != 0 && memcmp(c->string,s,l) == 0)
 
 static CACHE *cache_list;
@@ -125,7 +136,7 @@ make_cache(CACHE * cache, const char *string)
 {
     CACHE *p;
 
-    p = (CACHE *) calloc(1, sizeof(CACHE));
+    p = dlg_calloc(CACHE, 1);
     assert_ptr(p, "load_cache");
     p->next = cache_list;
     cache_list = p;
@@ -185,11 +196,11 @@ same_cache2(CACHE * cache, const char *string, unsigned i_len)
 	return TRUE;
     }
 
-    need = sizeof(int *) * (i_len + 1);
+    need = (i_len + 1);
     if (cache->list == 0) {
-	cache->list = malloc(need);
+	cache->list = dlg_malloc(int, need);
     } else if (cache->i_len < i_len) {
-	cache->list = realloc(cache->list, need);
+	cache->list = dlg_realloc(int, need, cache->list);
     }
     cache->i_len = i_len;
 
@@ -232,7 +243,7 @@ same_cache1(CACHE * cache, const char *string, unsigned i_len)
 
     return FALSE;
 }
-#endif /* USE_WIDE_CURSES */
+#endif /* USE_CACHING */
 
 /*
  * Counts the number of bytes that make up complete wide-characters, up to byte
@@ -297,7 +308,7 @@ dlg_count_wchars(const char *string)
 	    int part = dlg_count_wcbytes(cache.string, len);
 	    int save = cache.string[part];
 	    int code;
-	    wchar_t *temp = calloc(len + 1, sizeof(wchar_t));
+	    wchar_t *temp = dlg_calloc(wchar_t, len + 1);
 
 	    cache.string[part] = '\0';
 	    memset(&state, 0, sizeof(state));
@@ -359,7 +370,7 @@ dlg_index_wchars(const char *string)
  * Given the character-offset to find in the list, return the corresponding
  * array index.
  */
-static int
+int
 dlg_find_index(const int *list, int limit, int to_find)
 {
     int result;
@@ -392,35 +403,46 @@ dlg_index_columns(const char *string)
 	    mbstate_t state;
 
 	    for (inx = 0; inx < len; ++inx) {
-		wchar_t temp;
+		wchar_t temp[2];
 		int check;
 		int result;
 
-		memset(&state, 0, sizeof(state));
-		check = mbrtowc(&temp, string + inx_wchars[inx], num_bytes -
-				inx_wchars[inx], &state);
-		if (check <= 0)
-		    result = 1;
-		else
-		    result = wcwidth(temp);
-		if (result < 0) {
-		    cchar_t temp2;
-		    setcchar(&temp2, &temp, 0, 0, 0);
-		    result = wcslen(wunctrl(&temp2));
+		if (string[inx_wchars[inx]] == TAB) {
+		    result = ((cache.list[inx] | 7) + 1) - cache.list[inx];
+		} else {
+		    memset(&state, 0, sizeof(state));
+		    memset(temp, 0, sizeof(temp));
+		    check = mbrtowc(temp,
+				    string + inx_wchars[inx],
+				    num_bytes - inx_wchars[inx], &state);
+		    if (check <= 0) {
+			result = 1;
+		    } else {
+			result = wcwidth(temp[0]);
+		    }
+		    if (result < 0) {
+			cchar_t temp2;
+			setcchar(&temp2, temp, 0, 0, 0);
+			result = wcslen(wunctrl(&temp2));
+		    }
 		}
 		cache.list[inx + 1] = result;
-		if (inx > 0)
+		if (inx != 0)
 		    cache.list[inx + 1] += cache.list[inx];
 	    }
 	} else
 #endif /* USE_WIDE_CURSES */
 	{
 	    for (inx = 0; inx < len; ++inx) {
-		cache.list[inx + 1] = (isprint(UCH(string[inx]))
-				       ? 1
-				       : strlen(unctrl(UCH(string[inx]))));
-		if (string[inx] == '\n')
+		int ch = UCH(string[inx]);
+
+		if (ch == TAB)
+		    cache.list[inx + 1] =
+			((cache.list[inx] | 7) + 1) - cache.list[inx];
+		else if (isprint(ch))
 		    cache.list[inx + 1] = 1;
+		else
+		    cache.list[inx + 1] = strlen(unctrl(ch));
 		if (inx != 0)
 		    cache.list[inx + 1] += cache.list[inx];
 	    }
@@ -476,11 +498,8 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
     int limit = dlg_count_wchars(string);
     const int *indx = dlg_index_wchars(string);
     int offset = dlg_find_index(indx, limit, *chr_offset);
-    int max_len = MAX_LEN;
+    int max_len = dlg_max_input(MAX_LEN);
     bool edit = TRUE;
-
-    if (dialog_vars.max_input != 0 && dialog_vars.max_input < MAX_LEN)
-	max_len = dialog_vars.max_input;
 
     /* transform editing characters into equivalent function-keys */
     if (!fkey) {
@@ -565,6 +584,8 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	    edit = 0;
 	    break;
 #endif
+	case DLGK_GRID_UP:
+	case DLGK_GRID_DOWN:
 	case DLGK_FIELD_NEXT:
 	case DLGK_FIELD_PREV:
 	    edit = 0;
@@ -574,7 +595,7 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	    break;
 	}
     } else {
-	if (key == ESC || key == TAB) {
+	if (key == ESC) {
 	    edit = 0;
 	} else {
 	    if (len < max_len) {
@@ -674,10 +695,16 @@ dlg_show_string(WINDOW *win,
 	    int check = cols[i + 1] - cols[scrollamt];
 	    if (check <= x_last) {
 		for (j = indx[i]; j < indx[i + 1]; ++j) {
-		    if (hidden && dialog_vars.insecure)
+		    int ch = UCH(string[j]);
+		    if (hidden && dialog_vars.insecure) {
 			waddch(win, '*');
-		    else
-			waddch(win, CharOf(string[j]));
+		    } else if (ch == TAB) {
+			int count = cols[i + 1] - cols[i];
+			while (--count >= 0)
+			    waddch(win, ' ');
+		    } else {
+			waddch(win, ch);
+		    }
 		}
 		k = check;
 	    } else {
@@ -695,6 +722,7 @@ dlg_show_string(WINDOW *win,
 void
 _dlg_inputstr_leaks(void)
 {
+#if USE_CACHING
     while (cache_list != 0) {
 	CACHE *next = cache_list->next;
 #ifdef HAVE_TSEARCH
@@ -707,5 +735,6 @@ _dlg_inputstr_leaks(void)
 	free(cache_list);
 	cache_list = next;
     }
+#endif /* USE_CACHING */
 }
-#endif
+#endif /* NO_LEAKS */
