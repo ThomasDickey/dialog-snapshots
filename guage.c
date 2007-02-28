@@ -1,14 +1,13 @@
 /*
- *  $Id: guage.c,v 1.37 2006/01/02 02:00:02 tom Exp $
+ *  $Id: guage.c,v 1.40 2007/02/24 00:06:25 tom Exp $
  *
- *  guage.c -- implements the gauge dialog
+ * guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2005,2006	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -228,7 +227,10 @@ dialog_gauge(const char *title,
 #ifdef KEY_RESIZE
     nodelay(stdscr, FALSE);
 #endif
+
     fclose(dialog_state.pipe_input);
+    dialog_state.pipe_input = 0;
+
     curs_set(1);
     dlg_del_window(dialog);
     if (prompt != prompt_buf)

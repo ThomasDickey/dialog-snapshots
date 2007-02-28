@@ -1,14 +1,13 @@
 /*
- * $Id: calendar.c,v 1.49 2006/01/27 01:51:25 tom Exp $
+ * $Id: calendar.c,v 1.52 2007/02/18 20:20:10 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- * Copyright 2001-2005,2006	Thomas E. Dickey
+ * Copyright 2001-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -220,7 +219,7 @@ draw_day(BOX * data, struct tm *current)
 	wmove(data->window, save_y, save_x);
     }
     dlg_draw_arrows(data->parent, TRUE, TRUE,
-		    data->x + 5,
+		    data->x + ARROWS_COL,
 		    data->y - 1,
 		    data->y + data->height);
 
@@ -390,7 +389,7 @@ dialog_calendar(const char *title,
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = dlg_defaultno_button();
+    int state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
     int longest;

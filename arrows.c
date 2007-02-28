@@ -1,14 +1,13 @@
 /*
- *  $Id: arrows.c,v 1.17 2005/11/28 00:21:25 tom Exp $
+ *  $Id: arrows.c,v 1.19 2007/02/19 01:22:19 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- * Copyright 2000-2004,2005   Thomas E. Dickey
+ * Copyright 2000-2006,2007   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,7 +26,7 @@
 #ifdef USE_WIDE_CURSES
 #define add_acs(win, code) wadd_wch(win, W ## code)
 #else
-#define add_acs(win, code) waddch(win, code)
+#define add_acs(win, code) waddch(win, dlg_boxchar(code))
 #endif
 
 #ifdef HAVE_COLOR
@@ -72,7 +71,7 @@ dlg_draw_arrows2(WINDOW *dialog,
 	(void) waddstr(dialog, "(-)");
     } else {
 	wattrset(dialog, attr);
-	(void) whline(dialog, ACS_HLINE, 4);
+	(void) whline(dialog, dlg_boxchar(ACS_HLINE), 4);
     }
     mouse_mkbutton(top, x - 1, 6, KEY_PPAGE);
 
@@ -83,7 +82,7 @@ dlg_draw_arrows2(WINDOW *dialog,
 	(void) waddstr(dialog, "(+)");
     } else {
 	wattrset(dialog, borderattr);
-	(void) whline(dialog, ACS_HLINE, 4);
+	(void) whline(dialog, dlg_boxchar(ACS_HLINE), 4);
     }
     mouse_mkbutton(bottom, x - 1, 6, KEY_NPAGE);
 

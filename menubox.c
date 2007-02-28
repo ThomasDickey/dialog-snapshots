@@ -1,14 +1,13 @@
 /*
- *  $Id: menubox.c,v 1.105 2006/02/22 01:14:57 tom Exp $
+ *  $Id: menubox.c,v 1.110 2007/02/22 22:02:13 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2005,2006	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -190,12 +189,9 @@ input_menu_edit(WINDOW *win,
     bool is_inputmenu = TRUE;
     int y = ItemToRow(choice);
     int code = TRUE;
-    int max_len = MAX(strlen(items->text) + 1, MAX_LEN);
+    int max_len = dlg_max_input(MAX(strlen(items->text) + 1, MAX_LEN));
 
-    if (dialog_vars.max_input != 0 && dialog_vars.max_input < MAX_LEN)
-	max_len = dialog_vars.max_input;
-
-    result = malloc(max_len);
+    result = dlg_malloc(char, max_len);
     assert_ptr(result, "input_menu_edit");
 
     /* original item is used to initialize the input string. */
@@ -770,13 +766,14 @@ dialog_menu(const char *title,
     int i;
     DIALOG_LISTITEM *listitems;
 
-    listitems = calloc(item_no + 1, sizeof(*listitems));
+    listitems = dlg_calloc(DIALOG_LISTITEM, item_no + 1);
     assert_ptr(listitems, "dialog_menu");
 
     for (i = 0; i < item_no; ++i) {
 	listitems[i].name = ItemName(i);
 	listitems[i].text = ItemText(i);
-	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) : "";
+	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) :
+	    dlg_strempty();
     }
 
     result = dlg_menu(title,

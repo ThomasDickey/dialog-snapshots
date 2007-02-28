@@ -1,8 +1,60 @@
--- $Id: CHANGES,v 1.183 2006/02/22 01:21:53 tom Exp $
+-- $Id: CHANGES,v 1.207 2007/02/25 21:02:18 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/02/27
+	+ add dialog-config script, which provides applications with compile-
+	  and link-information for using the dialog library.
+	+ move calls to dlg_trim_string() out of loop in dialog.c, so each
+	  string is trimmed once (report by Ivanov Makcim).
+	+ modify textbox.c to allow resizing while the search box is presented.
+	  This relies on bug-fix in ncurses 5.6 20070224.
+	+ use dgettext() rather than gettext() to allow libdialog to use the
+	  messages installed for dialog (patch by Vajna Miklos).
+	+ modify inputbox to position the cursor initially at the end of any
+	  initial-text (request by Klaus Knopper).
+	+ add configure --with-valgrind for testing.
+	+ add --trace option, for debugging.
+	+ add --ascii-lines and --no-lines options to control the way the
+	  line-drawing characters are rendered (request by Klaus Knopper).
+	+ add --keep-tite option, to override suppression of smcup/rmcup
+	  (termcap ti/te) strings which would switch to xterm's alternate
+	  screen (Debian #380665).
+	+ modify fselect/dselect to use space-character as a completion
+	  operator like tab in shells (patch by Yoram Bar Haim).
+	+ remove a redundant chunk from checklist.c which reported status a
+	  second time if the help-button was pressed but no item-help option
+	  was in effect (Andre C Barros).
+	+ fix return-status from "dialog --pause" (Debian #409254).
+	+ add --mixedform and --mixedgauge dialogs based on patch from
+	  Kiran Cherupally.
+	+ add some notes on compatibility to the manpage.
+	+ add editbox dialog (compatible with Xdialog, Debian #368478).
+	+ add dselect dialog (compatible with Xdialog).
+	+ remove an incorrect initialization of .text_flen from 2005/12/07
+	  changes, which made all fields in a form editable (Debian #404045).
+	+ report error and exit if a filename given for the --file option
+	  cannot be opened (report by "Dog Walker").
+	+ make --program-prefix, etc., work in configure script, e.g., to make
+	  program install as "cdialog".  This does not alter the library name.
+	+ add install-bin, install-man (and uninstall) rules to makefile.
+	+ updates for configure script macros (originally vile, lynx, xterm): 
+	  AM_PATH_PROG_WITH_TEST, AM_WITH_NLS, CF_CURSES_CPPFLAGS,
+	  CF_CURSES_LIBS, CF_INCLUDE_DIRS, CF_LARGEFILE, CF_MAKEFLAGS,
+	  CF_PATH_SYNTAX, CF_SUBDIR_PATH, CF_SUBST, CF_WITH_DBMALLOC,
+	  CF_WITH_DMALLOC, CF_WITH_LIBTOOL and CF_XOPEN_SOURCE.
+	+ updated config.guess, config.sub
+	> adapted fixes from SuSE package (Werner Fink):
+	  + add some limit-checks in dlg_draw_shadow().
+	  + make shadows resizable, using new dlg_move_window() in msgbox.c
+	    and yesno.c
+	  + add dialog_state.input, use this in end_dialog() to decide whether
+	    to close pipe inputs and call _exit(), or simply call exit().
+	  + modify dlg_ctl_size() to check if the reason for failure is because
+	    shadows were used; retry in that case without shadows.
+	  + add signal catcher for SIGSEGV.
 
 2006/02/21
 	+ fix logic in split-out dlg_menu() to separate inputmenu and menu
@@ -292,8 +344,8 @@ to it:
 	  Also improved the logic for choosing a background color when the
 	  foreground and background are the same (report by Erika Pacholleck).
 	+ update configure script macro CF_XOPEN_SOURCE, ensuring that the
-	  _POSIX_C_SOURCE value is defined with a specific value (from a bug
-	  report for lynx).
+	  _POSIX_C_SOURCE value is defined with a specific value (bug report
+	  originally for lynx).
 	+ fix configure script so that po/makefile is generated properly when
 	  the configure --srcdir --enable-nls options are used.
 	+ modify makefile.in to allow build/install from another directory,
@@ -341,7 +393,8 @@ to it:
 	+ initialize fkey variable in menubox.c and textbox.c (cf: 2003/07/12).
 
 2004/07/21 - release 1.0
-	+ minor updates for configure script (CF_XOPEN_SOURCE, CF_NCURSES_LIBS)
+	+ minor updates for configure script, i.e., CF_XOPEN_SOURCE,
+	  CF_NCURSES_LIBS macros.
 	+ update config.guess, config.sub
 	+ add nl.po (Jacques Weewer).
 
@@ -432,7 +485,7 @@ to it:
 
 2003/11/26
 	+ add samples/sourcemage.rc, for comparison with slackware.rc
-	+ add "--insecure" option (request by Sean Mathews DrWho@f34r.com).
+	+ add "--insecure" option (request by Sean Mathews (DrWho@f34r.com)).
 	+ make "--defaultno" option apply to widgets which use OK/Cancel
 	  buttons as well (Debian #209030).
 	+ improve documentation of exit-codes for each widget in the manpage
@@ -568,7 +621,7 @@ to it:
 	+ modify sample scripts to use consistent definition of $DIALOG
 	  (Debian #205508).
 	+ add UTF-8 examples inputbox6-utf8, inputbox6-utf8 (from Tomohiro
-	  KUBOTA as testcases for Debian #195674).
+	  Kubota, Debian #195674).
 	+ modify print_line() to work with wide-characters, e.g., so it handles
 	  wrapping for double-width characters.
 	+ cache results from multibyte character indices, speeds up cursor
@@ -584,7 +637,8 @@ to it:
 	  by Javier Kohen).
 	+ modify initialization between widgets to retain the values for the
 	  --aspect, --separate-widget and --tab-len options.
-	+ add --separator as an alias for --separate-widget (Xdialog).
+	+ add --separator as an alias for --separate-widget (compatible with
+	  Xdialog).
 	+ correct handling of Xdialog's --icon and --wmclass options, whose
 	  parameter was not ignored.
 	+ correct logic for --separate-widget so its string is written before
@@ -683,8 +737,8 @@ to it:
 2002/06/22
 	+ improve mouse handling, e.g., for up/down scrolling in calendar,
 	  checklist, etc.
-	+ adapted patch by Tobias C Rittweiler to add --extra-button and
-	  --extra-label options.
+	+ add --extra-button and --extra-label options (adapted from patch
+	  by Tobias C Rittweiler).
 	+ correct displayed cursor position in inputbox when returning to the
 	  input area after traversing the buttons with tabs, etc.
 	+ add left/right arrows for traversal in calendar and timebox dialogs.
@@ -712,11 +766,11 @@ to it:
 	+ bump package version to 0.9b (with patch-date, as usual).
 	+ add --exit-label option (request by Roberto Simoni).
 	+ updated de.po to correct translation for "Cancel" (from Michael
-	  Piefel fixes Debian #146402).
+	  Piefel, Debian #146402).
 	+ use definitions from autoconf macro AC_HEADER_TIME to ensure that
 	  time() is properly prototyped.
-	+ update pl.po, adding translation for "Help" (patch by Swiergot
-	  <swiergot@hacking.pl>).
+	+ update pl.po, adding translation for "Help" (patch by Jaroslaw
+	  Swierczynski <swiergot@hacking.pl>).
 	+ update COPYING file, to reflect address change of FSF (reported by
 	  Santiago Vila).
 	+ update some configuration script macros:  CF_CHECK_CACHE,
@@ -754,8 +808,7 @@ to it:
 	  and other widgets which allow the user to edit a string.
 
 2001/12/02
-	+ add --ok-label and --cancel-label options (request by Kyle Sallee
-	  independent of Xdialog).
+	+ add --ok-label and --cancel-label options (request by Kyle Sallee).
 	+ correct usage message for --fselect option (reported by Patrick J
 	  Volkerding).
 	+ add samples/debian.rc, for comparison with slackware.rc
@@ -777,7 +830,7 @@ to it:
 	  rule to not strip the installed executable (based on discussion with
 	  Santiago Vila).
 	+ initialize my_output variable if user cannot open /dev/tty, e.g., if
-	  su'd to another user (patch by Richard Braakman <dark@ssh.com> Debian
+	  su'd to another user (patch by Richard Braakman (<dark@ssh.com>), Debian
 	  #117177).
 	+ add configure option --with-ncursesw, to allow configure/build with
 	  wide-character version of ncurses.
@@ -790,12 +843,13 @@ to it:
 	  same as msgbox1, but using --trim (cf: change for Debian #102942).
 	+ minor correction to attributes for buttons.c to use active_attr on
 	  the right-side of a button.
-	+ add a sample dialog rc-file slackware.rc based on diffs from
+	+ add a sample dialog rc-file slackware.rc based on diffs in hdasetup
+	  package at
 		http://ftp1.sourceforge.net/pub/mirrors/slackware/slackware/source/a/hdsetup/
 	  (discussion with Frederic L W Meunier).
 	+ modify dialog.pl to avoid using a statically-named tempfile, allowing
-	  multiple processes to use this script (patch by <euclid80@yahoo.com>,
-	  Debian #110609).
+	  multiple processes to use this script (patch by James Ranson
+	  (<euclid80@yahoo.com>), Debian #110609).
 	+ correct fprintf() call in j_menu() function, i.e., "--menu" option,
 	  which did not guard against expanding '%' embedded in the parameters
 	  (Stavros Chatzistefanidis <sxatz@yahoo.com>).
@@ -804,7 +858,7 @@ to it:
 	+ modify to allow scripts to alter the exit codes, mainly to
 	  distinguish ESC and ERROR exits.  This is done by setting a shell
 	  variable such as DIALOG_ESC to a new value (request by Petr Vandrovec
-	  <vandrove@vc.cvut.cz>, Debian #99264)
+	  (<vandrove@vc.cvut.cz>), Debian #99264)
 
 2001/08/27
 	+ use VPATH in makefile to support build with configure --srcdir, if
@@ -978,9 +1032,9 @@ to it:
 	  justify_text(), which now does text flow even when the string
 	  contains newlines (fixes Debian #77199).
 	+ improve create_lock() function using open() with O_EXCL rather than
-	  fopen() (patch by Matt Kraai <kraai@debian.org> fixes Debian #78951).
+	  fopen() (patch by Matt Kraai (<kraai@debian.org>), Debian #78951).
 	+ correct description of --fselect in man page (patch by Tomas Pospisek
-	  <tpo@spin.ch> fixes Debian #77200).
+	  (<tpo@spin.ch>), Debian #77200).
 	+ add --no-cancel as alias for --nocancel for compatibility with
 	  Xdialog (report by Luis E Limon <luisl@abriasoft.com>).
 

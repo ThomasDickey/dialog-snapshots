@@ -1,14 +1,13 @@
 /*
- *  $Id: version.c,v 1.4 2005/11/27 15:11:49 tom Exp $
+ *  $Id: version.c,v 1.5 2006/12/27 00:50:24 tom Exp $
  *
  *  version.c -- dialog's version string
  *
- *  Copyright 2003,2005	Thomas E. Dickey
+ *  Copyright 2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of

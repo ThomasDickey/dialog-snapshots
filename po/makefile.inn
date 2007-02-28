@@ -106,7 +106,7 @@ $(srcdir)/stamp-cat-id: $(PACKAGE).pot
 	cd $(srcdir) && rm -f stamp-cat-id && echo timestamp > stamp-cat-id
 
 
-install: install-exec install-data
+install install-full: install-exec install-data
 install-exec:
 install-data: install-data-@USE_NLS@
 install-data-no: all

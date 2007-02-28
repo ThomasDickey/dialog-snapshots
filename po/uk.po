@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: uk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-01-19 20:24-0500\n"
+"POT-Creation-Date: 2007-02-25 16:06-0500\n"
 "PO-Revision-Date: 2004-02-12 20:17+0200\n"
 "Last-Translator: Eugeniy Meshcheryakov <eugen@univ.kiev.ua>\n"
 "Language-Team: Ukrainian\n"
@@ -45,28 +45,69 @@ msgid "Help"
 msgstr "Допомога"
 
 #. Headline "Month"
-#: calendar.c:274
+#: calendar.c:273
 msgid "Month"
 msgstr "Місяць"
 
 #. Headline "Year"
-#: calendar.c:294
+#: calendar.c:293
 msgid "Year"
 msgstr "Рік"
 
-#: dialog.c:696
+#: dialog.c:727
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: fselect.c:451
+#: fselect.c:548
 msgid "Directories"
 msgstr "Каталоги"
 
-#: fselect.c:452
+#: fselect.c:549
 msgid "Files"
 msgstr "Файли"
 
-#: textbox.c:483
+#: mixedgauge.c:58
+msgid "Succeeded"
+msgstr ""
+
+#: mixedgauge.c:61
+#, fuzzy
+msgid "Failed"
+msgstr "Файли"
+
+#: mixedgauge.c:64
+msgid "Passed"
+msgstr ""
+
+#: mixedgauge.c:67
+msgid "Completed"
+msgstr ""
+
+#: mixedgauge.c:70
+msgid "Checked"
+msgstr ""
+
+#: mixedgauge.c:73
+msgid "Done"
+msgstr ""
+
+#: mixedgauge.c:76
+msgid "Skipped"
+msgstr ""
+
+#: mixedgauge.c:79
+msgid "In Progress"
+msgstr ""
+
+#: mixedgauge.c:85
+msgid "N/A"
+msgstr ""
+
+#: mixedgauge.c:193
+msgid "Overall Progress"
+msgstr ""
+
+#: textbox.c:489
 #, fuzzy
 msgid "Search"
 msgstr "Search"

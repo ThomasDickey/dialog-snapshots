@@ -1,14 +1,13 @@
 /*
- *  $Id: msgbox.c,v 1.53 2005/12/07 00:01:04 tom Exp $
+ *  $Id: msgbox.c,v 1.57 2007/02/23 21:39:34 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -83,7 +82,7 @@ show_message(WINDOW *dialog,
 
 	/* if the text is incomplete, or we have scrolled, show the percentage */
 	if (y > 0 && wide > 4) {
-	    percent = ((page + offset) * 100.0 / y);
+	    percent = (int) ((page + offset) * 100.0 / y);
 	    if (percent < 0)
 		percent = 0;
 	    if (percent > 100)
@@ -95,7 +94,7 @@ show_message(WINDOW *dialog,
 		(void) waddstr(dialog, buffer);
 		if ((len = strlen(buffer)) < 4) {
 		    wattrset(dialog, border_attr);
-		    whline(dialog, ACS_HLINE, 4 - len);
+		    whline(dialog, dlg_boxchar(ACS_HLINE), 4 - len);
 		}
 	    }
 	}
@@ -174,11 +173,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     y = dlg_box_y_ordinate(height);
 
 #ifdef KEY_RESIZE
-    if (dialog != 0) {
-	(void) wresize(dialog, height, width);
-	(void) mvwin(dialog, y, x);
-	(void) refresh();
-    } else
+    if (dialog != 0)
+	dlg_move_window(dialog, height, width, y, x);
+    else
 #endif
     {
 	dialog = dlg_new_window(height, width, y, x);

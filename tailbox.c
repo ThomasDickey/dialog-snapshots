@@ -1,14 +1,13 @@
 /*
- *  $Id: tailbox.c,v 1.48 2005/12/07 00:39:45 tom Exp $
+ *  $Id: tailbox.c,v 1.51 2007/02/22 22:36:02 tom Exp $
  *
- *  tailbox.c -- implements the tail box
+ * tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -317,7 +316,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     (void) wmove(dialog, thigh, (MARGIN + 1));
     (void) wnoutrefresh(dialog);
 
-    obj = (MY_OBJ *) calloc(1, sizeof(MY_OBJ));
+    obj = dlg_calloc(MY_OBJ, 1);
     assert_ptr(obj, "dialog_tailbox");
 
     obj->obj.input = fd;

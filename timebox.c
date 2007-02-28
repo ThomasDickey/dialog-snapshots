@@ -1,14 +1,13 @@
 /*
- * $Id: timebox.c,v 1.34 2006/01/27 01:29:50 tom Exp $
+ * $Id: timebox.c,v 1.36 2007/02/18 20:20:23 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
  * Copyright 2001-2005,2006   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -169,7 +168,7 @@ dialog_timebox(const char *title,
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    STATES state = dlg_defaultno_button();
+    int state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
     char buffer[MAX_LEN];

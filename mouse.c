@@ -1,14 +1,13 @@
 /*
- * $Id: mouse.c,v 1.15 2005/11/28 00:19:09 tom Exp $
+ * $Id: mouse.c,v 1.18 2007/02/22 21:51:38 tom Exp $
  *
  * mouse.c -- mouse support for dialog
  *
- * Copyright 2002-2003,2005	Thomas E. Dickey
+ * Copyright 2002-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -81,7 +80,7 @@ dlg_mouse_mkregion(int y, int x, int height, int width, int code)
     mseRegion *butPtr;
 
     if ((butPtr = find_region_by_code(code)) == 0) {
-	butPtr = malloc(sizeof(mseRegion));
+	butPtr = dlg_malloc(mseRegion, 1);
 	assert_ptr(butPtr, "dlg_mouse_mkregion");
 	butPtr->next = regionList;
 	regionList = butPtr;

@@ -1,14 +1,13 @@
 /*
- *  $Id: dialog.h,v 1.167 2006/01/18 22:52:45 tom Exp $
+ *  $Id: dialog.h,v 1.192 2007/02/23 22:47:13 tom Exp $
  *
- *  dialog.h -- common declarations for all dialog modules
+ * dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -66,7 +65,7 @@
 #ifdef ENABLE_NLS
 #include <libintl.h>
 #include <langinfo.h>
-#define _(s) gettext(s)
+#define _(s) dgettext(PACKAGE, s)
 #else
 #undef _
 #define _(s) s
@@ -115,19 +114,25 @@
 #define DLG_EXIT_EXTRA		3
 #define DLG_EXIT_ITEM_HELP	4	/* actually DLG_EXIT_HELP */
 
-#define CHR_BACKSPACE	8
-#define CHR_REPAINT	12	/* control/L */
-#define CHR_DELETE	127
-#define CHR_NEXT	('n' & 0x1f)
-#define CHR_PREVIOUS	('p' & 0x1f)
+#define DLG_CTRL(n)	((n) & 0x1f)	/* CTRL is preferred, but conflicts */
 
-#define ESC 27
-#define TAB 9
+#define CHR_BACKSPACE	DLG_CTRL('H')
+#define CHR_REPAINT	DLG_CTRL('L')
+#define CHR_KILL	DLG_CTRL('U')
+#define CHR_LITERAL	DLG_CTRL('V')
+#define CHR_DELETE	127
+#define CHR_NEXT	DLG_CTRL('N')
+#define CHR_PREVIOUS	DLG_CTRL('P')
+#define CHR_TRACE	DLG_CTRL('T')
+
+#define ESC		27
+#define TAB		DLG_CTRL('I')
 
 #define MARGIN 1
 #define GUTTER 2
 #define SHADOW_ROWS 1
 #define SHADOW_COLS 2
+#define ARROWS_COL  5
 
 #define MAX_LEN 2048
 #define BUF_SIZE (10*1024)
@@ -242,7 +247,7 @@ extern int dlg_getpary(WINDOW * /*win*/);
  * This is a list of "old" names, which should be helpful in updating
  * applications that use libdialog.  Starting with 2003/11/26, all exported
  * symbols from libdialog have "dlg_" prefix, or "dialog_" prefix or "_dialog"
- * suffix.
+ * suffix (or suffix "_dialog", e.g., init_dialog).
  */
 #ifdef __DIALOG_OLD_NAMES__
 #define color_table                       dlg_color_table
@@ -319,6 +324,7 @@ extern int dlg_getpary(WINDOW * /*win*/);
 #define itemhelp_attr                 DIALOG_ATR(29)
 #define form_active_text_attr         DIALOG_ATR(30)
 #define form_text_attr                DIALOG_ATR(31)
+#define form_item_readonly_attr       DIALOG_ATR(32)
 
 #define DLGK_max (KEY_MAX + 256)
 
@@ -359,6 +365,11 @@ typedef struct {
     int aspect_ratio;		/* option "--aspect ratio" */
     int output_count;		/* # of widgets that may have done output */
     int tab_len;		/* option "--tab-len n" */
+    /* 1.0-20070227 */
+    FILE *input;		/* option "--input-fd fd" */
+#ifdef HAVE_DLG_TRACE
+    FILE *trace_output;		/* option "--trace file" */
+#endif
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;
@@ -410,12 +421,18 @@ typedef struct {
     unsigned input_length;	/* nonzero if input_result is allocated */
     /* 1.0-20051207 */
     unsigned formitem_type;	/* DIALOG_FORMITEM.type in dialog_form() */
+    /* 1.0-20070227 */
+    bool keep_tite;		/* option "--keep-tite" */
+    bool ascii_lines;		/* option "--ascii-lines" */
+    bool no_lines;		/* option "--no-lines" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
 #define CHECKBOX_TAGS           (dialog_vars.item_help ? 4 : 3)
 #define MENUBOX_TAGS            (dialog_vars.item_help ? 3 : 2)
 #define FORMBOX_TAGS            (dialog_vars.item_help ? 9 : 8)
+#define MIXEDFORM_TAGS          (FORMBOX_TAGS + 1)
+#define MIXEDGAUGE_TAGS         2
 
 extern DIALOG_VARS dialog_vars;
 
@@ -426,6 +443,10 @@ extern DIALOG_VARS dialog_vars;
 #define UCH(ch)			((unsigned char)(ch))
 
 #define assert_ptr(ptr,msg) if ((ptr) == 0) dlg_exiterr("cannot allocate memory in " msg)
+
+#define dlg_malloc(t,n)    (t *) malloc((n) * sizeof(t))
+#define dlg_calloc(t,n)    (t *) calloc((n), sizeof(t))
+#define dlg_realloc(t,n,p) (t *) realloc((p), (n) * sizeof(t))
 
 /*
  * Table for attribute- and color-values.
@@ -453,11 +474,15 @@ extern char *dialog_version(void);
 /* widgets, each in separate files */
 extern int dialog_calendar(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*day*/, int /*month*/, int /*year*/);
 extern int dialog_checklist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/, int /*flag*/);
+extern int dialog_dselect(const char * /*title*/, const char * /*path*/, int /*height*/, int /*width*/);
+extern int dialog_editbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/);
 extern int dialog_form(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*form_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_fselect(const char * /*title*/, const char * /*path*/, int /*height*/, int /*width*/);
 extern int dialog_gauge(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*percent*/);
 extern int dialog_inputbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, const char * /*init*/, const int /*password*/);
 extern int dialog_menu(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*menu_height*/, int /*item_no*/, char ** /*items*/);
+extern int dialog_mixedform(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*form_height*/, int /*item_no*/, char ** /*items*/);
+extern int dialog_mixedgauge(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*percent*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_msgbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*pauseopt*/);
 extern int dialog_pause(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*seconds*/);
 extern int dialog_progressbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/);
@@ -523,8 +548,12 @@ extern void dlg_button_layout(const char ** /*labels*/, int * /*limit*/);
 extern void dlg_button_sizes(const char ** /*labels*/, int /*vertical*/, int * /*longest*/, int * /*length*/);
 extern void dlg_draw_buttons(WINDOW * /*win*/, int /*y*/, int /*x*/, const char ** /*labels*/, int /*selected*/, int /*vertical*/, int /*limit*/);
 
+/* editbox.c */
+extern int dlg_editbox(const char */*title*/, char ***/*list*/, int */*rows*/, int /*height*/, int /*width*/);
+
 /* formbox.c */
 extern int dlg_default_formitem(DIALOG_FORMITEM * /*items*/);
+extern int dlg_ordinate(const char * /*s*/);
 extern void dlg_free_formitems(DIALOG_FORMITEM * /*items*/);
 
 /* inputstr.c */
@@ -534,6 +563,7 @@ extern const int * dlg_index_wchars(const char * /*string*/);
 extern int dlg_count_columns(const char * /*string*/);
 extern int dlg_count_wchars(const char * /*string*/);
 extern int dlg_edit_offset(char * /*string*/, int /*offset*/, int /*x_last*/);
+extern int dlg_find_index(const int * /*list*/, int  /*limit*/, int /*to_find*/);
 extern int dlg_limit_columns(const char * /*string*/, int /*limit*/, int /*offset*/);
 extern void dlg_show_string(WINDOW * /*win*/, const char * /*string*/, int /*offset*/, chtype /*attr*/, int /*y_base*/, int /*x_base*/, int /*x_last*/, bool /*hidden*/, bool /*force*/);
 
@@ -557,6 +587,10 @@ extern WINDOW * dlg_new_window(int /*height*/, int /*width*/, int /*y*/, int /*x
 extern WINDOW * dlg_sub_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern char * dlg_set_result(const char * /*string*/);
 extern char * dlg_strclone(const char * /*cprompt*/);
+extern char * dlg_strempty(void);
+extern chtype dlg_asciibox(chtype /*ch*/);
+extern chtype dlg_boxchar(chtype /*ch*/);
+extern const char * dlg_print_line(WINDOW */*win*/, chtype */*attr*/, const char */*prompt*/, int /*lm*/, int /*rm*/, int */*x*/);
 extern int dlg_box_x_ordinate(int /*width*/);
 extern int dlg_box_y_ordinate(int /*height*/);
 extern int dlg_calc_list_width(int /*item_no*/, DIALOG_LISTITEM * /*items*/);
@@ -564,8 +598,9 @@ extern int dlg_calc_listw(int /*item_no*/, char ** /*items*/, int /*group*/);
 extern int dlg_default_item(char ** /*items*/, int /*llen*/);
 extern int dlg_default_listitem(DIALOG_LISTITEM * /*items*/);
 extern int dlg_defaultno_button(void);
+extern int dlg_max_input(int /*max_len*/);
 extern void dlg_add_quoted(char * /*string*/);
-extern void dlg_add_result(char * /*string*/);
+extern void dlg_add_result(const char * /*string*/);
 extern void dlg_attr_clear(WINDOW * /*win*/, int /*height*/, int /*width*/, chtype /*attr*/);
 extern void dlg_auto_size(const char * /*title*/, const char * /*prompt*/, int * /*height*/, int * /*width*/, int /*boxlines*/, int /*mincols*/);
 extern void dlg_auto_sizefile(const char * /*title*/, const char * /*file*/, int * /*height*/, int * /*width*/, int /*boxlines*/, int /*mincols*/);
@@ -591,7 +626,7 @@ extern void dlg_trim_string(char * /*src*/);
 extern void end_dialog(void);
 extern void init_dialog(FILE * /*input*/, FILE * /*output*/);
 
-extern void dlg_exiterr(const char *, ...)
+extern void dlg_exiterr(const char *, ...) GCC_NORETURN
 #if defined(__GNUC__) && !defined(printf)
 __attribute__((format(printf,1,2)))
 #endif
@@ -608,6 +643,20 @@ extern void dlg_draw_shadow(WINDOW * /*win*/, int /*height*/, int /*width*/, int
 #define dlg_strcmp(a,b) strcasecmp(a,b)
 #else
 extern int dlg_strcmp(const char * /*a*/, const char * /*b*/);
+#endif
+
+#ifdef HAVE_DLG_TRACE
+extern void dlg_trace_win(WINDOW * /*win*/);
+extern void dlg_trace_chr(int /*ch*/, int /*fkey*/);
+extern void dlg_trace(const char * /*fname*/);
+#else
+#define dlg_trace_win(win) /* nothing */
+#define dlg_trace_chr(ch,fkey) /* nothing */
+#define dlg_trace(fname) /* nothing */
+#endif
+
+#ifdef KEY_RESIZE
+extern void dlg_move_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 #endif
 
 /*
@@ -657,7 +706,6 @@ extern int dlg_mouse_wgetch_nowait (WINDOW * /*win*/, int * /*fkey*/);
  *
  * Mouse-generated keys are the following:
  *   -- the first 32 are used as numbers, in addition to '0'-'9'
- *   -- the lowercase are used to signal mouse-enter events (M_EVENT + 'o')
  *   -- uppercase chars are used to invoke the button (M_EVENT + 'O')
  */
 #define M_EVENT (DLGK_max + 1)

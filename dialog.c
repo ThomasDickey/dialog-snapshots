@@ -1,14 +1,13 @@
 /*
- * $Id: dialog.c,v 1.142 2006/01/18 22:51:37 tom Exp $
+ * $Id: dialog.c,v 1.163 2007/02/25 19:06:11 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2004,2005	Thomas E. Dickey
+ *  Copyright 2000-2006,2007	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -42,6 +41,7 @@ typedef enum {
     o_unknown = 0
     ,o_allow_close
     ,o_and_widget
+    ,o_ascii_lines
     ,o_aspect
     ,o_auto_placement
     ,o_backtitle
@@ -57,6 +57,8 @@ typedef enum {
     ,o_create_rc
     ,o_default_item
     ,o_defaultno
+    ,o_dselect
+    ,o_editbox
     ,o_exit_label
     ,o_extra_button
     ,o_extra_label
@@ -78,15 +80,19 @@ typedef enum {
     ,o_insecure
     ,o_item_help
     ,o_keep_colors
+    ,o_keep_tite
     ,o_keep_window
     ,o_max_input
     ,o_menu
+    ,o_mixedform
+    ,o_mixedgauge
     ,o_msgbox
     ,o_no_close
     ,o_no_collapse
     ,o_no_cr_wrap
     ,o_no_kill
     ,o_no_label
+    ,o_no_lines
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
@@ -120,11 +126,14 @@ typedef enum {
     ,o_timeout
     ,o_title
     ,o_trim
-    ,o_visit_items
     ,o_under_mouse
+    ,o_visit_items
     ,o_wmclass
     ,o_yes_label
     ,o_yesno
+#ifdef HAVE_DLG_TRACE
+    ,o_trace
+#endif
 } eOptions;
 
 /*
@@ -162,6 +171,7 @@ static const char *program = "dialog";
 static const Options options[] = {
     { "allow-close",	o_allow_close,		1, NULL },
     { "and-widget",	o_and_widget,		4, NULL },
+    { "ascii-lines",	o_ascii_lines, 		1, "" },
     { "aspect",		o_aspect,		1, "<ratio>" },
     { "auto-placement", o_auto_placement,	1, NULL },
     { "backtitle",	o_backtitle,		1, "<backtitle>" },
@@ -177,12 +187,14 @@ static const Options options[] = {
     { "create-rc",	o_create_rc,		1, NULL },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
+    { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
+    { "editbox",	o_editbox,		2, "<file> <height> <width>" },
     { "exit-label",	o_exit_label,		1, "<str>" },
     { "extra-button",	o_extra_button,		1, "" },
     { "extra-label",	o_extra_label,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
-    { "form",		o_form,     	 	2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
+    { "form",		o_form,			2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
     { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
@@ -200,9 +212,12 @@ static const Options options[] = {
     { "insecure",	o_insecure,		1, "" },
     { "item-help",	o_item_help,		1, "" },
     { "keep-colors",	o_keep_colors,		1, NULL },
+    { "keep-tite",	o_keep_tite,		1, "" },
     { "keep-window",	o_keep_window,		1, "" },
     { "max-input",	o_max_input,		1, "<n>" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
+    { "mixedform",	o_mixedform,		2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1> <itype>..." },
+    { "mixedgauge",	o_mixedgauge,		2, "<text> <height> <width> <percent> <tag1> <item1>..." },
     { "msgbox",		o_msgbox,		2, "<text> <height> <width>" },
     { "no-cancel",	o_nocancel,		1, "" },
     { "no-close",	o_no_close,		1, NULL },
@@ -210,17 +225,19 @@ static const Options options[] = {
     { "no-cr-wrap",	o_no_cr_wrap,		1, NULL },
     { "no-kill",	o_no_kill,		1, "" },
     { "no-label",	o_no_label,		1, "<str>" },
+    { "no-lines",	o_no_lines, 		1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
-    { "passwordform",	o_passwordform,     	2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
+    { "passwordform",	o_passwordform,		2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
     { "pause",		o_pause,		2, "<text> <height> <width> <seconds>" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
     { "print-version",	o_print_version,	5, "" },
+    { "progressbox",	o_progressbox,		2, "<height> <width>" },
     { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "screen-center",	o_screen_center,	1, NULL },
     { "separate-output",o_separate_output,	1, "" },
@@ -242,13 +259,15 @@ static const Options options[] = {
     { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
     { "trim",		o_trim,			1, "" },
-    { "progressbox",	o_progressbox,		2, "<height> <width>" },
-    { "visit-items", 	o_visit_items,		1, "" },
     { "under-mouse", 	o_under_mouse,		1, NULL },
     { "version",	o_print_version,	5, "" },
+    { "visit-items", 	o_visit_items,		1, "" },
     { "wmclass",	o_wmclass,		1, NULL },
     { "yes-label",	o_yes_label,		1, "<str>" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
+#ifdef HAVE_DLG_TRACE
+    { "trace",		o_trace,		1, "<file>" },
+#endif
 };
 /* *INDENT-ON* */
 
@@ -316,7 +335,7 @@ string_to_argv(char *blob)
 
 	if (!pass) {
 	    if (count) {
-		result = calloc(count + 1, sizeof(char *));
+		result = dlg_calloc(char *, count + 1);
 		assert_ptr(result, "string_to_argv");
 	    } else {
 		break;		/* no tokens found */
@@ -343,6 +362,18 @@ count_argv(char **argv)
     return result;
 }
 
+static int
+eat_argv(int *argcp, char ***argvp, int start, int count)
+{
+    int k;
+
+    *argcp -= count;
+    for (k = start; k <= *argcp; k++)
+	(*argvp)[k] = (*argvp)[k + count];
+    (*argvp)[*argcp] = 0;
+    return TRUE;
+}
+
 /*
  * Make an array showing which argv[] entries are options.  Use "--" as a
  * special token to escape the next argument, allowing it to begin with "--".
@@ -366,26 +397,20 @@ unescape_argv(int *argcp, char ***argvp)
     bool doalloc = FALSE;
     char *filename;
 
-    dialog_opts = calloc(*argcp + 1, sizeof(bool));
+    dialog_opts = dlg_calloc(bool, *argcp + 1);
     assert_ptr(dialog_opts, "unescape_argv");
 
     for (j = 1; j < *argcp; j++) {
 	bool escaped = FALSE;
 	if (!strcmp((*argvp)[j], "--")) {
-	    changed = TRUE;
 	    escaped = TRUE;
-	    *argcp -= 1;
-	    for (k = j; k <= *argcp; k++)
-		(*argvp)[k] = (*argvp)[k + 1];
+	    changed = eat_argv(argcp, argvp, j, 1);
 	} else if (!strcmp((*argvp)[j], "--args")) {
 	    fprintf(stderr, "Showing arguments at arg%d\n", j);
 	    for (k = 0; k < *argcp; ++k) {
 		fprintf(stderr, " arg%d:%s\n", k, (*argvp)[k]);
 	    }
-	    changed = TRUE;
-	    *argcp -= 1;
-	    for (k = j; k <= *argcp; k++)
-		(*argvp)[k] = (*argvp)[k + 1];
+	    changed = eat_argv(argcp, argvp, j, 1);
 	} else if (!strcmp((*argvp)[j], "--file")) {
 	    if (++count_includes > limit_includes)
 		dlg_exiterr("Too many --file options");
@@ -403,7 +428,7 @@ unescape_argv(int *argcp, char ***argvp)
 		    && (sb.st_mode & S_IFMT) == S_IFREG
 		    && sb.st_size != 0) {
 
-		    blob = malloc(sb.st_size + 1);
+		    blob = dlg_malloc(char, sb.st_size + 1);
 		    assert_ptr(blob, "unescape_argv");
 
 		    fp = fopen(filename, "r");
@@ -418,12 +443,12 @@ unescape_argv(int *argcp, char ***argvp)
 		    list = string_to_argv(blob);
 		    if ((added = count_argv(list)) != 0) {
 			if (added > 2) {
-			    size_t need = sizeof(char *) * (*argcp + added + 1);
+			    size_t need = (*argcp + added + 1);
 			    if (doalloc) {
-				*argvp = realloc(*argvp, need);
+				*argvp = dlg_realloc(char *, need, *argvp);
 				assert_ptr(*argvp, "unescape_argv");
 			    } else {
-				char **newp = malloc(need);
+				char **newp = dlg_malloc(char *, need);
 				assert_ptr(newp, "unescape_argv");
 				for (n = 0; n < *argcp; ++n) {
 				    newp[n] = (*argvp)[n];
@@ -431,7 +456,7 @@ unescape_argv(int *argcp, char ***argvp)
 				*argvp = newp;
 				doalloc = TRUE;
 			    }
-			    dialog_opts = realloc(dialog_opts, *argcp + added);
+			    dialog_opts = dlg_realloc(bool, *argcp + added, dialog_opts);
 			    assert_ptr(dialog_opts, "unescape_argv");
 			}
 			for (n = *argcp; n >= j + 2; --n) {
@@ -445,10 +470,14 @@ unescape_argv(int *argcp, char ***argvp)
 			*argcp += added - 2;
 			free(list);
 		    }
+		} else {
+		    dlg_exiterr("Cannot open --file %s", filename);
 		}
 		(*argvp)[*argcp] = 0;
 		++j;
 		continue;
+	    } else {
+		dlg_exiterr("No value given for --file");
 	    }
 	}
 	if (!escaped
@@ -581,6 +610,7 @@ optional_str(char **av, int n, char *dft)
     return ret;
 }
 
+#if defined(HAVE_DLG_GAUGE) || defined(HAVE_XDIALOG)
 static int
 optional_num(char **av, int n, int dft)
 {
@@ -589,6 +619,7 @@ optional_num(char **av, int n, int dft)
 	ret = numeric_arg(av, n);
     return ret;
 }
+#endif
 
 /*
  * On AIX 4.x, we have to flush the output right away since there is a bug in
@@ -769,6 +800,26 @@ call_calendar(CALLARGS)
 }
 
 static int
+call_dselect(CALLARGS)
+{
+    *offset_add = arg_rest(av);
+    return dialog_dselect(t,
+			  av[1],
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3));
+}
+
+static int
+call_editbox(CALLARGS)
+{
+    *offset_add = 4;
+    return dialog_editbox(t,
+			  av[1],
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3));
+}
+
+static int
 call_fselect(CALLARGS)
 {
     *offset_add = arg_rest(av);
@@ -790,14 +841,15 @@ call_timebox(CALLARGS)
 			  optional_num(av, 5, -1),
 			  optional_num(av, 6, -1));
 }
-#endif
+#endif /* HAVE_XDIALOG */
 
-#ifdef HAVE_FORMBOX
+#ifdef HAVE_DLG_FORMBOX
 static int
 call_form(CALLARGS)
 {
-    int tags = howmany_tags(av + 5, FORMBOX_TAGS);
-    *offset_add = 5 + tags * FORMBOX_TAGS;
+    int group = FORMBOX_TAGS;
+    int tags = howmany_tags(av + 5, group);
+    *offset_add = 5 + tags * group;
 
     return dialog_form(t,
 		       av[1],
@@ -819,9 +871,26 @@ call_password_form(CALLARGS)
 
     return result;
 }
-#endif
+#endif /* HAVE_DLG_FORMBOX */
 
-#ifdef HAVE_GAUGE
+#ifdef HAVE_DLG_MIXEDFORM
+static int
+call_mixed_form(CALLARGS)
+{
+    int group = MIXEDFORM_TAGS;
+    int tags = howmany_tags(av + 5, group);
+    *offset_add = 5 + tags * group;
+
+    return dialog_mixedform(t,
+			    av[1],
+			    numeric_arg(av, 2),
+			    numeric_arg(av, 3),
+			    numeric_arg(av, 4),
+			    tags, av + 5);
+}
+#endif /* HAVE_DLG_MIXEDFORM */
+
+#ifdef HAVE_DLG_GAUGE
 static int
 call_gauge(CALLARGS)
 {
@@ -832,9 +901,7 @@ call_gauge(CALLARGS)
 			numeric_arg(av, 3),
 			optional_num(av, 4, 0));
 }
-#endif
 
-#ifdef HAVE_GAUGE
 static int
 call_pause(CALLARGS)
 {
@@ -847,7 +914,23 @@ call_pause(CALLARGS)
 }
 #endif
 
-#ifdef HAVE_GAUGE
+#ifdef HAVE_MIXEDGAUGE
+static int
+call_mixed_gauge(CALLARGS)
+{
+#define MIXEDGAUGE_BASE 5
+    int tags = howmany_tags(av + MIXEDGAUGE_BASE, MIXEDGAUGE_TAGS);
+    *offset_add = MIXEDGAUGE_BASE + tags * MIXEDGAUGE_TAGS;
+    return dialog_mixedgauge(t,
+			     av[1],
+			     numeric_arg(av, 2),
+			     numeric_arg(av, 3),
+			     numeric_arg(av, 4),
+			     tags, av + MIXEDGAUGE_BASE);
+}
+#endif
+
+#ifdef HAVE_DLG_GAUGE
 static int
 call_progressbox(CALLARGS)
 {
@@ -867,7 +950,7 @@ call_progressbox(CALLARGS)
 }
 #endif
 
-#ifdef HAVE_TAILBOX
+#ifdef HAVE_DLG_TAILBOX
 static int
 call_tailbox(CALLARGS)
 {
@@ -903,23 +986,31 @@ static const Mode modes[] =
     {o_radiolist,       8, 0, call_radiolist},
     {o_inputbox,        4, 5, call_inputbox},
     {o_passwordbox,     4, 5, call_passwordbox},
-#ifdef HAVE_XDIALOG
-    {o_calendar,        4, 7, call_calendar},
-    {o_fselect,         4, 5, call_fselect},
-    {o_timebox,         4, 7, call_timebox},
-#endif
-#ifdef HAVE_FORMBOX
-    {o_passwordform,   13, 0, call_password_form},
-    {o_form,           13, 0, call_form},
-#endif
-#ifdef HAVE_GAUGE
+#ifdef HAVE_DLG_GAUGE
     {o_gauge,           4, 5, call_gauge},
     {o_pause,           5, 5, call_pause},
     {o_progressbox,     3, 4, call_progressbox},
 #endif
-#ifdef HAVE_TAILBOX
+#ifdef HAVE_DLG_FORMBOX
+    {o_passwordform,   13, 0, call_password_form},
+    {o_form,           13, 0, call_form},
+#endif
+#ifdef HAVE_MIXEDGAUGE
+    {o_mixedgauge,      MIXEDGAUGE_BASE, 0, call_mixed_gauge},
+#endif
+#ifdef HAVE_DLG_MIXEDFORM
+    {o_mixedform,      13, 0, call_mixed_form},
+#endif
+#ifdef HAVE_DLG_TAILBOX
     {o_tailbox,         4, 4, call_tailbox},
     {o_tailboxbg,       4, 4, call_tailboxbg},
+#endif
+#ifdef HAVE_XDIALOG
+    {o_calendar,        4, 7, call_calendar},
+    {o_dselect,         4, 5, call_dselect},
+    {o_editbox,         4, 4, call_editbox},
+    {o_fselect,         4, 5, call_fselect},
+    {o_timebox,         4, 7, call_timebox},
 #endif
 };
 /* *INDENT-ON* */
@@ -998,6 +1089,14 @@ lookupMode(eOptions code)
     return modePtr;
 }
 
+static int
+compare_opts(const void *a, const void *b)
+{
+    Options *const *p = (Options * const *) a;
+    Options *const *q = (Options * const *) b;
+    return strcmp((*p)->name, (*q)->name);
+}
+
 /*
  * Print program help-message
  */
@@ -1007,7 +1106,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright (C) 2005 Thomas E. Dickey",
+	"Copyright 2000-2006,2007 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
@@ -1028,33 +1127,43 @@ Help(void)
 	"Global-auto-size if also menu_height/list_height = 0.",
 	0
     };
+    unsigned limit = sizeof(options) / sizeof(options[0]);
     unsigned j, k;
+    const Options **opts;
+
+    opts = dlg_calloc(const Options *, limit);
+    assert_ptr(opts, "Help");
+    for (j = 0; j < limit; ++j) {
+	opts[j] = &(options[j]);
+    }
+    qsort(opts, limit, sizeof(Options *), compare_opts);
 
     PrintList(tbl_1);
     fprintf(dialog_state.output, "Common options:\n ");
-    for (j = k = 0; j < sizeof(options) / sizeof(options[0]); j++) {
-	if ((options[j].pass & 1)
-	    && options[j].help != 0) {
-	    unsigned len = 6 + strlen(options[j].name) + strlen(options[j].help);
+    for (j = k = 0; j < limit; j++) {
+	if ((opts[j]->pass & 1)
+	    && opts[j]->help != 0) {
+	    unsigned len = 6 + strlen(opts[j]->name) + strlen(opts[j]->help);
 	    k += len;
 	    if (k > 75) {
 		fprintf(dialog_state.output, "\n ");
 		k = len;
 	    }
-	    fprintf(dialog_state.output, " [--%s%s%s]", options[j].name,
-		    *(options[j].help) ? " " : "", options[j].help);
+	    fprintf(dialog_state.output, " [--%s%s%s]", opts[j]->name,
+		    *(opts[j]->help) ? " " : "", opts[j]->help);
 	}
     }
     fprintf(dialog_state.output, "\nBox options:\n");
-    for (j = 0; j < sizeof(options) / sizeof(options[0]); j++) {
-	if ((options[j].pass & 2) != 0
-	    && options[j].help != 0
-	    && lookupMode(options[j].code))
-	    fprintf(dialog_state.output, "  --%-12s %s\n", options[j].name,
-		    options[j].help);
+    for (j = 0; j < limit; j++) {
+	if ((opts[j]->pass & 2) != 0
+	    && opts[j]->help != 0
+	    && lookupMode(opts[j]->code))
+	    fprintf(dialog_state.output, "  --%-12s %s\n", opts[j]->name,
+		    opts[j]->help);
     }
     PrintList(tbl_3);
 
+    free(opts);
     dlg_exit(DLG_EXIT_OK);
 }
 
@@ -1219,6 +1328,17 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	case o_help_label:
 	    dialog_vars.help_label = optionString(argv, &offset);
 	    break;
+	case o_keep_tite:
+	    dialog_vars.keep_tite = TRUE;
+	    break;
+	case o_ascii_lines:
+	    dialog_vars.ascii_lines = TRUE;
+	    dialog_vars.no_lines = FALSE;
+	    break;
+	case o_no_lines:
+	    dialog_vars.no_lines = TRUE;
+	    dialog_vars.ascii_lines = FALSE;
+	    break;
 	case o_noitem:
 	case o_fullbutton:
 	    /* ignore */
@@ -1245,6 +1365,11 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	default:		/* no more common options */
 	    done = TRUE;
 	    break;
+#ifdef HAVE_DLG_TRACE
+	case o_trace:
+	    dlg_trace(optionString(argv, &offset));
+	    break;
+#endif
 	}
 	if (!done)
 	    offset++;
@@ -1295,9 +1420,9 @@ init_result(char *buffer)
 int
 main(int argc, char *argv[])
 {
-    FILE *input = stdin;
     char temp[256];
     bool esc_pressed = FALSE;
+    bool keep_tite = FALSE;
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
@@ -1321,6 +1446,7 @@ main(int argc, char *argv[])
     unescape_argv(&argc, &argv);
     program = argv[0];
     dialog_state.output = stderr;
+    dialog_state.input = stdin;
 
     /*
      * Look for the last --stdout, --stderr or --output-fd option, and use
@@ -1339,13 +1465,16 @@ main(int argc, char *argv[])
 	    break;
 	case o_input_fd:
 	    if ((j = optionValue(argv, &offset)) < 0
-		|| (input = fdopen(j, "r")) == 0)
+		|| (dialog_state.input = fdopen(j, "r")) == 0)
 		dlg_exiterr("Cannot open input-fd\n");
 	    break;
 	case o_output_fd:
 	    if ((j = optionValue(argv, &offset)) < 0
 		|| (dialog_state.output = fdopen(j, "w")) == 0)
 		dlg_exiterr("Cannot open output-fd\n");
+	    break;
+	case o_keep_tite:
+	    keep_tite = TRUE;
 	    break;
 	default:
 	    ++offset;
@@ -1405,7 +1534,25 @@ main(int argc, char *argv[])
     }
 #endif
 
-    init_dialog(input, dialog_state.output);
+    dialog_vars.keep_tite = keep_tite;	/* init_result() cleared global */
+
+    init_dialog(dialog_state.input, dialog_state.output);
+
+    /*
+     * Trim whitespace from non-title option values, e.g., the ones that
+     * will be used as captions or prompts.
+     */
+    for (j = 1; j < argc; j++) {
+	switch (lookupOption(argv[j - 1], 7)) {
+	case o_unknown:
+	case o_title:
+	case o_backtitle:
+	    break;
+	default:
+	    dlg_trim_string(argv[j]);
+	    break;
+	}
+    }
 
     while (offset < argc && !esc_pressed) {
 	init_result(my_buffer);
@@ -1416,20 +1563,6 @@ main(int argc, char *argv[])
 	    if (ignore_unknown)
 		break;
 	    Usage("Expected a box option");
-	}
-
-	for (j = offset; j < argc; j++) {
-	    if (offset > 0) {
-		switch (lookupOption(argv[j - 1], 7)) {
-		case o_unknown:
-		case o_title:
-		case o_backtitle:
-		    break;
-		default:
-		    dlg_trim_string(argv[j]);
-		    break;
-		}
-	    }
 	}
 
 	if (lookupOption(argv[offset], 2) != o_checklist

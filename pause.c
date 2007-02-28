@@ -1,14 +1,13 @@
 /*
- *  $Id: pause.c,v 1.16 2006/01/19 00:05:37 tom Exp $
+ *  $Id: pause.c,v 1.18 2007/02/01 22:45:13 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
  *  Copyright 2004-2005,2006	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -214,5 +213,5 @@ dialog_pause(const char *title,
     dlg_mouse_free_regions();
     dlg_del_window(dialog);
     free(prompt);
-    return (result);
+    return ((result == DLG_EXIT_UNKNOWN) ? DLG_EXIT_OK : result);
 }

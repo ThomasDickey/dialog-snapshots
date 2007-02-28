@@ -1,14 +1,13 @@
 /*
- *  $Id: dlg_keys.c,v 1.18 2006/01/27 01:43:19 tom Exp $
+ *  $Id: dlg_keys.c,v 1.22 2007/02/22 22:01:23 tom Exp $
  *
- *  dlg_keys.c -- runtime binding support for dialog
+ * dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2005,2006	Thomas E. Dickey
+ * Copyright 2006,2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,7 +52,7 @@ dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING * binding)
 	}
     }
     /* add built-in bindings at the end of the list (see compare_bindings). */
-    if ((p = (LIST_BINDINGS *) calloc(1, sizeof(*p))) != 0) {
+    if ((p = dlg_calloc(LIST_BINDINGS, 1)) != 0) {
 	p->win = win;
 	p->name = name;
 	p->binding = binding;
@@ -125,8 +124,8 @@ dlg_register_buttons(WINDOW *win, const char *name, const char **buttons)
 	    continue;
 #endif
 
-	if ((p = (LIST_BINDINGS *) calloc(1, sizeof(*p))) != 0) {
-	    if ((q = (DLG_KEYS_BINDING *) calloc(2, sizeof(*q))) != 0) {
+	if ((p = dlg_calloc(LIST_BINDINGS, 1)) != 0) {
+	    if ((q = dlg_calloc(DLG_KEYS_BINDING, 2)) != 0) {
 		q[0].is_function_key = 0;
 		q[0].curses_key = curses_key;
 		q[0].dialog_key = curses_key;
@@ -500,8 +499,8 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
     DLG_KEYS_BINDING *result = find_binding(widget, curses_key);
 
     if (result == 0
-	&& (entry = calloc(1, sizeof(LIST_BINDINGS))) != 0
-	&& (data = calloc(2, sizeof(DLG_KEYS_BINDING))) != 0
+	&& (entry = dlg_calloc(LIST_BINDINGS, 1)) != 0
+	&& (data = dlg_calloc(DLG_KEYS_BINDING, 2)) != 0
 	&& (name = dlg_strclone(widget)) != 0) {
 
 	entry->name = name;
