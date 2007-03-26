@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.52 2007/02/27 21:14:49 tom Exp $
+# $Id: makefile.in,v 1.55 2007/03/25 20:23:30 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -55,6 +55,7 @@ LIBTOOL_UNINSTALL = @LIB_UNINSTALL@
 
 INSTALL		= @INSTALL@
 INSTALL_PROGRAM	= $(LIBTOOL_INSTALL) @INSTALL_PROGRAM@
+INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 INSTALL_DATA	= @INSTALL_DATA@
 
 LINK		= $(LIBTOOL_LINK) $(CC)
@@ -175,9 +176,9 @@ uninstall-man ::
 # most users do not want/need the library, so the install rules are distinct.
 install-lib :: $(BINDIR) dialog-config
 	@ echo "** installing config script in $(BINDIR)"
-	@ $(INSTALL_PROGRAM) dialog-config $(BINDIR)
+	@ $(INSTALL_SCRIPT) dialog-config $(BINDIR)
 
-install-lib :: $(LIB_DIRS) headers.sed
+install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ echo "** installing library in $(LIBDIR)"
 	@ $(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(LIBDIR)
 	@ echo "** installing headers in $(INCLUDEDIR)"
@@ -196,10 +197,10 @@ uninstall-lib :: $(LIB_DIRS)
 	$(RM) $(INCLUDEDIR)/dlg_keys.h
 	$(RM) $(INCLUDEDIR)/dlg_config.h
 
-install-man :: $(MAN3DIR)
+install-lib :: $(MAN3DIR)
 	$(INSTALL_DATA) $(srcdir)/dialog.3 $(MAN3DIR)/$(PACKAGE).3
 
-uninstall-man ::
+uninstall-lib ::
 	$(RM) $(MAN3DIR)/$(PACKAGE).3
 
 headers.sed : $(srcdir)/headers.sh

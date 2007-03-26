@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.57 2007/02/23 21:39:34 tom Exp $
+ *  $Id: msgbox.c,v 1.58 2007/03/25 20:08:23 Brian.Rolfe Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -220,6 +220,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    dlg_clear();
 		    height = req_high;
 		    width = req_wide;
+		    show = TRUE;
 		    goto restart;
 #endif
 		case DLGK_FIELD_NEXT:

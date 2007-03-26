@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.107 2007/02/22 21:02:54 tom Exp $
+.\" $Id: dialog.1,v 1.108 2007/03/25 21:40:27 tom Exp $
 .\" Copyright 2005-2006,2007  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2007/02/22 21:02:54 $"
+.TH DIALOG 1 "" "$Date: 2007/03/25 21:40:27 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -634,6 +634,7 @@ standard input, one integer per line.
 The meter is updated
 to reflect each new percentage.
 If the standard input reads the string "XXX",
+then the first line following is taken as an integer percentage,
 then subsequent lines up to another "XXX" are used for a new prompt.
 The gauge exits when EOF is reached on the standard input.
 .IP

@@ -7223,8 +7223,8 @@ echo $ECHO_N "checking version of libtool... $ECHO_C" >&6
 	echo "$as_me:7223: result: $cf_cv_libtool_version" >&5
 echo "${ECHO_T}$cf_cv_libtool_version" >&6
 	if test -z "$cf_cv_libtool_version" ; then
-		{ { echo "$as_me:7226: error: This is not libtool" >&5
-echo "$as_me: error: This is not libtool" >&2;}
+		{ { echo "$as_me:7226: error: This is not GNU libtool" >&5
+echo "$as_me: error: This is not GNU libtool" >&2;}
    { (exit 1); exit 1; }; }
 	fi
 
@@ -10803,18 +10803,18 @@ EOF
 
 fi
 
-# This is needed on Tru64 5.0 to declare mbstate_t
-echo "$as_me:10807: checking if we must include wchar.h to declare mbstate_t" >&5
+echo "$as_me:10806: checking if we must include wchar.h to declare mbstate_t" >&5
 echo $ECHO_N "checking if we must include wchar.h to declare mbstate_t... $ECHO_C" >&6
 if test "${cf_cv_mbstate_t+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
 
 cat >conftest.$ac_ext <<_ACEOF
-#line 10814 "configure"
+#line 10813 "configure"
 #include "confdefs.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #ifdef HAVE_LIBUTF8_H
 #include <libutf8.h>
 #endif
@@ -10847,6 +10847,7 @@ cat >conftest.$ac_ext <<_ACEOF
 #include "confdefs.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <wchar.h>
 #ifdef HAVE_LIBUTF8_H
 #include <libutf8.h>
@@ -10860,16 +10861,16 @@ mbstate_t value
 }
 _ACEOF
 rm -f conftest.$ac_objext
-if { (eval echo "$as_me:10863: \"$ac_compile\"") >&5
+if { (eval echo "$as_me:10864: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
-  echo "$as_me:10866: \$? = $ac_status" >&5
+  echo "$as_me:10867: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:10869: \"$ac_try\"") >&5
+  { (eval echo "$as_me:10870: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:10872: \$? = $ac_status" >&5
+  echo "$as_me:10873: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   cf_cv_mbstate_t=yes
 else
@@ -10881,7 +10882,7 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 fi
-echo "$as_me:10884: result: $cf_cv_mbstate_t" >&5
+echo "$as_me:10885: result: $cf_cv_mbstate_t" >&5
 echo "${ECHO_T}$cf_cv_mbstate_t" >&6
 
 if test "$cf_cv_mbstate_t" = yes ; then
@@ -10899,7 +10900,7 @@ EOF
 fi
 
 cat >conftest.$ac_ext <<_ACEOF
-#line 10902 "configure"
+#line 10903 "configure"
 #include "confdefs.h"
 #include <locale.h>
 int
@@ -10911,16 +10912,16 @@ setlocale(LC_ALL, "")
 }
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:10914: \"$ac_link\"") >&5
+if { (eval echo "$as_me:10915: \"$ac_link\"") >&5
   (eval $ac_link) 2>&5
   ac_status=$?
-  echo "$as_me:10917: \$? = $ac_status" >&5
+  echo "$as_me:10918: \$? = $ac_status" >&5
   (exit $ac_status); } &&
          { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:10920: \"$ac_try\"") >&5
+  { (eval echo "$as_me:10921: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
   ac_status=$?
-  echo "$as_me:10923: \$? = $ac_status" >&5
+  echo "$as_me:10924: \$? = $ac_status" >&5
   (exit $ac_status); }; }; then
   cat >>confdefs.h <<\EOF
 #define HAVE_SETLOCALE 1
@@ -11013,7 +11014,7 @@ DEFS=-DHAVE_CONFIG_H
 : ${CONFIG_STATUS=./config.status}
 ac_clean_files_save=$ac_clean_files
 ac_clean_files="$ac_clean_files $CONFIG_STATUS"
-{ echo "$as_me:11016: creating $CONFIG_STATUS" >&5
+{ echo "$as_me:11017: creating $CONFIG_STATUS" >&5
 echo "$as_me: creating $CONFIG_STATUS" >&6;}
 cat >$CONFIG_STATUS <<_ACEOF
 #! $SHELL
@@ -11189,7 +11190,7 @@ cat >>$CONFIG_STATUS <<\EOF
     echo "$ac_cs_version"; exit 0 ;;
   --he | --h)
     # Conflict between --help and --header
-    { { echo "$as_me:11192: error: ambiguous option: $1
+    { { echo "$as_me:11193: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -11208,7 +11209,7 @@ Try \`$0 --help' for more information." >&2;}
     ac_need_defaults=false;;
 
   # This is an error.
-  -*) { { echo "$as_me:11211: error: unrecognized option: $1
+  -*) { { echo "$as_me:11212: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -11257,7 +11258,7 @@ do
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "default" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default" ;;
   "dlg_config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS dlg_config.h:config.hin" ;;
-  *) { { echo "$as_me:11260: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:11261: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -11539,7 +11540,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:11542: creating $ac_file" >&5
+    { echo "$as_me:11543: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -11557,7 +11558,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:11560: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:11561: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -11570,7 +11571,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:11573: error: cannot find input file: $f" >&5
+           { { echo "$as_me:11574: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -11636,7 +11637,7 @@ for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
   * )   ac_file_in=$ac_file.in ;;
   esac
 
-  test x"$ac_file" != x- && { echo "$as_me:11639: creating $ac_file" >&5
+  test x"$ac_file" != x- && { echo "$as_me:11640: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
 
   # First look for the input files in the build tree, otherwise in the
@@ -11647,7 +11648,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:11650: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:11651: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -11660,7 +11661,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:11663: error: cannot find input file: $f" >&5
+           { { echo "$as_me:11664: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -11718,7 +11719,7 @@ cat >>$CONFIG_STATUS <<\EOF
   rm -f $tmp/in
   if test x"$ac_file" != x-; then
     if cmp -s $ac_file $tmp/config.h 2>/dev/null; then
-      { echo "$as_me:11721: $ac_file is unchanged" >&5
+      { echo "$as_me:11722: $ac_file is unchanged" >&5
 echo "$as_me: $ac_file is unchanged" >&6;}
     else
       ac_dir=`$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
