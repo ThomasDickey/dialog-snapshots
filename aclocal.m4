@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl Copyright 1999-2005,2006 -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.57 2007/02/27 20:12:52 tom Exp $
+dnl $Id: aclocal.m4,v 1.60 2007/03/25 22:08:12 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -1920,15 +1920,17 @@ ifelse($1,,[
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_MBSTATE_T version: 2 updated: 2002/01/19 22:51:32
+dnl CF_MBSTATE_T version: 3 updated: 2007/03/25 15:55:36
 dnl ------------
 dnl Check if mbstate_t is declared, and if so, which header file.
+dnl This (including wchar.h) is needed on Tru64 5.0 to declare mbstate_t,
+dnl as well as include stdio.h to work around a misuse of varargs in wchar.h
 AC_DEFUN([CF_MBSTATE_T],
 [
-# This is needed on Tru64 5.0 to declare mbstate_t
 AC_CACHE_CHECK(if we must include wchar.h to declare mbstate_t,cf_cv_mbstate_t,[
 AC_TRY_COMPILE([
 #include <stdlib.h>
+#include <stdio.h>
 #ifdef HAVE_LIBUTF8_H
 #include <libutf8.h>
 #endif],
@@ -1936,6 +1938,7 @@ AC_TRY_COMPILE([
 	[cf_cv_mbstate_t=no],
 	[AC_TRY_COMPILE([
 #include <stdlib.h>
+#include <stdio.h>
 #include <wchar.h>
 #ifdef HAVE_LIBUTF8_H
 #include <libutf8.h>
@@ -2977,7 +2980,7 @@ if test "$with_dmalloc" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 14 updated: 2007/02/25 15:20:40
+dnl CF_WITH_LIBTOOL version: 16 updated: 2007/03/25 18:05:48
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -3071,7 +3074,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	cf_cv_libtool_version=`$LIBTOOL --version 2>&1 | sed -e '/^$/d' |sed -e '2,$d' -e 's/([[^)]]*)//g' -e 's/^[[^1-9]]*//' -e 's/[[^0-9.]].*//'`
 	AC_MSG_RESULT($cf_cv_libtool_version)
 	if test -z "$cf_cv_libtool_version" ; then
-		AC_MSG_ERROR(This is not libtool)
+		AC_MSG_ERROR(This is not GNU libtool)
 	fi
 
 	# special hack to add --tag option for C++ compiler

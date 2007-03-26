@@ -1,8 +1,25 @@
--- $Id: CHANGES,v 1.207 2007/02/25 21:02:18 tom Exp $
+-- $Id: CHANGES,v 1.213 2007/03/25 22:28:57 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/03/25
+	+ improve mkdirs.sh to ignore error from mkdir if the target directory
+	  happens to already exist (suggested by Harald van Dijk).
+	+ amend documentation for --gauge to reflect longstanding quirk which
+	  allows it to read percentage from the first line after an "XXX"
+	  (Debian #415596).
+	+ fix makefile dependency so "configure && make install-lib" works.
+	+ fix resizing of msgbox; the message was not repainted (Debian
+	  #415022, patch by Brian Rolfe).
+	+ fix typo in makefile LIB_OBJECT symbol from 2007/02/27 changes.
+	+ improve CF_MBSTATE_T by including stdio.h, needed on Tru64 to make
+	  the test-compile work.
+	+ change makefile to install dialog.3 as part of install-lib rather
+	  than install-man (report by Thomas Klausner).
+	+ use $(INSTALL_SCRIPT) for installing dialog-config (report by
+	  Santiago Vila).
 
 2007/02/27
 	+ add dialog-config script, which provides applications with compile-
