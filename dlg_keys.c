@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.22 2007/02/22 22:01:23 tom Exp $
+ *  $Id: dlg_keys.c,v 1.23 2007/04/08 16:51:32 tom Exp $
  *
  * dlg_keys.c -- runtime binding support for dialog
  *
@@ -492,8 +492,8 @@ compare_bindings(LIST_BINDINGS * a, LIST_BINDINGS * b)
 static DLG_KEYS_BINDING *
 make_binding(char *widget, int curses_key, int is_function, int dialog_key)
 {
-    LIST_BINDINGS *entry;
-    DLG_KEYS_BINDING *data;
+    LIST_BINDINGS *entry = 0;
+    DLG_KEYS_BINDING *data = 0;
     char *name;
     LIST_BINDINGS *p, *q;
     DLG_KEYS_BINDING *result = find_binding(widget, curses_key);
@@ -526,6 +526,10 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
 	    entry->link = p;
 	}
 	result = data;
+    } else if (entry != 0) {
+	free(entry);
+	if (data)
+	    free(data);
     }
 
     return result;

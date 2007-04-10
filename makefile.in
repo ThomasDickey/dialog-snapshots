@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.55 2007/03/25 20:23:30 tom Exp $
+# $Id: makefile.in,v 1.56 2007/04/08 21:10:55 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -46,6 +46,7 @@ RM		= rm -f
 LINT		= lint
 
 LIBTOOL		= @LIBTOOL@ @ECHO_LT@
+LIBTOOL_OPTS	= @LIBTOOL_OPTS@
 LIBTOOL_CLEAN	= @LIB_CLEAN@
 LIBTOOL_COMPILE	= @LIB_COMPILE@
 LIBTOOL_CREATE	= @LIB_CREATE@
@@ -58,7 +59,7 @@ INSTALL_PROGRAM	= $(LIBTOOL_INSTALL) @INSTALL_PROGRAM@
 INSTALL_SCRIPT	= @INSTALL_SCRIPT@
 INSTALL_DATA	= @INSTALL_DATA@
 
-LINK		= $(LIBTOOL_LINK) $(CC)
+LINK		= $(LIBTOOL_LINK)
 
 PACKAGE		= `echo @PACKAGE@ |sed @program_transform_name@`
 #

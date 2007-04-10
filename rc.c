@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.39 2007/01/09 22:17:15 tom Exp $
+ *  $Id: rc.c,v 1.40 2007/04/08 17:00:54 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -475,10 +475,10 @@ dlg_parse_rc(void)
     if ((tempptr = getenv("DIALOGRC")) != NULL)
 	rc_file = fopen(tempptr, "rt");
 
-    if (tempptr == NULL || rc_file == NULL) {	/* step (a) failed? */
+    if (rc_file == NULL) {	/* step (a) failed? */
 	/* try step (b) */
 	if ((tempptr = getenv("HOME")) != NULL
-	    && strlen(tempptr) < MAX_LEN - 20) {
+	    && strlen(tempptr) < MAX_LEN - (sizeof(DIALOGRC) + 3)) {
 	    if (tempptr[0] == '\0' || lastch(tempptr) == '/')
 		sprintf(str, "%s%s", tempptr, DIALOGRC);
 	    else
@@ -487,9 +487,9 @@ dlg_parse_rc(void)
 	}
     }
 
-    if (tempptr == NULL || rc_file == NULL) {	/* step (b) failed? */
+    if (rc_file == NULL) {	/* step (b) failed? */
 	/* try step (c) */
-	sprintf(str, "%s", GLOBALRC);
+	strcpy(str, GLOBALRC);
 	if ((rc_file = fopen(str, "rt")) == NULL)
 	    return 0;		/* step (c) failed, use default values */
     }

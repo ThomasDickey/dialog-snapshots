@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.52 2007/02/18 20:20:10 tom Exp $
+ * $Id: calendar.c,v 1.53 2007/04/08 16:43:11 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -334,6 +334,17 @@ init_object(BOX * data,
     return 0;
 }
 
+static int
+CleanupResult(int code, WINDOW *dialog, char *prompt)
+{
+    if (dialog != 0)
+	dlg_del_window(dialog);
+    dlg_mouse_free_regions();
+    if (prompt != 0)
+	free(prompt);
+    return code;
+}
+
 #define DrawObject(data) (data)->box_draw(data, &current)
 
 /*
@@ -473,8 +484,9 @@ dialog_calendar(const char *title,
 		    DAY_HIGH + 1,
 		    draw_day,
 		    'D') < 0
-	|| DrawObject(&dy_box) < 0)
-	return DLG_EXIT_ERROR;
+	|| DrawObject(&dy_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     if (init_object(&mn_box,
 		    dialog,
@@ -484,8 +496,9 @@ dialog_calendar(const char *title,
 		    HDR_HIGH,
 		    draw_month,
 		    'M') < 0
-	|| DrawObject(&mn_box) < 0)
-	return DLG_EXIT_ERROR;
+	|| DrawObject(&mn_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     if (init_object(&yr_box,
 		    dialog,
@@ -495,8 +508,9 @@ dialog_calendar(const char *title,
 		    mn_box.height,
 		    draw_year,
 		    'Y') < 0
-	|| DrawObject(&yr_box) < 0)
-	return DLG_EXIT_ERROR;
+	|| DrawObject(&yr_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sDAY ? &dy_box
@@ -616,11 +630,9 @@ dialog_calendar(const char *title,
 	}
     }
 
-    dlg_del_window(dialog);
     sprintf(buffer, "%02d/%02d/%0d\n",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
     dlg_add_result(buffer);
-    dlg_mouse_free_regions();
-    free(prompt);
-    return result;
+
+    return CleanupResult(result, dialog, prompt);
 }

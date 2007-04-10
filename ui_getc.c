@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.34 2007/02/27 20:51:12 tom Exp $
+ *  $Id: ui_getc.c,v 1.35 2007/04/08 23:57:09 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -283,6 +283,8 @@ dlg_getc(WINDOW *win, int *fkey)
 		done = (interval <= 0);
 	    }
 	    break;
+	case DLGK_FIELD_NEXT:
+	    /* FALLTHRU */
 	case TAB:
 	    /* Handle tab as a special case for traversing between the nominal
 	     * "current" window, and other windows having callbacks.  If the

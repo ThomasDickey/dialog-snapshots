@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl Copyright 1999-2005,2006 -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.60 2007/03/25 22:08:12 tom Exp $
+dnl $Id: aclocal.m4,v 1.63 2007/04/09 00:03:01 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -2980,7 +2980,7 @@ if test "$with_dmalloc" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 16 updated: 2007/03/25 18:05:48
+dnl CF_WITH_LIBTOOL version: 18 updated: 2007/04/08 20:02:38
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -3029,7 +3029,7 @@ LIB_PREP="$RANLIB"
 # doing:
 LIB_CLEAN=
 LIB_COMPILE=
-LIB_LINK=
+LIB_LINK='${CC}'
 LIB_INSTALL=
 LIB_UNINSTALL=
 
@@ -3055,12 +3055,12 @@ ifdef([AC_PROG_LIBTOOL],[
  		AC_MSG_ERROR(Cannot find libtool)
  	fi
 ])dnl
-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` -o'
+	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} -version-info `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} -o'
 	LIB_OBJECT='${OBJECTS:.o=.lo}'
 	LIB_SUFFIX=.la
 	LIB_CLEAN='${LIBTOOL} --mode=clean'
 	LIB_COMPILE='${LIBTOOL} --mode=compile'
-	LIB_LINK='${LIBTOOL} --mode=link'
+	LIB_LINK='${LIBTOOL} --mode=link ${CC} ${LIBTOOL_OPTS}'
 	LIB_INSTALL='${LIBTOOL} --mode=install'
 	LIB_UNINSTALL='${LIBTOOL} --mode=uninstall'
 	LIB_PREP=:
@@ -3095,6 +3095,7 @@ test -z "$LIBTOOL" && ECHO_LT=
 
 AC_SUBST(LIBTOOL)
 AC_SUBST(LIBTOOL_CXX)
+AC_SUBST(LIBTOOL_OPTS)
 
 AC_SUBST(LIB_CREATE)
 AC_SUBST(LIB_OBJECT)
@@ -3107,6 +3108,32 @@ AC_SUBST(LIB_LINK)
 AC_SUBST(LIB_INSTALL)
 AC_SUBST(LIB_UNINSTALL)
 
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_LIBTOOL_OPTS version: 2 updated: 2007/04/08 18:14:54
+dnl --------------------
+dnl Allow user to pass additional libtool options into the library creation
+dnl and link steps.  The main use for this is to do something like
+dnl	./configure --with-libtool-opts=-static
+dnl to get the same behavior as automake-flavored
+dnl	./configure --enable-static
+AC_DEFUN([CF_WITH_LIBTOOL_OPTS],[
+AC_MSG_CHECKING(for additional libtool options)
+AC_ARG_WITH(libtool-opts,
+	[  --with-libtool-opts=XXX specify additional libtool options],
+	[with_libtool_opts=$withval],
+	[with_libtool_opts=no])
+AC_MSG_RESULT($with_libtool_opts)
+
+case .$with_libtool_opts in
+.yes|.no|.)
+	;;
+*)
+	LIBTOOL_OPTS=$with_libtool_opts
+	;;
+esac
+
+AC_SUBST(LIBTOOL_OPTS)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_NO_LEAKS version: 1 updated: 2006/12/14 18:00:21

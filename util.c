@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.179 2007/02/24 00:01:29 tom Exp $
+ *  $Id: util.c,v 1.180 2007/04/08 18:16:45 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1397,19 +1397,14 @@ dlg_del_window(WINDOW *win)
 	wnoutrefresh(stdscr);
     }
 
-    for (p = dialog_state.all_windows, r = 0; p != 0; r = p, p = q) {
-	q = p->next;
+    for (p = dialog_state.all_windows, q = r = 0; p != 0; r = p, p = p->next) {
 	if (p->normal == win) {
-	    if (p->shadow != 0)
-		delwin(p->shadow);
-	    delwin(p->normal);
-	    dlg_unregister_window(p->normal);
+	    q = p;		/* found a match - should be only one */
 	    if (r == 0) {
-		dialog_state.all_windows = q;
+		dialog_state.all_windows = p->next;
 	    } else {
-		r->next = q;
+		r->next = p->next;
 	    }
-	    free(p);
 	} else {
 	    if (p->shadow != 0) {
 		touchwin(p->shadow);
@@ -1418,6 +1413,14 @@ dlg_del_window(WINDOW *win)
 	    touchwin(p->normal);
 	    wnoutrefresh(p->normal);
 	}
+    }
+
+    if (q) {
+	if (q->shadow != 0)
+	    delwin(q->shadow);
+	delwin(q->normal);
+	dlg_unregister_window(q->normal);
+	free(q);
     }
     doupdate();
 }
