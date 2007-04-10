@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.6 2007/02/22 22:02:49 tom Exp $
+ *  $Id: progressbox.c,v 1.7 2007/04/08 16:33:06 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -181,6 +181,7 @@ dialog_progressbox(const char *title, const char *cprompt, int height, int width
     dlg_unregister_window(text);
     dlg_del_window(dialog);
     free(prompt);
+    free(obj);
 
     return DLG_EXIT_OK;
 }

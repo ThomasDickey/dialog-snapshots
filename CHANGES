@@ -1,8 +1,25 @@
--- $Id: CHANGES,v 1.213 2007/03/25 22:28:57 tom Exp $
+-- $Id: CHANGES,v 1.216 2007/04/09 21:26:11 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/04/09
+	+ add case in dlg_getc() to handle tab for traversing between widgets
+	  as in the samples/tailboxbg1 script.  Normally the key binding
+	  overrides, except for the special case where multiple widgets are
+	  available.
+	+ add configure --with-libtool-opts, which passes its value to the
+	  library creation and linkage passes, e.g.,
+	  	--with-libtool-opts=-static
+	  to force the result to be static libraries (prompted by a related
+	  request by Santiago Vila).
+	> several fixes based on Coverity scan:
+	+ fix memory leak in timebox, calendar widgets if the widget cannot
+	  be created.
+	+ fix memory leak in dlg_key.c if a user binding's storage cannot
+	  be allocated.
+	+ fix improperly delinked entry in dlg_del_window().
 
 2007/03/25
 	+ improve mkdirs.sh to ignore error from mkdir if the target directory

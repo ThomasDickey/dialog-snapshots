@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.36 2007/02/18 20:20:23 tom Exp $
+ * $Id: timebox.c,v 1.37 2007/04/08 16:42:43 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- * Copyright 2001-2005,2006   Thomas E. Dickey
+ * Copyright 2001-2006,2007   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -118,6 +118,16 @@ init_object(BOX * data,
     return 0;
 }
 
+static int
+CleanupResult(int code, WINDOW *dialog, char *prompt)
+{
+    dlg_del_window(dialog);
+    dlg_mouse_free_regions();
+    free(prompt);
+
+    return code;
+}
+
 #define DrawObject(data) draw_cell(data)
 
 /*
@@ -217,8 +227,9 @@ dialog_timebox(const char *title,
 		    24,
 		    hour >= 0 ? hour : current.tm_hour,
 		    'H') < 0
-	|| DrawObject(&hr_box) < 0)
-	return -1;
+	|| DrawObject(&hr_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     mvwprintw(dialog, hr_box.y, hr_box.x + ONE_WIDE + MARGIN, ":");
     if (init_object(&mn_box,
@@ -230,8 +241,9 @@ dialog_timebox(const char *title,
 		    60,
 		    minute >= 0 ? minute : current.tm_min,
 		    'M') < 0
-	|| DrawObject(&mn_box) < 0)
-	return -1;
+	|| DrawObject(&mn_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     mvwprintw(dialog, mn_box.y, mn_box.x + ONE_WIDE + MARGIN, ":");
     if (init_object(&sc_box,
@@ -243,8 +255,9 @@ dialog_timebox(const char *title,
 		    60,
 		    second >= 0 ? second : current.tm_sec,
 		    'S') < 0
-	|| DrawObject(&sc_box) < 0)
-	return -1;
+	|| DrawObject(&sc_box) < 0) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+    }
 
     while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sHR ? &hr_box
@@ -361,11 +374,9 @@ dialog_timebox(const char *title,
 	}
     }
 
-    dlg_del_window(dialog);
     sprintf(buffer, "%02d:%02d:%02d\n",
 	    hr_box.value, mn_box.value, sc_box.value);
     dlg_add_result(buffer);
-    dlg_mouse_free_regions();
-    free(prompt);
-    return result;
+
+    return CleanupResult(result, dialog, prompt);
 }
