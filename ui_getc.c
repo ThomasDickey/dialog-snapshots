@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.35 2007/04/08 23:57:09 tom Exp $
+ *  $Id: ui_getc.c,v 1.37 2007/05/14 22:24:00 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -186,6 +186,7 @@ dlg_getc(WINDOW *win, int *fkey)
 {
     WINDOW *save_win = win;
     int ch = ERR;
+    int before_lookup;
     int result;
     bool done = FALSE;
     bool literal = FALSE;
@@ -233,6 +234,12 @@ dlg_getc(WINDOW *win, int *fkey)
 		last_getc = my_wchar;
 		break;
 	    case ERR:
+		current = time((time_t *) 0);
+		if (interval > 0
+		    && current >= expired) {
+		    dlg_exiterr("timeout");
+		}
+		/* if error from resizing, wait and try again */
 		napms(50);
 		continue;
 	    default:
@@ -243,6 +250,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	}
 #else
 	ch = wgetch(win);
+	/* if error from resizing, wait and try again */
 	if (ch == ERR) {
 	    napms(50);
 	    continue;
@@ -255,6 +263,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	    continue;
 	}
 
+	before_lookup = ch;
 	ch = dlg_lookup_key(win, ch, fkey);
 	dlg_trace_chr(ch, *fkey);
 
@@ -291,7 +300,8 @@ dlg_getc(WINDOW *win, int *fkey)
 	     * nominal (control) window closes, we'll close the windows with
 	     * callbacks.
 	     */
-	    if (dialog_state.getc_callbacks != 0) {
+	    if (dialog_state.getc_callbacks != 0 &&
+		before_lookup == TAB) {
 		if ((p = dialog_state.getc_redirect) != 0) {
 		    p = p->next;
 		} else {

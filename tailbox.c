@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.51 2007/02/22 22:36:02 tom Exp $
+ *  $Id: tailbox.c,v 1.52 2007/05/14 23:07:11 tom Exp $
  *
  * tailbox.c -- implements the tail box
  *
@@ -223,6 +223,8 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 	    beep();
 	    break;
 	}
+	if ((obj->hscroll != obj->old_hscroll))
+	    repaint_text(obj);
     } else {
 	switch (ch) {
 	case ERR:
