@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.37 2007/05/14 22:24:00 tom Exp $
+ *  $Id: ui_getc.c,v 1.38 2007/05/27 23:28:42 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -234,14 +234,9 @@ dlg_getc(WINDOW *win, int *fkey)
 		last_getc = my_wchar;
 		break;
 	    case ERR:
-		current = time((time_t *) 0);
-		if (interval > 0
-		    && current >= expired) {
-		    dlg_exiterr("timeout");
-		}
-		/* if error from resizing, wait and try again */
-		napms(50);
-		continue;
+		ch = ERR;
+		last_getc = ERR;
+		break;
 	    default:
 		break;
 	    }
@@ -250,11 +245,6 @@ dlg_getc(WINDOW *win, int *fkey)
 	}
 #else
 	ch = wgetch(win);
-	/* if error from resizing, wait and try again */
-	if (ch == ERR) {
-	    napms(50);
-	    continue;
-	}
 	last_getc = ch;
 	*fkey = (ch > KEY_MIN && ch < KEY_MAX);
 #endif
