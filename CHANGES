@@ -1,10 +1,15 @@
--- $Id: CHANGES,v 1.217 2007/05/14 23:16:00 tom Exp $
+-- $Id: CHANGES,v 1.219 2007/05/28 12:23:15 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2007/04/14
+2007/05/28
+	+ revise changes needed to make textbox's searchbox handle ncurses
+	  resizing events, e.g., by handling the ERR in that code rather than
+	  in dlg_getc() (Debian #423732).
+
+2007/05/14
 	+ supply a repaint_text() call in tailbox.c which was bypassed because
 	  dlg_getc() now retries on ERR (Debian #423732, cf: 2007/02/27).
 	+ modify dlg_getc() to fix regression for use of timeouts, broken by

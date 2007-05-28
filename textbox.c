@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.89 2007/02/26 23:14:12 tom Exp $
+ *  $Id: textbox.c,v 1.91 2007/05/28 12:29:34 tom Exp $
  *
- *  textbox.c -- implements the text box
+ * textbox.c -- implements the text box
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ * Copyright 2000-2006,2007 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -502,10 +502,6 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 
     box_x = (width - box_width) / 2;
     box_y = (height - box_height) / 2;
-#ifdef HAVE_COLOR
-    if (dialog_state.use_shadow)
-	dlg_draw_shadow(dialog, box_y, box_x, box_height, box_width);
-#endif
     widget = dlg_new_window(box_height, box_width, old_y + box_y, old_x + box_x);
     keypad(widget, TRUE);
     dlg_register_window(widget, "searchbox", binding);
@@ -541,6 +537,9 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 		}
 	    } else if (key == ESC) {
 		result = DLG_EXIT_ESC;
+		continue;
+	    } else if (key == ERR) {
+		napms(50);
 		continue;
 	    }
 	}
@@ -582,7 +581,7 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	    if (result == DLG_EXIT_CANCEL) {
 		ungetch(key);
 		ungetch(KEY_RESIZE);
-		return TRUE;
+		/* FALLTHRU */
 	    }
 #endif
 	    /* ESC pressed, or no search term, reprint page to clear box */
