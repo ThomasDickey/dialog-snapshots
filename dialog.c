@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.163 2007/02/25 19:06:11 tom Exp $
+ * $Id: dialog.c,v 1.164 2007/06/03 20:03:28 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1426,7 +1426,7 @@ main(int argc, char *argv[])
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
-    int j;
+    int j, have;
     eOptions code;
     const Mode *modePtr;
     char my_buffer[MAX_LEN + 1];
@@ -1538,22 +1538,6 @@ main(int argc, char *argv[])
 
     init_dialog(dialog_state.input, dialog_state.output);
 
-    /*
-     * Trim whitespace from non-title option values, e.g., the ones that
-     * will be used as captions or prompts.
-     */
-    for (j = 1; j < argc; j++) {
-	switch (lookupOption(argv[j - 1], 7)) {
-	case o_unknown:
-	case o_title:
-	case o_backtitle:
-	    break;
-	default:
-	    dlg_trim_string(argv[j]);
-	    break;
-	}
-    }
-
     while (offset < argc && !esc_pressed) {
 	init_result(my_buffer);
 
@@ -1590,18 +1574,39 @@ main(int argc, char *argv[])
 	    Usage(temp);
 	}
 
-	if (arg_rest(&argv[offset]) < modePtr->argmin) {
+	have = arg_rest(&argv[offset]);
+	if (have < modePtr->argmin) {
 	    sprintf(temp, "Expected at least %d tokens for %.20s, have %d",
 		    modePtr->argmin - 1, argv[offset],
-		    arg_rest(&argv[offset]) - 1);
+		    have - 1);
 	    Usage(temp);
 	}
-	if (modePtr->argmax && arg_rest(&argv[offset]) > modePtr->argmax) {
+	if (modePtr->argmax && have > modePtr->argmax) {
 	    sprintf(temp,
 		    "Expected no more than %d tokens for %.20s, have %d",
 		    modePtr->argmax - 1, argv[offset],
-		    arg_rest(&argv[offset]) - 1);
+		    have - 1);
 	    Usage(temp);
+	}
+
+	/*
+	 * Trim whitespace from non-title option values, e.g., the ones that
+	 * will be used as captions or prompts.   Do that only for the widget
+	 * we are about to process, since the "--trim" option is reset before
+	 * accumulating options for each widget.
+	 */
+	for (j = offset + 1; j <= offset + have; j++) {
+	    switch (lookupOption(argv[j - 1], 7)) {
+	    case o_unknown:
+	    case o_title:
+	    case o_backtitle:
+		break;
+	    default:
+		if (argv[j] != 0) {
+		    dlg_trim_string(argv[j]);
+		}
+		break;
+	    }
 	}
 
 	retval = show_result((*(modePtr->jumper)) (dialog_vars.title,

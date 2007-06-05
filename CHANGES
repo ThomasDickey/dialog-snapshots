@@ -1,8 +1,19 @@
--- $Id: CHANGES,v 1.219 2007/05/28 12:23:15 tom Exp $
+-- $Id: CHANGES,v 1.221 2007/06/04 22:41:50 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/06/04
+	+ fix a memory leak in editbox.c
+	+ revise change from 2007/02/27 which moved the logic for trimming
+	  option text out of the loop because that moved it before
+	  initialization of the "--trim" option.  Put it back in the loop, but
+	  limit the tokens which are trimmed to cover only those for the
+	  current widget.  Also ensure that all tokens for a widget are
+	  trimmed, rather than only the first, which is usually text (report by
+	  Lai Zit Seng).
+	+ add _FILE_OFFSET_BITS definition in CF_LARGEFILE configure macro.
 
 2007/05/28
 	+ revise changes needed to make textbox's searchbox handle ncurses

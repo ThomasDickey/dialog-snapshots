@@ -1,6 +1,6 @@
 dnl macros used for DIALOG configure script
 dnl Copyright 1999-2006,2007 -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.64 2007/05/14 19:05:44 tom Exp $
+dnl $Id: aclocal.m4,v 1.65 2007/06/03 16:56:55 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -1768,7 +1768,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -we147 -no-gcc"
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LARGEFILE version: 6 updated: 2006/09/23 19:07:52
+dnl CF_LARGEFILE version: 7 updated: 2007/06/02 11:58:50
 dnl ------------
 dnl Add checks for large file support.
 AC_DEFUN([CF_LARGEFILE],[
@@ -1786,6 +1786,7 @@ ifdef([AC_FUNC_FSEEKO],[
 	# the config.h
 	test "$ac_cv_sys_large_files"      != no && CPPFLAGS="$CPPFLAGS -D_LARGE_FILES "
 	test "$ac_cv_sys_largefile_source" != no && CPPFLAGS="$CPPFLAGS -D_LARGEFILE_SOURCE "
+	test "$ac_cv_sys_file_offset_bits" != no && CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits "
 
 	AC_CACHE_CHECK(whether to use struct dirent64, cf_cv_struct_dirent64,[
 		AC_TRY_COMPILE([
