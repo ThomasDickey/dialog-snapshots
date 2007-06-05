@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.42 2007/02/26 23:40:46 tom Exp $
+ *  $Id: editbox.c,v 1.43 2007/06/04 22:20:40 tom Exp $
  *
- *  editbox.c -- implements the edit box
+ * editbox.c -- implements the edit box
  *
- *  Copyright 2007	Thomas E. Dickey
+ * Copyright 2007 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -108,6 +108,11 @@ static void
 free_list(char ***list, int *rows)
 {
     if (*list != 0) {
+	int n;
+	for (n = 0; n < (*rows); ++n) {
+	    if ((*list)[n] != 0)
+		free((*list)[n]);
+	}
 	free(*list);
 	*list = 0;
     }
@@ -627,6 +632,7 @@ dlg_editbox(const char *title,
 	}
     }
 
+    dlg_unregister_window(editing);
     dlg_del_window(editing);
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
@@ -643,6 +649,7 @@ dlg_editbox(const char *title,
 	    dlg_add_result("\n");
 	}
     }
+    free(buffer);
     return result;
 }
 
