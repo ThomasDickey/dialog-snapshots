@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.37 2007/02/25 20:58:11 tom Exp $
+.\" $Id: dialog.3,v 1.38 2007/07/04 20:26:07 tom Exp $
 .\" Copyright 2005-2006,2007  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2007/02/25 20:58:11 $"
+.TH DIALOG 3 "" "$Date: 2007/07/04 20:26:07 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -2062,6 +2062,28 @@ is the window on which to perform the input
 .B int * \fIfkey
 the referenced location is set to true if the key-code is an actual
 or extended (mouse) function-key.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_new_modal_window
+Create a modal window, optionally with a shadow.
+The shadow is created if dialog_state.use_shadow is true.
+.RS
+.TP 5
+.B WINDOW * \fIparent
+is the parent window (usually the top-level window of a widget)
+.TP 5
+.B int \fIheight
+is the window's height
+.TP 5
+.B int \fIwidth
+is the window's width
+.TP 5
+.B int \fIy
+is the window's top-row
+.TP 5
+.B int \fIx
+is the window's left-column
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.91 2007/05/28 12:29:34 tom Exp $
+ *  $Id: textbox.c,v 1.92 2007/07/04 20:28:07 tom Exp $
  *
  * textbox.c -- implements the text box
  *
@@ -502,7 +502,9 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 
     box_x = (width - box_width) / 2;
     box_y = (height - box_height) / 2;
-    widget = dlg_new_window(box_height, box_width, old_y + box_y, old_x + box_x);
+    widget = dlg_new_modal_window(dialog,
+				  box_height, box_width,
+				  old_y + box_y, old_x + box_x);
     keypad(widget, TRUE);
     dlg_register_window(widget, "searchbox", binding);
 

@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.h,v 1.21 2007/02/21 22:40:29 tom Exp $
+ *  $Id: dlg_keys.h,v 1.22 2007/07/04 11:17:55 tom Exp $
  *
- *  dlg_keys.h -- runtime binding support for dialog
+ * dlg_keys.h -- runtime binding support for dialog
  *
- *  Copyright 2005	Thomas E. Dickey
+ * Copyright 2005,2007 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -33,6 +33,10 @@
 #else
 #define dlg_toupper(ch) toupper(ch)
 #define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct {
@@ -117,6 +121,10 @@ extern void dlg_unregister_window(WINDOW * /*win*/);
 #ifdef HAVE_RC_FILE
 extern int dlg_parse_bindkey(char * /*params*/);
 extern void dlg_dump_keys(FILE * /*fp*/);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* DLG_KEYS_H_included */

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.192 2007/02/23 22:47:13 tom Exp $
+ *  $Id: dialog.h,v 1.193 2007/07/04 20:11:26 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -583,6 +583,7 @@ extern void dlg_remove_callback(DIALOG_CALLBACK * /*p*/);
 extern void dlg_killall_bg(int *retval);
 
 /* util.c */
+extern WINDOW * dlg_new_modal_window(WINDOW * /*parent*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_new_window(int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_sub_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern char * dlg_set_result(const char * /*string*/);
