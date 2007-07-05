@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.38 2007/05/27 23:28:42 tom Exp $
+ *  $Id: ui_getc.c,v 1.40 2007/07/04 12:43:54 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -176,6 +176,25 @@ dlg_flush_getc(void)
 }
 
 /*
+ * Check if the stream has been unexpectedly closed, returning false in that
+ * case.
+ */
+static bool
+valid_file(FILE *fp)
+{
+    bool code = FALSE;
+    int fd = fileno(fp);
+
+    if (fd >= 0) {
+	long result = 0;
+	if ((result = fcntl(fd, F_GETFL, 0)) >= 0) {
+	    code = TRUE;
+	}
+    }
+    return code;
+}
+
+/*
  * Read a character from the given window.  Handle repainting here (to simplify
  * things in the calling application).  Also, if input-callback(s) are set up,
  * poll the corresponding files and handle the updates, e.g., for displaying a
@@ -281,6 +300,11 @@ dlg_getc(WINDOW *win, int *fkey)
 	    } else {
 		done = (interval <= 0);
 	    }
+	    if (!valid_file(stdin)
+		&& !valid_file(dialog_state.screen_output)) {
+		ch = ESC;
+		done = TRUE;
+	    }
 	    break;
 	case DLGK_FIELD_NEXT:
 	    /* FALLTHRU */
@@ -317,6 +341,13 @@ dlg_getc(WINDOW *win, int *fkey)
 		done = TRUE;
 	    }
 	    break;
+#ifdef NO_LEAKS
+	case DLG_CTRL('P'):	/* for testing, ^P closes the connection */
+	    close(0);
+	    close(1);
+	    close(2);
+	    break;
+#endif
 #ifdef HAVE_DLG_TRACE
 	case CHR_TRACE:
 	    dlg_trace_win(win);

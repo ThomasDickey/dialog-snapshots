@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.56 2007/04/08 21:10:55 tom Exp $
+# $Id: makefile.in,v 1.60 2007/07/04 19:33:35 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -37,6 +37,7 @@ CFLAGS		= @CFLAGS@
 CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DLOCALEDIR=\"$(localedir)\"
 EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 CC		= @CC@
+CPP		= @CPP@
 AR		= @AR@
 LDFLAGS		= @LDFLAGS@
 LIBS		= @LIBS@ @INTLDIR_MAKE@ @INTLLIBS@
@@ -65,7 +66,10 @@ PACKAGE		= `echo @PACKAGE@ |sed @program_transform_name@`
 #
 # Standard .c to .o compile line.
 #
-.SUFFIXES: .c $o
+.SUFFIXES: .c .i $o
+.c.i :
+@RULE_CC@
+	@ECHO_CC@$(CPP) $(CPPFLAGS) -c $< >$@
 .c$o :
 @RULE_CC@
 	@ECHO_CC@$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
@@ -137,7 +141,7 @@ uninstall ::
 clean	::
 	@- $(RM) -r autom4te.cache
 	- $(RM) *.*cov *.da *.bb *.bbg
-	- $(LIBTOOL_CLEAN) $(RM) *$o $(ALL)
+	- $(LIBTOOL_CLEAN) $(RM) *.i *$o $(ALL)
 	- $(RM) headers.sed
 	- $(RM) core *~ tags TAGS
 
@@ -145,6 +149,7 @@ distclean :: clean
 	$(RM) intl/libintl.h intl/po2tbl.sed
 	$(RM) makefile dlg_config.h config.cache config.log config.status
 	$(RM) samples/install/makefile
+	$(RM) headers-sh
 	$(RM) dialog-config
 
 install :: install-bin install-man
@@ -183,10 +188,10 @@ install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ echo "** installing library in $(LIBDIR)"
 	@ $(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(LIBDIR)
 	@ echo "** installing headers in $(INCLUDEDIR)"
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dialog.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_colors.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_keys.h
-	@ $(SHELL) $(srcdir)/headers.sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
+	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dialog.h
+	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_colors.h
+	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_keys.h
+	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
 
 uninstall-lib :: $(BINDIR)
 	$(RM) $(BINDIR)/dialog-config
@@ -204,8 +209,8 @@ install-lib :: $(MAN3DIR)
 uninstall-lib ::
 	$(RM) $(MAN3DIR)/$(PACKAGE).3
 
-headers.sed : $(srcdir)/headers.sh
-	$(SHELL) $(srcdir)/headers.sh $(INCLUDEDIR) $(srcdir)
+headers.sed : $(srcdir)/headers-sh
+	$(SHELL) $(srcdir)/headers-sh $(INCLUDEDIR) $(srcdir)
 
 $(MAN1DIR) \
 $(MAN3DIR) \

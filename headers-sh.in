@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: headers.sh,v 1.3 2007/02/25 20:37:56 tom Exp $
+# $Id: headers-sh.in,v 1.5 2007/07/05 00:20:18 tom Exp $
 ##############################################################################
 # Copyright (c) 2004,2007 Thomas E. Dickey                                   #
 #                                                                            #
@@ -40,17 +40,27 @@
 #	$3 is the source directory
 #	$4 is the file to install, editing source/target/etc.
 
-PACKAGE=DIALOG
-PKGNAME=DLG
-CONFIGH=dlg_config.h
+PACKAGE=@PACKAGE@
+PKGNAME=@PACKAGE_PREFIX@
+CONFIGH=@PACKAGE_CONFIG@
 
 TMPSED=headers.sed
+
+DIGIT=0123456789
+alpha=abcdefghijklmnopqrstuvwxyz
+ALPHA=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+alnum=_${DIGIT}${alpha}
+ALNUM=_${DIGIT}${ALPHA}
+MIXED=_${DIGIT}${ALPHA}${alpha}
 
 if test $# = 2 ; then
 	rm -f $TMPSED
 	DST=$1
 	REF=$2
 	LEAF=`basename $DST`
+
+	# map the include-directory, if needed, to the subdirectory
 	case $DST in
 	/*/include/$LEAF)
 		END=`basename $DST`
@@ -64,8 +74,41 @@ if test $# = 2 ; then
 		echo "" >> $TMPSED
 		;;
 	esac
+
+	# cannot do _this_ in -e options:
+	cat >headers.tmp <<EOF
+s/^#[^ ][^ ]*//
+s/[^'$MIXED']/ /g
+s/[ 	][ 	]*/ /g
+s/^ //
+s/ $//
+:split
+	h
+	s/ .*//
+	p
+	t next
+	b done
+:next
+	x
+	s/^[^ ][^ ]* //
+	t split
+:done
+EOF
+	# pick up autoconf-style symbols used in the application's headers
+	for i in $REF/*.h
+	do
+		sed -e 's/^[ 	][ 	]*#[ 	][ 	]*/#/' $i \
+		| egrep '^#(if|ifdef|ifndef|elif)' \
+		| sed	-f headers.tmp \
+		| sort -u \
+		| egrep '^(HAVE_|NEED_|NO_|ENABLE_|DISABLE_)' \
+		| sed	-e 's%^\(.*\)%s/\\<\1\\>/'${PKGNAME}'_\1/g%' >>$TMPSED
+	done
+	rm -f headers.tmp
+
+	# pick up autoconf-defined symbols in the config.h file
 	for name in `
-	egrep '^#define[ 	][ 	]*[_ABCDEFGHIJKLMNOPQRSTUVWXYZ]' $REF/$CONFIGH \
+	egrep '^#define[ 	][ 	]*['$ALNUM']' $REF/$CONFIGH \
 		| sed	-e 's/^#define[ 	][ 	]*//' \
 			-e 's/[ 	].*//' \
 		| egrep -v "^${PACKAGE}_" \
@@ -74,6 +117,10 @@ if test $# = 2 ; then
 	do
 		echo "s/\\<$name\\>/${PKGNAME}_$name/g" >>$TMPSED
 	done
+
+	# reduce the count if possible, since some old sed's limit is 100 lines
+	sort -u $TMPSED >headers.tmp
+	mv headers.tmp $TMPSED
 else
 	PRG=""
 	while test $# != 3

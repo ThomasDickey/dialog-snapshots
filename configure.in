@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.50 2007/04/08 19:29:12 tom Exp $
+dnl $Id: configure.in,v 1.52 2007/07/04 19:35:46 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -35,11 +35,7 @@ CF_LIB_PREFIX
 CF_XOPEN_SOURCE
 CF_LARGEFILE
 
-AC_ARG_WITH(warnings,
-[  --with-warnings         turn on gcc warnings, for debugging],[
-	CF_GCC_ATTRIBUTES
-	CF_GCC_WARNINGS
-])
+CF_WITH_WARNINGS
 
 dnl
 dnl Checks for libraries.
@@ -179,6 +175,8 @@ CF_CURSES_CHTYPE
 CF_FUNC_WAIT
 CF_MBSTATE_T
 
+CF_HEADERS_SH(DLG,dlg_config.h)
+
 AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
 
-AC_OUTPUT(dialog-config makefile $SUB_MAKEFILE samples/install/makefile,,,sort -u)
+AC_OUTPUT(dialog-config makefile $EXTRA_OUTPUT $SUB_MAKEFILE samples/install/makefile,,,sort -u)

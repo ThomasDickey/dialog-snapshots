@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.180 2007/04/08 18:16:45 tom Exp $
+ *  $Id: util.c,v 1.184 2007/07/04 20:44:46 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1021,6 +1021,25 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
 
 #ifdef HAVE_COLOR
 /*
+ * Draw a shadow on the parent window corresponding to the right- and
+ * bottom-edge of the child window, to give a 3-dimensional look.
+ */
+static void
+draw_childs_shadow(WINDOW *parent, WINDOW *child)
+{
+    if (has_colors()) {		/* Whether terminal supports color? */
+	chtype save = getattrs(parent);
+
+	dlg_draw_shadow(parent,
+			getbegy(child) - getbegy(parent),
+			getbegx(child) - getbegx(parent),
+			getmaxy(child),
+			getmaxx(child));
+	wattrset(parent, save);
+    }
+}
+
+/*
  * Draw shadows along the right and bottom edge to give a more 3D look
  * to the boxes
  */
@@ -1048,13 +1067,6 @@ dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
 	(void) wnoutrefresh(win);
     }
 }
-
-#define dlg_draw_shadow_box(win, height, width) \
-	dlg_draw_shadow((win), \
-			(height) - SHADOW_ROWS, \
-			(width) - SHADOW_COLS, \
-			(height), \
-			(width))
 #endif /* HAVE_COLOR */
 
 /*
@@ -1416,8 +1428,6 @@ dlg_del_window(WINDOW *win)
     }
 
     if (q) {
-	if (q->shadow != 0)
-	    delwin(q->shadow);
 	delwin(q->normal);
 	dlg_unregister_window(q->normal);
 	free(q);
@@ -1434,16 +1444,6 @@ dlg_new_window(int height, int width, int y, int x)
     WINDOW *win;
     DIALOG_WINDOWS *p = dlg_calloc(DIALOG_WINDOWS, 1);
 
-#ifdef HAVE_COLOR
-    if (dialog_state.use_shadow) {
-	if ((win = newwin(height, width,
-			  y + SHADOW_ROWS,
-			  x + SHADOW_COLS)) != 0) {
-	    dlg_draw_shadow_box(win, height, width);
-	}
-	p->shadow = win;
-    }
-#endif
     if ((win = newwin(height, width, y, x)) == 0) {
 	dlg_exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
 		    y, x, height, width);
@@ -1451,6 +1451,35 @@ dlg_new_window(int height, int width, int y, int x)
     p->next = dialog_state.all_windows;
     p->normal = win;
     dialog_state.all_windows = p;
+#ifdef HAVE_COLOR
+    if (dialog_state.use_shadow) {
+	draw_childs_shadow(p->shadow = stdscr, win);
+    }
+#endif
+
+    (void) keypad(win, TRUE);
+    return win;
+}
+
+WINDOW *
+dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
+{
+    WINDOW *win;
+    DIALOG_WINDOWS *p = dlg_calloc(DIALOG_WINDOWS, 1);
+
+    (void) parent;
+    if ((win = newwin(height, width, y, x)) == 0) {
+	dlg_exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
+		    y, x, height, width);
+    }
+    p->next = dialog_state.all_windows;
+    p->normal = win;
+    dialog_state.all_windows = p;
+#ifdef HAVE_COLOR
+    if (dialog_state.use_shadow) {
+	draw_childs_shadow(p->shadow = parent, win);
+    }
+#endif
 
     (void) keypad(win, TRUE);
     return win;
@@ -1481,10 +1510,8 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 #ifdef HAVE_COLOR
 	    if (p->shadow != 0) {
 		if (dialog_state.use_shadow) {
-		    (void) wresize(p->shadow, height, width);
 		    (void) mvwin(p->shadow, y + SHADOW_ROWS, x + SHADOW_COLS);
 		} else {
-		    delwin(p->shadow);
 		    p->shadow = 0;
 		}
 	    }
@@ -1493,7 +1520,7 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 
 #ifdef HAVE_COLOR
 	    if (p->shadow)
-		dlg_draw_shadow_box(p->shadow, height, width);
+		draw_childs_shadow(p->shadow, win);
 #endif
 	}
     }

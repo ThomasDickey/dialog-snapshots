@@ -1,6 +1,10 @@
 dnl macros used for DIALOG configure script
 dnl Copyright 1999-2006,2007 -- Thomas E. Dickey
-dnl $Id: aclocal.m4,v 1.65 2007/06/03 16:56:55 tom Exp $
+dnl
+dnl see
+dnl http://invisible-island.net/autoconf/ 
+dnl
+dnl $Id: aclocal.m4,v 1.68 2007/07/04 19:37:45 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -1499,7 +1503,7 @@ if test "$GCC" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 20 updated: 2005/08/06 18:37:29
+dnl CF_GCC_WARNINGS version: 21 updated: 2007/06/27 18:12:15
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -1545,7 +1549,7 @@ then
 	AC_CHECKING([for $CC warning options])
 	cf_save_CFLAGS="$CFLAGS"
 	EXTRA_CFLAGS="-Wall"
-	for cf_opt in $1 \
+	for cf_opt in \
 		wd1419 \
 		wd1682 \
 		wd1683 \
@@ -1639,6 +1643,17 @@ make an error
 ])
 test "$cf_cv_gnu_source" = yes && CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
 ])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_HEADERS_SH version: 1 updated: 2007/07/04 15:37:05
+dnl -------------
+dnl Setup variables needed to construct headers-sh
+AC_DEFUN([CF_HEADERS_SH],[
+PACKAGE_PREFIX=$1
+PACKAGE_CONFIG=$2
+AC_SUBST(PACKAGE_PREFIX)
+AC_SUBST(PACKAGE_CONFIG)
+EXTRA_OUTPUT="$EXTRA_OUTPUT headers-sh:$srcdir/headers-sh.in"
+])
 dnl ---------------------------------------------------------------------------
 dnl CF_HEADER_PATH version: 8 updated: 2002/11/10 14:46:59
 dnl --------------
@@ -3176,6 +3191,29 @@ AC_DEFUN([CF_WITH_VALGRIND],[
 CF_NO_LEAKS_OPTION(valgrind,
 	[  --with-valgrind         test: use valgrind],
 	[USE_VALGRIND])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_WARNINGS version: 5 updated: 2004/07/23 14:40:34
+dnl ----------------
+dnl Combine the checks for gcc features into a configure-script option
+dnl
+dnl Parameters:
+dnl	$1 - see CF_GCC_WARNINGS
+AC_DEFUN([CF_WITH_WARNINGS],
+[
+if ( test "$GCC" = yes || test "$GXX" = yes )
+then
+AC_MSG_CHECKING(if you want to check for gcc warnings)
+AC_ARG_WITH(warnings,
+	[  --with-warnings         test: turn on gcc warnings],
+	[cf_opt_with_warnings=$withval],
+	[cf_opt_with_warnings=no])
+AC_MSG_RESULT($cf_opt_with_warnings)
+if test "$cf_opt_with_warnings" != no ; then
+	CF_GCC_ATTRIBUTES
+	CF_GCC_WARNINGS([$1])
+fi
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_XOPEN_CURSES version: 8 updated: 2003/11/07 19:47:46
