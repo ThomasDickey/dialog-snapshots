@@ -1,15 +1,15 @@
 # Italian messages for dialog.
-# Copyright (C) 2004, 2005 Free Software Foundation, Inc.
+# Copyright (C) 2004, 2005, 2007 Free Software Foundation, Inc.
 # This file is distributed under the same license as the dialog package.
-# Marco Colombo <m.colombo@ed.ac.uk>, 2005.
+# Marco Colombo <m.colombo@ed.ac.uk>, 2005, 2007.
 # Marco Mariani <marcom@sferacarta.com>, 2004.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.0-rel20041222\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-02-25 16:06-0500\n"
-"PO-Revision-Date: 2005-02-09 17:23+0000\n"
+"PO-Revision-Date: 2007-08-06 15:47+0100\n"
 "Last-Translator: Marco Colombo <m.colombo@ed.ac.uk>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -68,44 +68,43 @@ msgstr "File"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Riuscito"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "File"
+msgstr "Fallito"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Superato"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Completato"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Controllato"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Fatto"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Saltato"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "In corso"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Progresso complessivo"
 
 #: textbox.c:489
 msgid "Search"

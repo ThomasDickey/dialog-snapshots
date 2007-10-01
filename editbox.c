@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.43 2007/06/04 22:20:40 tom Exp $
+ *  $Id: editbox.c,v 1.45 2007/09/30 17:45:18 tom Exp $
  *
  * editbox.c -- implements the edit box
  *
@@ -93,12 +93,17 @@ load_list(const char *file, char ***list, int *rows)
 	    }
 	}
 	if (pass) {
-	    for (n = 0; n < need; ++n) {
-		(*list)[n] = dlg_strclone((*list)[n]);
+	    if (need == 0) {
+		(*list)[0] = dlg_strclone("");
+		(*list)[1] = 0;
+	    } else {
+		for (n = 0; n < need; ++n) {
+		    (*list)[n] = dlg_strclone((*list)[n]);
+		}
+		(*list)[need] = 0;
 	    }
-	    (*list)[need] = 0;
 	} else {
-	    grow_list(list, rows, need);
+	    grow_list(list, rows, need + 1);
 	}
     }
     free(blob);
@@ -239,14 +244,20 @@ col_to_chr_offset(const char *text, int col)
 {
     const int *cols = dlg_index_columns(text);
     const int *indx = dlg_index_wchars(text);
+    bool found = FALSE;
     int result = 0;
     unsigned n;
     unsigned len = dlg_count_wchars(text);
+
     for (n = 0; n < len; ++n) {
 	if (cols[n] <= col && cols[n + 1] > col) {
 	    result = indx[n];
+	    found = TRUE;
 	    break;
 	}
+    }
+    if (!found && len && cols[len] == col) {
+	result = indx[len];
     }
     return result;
 }
@@ -511,7 +522,7 @@ dlg_editbox(const char *title,
 			    assert_ptr(tmp, "dlg_editbox");
 
 			    chr_offset = dlg_count_wchars(PREV_ROW);
-			    UPDATE_COL(THIS_ROW);
+			    UPDATE_COL(PREV_ROW);
 			    goal_col = col_offset;
 
 			    sprintf(tmp, "%s%s", PREV_ROW, THIS_ROW);

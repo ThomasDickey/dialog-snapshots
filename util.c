@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.184 2007/07/04 20:44:46 tom Exp $
+ *  $Id: util.c,v 1.185 2007/09/29 14:47:04 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1053,14 +1053,14 @@ dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
 	for (i = 0; i < SHADOW_ROWS; ++i) {
 	    for (j = 0; j < width; ++j) {
 		if (wmove(win, i + y + height, j + x + SHADOW_COLS) != ERR) {
-		    (void) waddch(win, CharOf(winch(win)));
+		    (void) waddch(win, winch(win) & (chtype) (~A_COLOR));
 		}
 	    }
 	}
 	for (i = 0; i < height; i++) {
 	    for (j = 0; j < SHADOW_COLS; ++j) {
 		if (wmove(win, i + y + SHADOW_ROWS, j + x + width) != ERR) {
-		    (void) waddch(win, CharOf(winch(win)));
+		    (void) waddch(win, winch(win) & (chtype) (~A_COLOR));
 		}
 	    }
 	}

@@ -1,111 +1,110 @@
-# Simplified Chinese translation for dialog.
-# Copyright 2003,2004 # Thomas Dickey
-# This file is distributed under the same license as the dialog package.
-# Meng Jie <zuxyhere@eastday.com>, 2005.
-# LI Daobing <lidaobing@gmail.com>, 2007.
+# Translation of Dialog into the walloon language.
+# Copyright 2003-2006,2007 # Thomas Dickey
 #
+# Pablo Saratxaga <pablo@walon.org>, 2007.
 msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-02-25 16:06-0500\n"
-"PO-Revision-Date: 2007-08-20 07:25+0800\n"
-"Last-Translator: Meng Jie <zuxy.meng@gmail.com>\n"
-"Language-Team: Chinese (simplified) <translation-team-zh-cn@lists.sourceforge.net>\n"
+"PO-Revision-Date: 2007-08-29 18:24+0200\n"
+"Last-Translator: Pablo Saratxaga <pablo@walon.org>\n"
+"Language-Team: Walloon <linux-wa@walon.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.0.2\n"
 
 #: buttons.c:379
 msgid "Yes"
-msgstr "是"
+msgstr "Oyi"
 
 #: buttons.c:387
 msgid "No"
-msgstr "否"
+msgstr "Neni"
 
 #: buttons.c:395
 msgid "OK"
-msgstr "确认"
+msgstr "'l est bon"
 
 #: buttons.c:403
 msgid "Cancel"
-msgstr "取消"
+msgstr "Rinoncî"
 
 #: buttons.c:411
 msgid "EXIT"
-msgstr "退出"
+msgstr "Moussî foû"
 
 #: buttons.c:419
 msgid "Extra"
-msgstr "附加"
+msgstr "Rawete"
 
 #: buttons.c:427
 msgid "Help"
-msgstr "帮助"
+msgstr "Aidance"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "月"
+msgstr "Moes"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "年"
+msgstr "Anêye"
 
 #: dialog.c:727
 msgid "Rename"
-msgstr "重命名"
+msgstr "Rilomer"
 
 #: fselect.c:548
 msgid "Directories"
-msgstr "目录"
+msgstr "Ridants"
 
 #: fselect.c:549
 msgid "Files"
-msgstr "文件"
+msgstr "Fitchîs"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr "成功"
+msgstr "Succès"
 
 #: mixedgauge.c:61
 msgid "Failed"
-msgstr "失败"
+msgstr "Berwete"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr "已跳过"
+msgstr "Passé"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr "已完成"
+msgstr "Tot fwait"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr "已检查"
+msgstr "Verifyî"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr "完成"
+msgstr "Fwait"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr "跳过"
+msgstr "Passé houte"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr "进行中"
+msgstr "En alaedje"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr "N/A"
+msgstr "N/D"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr "整体进度"
+msgstr "Avançmint"
 
 #: textbox.c:489
 msgid "Search"
-msgstr "搜索"
+msgstr "Cweri"

@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.76 2007/02/27 21:05:27 tom Exp $
+ *  $Id: buttons.c,v 1.77 2007/09/30 00:18:57 tom Exp $
  *
  * buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -204,6 +204,8 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
     int unused;
     int used;
 
+    if (count == 0)
+	return 0;
     dlg_button_sizes(labels, FALSE, &longest, &length);
     used = (length + (count * 2));
     unused = limit - used;
@@ -495,7 +497,8 @@ dlg_ok_labels(void)
     static const char *labels[5];
     int n = 0;
 
-    labels[n++] = my_ok_label();
+    if (!dialog_vars.nook)
+	labels[n++] = my_ok_label();
     if (dialog_vars.extra_button)
 	labels[n++] = my_extra_label();
     if (!dialog_vars.nocancel)
@@ -515,7 +518,7 @@ dlg_ok_buttoncode(int button)
     int result = DLG_EXIT_ERROR;
     int n = 1;
 
-    if (button <= 0) {
+    if (!dialog_vars.nook && button <= 0) {
 	result = DLG_EXIT_OK;
     } else if (dialog_vars.extra_button && (button == n++)) {
 	result = DLG_EXIT_EXTRA;

@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.40 2007/04/08 17:00:54 tom Exp $
+ *  $Id: rc.c,v 1.41 2007/09/30 21:15:42 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -135,7 +135,7 @@ skip_whitespace(char *str, int n)
 static int
 skip_keyword(char *str, int n)
 {
-    while (isalnum(CharOf(str[n])) && str[n] != '\0')
+    while (isalnum(UCH(str[n])) && str[n] != '\0')
 	n++;
     return n;
 }

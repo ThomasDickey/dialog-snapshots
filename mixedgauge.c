@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.16 2007/02/27 21:05:38 tom Exp $
+ *  $Id: mixedgauge.c,v 1.17 2007/09/30 21:14:38 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -52,7 +52,7 @@ status_string(char *given, bool * freeMe)
     char *result;
 
     *freeMe = FALSE;
-    if (isdigit(*given)) {
+    if (isdigit(UCH(*given))) {
 	switch (*given) {
 	case '0':
 	    result = _("Succeeded");
@@ -94,7 +94,7 @@ status_string(char *given, bool * freeMe)
 	*freeMe = TRUE;
 	sprintf(temp, "%3s%%", given);
 	result = temp;
-    } else if (!isspace(*given)) {
+    } else if (!isspace(UCH(*given))) {
 	result = given;
     } else {
 	result = 0;

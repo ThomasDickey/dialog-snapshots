@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.108 2007/03/25 21:40:27 tom Exp $
+.\" $Id: dialog.1,v 1.110 2007/09/30 00:31:26 tom Exp $
 .\" Copyright 2005-2006,2007  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2007/03/25 21:40:27 $"
+.TH DIALOG 1 "" "$Date: 2007/09/30 00:31:26 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -125,6 +125,9 @@ Blanks not within double-quotes are discarded
 The result is inserted into the command-line,
 replacing "\fB--file\fP" and its option value.
 Interpretation of the command-line resumes from that point.
+If \fIparameterfile\fP begins with "&", \fBdialog\fP
+interprets the following text as a file descriptor number
+rather than a filename.
 .
 .SS \fBCommon Options\fP
 .
@@ -355,6 +358,12 @@ Override the label used for "No" buttons.
 .IP "\fB--no-lines
 Rather than draw lines around boxes, draw spaces in the same place.
 See also "\fB--ascii-lines\fR".
+.
+.IP "\fB--no-ok"
+.IP "\fB--nook"
+Suppress the "OK" button in checklist, inputbox and menu box modes.
+A script can still test if the user pressed the "Enter" key to accept the data.
+.
 .
 .IP "\fB--no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.
