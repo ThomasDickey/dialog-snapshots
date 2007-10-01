@@ -1,19 +1,22 @@
 # Vietnamese Translation for Dialog.
-# Copyright 2005 Thomas Dickey (msgid)
-# This file is distributed under the same license as the dialog package.
-# Clytie Siddall <clytie@riverland.net.au>, 2005.
+# Copyright 2003,2004,2005 Thomas Dickey (msgid)
+# Copyright © 2007 Free Software Foundation, Inc.
+# This file is distributed under the same license as the dialog-1.0-rel20041222 package.
+# Clytie Siddall <clytie@riverland.net.au>, 2005-2007.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.0-rel20041222\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-02-25 16:06-0500\n"
-"PO-Revision-Date: 2005-01-21 20:15+0930\n"
+"PO-Revision-Date: 2007-07-26 18:31+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
-"Language-Team: Vietnamese <gnomevi-list@lists.sourceforge.net> \n"
+"Language-Team: Vietnamese <vi-VN@googlegroups.com> \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: LocFactoryEditor 1.7b1\n"
 
 #: buttons.c:379
 msgid "Yes"
@@ -25,7 +28,7 @@ msgstr "Không"
 
 #: buttons.c:395
 msgid "OK"
-msgstr "Được"
+msgstr "OK"
 
 #: buttons.c:403
 msgid "Cancel"
@@ -55,7 +58,7 @@ msgstr "Năm"
 
 #: dialog.c:727
 msgid "Rename"
-msgstr "Đổi tên"
+msgstr "Thay tên"
 
 #: fselect.c:548
 msgid "Directories"
@@ -67,44 +70,43 @@ msgstr "Tập tin"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Thành công"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "Tập tin"
+msgstr "Trượt"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Đỗ"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Hoàn toàn"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Đã kiểm tra"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Hoàn tất"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Bị bỏ qua"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "Đang chạy"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "Không có"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Toàn tiến hành"
 
 #: textbox.c:489
 msgid "Search"

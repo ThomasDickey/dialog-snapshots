@@ -1,8 +1,23 @@
--- $Id: CHANGES,v 1.226 2007/07/04 21:11:08 tom Exp $
+-- $Id: CHANGES,v 1.234 2007/09/30 19:36:57 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/09/30
+	+ correct cursor position in editbox after deleting past left margin
+	  (report by Joe McDonagh).
+	+ add "--no-ok" option (patch by Klaus Knopper).
+	+ modify "--file" option to allow it to read from sources other than
+	  a regular file (patch by Pieter van Beek).
+	+ improved hi.po (Hindi) (from Klaus Knopper).
+	+ fix masking of attributes in dlg_draw_shadow() which lost
+	  line-drawing bit (report by David Everly).
+	+ fix editbox widget to handle zero-length files (report by Joe
+	  McDonagh).
+	+ update "po" files eu.po ga.po it.po ms.po sv.po vi.po wa.po zh_CN.po
+	  from
+		http://translationproject.org/latest/dialog/
 
 2007/07/04
 	+ revise the resizable shadows so textbox's search dialog has text

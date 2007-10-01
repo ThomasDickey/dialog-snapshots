@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.164 2007/06/03 20:03:28 tom Exp $
+ * $Id: dialog.c,v 1.167 2007/09/30 21:15:42 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -96,6 +96,7 @@ typedef enum {
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
+    ,o_nook
     ,o_ok_label
     ,o_output_fd
     ,o_passwordbox
@@ -226,9 +227,11 @@ static const Options options[] = {
     { "no-kill",	o_no_kill,		1, "" },
     { "no-label",	o_no_label,		1, "<str>" },
     { "no-lines",	o_no_lines, 		1, "" },
+    { "no-ok",		o_nook,			1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
     { "noitem",		o_noitem,		1, NULL },
+    { "nook",		o_nook,			1, "" }, /* See no-ok */
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
@@ -302,7 +305,7 @@ string_to_argv(char *blob)
 		    inparm = TRUE;
 		}
 	    } else if (blob[n] == '\\') {
-		if (quoted && !isspace(CharOf(blob[n + 1]))) {
+		if (quoted && !isspace(UCH(blob[n + 1]))) {
 		    if (!inparm) {
 			if (pass)
 			    result[count] = param;
@@ -315,7 +318,7 @@ string_to_argv(char *blob)
 		    }
 		}
 		++n;
-	    } else if (!quoted && isspace(CharOf(blob[n]))) {
+	    } else if (!quoted && isspace(UCH(blob[n]))) {
 		inparm = FALSE;
 		if (pass) {
 		    *param++ = '\0';
@@ -420,24 +423,32 @@ unescape_argv(int *argcp, char ***argvp)
 		char **list;
 		char *blob;
 		int added;
+		int bytes_read;
 		int length;
 		int n;
-		struct stat sb;
 
-		if (stat(filename, &sb) == 0
-		    && (sb.st_mode & S_IFMT) == S_IFREG
-		    && sb.st_size != 0) {
-
-		    blob = dlg_malloc(char, sb.st_size + 1);
-		    assert_ptr(blob, "unescape_argv");
-
+		if (*filename == '&') {
+		    fp = fdopen(atoi(filename + sizeof(char)), "r");
+		} else {
 		    fp = fopen(filename, "r");
-		    if (fp != 0) {
-			length = fread(blob, sizeof(char), sb.st_size, fp);
-			fclose(fp);
-		    } else {
-			length = 0;
-		    }
+		}
+
+		if (fp) {
+		    blob = NULL;
+		    length = 0;
+		    do {
+			blob = dlg_realloc(char, length + BUFSIZ + 1, blob);
+			assert_ptr(blob, "unescape_argv");
+			bytes_read = fread(blob + length,
+					   sizeof(char),
+					   BUFSIZ,
+					   fp);
+			length += bytes_read;
+			if (ferror(fp))
+			    dlg_exiterr("error on filehandle in unescape_argv");
+		    } while (bytes_read == BUFSIZ);
+		    fclose(fp);
+
 		    blob[length] = '\0';
 
 		    list = string_to_argv(blob);
@@ -1206,6 +1217,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_nocancel:
 	    dialog_vars.nocancel = TRUE;
+	    break;
+	case o_nook:
+	    dialog_vars.nook = TRUE;
 	    break;
 	case o_single_quoted:
 	    dialog_vars.single_quoted = TRUE;

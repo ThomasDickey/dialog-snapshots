@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.193 2007/07/04 20:11:26 tom Exp $
+ *  $Id: dialog.h,v 1.194 2007/09/30 00:13:07 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -421,10 +421,12 @@ typedef struct {
     unsigned input_length;	/* nonzero if input_result is allocated */
     /* 1.0-20051207 */
     unsigned formitem_type;	/* DIALOG_FORMITEM.type in dialog_form() */
-    /* 1.0-20070227 */
+    /* 1.1-20070227 */
     bool keep_tite;		/* option "--keep-tite" */
     bool ascii_lines;		/* option "--ascii-lines" */
     bool no_lines;		/* option "--no-lines" */
+    /* 1.1-20070930 */
+    bool nook;			/* option "--no-ok" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)

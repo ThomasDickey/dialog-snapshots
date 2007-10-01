@@ -1,13 +1,13 @@
 # Swedish translation of dialog.
-# Copyright 2003,2004,2005 # Thomas Dickey
-# Daniel Nylander <po@danielnylander.se>, 2005.
+# Copyright 2003,2004,2005, 2007 # Thomas Dickey
+# Daniel Nylander <po@danielnylander.se>, 2005, 2007.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.0-rel20041222\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-02-25 16:06-0500\n"
-"PO-Revision-Date: 2005-12-20 19:38+0100\n"
+"PO-Revision-Date: 2007-07-23 00:02+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -66,44 +66,43 @@ msgstr "Filer"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Lyckades"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "Filer"
+msgstr "Misslyckades"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Klarades"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Färdig"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Kontrollerad"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Klar"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Hoppades över"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "Pågår"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "Inte tillgänglig"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Totalt förlopp"
 
 #: textbox.c:489
 msgid "Search"
