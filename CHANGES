@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.234 2007/09/30 19:36:57 tom Exp $
+-- $Id: CHANGES,v 1.237 2007/10/28 22:27:58 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2007/10/28
+	+ improve layout of checklist.c, menubox.c, ensuring that the list fits
+	  within the available space (report by Gordon Schumacher).
+	+ undo removal of redundant chunk from checklist.c in 2007/02/27,
+	  since some scripts depend on this (Debian #443077).
+	+ update nl.po from
+		http://translationproject.org/latest/dialog/
 
 2007/09/30
 	+ correct cursor position in editbox after deleting past left margin

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.110 2007/02/22 22:02:13 tom Exp $
+ *  $Id: menubox.c,v 1.111 2007/10/28 22:31:54 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -34,6 +34,8 @@ typedef enum {
     Selected,
     Editing
 } Mode;
+
+#define MIN_HIGH  (1 + (5 * MARGIN))
 
 #define INPUT_ROWS     3	/* rows per inputmenu entry */
 
@@ -319,7 +321,7 @@ dlg_menu(const char *title,
     int scrollamt = 0;
     int max_choice, min_width;
     int found;
-    int use_width, name_width, text_width;
+    int use_height, use_width, name_width, text_width;
     WINDOW *dialog, *menu;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
@@ -332,22 +334,17 @@ dlg_menu(const char *title,
   retry:
 #endif
 
-    if (menu_height == 0) {
+    use_height = menu_height;
+    if (use_height == 0) {
 	min_width = dlg_calc_list_width(item_no, items) + 10;
 	/* calculate height without items (4) */
-	dlg_auto_size(title, prompt, &height, &width, 4, MAX(26, min_width));
-	dlg_calc_listh(&height, &menu_height, item_no);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MAX(26, min_width));
+	dlg_calc_listh(&height, &use_height, item_no);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, 4 + menu_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
     }
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
-
-    /* Find out maximal number of displayable items at once. */
-    max_choice = MIN(menu_height,
-		     RowHeight(item_no));
-    if (is_inputmenu)
-	max_choice /= INPUT_ROWS;
 
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
@@ -370,15 +367,30 @@ dlg_menu(const char *title,
     box_y = cur_y + 1;
     box_x = (width - menu_width) / 2 - 1;
 
+    /*
+     * After displaying the prompt, we know how much space we really have.
+     * Limit the list to avoid overwriting the ok-button.
+     */
+    if (use_height + MIN_HIGH > height - cur_y)
+	use_height = height - MIN_HIGH - cur_y;
+    if (use_height <= 0)
+	use_height = 1;
+
+    /* Find out maximal number of displayable items at once. */
+    max_choice = MIN(use_height,
+		     RowHeight(item_no));
+    if (is_inputmenu)
+	max_choice /= INPUT_ROWS;
+
     /* create new window for the menu */
-    menu = dlg_sub_window(dialog, menu_height, menu_width,
+    menu = dlg_sub_window(dialog, use_height, menu_width,
 			  y + box_y + 1,
 			  x + box_x + 1);
     dlg_register_window(menu, "menu", binding2);
     dlg_register_buttons(menu, "menu", buttons);
 
     /* draw a box around the menu items */
-    dlg_draw_box(dialog, box_y, box_x, menu_height + 2, menu_width + 2,
+    dlg_draw_box(dialog, box_y, box_x, use_height + 2, menu_width + 2,
 		 menubox_border_attr, menubox_attr);
 
     name_width = 0;
@@ -431,10 +443,10 @@ dlg_menu(const char *title,
     (void) wnoutrefresh(menu);
 
     /* register the new window, along with its borders */
-    dlg_mouse_mkbigregion(box_y + 1, box_x, menu_height + 2, menu_width + 2,
+    dlg_mouse_mkbigregion(box_y + 1, box_x, use_height + 2, menu_width + 2,
 			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
-    print_arrows(dialog, box_x, box_y, scrollamt, max_choice, item_no, menu_height);
+    print_arrows(dialog, box_x, box_y, scrollamt, max_choice, item_no, use_height);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -561,7 +573,7 @@ dlg_menu(const char *title,
 		     * in version 5.x
 		     */
 		    if (i == -1) {
-			if (menu_height > 1) {
+			if (use_height > 1) {
 			    /* De-highlight current first item */
 			    print_item(menu,
 				       &items[scrollamt],
@@ -575,7 +587,7 @@ dlg_menu(const char *title,
 				   &items[scrollamt],
 				   0, Selected, is_inputmenu);
 		    } else if (i == max_choice) {
-			if (menu_height > 1) {
+			if (use_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(menu,
 				       &items[scrollamt + max_choice - 1],
@@ -612,10 +624,10 @@ dlg_menu(const char *title,
 		    /* Clean bottom lines */
 		    if (is_inputmenu) {
 			int spare_lines, x_count;
-			spare_lines = menu_height % INPUT_ROWS;
+			spare_lines = use_height % INPUT_ROWS;
 			wattrset(menu, menubox_attr);
 			for (; spare_lines; spare_lines--) {
-			    wmove(menu, menu_height - spare_lines, 0);
+			    wmove(menu, use_height - spare_lines, 0);
 			    for (x_count = 0; x_count < menu_width;
 				 x_count++) {
 				waddch(menu, ' ');
@@ -625,7 +637,7 @@ dlg_menu(const char *title,
 		    (void) wnoutrefresh(menu);
 		    print_arrows(dialog,
 				 box_x, box_y,
-				 scrollamt, max_choice, item_no, menu_height);
+				 scrollamt, max_choice, item_no, use_height);
 		} else {
 		    /* De-highlight current item */
 		    print_item(menu,
