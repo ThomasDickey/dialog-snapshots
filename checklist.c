@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.111 2007/02/22 21:58:54 tom Exp $
+ *  $Id: checklist.c,v 1.113 2007/10/28 22:20:08 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -30,6 +30,8 @@
 #include <dlg_keys.h>
 
 static int list_width, check_x, item_x, checkflag;
+
+#define MIN_HIGH  (1 + (5 * MARGIN))
 
 #define LLEN(n) ((n) * CHECKBOX_TAGS)
 #define ItemData(i)    &items[LLEN(i)]
@@ -174,6 +176,7 @@ dlg_checklist(const char *title,
     int scrollamt = 0;
     int max_choice;
     int was_mouse;
+    int use_height;
     int use_width, name_width, text_width;
     int result = DLG_EXIT_UNKNOWN;
     int num_states;
@@ -188,13 +191,14 @@ dlg_checklist(const char *title,
   retry:
 #endif
 
-    if (list_height == 0) {
+    use_height = list_height;
+    if (use_height == 0) {
 	use_width = dlg_calc_list_width(item_no, items) + 10;
 	/* calculate height without items (4) */
-	dlg_auto_size(title, prompt, &height, &width, 4, MAX(26, use_width));
-	dlg_calc_listh(&height, &list_height, item_no);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MAX(26, use_width));
+	dlg_calc_listh(&height, &use_height, item_no);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, 4 + list_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
     }
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
@@ -205,8 +209,6 @@ dlg_checklist(const char *title,
     num_states = strlen(states);
 
     checkflag = flag;
-
-    max_choice = MIN(list_height, item_no);
 
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
@@ -229,13 +231,24 @@ dlg_checklist(const char *title,
     box_y = cur_y + 1;
     box_x = (width - list_width) / 2 - 1;
 
+    /*
+     * After displaying the prompt, we know how much space we really have.
+     * Limit the list to avoid overwriting the ok-button.
+     */
+    if (use_height + MIN_HIGH > height - cur_y)
+	use_height = height - MIN_HIGH - cur_y;
+    if (use_height <= 0)
+	use_height = 1;
+
+    max_choice = MIN(use_height, item_no);
+
     /* create new window for the list */
-    list = dlg_sub_window(dialog, list_height, list_width,
+    list = dlg_sub_window(dialog, use_height, list_width,
 			  y + box_y + 1, x + box_x + 1);
 
     /* draw a box around the list items */
     dlg_draw_box(dialog, box_y, box_x,
-		 list_height + 2 * MARGIN,
+		 use_height + 2 * MARGIN,
 		 list_width + 2 * MARGIN,
 		 menubox_border_attr, menubox_attr);
 
@@ -279,12 +292,12 @@ dlg_checklist(const char *title,
     (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */
-    dlg_mouse_mkbigregion(box_y + 1, box_x, list_height, list_width + 2,
+    dlg_mouse_mkbigregion(box_y + 1, box_x, use_height, list_width + 2,
 			  KEY_MAX, 1, 1, 1 /* by lines */ );
 
     print_arrows(dialog,
 		 box_x, box_y,
-		 scrollamt, max_choice, item_no, list_height);
+		 scrollamt, max_choice, item_no, use_height);
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
@@ -467,7 +480,7 @@ dlg_checklist(const char *title,
 		     * in version 5.x
 		     */
 		    if (i == -1) {
-			if (list_height > 1) {
+			if (use_height > 1) {
 			    /* De-highlight current first item */
 			    print_item(list,
 				       &items[scrollamt],
@@ -483,7 +496,7 @@ dlg_checklist(const char *title,
 				   states,
 				   0, TRUE);
 		    } else if (i == max_choice) {
-			if (list_height > 1) {
+			if (use_height > 1) {
 			    /* De-highlight current last item before scrolling up */
 			    print_item(list,
 				       &items[scrollamt + max_choice - 1],
@@ -518,7 +531,7 @@ dlg_checklist(const char *title,
 		    (void) wnoutrefresh(list);
 		    print_arrows(dialog,
 				 box_x, box_y,
-				 scrollamt, max_choice, item_no, list_height);
+				 scrollamt, max_choice, item_no, use_height);
 		} else {
 		    /* De-highlight current item */
 		    print_item(list,
@@ -651,6 +664,17 @@ dialog_checklist(const char *title,
 		dlg_add_result(listitems[current].help);
 	    }
 	    result = DLG_EXIT_ITEM_HELP;
+	} else {
+	    if (show_status) {
+		if (separate_output) {
+		    dlg_add_result(listitems[current].name);
+		    dlg_add_result("\n");
+		} else {
+		    dlg_add_quoted(listitems[current].name);
+		}
+	    } else {
+		dlg_add_result(listitems[current].name);
+	    }
 	}
 	break;
     }

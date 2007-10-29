@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: menubox-utf8,v 1.1 2003/08/18 23:01:19 tom Exp $
+# $Id: menubox-utf8,v 1.2 2007/10/21 21:46:17 tom Exp $
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
@@ -23,13 +23,13 @@ You can use the UP/DOWN arrow keys, the first \n\
 letter of the choice as a hot key, or the \n\
 number keys 1-9 to choose an option.\n\
 Try it now!\n\n\
-          Choose the OS you like:" 20 51 4 \
-        "Ｌｉｎｕｘ"  "The Great Unix Clone for 386/486" \
-        "ＮｅｔＢＳＤ" "Another free Unix Clone for 386/486" \
-        "ＯＳ/２" "IBM OS/2" \
-        "ＷＩＮ ＮＴ" "Microsoft Windows NT" \
-        "ＰＣＤＯＳ"  "IBM PC DOS" \
-        "ＭＳＤＯＳ"  "Microsoft DOS" 2> $tempfile
+	Choose the OS you like:" 20 51 4 \
+	"Ｌｉｎｕｘ"	"The Great Unix Clone for 386/486" \
+	"ＮｅｔＢＳＤ"	"Another free Unix Clone for 386/486" \
+	"ＯＳ/２"	"IBM OS/2" \
+	"ＷＩＮ ＮＴ"	"Microsoft Windows NT" \
+	"ＰＣＤＯＳ"	"IBM PC DOS" \
+	"ＭＳＤＯＳ"	"Microsoft DOS" 2> $tempfile
 
 retval=$?
 
