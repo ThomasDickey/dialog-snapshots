@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.110 2007/09/30 00:31:26 tom Exp $
-.\" Copyright 2005-2006,2007  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.112 2008/03/16 14:19:32 tom Exp $
+.\" Copyright 2005-2007,2008  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2007/09/30 00:31:26 $"
+.TH DIALOG 1 "" "$Date: 2008/03/16 14:19:32 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -789,10 +789,11 @@ A
 \fBpause\fP
 box displays a meter along the bottom of the box.
 The meter indicates how many seconds remain until the end of the pause.
-The pause exits when timeout is reached (status OK)
-or the user presses the Exit button
-(status CANCEL).
-.
+The pause exits when timeout is reached
+or the user presses the OK button
+(status OK)
+or the user presses the CANCEL button
+or Esc key.
 .IP "\fB--passwordbox \fItext height width [init]"
 A \fBpassword\fP box is similar to an input box,
 except that the text the user enters is not displayed.

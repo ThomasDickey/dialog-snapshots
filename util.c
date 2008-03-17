@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.185 2007/09/29 14:47:04 tom Exp $
+ *  $Id: util.c,v 1.187 2008/03/16 18:46:19 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -351,6 +351,10 @@ dlg_color_setup(void)
 
     if (has_colors()) {		/* Terminal supports color? */
 	(void) start_color();
+
+#if defined(HAVE_USE_DEFAULT_COLORS)
+	use_default_colors();
+#endif
 
 #if defined(__NetBSD__) && defined(_CURSES_)
 #define C_ATTR(x,y) (((x) != 0 ? A_BOLD :  0) | COLOR_PAIR((y)))
@@ -942,6 +946,10 @@ dlg_auto_sizefile(const char *title,
     }
     if ((*height != 0) && (*width != 0)) {
 	(void) fclose(fd);
+	if (*width > SCOLS)
+	    *width = SCOLS;
+	if (*height > SLINES)
+	    *height = SLINES;
 	return;
     }
 

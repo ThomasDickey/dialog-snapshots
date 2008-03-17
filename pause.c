@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.18 2007/02/01 22:45:13 tom Exp $
+ *  $Id: pause.c,v 1.19 2008/03/16 14:19:47 Yura.Kalinichenko Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2005,2006	Thomas E. Dickey
+ *  Copyright 2004-2006,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -34,8 +34,11 @@
  *
  * A pause box displays a meter along the bottom of the box.  The meter
  * indicates how many seconds remain until the end of the pause.  The pause
- * exits when timeout is reached (status OK) or the user presses the Exit
- * button (status CANCEL).
+ * exits when timeout is reached (status OK) or the user presses:
+ *   OK button (status OK) 
+ *   CANCEL button (status CANCEL)
+ *   Esc key (status ESC)
+ *
  */
 int
 dialog_pause(const char *title,
@@ -67,7 +70,7 @@ dialog_pause(const char *title,
     int button = 0;
     int seconds_orig;
     WINDOW *dialog;
-    const char **buttons = dlg_exit_label();
+    const char **buttons = dlg_ok_labels();
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     char *prompt = dlg_strclone(cprompt);
@@ -192,23 +195,24 @@ dialog_pause(const char *title,
 		/* Do not use dlg_exit_buttoncode() since we want to return
 		 * a cancel rather than ok if the timeout has not expired.
 		 */
-		result = button ? DLG_EXIT_HELP : DLG_EXIT_CANCEL;
+		result = button ? DLG_EXIT_CANCEL : DLG_EXIT_OK;
 		break;
 	    case DLGK_MOUSE(0):
-		result = DLG_EXIT_CANCEL;
+		result = DLG_EXIT_OK;
 		break;
 	    case DLGK_MOUSE(1):
-		result = DLG_EXIT_HELP;
+		result = DLG_EXIT_CANCEL;
 		break;
 	    case ERR:
 		break;
 	    default:
-		result = DLG_EXIT_CANCEL;
+		result = DLG_EXIT_OK;
 		break;
 	    }
 	}
     } while ((result == DLG_EXIT_UNKNOWN) && (seconds-- > 0));
 
+    nodelay(dialog, FALSE);
     curs_set(1);
     dlg_mouse_free_regions();
     dlg_del_window(dialog);

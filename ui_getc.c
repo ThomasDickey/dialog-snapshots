@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.40 2007/07/04 12:43:54 tom Exp $
+ *  $Id: ui_getc.c,v 1.42 2008/03/16 20:02:20 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2006,2007 Thomas E. Dickey
+ * Copyright 2001-2007,2008 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -331,6 +331,15 @@ dlg_getc(WINDOW *win, int *fkey)
 	    }
 	    /* FALLTHRU */
 	default:
+#ifdef NO_LEAKS
+	    if (before_lookup == DLG_CTRL('P')) {
+		/* for testing, ^P closes the connection */
+		close(0);
+		close(1);
+		close(2);
+		break;
+	    }
+#endif
 	    if ((p = dialog_state.getc_redirect) != 0) {
 		if (!(p->handle_getc(p, ch, *fkey, &result))) {
 		    dlg_remove_callback(p);
@@ -341,13 +350,6 @@ dlg_getc(WINDOW *win, int *fkey)
 		done = TRUE;
 	    }
 	    break;
-#ifdef NO_LEAKS
-	case DLG_CTRL('P'):	/* for testing, ^P closes the connection */
-	    close(0);
-	    close(1);
-	    close(2);
-	    break;
-#endif
 #ifdef HAVE_DLG_TRACE
 	case CHR_TRACE:
 	    dlg_trace_win(win);

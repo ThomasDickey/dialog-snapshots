@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.69 2007/02/22 23:56:00 tom Exp $
+ * $Id: fselect.c,v 1.70 2008/03/16 13:04:57 tom Exp $
  *
  * fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2006,2007 Thomas E. Dickey
+ * Copyright 2000-2007,2008 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -513,7 +513,9 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),

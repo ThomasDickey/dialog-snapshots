@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2007-07-26 18:31+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com> \n"
@@ -18,31 +18,31 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.7b1\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Có"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Không"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Thôi"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "THOÁT"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Thêm"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Trợ giúp"
 
@@ -56,15 +56,15 @@ msgstr "Tháng"
 msgid "Year"
 msgstr "Năm"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Thay tên"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Thư mục"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Tập tin"
 

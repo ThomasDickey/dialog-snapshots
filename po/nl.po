@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog-1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2007-10-08 12:42+0200\n"
 "Last-Translator: Benno Schulenberg <benno@vertaalt.nl>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Ja"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Nee"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Annuleren"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "Afsluiten"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Help"
 
@@ -55,15 +55,15 @@ msgstr "Maand"
 msgid "Year"
 msgstr "Jaar"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Hernoemen"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Mappen"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Bestanden"
 

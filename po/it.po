@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2007-08-06 15:47+0100\n"
 "Last-Translator: Marco Colombo <m.colombo@ed.ac.uk>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -16,31 +16,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Sì"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "No"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Annulla"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "Esci"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Aiuto"
 
@@ -54,15 +54,15 @@ msgstr "Mese"
 msgid "Year"
 msgstr "Anno"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Rinomina"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Cartelle"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "File"
 

@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.52 2007/07/04 19:35:46 tom Exp $
+dnl $Id: configure.in,v 1.53 2008/03/16 18:46:34 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -167,6 +167,7 @@ getmaxyx \
 getparx \
 getpary \
 getparyx \
+use_default_colors \
 wget_wch \
 )
 

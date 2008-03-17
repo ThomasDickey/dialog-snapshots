@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2005-08-21 12:53-0400\n"
 "Last-Translator: Aleksandar Jelenak <jelenak@verizon.net>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
@@ -14,31 +14,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Да"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Не"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "У реду"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Поништи"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "ИЗЛАЗ"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Додатно"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Помоћ"
 
@@ -52,15 +52,15 @@ msgstr "Месец"
 msgid "Year"
 msgstr "Година"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Преименуј"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Директоријуми"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Датотеке"
 

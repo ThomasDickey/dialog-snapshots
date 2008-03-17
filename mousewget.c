@@ -1,9 +1,9 @@
 /*
- * $Id: mousewget.c,v 1.20 2006/12/27 00:50:24 tom Exp $
+ * $Id: mousewget.c,v 1.21 2008/03/16 20:09:03 tom Exp $
  *
  * mousewget.c -- mouse/wgetch support for dialog
  *
- * Copyright 2000-2005,2006   Thomas E. Dickey
+ * Copyright 2000-2006,2008   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -27,13 +27,16 @@
 static int
 mouse_wgetch(WINDOW *win, int *fkey, bool ignore_errs)
 {
+    int mouse_err = FALSE;
     int key;
-
-#if USE_MOUSE
 
     do {
 
 	key = dlg_getc(win, fkey);
+
+#if USE_MOUSE
+
+	mouse_err = FALSE;
 	if (fkey && (key == KEY_MOUSE)) {
 	    MEVENT event;
 	    mseRegion *p;
@@ -61,23 +64,16 @@ mouse_wgetch(WINDOW *win, int *fkey, bool ignore_errs)
 		    }
 		} else {
 		    (void) beep();
-		    key = ERR;
+		    mouse_err = TRUE;
 		}
 	    } else {
 		(void) beep();
-		key = ERR;
+		mouse_err = TRUE;
 	    }
 	}
-
-    } while (ignore_errs && (key == ERR));
-
-#else
-
-    do {
-	key = dlg_getc(win, fkey);
-    } while (ignore_errs && (key == ERR));
-
 #endif
+
+    } while (ignore_errs && mouse_err);
 
     return key;
 }

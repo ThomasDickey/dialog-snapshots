@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-20041219\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2004-12-21 17:06+0100\n"
 "Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -14,31 +14,31 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Sí"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "No"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "Aceptar"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "Salir"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Ayuda"
 
@@ -52,15 +52,15 @@ msgstr "Mes"
 msgid "Year"
 msgstr "Año"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Renombrar"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Directorios"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Ficheros"
 

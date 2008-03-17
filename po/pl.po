@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2003-06-21 17:07+0200\n"
 "Last-Translator: Jaroslaw Swierczynski <swiergot@intersec.pl>\n"
 "Language-Team: Polish <po@lists.intersec.pl>\n"
@@ -14,31 +14,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.1\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Tak"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Nie"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "WYJD¬"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Ekstra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Pomoc"
 
@@ -52,15 +52,15 @@ msgstr "Miesi±c"
 msgid "Year"
 msgstr "Rok"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Zmieñ nazwê"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Katalogi"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Pliki"
 

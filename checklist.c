@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.113 2007/10/28 22:20:08 tom Exp $
+ *  $Id: checklist.c,v 1.114 2008/03/16 12:55:06 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -155,8 +155,10 @@ dlg_checklist(const char *title,
 	DLG_KEYS_DATA( DLGK_ITEM_LAST,	KEY_LL ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	'+' ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,	'-' ),
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ),
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	DLGK_MOUSE(KEY_NPAGE) ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),

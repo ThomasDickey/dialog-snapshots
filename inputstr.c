@@ -1,9 +1,9 @@
 /*
- * $Id: inputstr.c,v 1.61 2007/02/27 20:51:12 tom Exp $
+ * $Id: inputstr.c,v 1.64 2008/03/16 20:19:43 tom Exp $
  *
  * inputstr.c -- functions for input/display of a string
  *
- * Copyright 2000-2006,2007 Thomas E. Dickey
+ * Copyright 2000-2007,2008 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -421,9 +421,11 @@ dlg_index_columns(const char *string)
 			result = wcwidth(temp[0]);
 		    }
 		    if (result < 0) {
+			wchar_t *printable;
 			cchar_t temp2;
 			setcchar(&temp2, temp, 0, 0, 0);
-			result = wcslen(wunctrl(&temp2));
+			printable = wunctrl(&temp2);
+			result = printable ? wcslen(printable) : 1;
 		    }
 		}
 		cache.list[inx + 1] = result;
@@ -441,8 +443,11 @@ dlg_index_columns(const char *string)
 			((cache.list[inx] | 7) + 1) - cache.list[inx];
 		else if (isprint(ch))
 		    cache.list[inx + 1] = 1;
-		else
-		    cache.list[inx + 1] = strlen(unctrl(ch));
+		else {
+		    const char *printable;
+		    printable = unctrl(ch);
+		    cache.list[inx + 1] = printable ? strlen(printable) : 1;
+		}
 		if (inx != 0)
 		    cache.list[inx + 1] += cache.list[inx];
 	    }
