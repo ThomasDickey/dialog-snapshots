@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.41 2007/09/30 21:15:42 tom Exp $
+ *  $Id: rc.c,v 1.43 2008/03/16 18:50:26 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -36,6 +36,9 @@
  */
 static const color_names_st color_names[] =
 {
+#ifdef HAVE_USE_DEFAULT_COLORS
+    {"DEFAULT", -1},
+#endif
     {"BLACK", COLOR_BLACK},
     {"RED", COLOR_RED},
     {"GREEN", COLOR_GREEN},

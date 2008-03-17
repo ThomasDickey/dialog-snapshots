@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2005-02-02 08:21+0100\n"
 "Last-Translator: Németh Csaba <csaba@sopron.hu>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
@@ -15,31 +15,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.1\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Igen"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Nem"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Mégsem"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "KILÉPÉS"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Súgó"
 
@@ -53,15 +53,15 @@ msgstr "Hónap"
 msgid "Year"
 msgstr "Év"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Átnevezés"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Könyvtárak"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Fájlok"
 

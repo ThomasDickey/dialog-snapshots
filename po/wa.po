@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2008-03-16 16:33-0400\n"
 "PO-Revision-Date: 2007-08-29 18:24+0200\n"
 "Last-Translator: Pablo Saratxaga <pablo@walon.org>\n"
 "Language-Team: Walloon <linux-wa@walon.org>\n"
@@ -15,31 +15,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.2\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Oyi"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Neni"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "'l est bon"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Rinoncî"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "Moussî foû"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Rawete"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Aidance"
 
@@ -53,15 +53,15 @@ msgstr "Moes"
 msgid "Year"
 msgstr "Anêye"
 
-#: dialog.c:727
+#: dialog.c:738
 msgid "Rename"
 msgstr "Rilomer"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Ridants"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Fitchîs"
 

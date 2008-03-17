@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.5 2007/02/27 22:47:09 tom Exp $
+ *  $Id: trace.c,v 1.7 2008/03/16 19:33:03 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007	Thomas E. Dickey
+ *  Copyright 2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -30,6 +30,17 @@
 #define myFP dialog_state.trace_output
 
 void
+dlg_trace_msg(const char *fmt,...)
+{
+    if (myFP != 0) {
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(myFP, fmt, ap);
+	va_end(ap);
+    }
+}
+
+void
 dlg_trace_win(WINDOW *win)
 {
     if (myFP != 0) {
@@ -48,10 +59,11 @@ dlg_trace_win(WINDOW *win)
 	    for (k = 0; k < cc; ++k) {
 		ch = mvwinch(win, j, k) & (A_CHARTEXT | A_ALTCHARSET);
 		c2 = dlg_asciibox(ch);
-		if (c2 != 0)
+		if (c2 != 0) {
 		    ch = c2;
-		else if (strlen(unctrl(ch)) > 1)
+		} else if (unctrl(ch) == 0 || strlen(unctrl(ch)) > 1) {
 		    ch = '.';
+		}
 		fputc(ch & 0xff, myFP);
 	    }
 	    fputc('\n', myFP);
@@ -104,6 +116,8 @@ dlg_trace_chr(int ch, int fkey)
 	    }
 	} else {
 	    fkey_name = unctrl(ch);
+	    if (fkey_name == 0)
+		fkey_name = "UNKNOWN";
 	}
 	fprintf(myFP, "chr %s (ch=%#x, fkey=%d)\n",
 		fkey_name,

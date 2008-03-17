@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: inputbox6-utf8,v 1.1 2003/08/15 19:40:37 tom Exp $
+# $Id: inputbox6-utf8,v 1.2 2008/03/16 13:58:54 tom Exp $
 : ${DIALOG=dialog}
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
@@ -17,7 +17,7 @@ esac
 $DIALOG \
 --title    `printf "\xe3\x81\x82\xe3\x81\x84\xe3\x81\x86\xe3\x81\x88\xe3\x81\x8a"` \
 --inputbox `printf "\xe3\x81\x82\xe3\x81\x84\xe3\x81\x86\xe3\x81\x88\xe3\x81\x8a"` \
-10 20 2>$tempfile
+10 20 "Ｄ.Ｏ.Ｇ"	 2>$tempfile
 
 retval=$?
 

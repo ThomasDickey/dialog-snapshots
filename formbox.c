@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.62 2007/02/22 22:01:39 tom Exp $
+ *  $Id: formbox.c,v 1.63 2008/03/16 18:37:12 Vladimir.Mezentsev Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2003-2006,2007	Thomas E. Dickey
+ *  Copyright 2003-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -769,7 +769,7 @@ dlg_form(const char *title,
     dlg_del_window(dialog);
     free(prompt);
 
-    *current_item = scrollamt + choice;
+    *current_item = choice;
     return result;
 }
 

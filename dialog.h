@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.194 2007/09/30 00:13:07 tom Exp $
+ *  $Id: dialog.h,v 1.195 2008/03/16 19:14:14 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -649,10 +649,17 @@ extern int dlg_strcmp(const char * /*a*/, const char * /*b*/);
 #endif
 
 #ifdef HAVE_DLG_TRACE
+#define DLG_TRACE(params) dlg_trace_msg params
+extern void dlg_trace_msg(const char *fmt, ...)
+#ifdef GCC_PRINTF
+    __attribute__((format(printf,1,2)))
+#endif
+;
 extern void dlg_trace_win(WINDOW * /*win*/);
 extern void dlg_trace_chr(int /*ch*/, int /*fkey*/);
 extern void dlg_trace(const char * /*fname*/);
 #else
+#define DLG_TRACE(params) /* nothing */
 #define dlg_trace_win(win) /* nothing */
 #define dlg_trace_chr(ch,fkey) /* nothing */
 #define dlg_trace(fname) /* nothing */

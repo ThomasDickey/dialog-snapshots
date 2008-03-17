@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.111 2007/10/28 22:31:54 tom Exp $
+ *  $Id: menubox.c,v 1.112 2008/03/16 12:54:58 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -293,8 +293,10 @@ dlg_menu(const char *title,
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_LEFT ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	'+' ),
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,	KEY_DOWN ),
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,	'-' ),
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,	KEY_UP ),
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
 	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ),
 	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ),
 	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_LL ),
