@@ -1,18 +1,17 @@
 # Dialog
-# Copyright 2001, # Thomas Dickey
-#
-# Michael Piefel <piefel@informatik.hu-berlin.de>, 2002.
+# Copyright 2003-2006,2007 # Thomas Dickey
+# Roy Hvaara <roy.hvaara@gmail.com>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: Dialog\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2002-05-09 17:56+0200\n"
-"Last-Translator: Michael Piefel <piefel@informatik.hu-berlin.de>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2008-03-24 14:00+0100\n"
+"Last-Translator: Roy Hvaara <roy.hvaara@gmail.com>\n"
+"Language-Team: Norwegian Bokmaal <i18n-nb@lister.ping.uio.no>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
 msgid "Yes"
@@ -20,7 +19,7 @@ msgstr "Ja"
 
 #: buttons.c:393
 msgid "No"
-msgstr "Nein"
+msgstr "Nei"
 
 #: buttons.c:401
 msgid "OK"
@@ -28,84 +27,82 @@ msgstr "OK"
 
 #: buttons.c:409
 msgid "Cancel"
-msgstr "Abbrechen"
+msgstr "Avbryt"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr "VERLASSEN"
+msgstr "AVSLUTT"
 
 #: buttons.c:425
 msgid "Extra"
-msgstr ""
+msgstr "Ekstra"
 
 #: buttons.c:433
 msgid "Help"
-msgstr "Hilfe"
+msgstr "Hjelp"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Monat"
+msgstr "Måned"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "Jahr"
+msgstr "År"
 
 #: dialog.c:741
 msgid "Rename"
-msgstr "Bearbeiten"
+msgstr "Endre navn"
 
 #: fselect.c:550
 msgid "Directories"
-msgstr "Verzeichnisse"
+msgstr "Mapper"
 
 #: fselect.c:551
 msgid "Files"
-msgstr "Dateien"
+msgstr "Filer"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Vellykktes"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "Dateien"
+msgstr "Feilet"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Bestått"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Fullført"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Kontrollert"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Ferdig"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Ignorert"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "I gang"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "-"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Total fremdrift"
 
 #: textbox.c:489
-#, fuzzy
 msgid "Search"
-msgstr "Suche"
+msgstr "Søk"

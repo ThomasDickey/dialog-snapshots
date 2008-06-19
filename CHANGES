@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.248 2008/03/16 20:13:15 tom Exp $
+-- $Id: CHANGES,v 1.252 2008/06/18 22:44:32 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2008/06/??
+	+ add ku.po, lt.po, nb.po, th.po and update fr.po, gl.po from
+		http://translationproject.org/latest/dialog/
+	+ add "--quoted" option, to quote values returned by formbox, etc.
+	+ change names of EX/ES macros in dialog.1 to work around name-
+	  pollution caused by changes in Debian #470729.
 
 2008/03/16
 	+ modify dlg_mouse_wgetch() to loop only on errors that it detects,

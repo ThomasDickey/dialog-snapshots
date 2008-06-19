@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.195 2008/03/16 19:14:14 tom Exp $
+ *  $Id: dialog.h,v 1.197 2008/06/15 15:45:29 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
- * Copyright 2000-2006,2007 Thomas E. Dickey
+ * Copyright 2000-2007,2008 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -427,6 +427,9 @@ typedef struct {
     bool no_lines;		/* option "--no-lines" */
     /* 1.1-20070930 */
     bool nook;			/* option "--no-ok" */
+    /* 1.2-200806?? */
+    bool quoted;		/* option "--quoted" */
+    char *column_separator;	/* option "--column-separator" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -604,6 +607,7 @@ extern int dlg_defaultno_button(void);
 extern int dlg_max_input(int /*max_len*/);
 extern void dlg_add_quoted(char * /*string*/);
 extern void dlg_add_result(const char * /*string*/);
+extern void dlg_add_string(char * /*string*/);
 extern void dlg_attr_clear(WINDOW * /*win*/, int /*height*/, int /*width*/, chtype /*attr*/);
 extern void dlg_auto_size(const char * /*title*/, const char * /*prompt*/, int * /*height*/, int * /*width*/, int /*boxlines*/, int /*mincols*/);
 extern void dlg_auto_sizefile(const char * /*title*/, const char * /*file*/, int * /*height*/, int * /*width*/, int /*boxlines*/, int /*mincols*/);

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dialog\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2004-03-30 23:00+0100\n"
 "Last-Translator: Dafydd Harries <daf@muse.19inch.net>\n"
 "Language-Team: Welsh <cy@pengwyn.linux.org.uk>\n"
@@ -51,7 +51,7 @@ msgstr "Mis"
 msgid "Year"
 msgstr "Blwyddyn"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "Ailenwy"
 

@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.112 2008/03/16 14:19:32 tom Exp $
+.\" $Id: dialog.1,v 1.113 2008/06/10 00:46:31 tom Exp $
 .\" Copyright 2005-2007,2008  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -16,11 +16,11 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.de EX
+.de ES
 .ne 8
 .IP
 ..
-.de ES
+.de EX
 .RS +10
 .nf
 ..
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2008/03/16 14:19:32 $"
+.TH DIALOG 1 "" "$Date: 2008/06/10 00:46:31 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -161,33 +161,33 @@ under the contents of a following widget.
 Understand this as the complement of "\fB--keep-window\fR".
 To compare the effects, use these:
 .
-.EX
-All three widgets visible, staircase effect, ordered 1,2,3:
 .ES
+All three widgets visible, staircase effect, ordered 1,2,3:
+.EX
 dialog                         --begin 2 2 --yesno "" 0 0 \\
     --and-widget               --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
 .EE
 .
-.EX
-Only the last widget is left visible:
 .ES
+Only the last widget is left visible:
+.EX
 dialog           --clear       --begin 2 2 --yesno "" 0 0 \\
     --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
 .EE
 .
-.EX
-All three widgets visible, staircase effect, ordered 3,2,1:
 .ES
+All three widgets visible, staircase effect, ordered 3,2,1:
+.EX
 dialog           --keep-window --begin 2 2 --yesno "" 0 0 \\
     --and-widget --keep-window --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
 .EE
 .
-.EX
-First and third widget visible, staircase effect, ordered 3,1:
 .ES
+First and third widget visible, staircase effect, ordered 3,1:
+.EX
 dialog           --keep-window --begin 2 2 --yesno "" 0 0 \\
     --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
@@ -1000,7 +1000,7 @@ can find, as stated in step 2 above.
 You can override or add to key bindings in \fBdialog\fP
 by adding to the configuration file.
 \fBDialog\fP's \fBbindkey\fP command maps single keys to its internal coding.
-.ES
+.EX
 bindkey \fIwidget\fP \fIcurses_key\fP \fIdialog_key\fP
 .EE
 The \fIwidget\fP name can be "*" (all widgets), or

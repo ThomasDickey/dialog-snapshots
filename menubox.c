@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.112 2008/03/16 12:54:58 tom Exp $
+ *  $Id: menubox.c,v 1.113 2008/06/15 16:07:01 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -231,15 +231,15 @@ handle_button(int code, DIALOG_LISTITEM * items, int choice)
     switch (code) {
     case DLG_EXIT_OK:		/* FALLTHRU */
     case DLG_EXIT_EXTRA:
-	dlg_add_result(items[choice].name);
+	dlg_add_string(items[choice].name);
 	break;
     case DLG_EXIT_HELP:
 	dlg_add_result("HELP ");
 	if (USE_ITEM_HELP(items[choice].help)) {
-	    dlg_add_result(items[choice].help);
+	    dlg_add_string(items[choice].help);
 	    code = DLG_EXIT_ITEM_HELP;
 	} else {
-	    dlg_add_result(items[choice].name);
+	    dlg_add_string(items[choice].name);
 	}
 	break;
     }
@@ -252,9 +252,9 @@ dlg_renamed_menutext(DIALOG_LISTITEM * items, int current, char *newtext)
     if (dialog_vars.input_result)
 	dialog_vars.input_result[0] = '\0';
     dlg_add_result("RENAMED ");
-    dlg_add_result(items[current].name);
+    dlg_add_string(items[current].name);
     dlg_add_result(" ");
-    dlg_add_result(newtext);
+    dlg_add_string(newtext);
     return DLG_EXIT_EXTRA;
 }
 

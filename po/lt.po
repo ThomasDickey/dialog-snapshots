@@ -1,26 +1,28 @@
-# Swedish translation of dialog.
-# Copyright 2003,2004,2005, 2007 # Thomas Dickey
-# Daniel Nylander <po@danielnylander.se>, 2005, 2007.
+# translation of dialog-1.1.20070704 to Lithuanian
+# This file is distributed under the same license as the dialog package.
 #
+# Gintautas Miliauskas <gintas@akl.lt>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.1.20070704\n"
+"Project-Id-Version: dialog-1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2007-07-23 00:02+0100\n"
-"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
-"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"PO-Revision-Date: 2008-05-14 02:51+0300\n"
+"Last-Translator: Gintautas Miliauskas <gintas@akl.lt>\n"
+"Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: buttons.c:385
 msgid "Yes"
-msgstr "Ja"
+msgstr "Taip"
 
 #: buttons.c:393
 msgid "No"
-msgstr "Nej"
+msgstr "Ne"
 
 #: buttons.c:401
 msgid "OK"
@@ -28,82 +30,82 @@ msgstr "OK"
 
 #: buttons.c:409
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr "Atmesti"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr "AVSLUTA"
+msgstr "IÅ EITI"
 
 #: buttons.c:425
 msgid "Extra"
-msgstr "Extra"
+msgstr "Papildoma"
 
 #: buttons.c:433
 msgid "Help"
-msgstr "Hjälp"
+msgstr "Å½inynas"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Månad"
+msgstr "MÄ—nuo"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "År"
+msgstr "Metai"
 
 #: dialog.c:741
 msgid "Rename"
-msgstr "Byt namn"
+msgstr "Pervadinti"
 
 #: fselect.c:550
 msgid "Directories"
-msgstr "Kataloger"
+msgstr "Aplankai"
 
 #: fselect.c:551
 msgid "Files"
-msgstr "Filer"
+msgstr "Failai"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr "Lyckades"
+msgstr "SÄ—kminga"
 
 #: mixedgauge.c:61
 msgid "Failed"
-msgstr "Misslyckades"
+msgstr "NesÄ—kminga"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr "Klarades"
+msgstr "PraÄ—jo"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr "Färdig"
+msgstr "Baigta"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr "Kontrollerad"
+msgstr "Patikrinta"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr "Klar"
+msgstr "Baigta"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr "Hoppades över"
+msgstr "PerÅ¡okta"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr "Pågår"
+msgstr "Vykdoma"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr "Inte tillgänglig"
+msgstr "N/d"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr "Totalt förlopp"
+msgstr "Bendras progresas"
 
 #: textbox.c:489
 msgid "Search"
-msgstr "Sök"
+msgstr "IeÅ¡koti"

@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.167 2007/09/30 21:15:42 tom Exp $
+ * $Id: dialog.c,v 1.169 2008/06/18 22:14:32 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -53,6 +53,7 @@ typedef enum {
     ,o_checklist
     ,o_clear
     ,o_colors
+    ,o_column_separator
     ,o_cr_wrap
     ,o_create_rc
     ,o_default_item
@@ -106,6 +107,7 @@ typedef enum {
     ,o_print_size
     ,o_print_version
     ,o_progressbox
+    ,o_quoted
     ,o_radiolist
     ,o_screen_center
     ,o_separate_output
@@ -241,6 +243,7 @@ static const Options options[] = {
     { "print-size",	o_print_size,		1, "" },
     { "print-version",	o_print_version,	5, "" },
     { "progressbox",	o_progressbox,		2, "<height> <width>" },
+    { "quoted",		o_quoted,		1, "" },
     { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "screen-center",	o_screen_center,	1, NULL },
     { "separate-output",o_separate_output,	1, "" },
@@ -752,13 +755,19 @@ static int
 call_checklist(CALLARGS)
 {
     int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
+    int code;
+    bool save_quoted = dialog_vars.quoted;
+
+    dialog_vars.quoted = TRUE;
     *offset_add = 5 + tags * CHECKBOX_TAGS;
-    return dialog_checklist(t,
+    code = dialog_checklist(t,
 			    av[1],
 			    numeric_arg(av, 2),
 			    numeric_arg(av, 3),
 			    numeric_arg(av, 4),
 			    tags, av + 5, FLAG_CHECK);
+    dialog_vars.quoted = save_quoted;
+    return code;
 }
 
 static int
@@ -1220,6 +1229,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_nook:
 	    dialog_vars.nook = TRUE;
+	    break;
+	case o_quoted:
+	    dialog_vars.quoted = TRUE;
 	    break;
 	case o_single_quoted:
 	    dialog_vars.single_quoted = TRUE;
