@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.187 2008/03/16 18:46:19 tom Exp $
+ *  $Id: util.c,v 1.192 2008/06/18 22:16:39 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1838,8 +1838,44 @@ dlg_add_result(const char *string)
     strcat(dialog_vars.input_result, string);
 }
 
-#define FIX_SINGLE "\n\\'"
-#define FIX_DOUBLE "\n\\\"[]{}?*;`~#$^&()|<>\t "
+/*
+ * These are characters that (aside from the quote-delimiter) will have to
+ * be escaped in a single- or double-quoted string.
+ */
+#define FIX_SINGLE "\n\\"
+#define FIX_DOUBLE FIX_SINGLE "[]{}?*;`~#$^&()|<>"
+
+/*
+ * Returns the quote-delimiter.
+ */
+static const char *
+quote_delimiter(void)
+{
+    return dialog_vars.single_quoted ? "'" : "\"";
+}
+
+/*
+ * Returns true if we should quote the given string.
+ */
+static bool
+must_quote(char *string)
+{
+    bool code = FALSE;
+
+    if (*string != '\0') {
+	unsigned len = strlen(string);
+	if (strcspn(string, quote_delimiter()) != len)
+	    code = TRUE;
+	else if (strcspn(string, "\n\t ") != len)
+	    code = TRUE;
+	else
+	    code = (strcspn(string, FIX_DOUBLE) != len);
+    } else {
+	code = TRUE;
+    }
+
+    return code;
+}
 
 /*
  * Add a quoted string to the result buffer.
@@ -1848,25 +1884,36 @@ void
 dlg_add_quoted(char *string)
 {
     char temp[2];
-    const char *my_quote = dialog_vars.single_quoted ? "'" : "\"";
+    const char *my_quote = quote_delimiter();
     const char *must_fix = (dialog_vars.single_quoted
 			    ? FIX_SINGLE
 			    : FIX_DOUBLE);
 
-    if (dialog_vars.single_quoted
-	&& strlen(string) != 0
-	&& strcspn(string, FIX_DOUBLE FIX_SINGLE) == strlen(string)) {
-	dlg_add_result(string);
-    } else {
+    if (dialog_vars.quoted || must_quote(string)) {
 	temp[1] = '\0';
 	dlg_add_result(my_quote);
 	while (*string != '\0') {
 	    temp[0] = *string++;
-	    if (strchr(must_fix, *temp) != 0)
+	    if (strchr(my_quote, *temp) || strchr(must_fix, *temp))
 		dlg_add_result("\\");
 	    dlg_add_result(temp);
 	}
 	dlg_add_result(my_quote);
+    } else {
+	dlg_add_result(string);
+    }
+}
+
+/*
+ * When adding a result, make that depend on whether "--quoted" is used.
+ */
+void
+dlg_add_string(char *string)
+{
+    if (dialog_vars.quoted) {
+	dlg_add_quoted(string);
+    } else {
+	dlg_add_result(string);
     }
 }
 

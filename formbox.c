@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.63 2008/03/16 18:37:12 Vladimir.Mezentsev Exp $
+ *  $Id: formbox.c,v 1.64 2008/06/15 16:09:16 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -857,10 +857,10 @@ dialog_form(const char *title,
 	dlg_add_result("HELP ");
 	show_status = dialog_vars.help_status;
 	if (USE_ITEM_HELP(listitems[choice].help)) {
-	    dlg_add_result(listitems[choice].help);
+	    dlg_add_string(listitems[choice].help);
 	    result = DLG_EXIT_ITEM_HELP;
 	} else {
-	    dlg_add_result(listitems[choice].name);
+	    dlg_add_string(listitems[choice].name);
 	}
 	if (show_status)
 	    dlg_add_result("\n");
@@ -869,7 +869,7 @@ dialog_form(const char *title,
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].text_flen > 0) {
-		dlg_add_result(listitems[i].text);
+		dlg_add_string(listitems[i].text);
 		dlg_add_result("\n");
 	    }
 	}

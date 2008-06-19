@@ -1,22 +1,23 @@
-# Galician translation of Dialog.
 # This file is distributed under the same license as the dialog package.
-# Copyright (C) 2005 Thomas Dickey.
+# Mensaxes en galego para dialog.
+# Copyright 2003-2006,2007 Thomas Dickey
+# Diego Pérez Montes <kabute@gulo.org>, 2008
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Dialog 1.0-20050116\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
-"PO-Revision-Date: 2004-11-20 17:21+0100\n"
-"Last-Translator: Jacobo Tarrio <jtarrio@trasno.net>\n"
-"Language-Team: Galician <trasno@ceu.fi.udc.es>\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
+"PO-Revision-Date: 2008-05-13 23:57+0100\n"
+"Last-Translator: Diego Pérez Montes <kabute@gulo.org>\n"
+"Language-Team: Galician <proxecto@trasno.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
 msgid "Yes"
-msgstr "Si"
+msgstr "Sí"
 
 #: buttons.c:393
 msgid "No"
@@ -32,78 +33,78 @@ msgstr "Cancelar"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr ""
+msgstr "SAÍR"
 
 #: buttons.c:425
 msgid "Extra"
-msgstr ""
+msgstr "Suplementario"
 
 #: buttons.c:433
 msgid "Help"
-msgstr ""
+msgstr "Axuda"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr ""
+msgstr "Mes"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr ""
+msgstr "Ano"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
-msgstr ""
+msgstr "Renomear"
 
 #: fselect.c:550
 msgid "Directories"
-msgstr ""
+msgstr "Directorios"
 
 #: fselect.c:551
 msgid "Files"
-msgstr ""
+msgstr "Ficheiros"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Conseguido"
 
 #: mixedgauge.c:61
 msgid "Failed"
-msgstr ""
+msgstr "Fallou"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Correcto"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Completado"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Seleccionado"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Feito"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Omitido"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "En Progreso"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "Non Dispoñible"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Progreso Total"
 
 #: textbox.c:489
 msgid "Search"
-msgstr ""
+msgstr "Procurar"

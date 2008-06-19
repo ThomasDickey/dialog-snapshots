@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.38 2007/07/04 20:26:07 tom Exp $
-.\" Copyright 2005-2006,2007  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.40 2008/06/15 21:42:48 tom Exp $
+.\" Copyright 2005-2007,2008  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -15,7 +15,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2007/07/04 20:26:07 $"
+.TH DIALOG 3 "" "$Date: 2008/06/15 21:42:48 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -173,15 +173,16 @@ This is set in \fIinit_dialog\fP if the curses implementation supports color.
 If true,
 suppress shadows that would be drawn to the right and bottom of each dialog box.
 .\" ---------------------------------------------------------------------------
-.\" not implemented
-.\" .IP \fIDIALOG_STATE.visit_items
-.\" This corresponds to the command-line option "\fB--visit-items\fP".
+.IP \fIDIALOG_STATE.visit_items
+This corresponds to the command-line option "\fB--visit-items\fP".
 .\" ---------------------------------------------------------------------------
 .PP
 The \fBdialog\fP application resets the \fIdialog_vars\fP data before
 accepting options to invoke each widget.
 Most of the \fIDIALOG_VARS\fP members are set directly from \fBdialog\fP's
 command-line options:
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.ascii_lines
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.backtitle
 This corresponds to the command-line option "\fB--backtitle\fP \fIbacktitle\fP".
@@ -228,7 +229,7 @@ This corresponds to the command-line option "\fB--colors\fP".
 If true, interpret embedded "\\Z" sequences in the dialog text
 by the following character,
 which tells dialog to set colors or video attributes:
-0 through 7 are the ANSI used in curses:
+0 through 7 are the ANSI codes used in curses:
 black,
 red,
 green,
@@ -243,6 +244,8 @@ Underline is set by 'u', reset by 'U'.
 The settings are cumulative, e.g., "\\Zb\\Z1" makes the following text
 bright red.
 Restore normal settings with "\\Zn".
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.column_separator
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.cr_wrap
 This corresponds to the command-line option "\fB--cr-wrap\fP".
@@ -347,6 +350,14 @@ interpret the tags data for checklist, radiolist and menu boxes
 adding a column whose text is displayed in the bottom line of the
 screen, for the currently selected item.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.keep_tite
+This is set by the command-line option "\fB--keep-tite\fP"
+to tell \fBdialog\fP to not attempt to cancel the terminal initialization
+(termcap \fIti\fP/\fIte\fP) sequences which correspond to xterm's alternate-screen
+switching.
+Normally \fBdialog\fP does this to avoid flickering when run several times
+in a script.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.keep_window
 This corresponds to the command-line option "\fB--keep-window\fP".
 If true, do not remove/repaint the window on exit.
@@ -363,6 +374,8 @@ If not specified, the limit is 2048.
 This corresponds to the command-line option "\fB--no-label\fP \fIstring\fP".
 The given string overrides the label used for "No" buttons.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.no_lines
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.nocancel
 This corresponds to the command-line option "\fB--no-cancel\fP".
 If true,
@@ -377,6 +390,8 @@ It true, that feature is disabled.
 Note that \fBdialog\fR will still wrap text, subject to the \fB--cr-wrap\fR
 option.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.nook
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.ok_label
 This corresponds to the command-line option "\fB--ok-label\fP \fIstring\fP".
 The given string overrides the label used for "OK" buttons.
@@ -385,6 +400,8 @@ The given string overrides the label used for "OK" buttons.
 This corresponds to the command-line option "\fB--print-size\fP".
 If true,
 each widget prints its size to \fBdialog\fP's output when it is invoked.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.quoted
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.separate_output
 This corresponds to the command-line option "\fB--separate-output\fP".
@@ -929,6 +946,17 @@ is the string to add.
 .TP 5
 .B dlg_add_result
 Add a quoted string to the result buffer \fBdialog_vars.input_result\fP.
+.RS
+.TP 5
+.B char * \fIstring
+is the string to add.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_add_string
+Add a quoted or unquoted string to the result buffer
+(see \fBdlg_add_quoted\fP) and \fBdlg_add_result\fP),
+according to whether \fBdialog_vars.quoted\fP is true.
 .RS
 .TP 5
 .B char * \fIstring

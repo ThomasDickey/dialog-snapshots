@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2005-08-21 12:53-0400\n"
 "Last-Translator: Aleksandar Jelenak <jelenak@verizon.net>\n"
 "Language-Team: Serbian <gnu@prevod.org>\n"
@@ -52,7 +52,7 @@ msgstr "Месец"
 msgid "Year"
 msgstr "Година"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "Преименуј"
 

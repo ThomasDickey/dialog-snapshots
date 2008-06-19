@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2007-07-20 11:57-0500\n"
 "Last-Translator: Kevin Scannell <kscanne@gmail.com>\n"
 "Language-Team: Irish <gaeilge-gnulinux@lists.sourceforge.net>\n"
@@ -51,7 +51,7 @@ msgstr "Mí"
 msgid "Year"
 msgstr "Bliain"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "Athainmnigh"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog-1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2007-09-20 00:01+0200\n"
 "Last-Translator: Piarres Beobide <pi@beobide.net>\n"
 "Language-Team: Basque  <translation-team-eu@lists.sourceforge.net>\n"
@@ -54,7 +54,7 @@ msgstr "Hilabetea"
 msgid "Year"
 msgstr "Urtea"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "Berizendatu"
 

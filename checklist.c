@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.114 2008/03/16 12:55:06 tom Exp $
+ *  $Id: checklist.c,v 1.115 2008/06/15 16:07:01 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -657,25 +657,25 @@ dialog_checklist(const char *title,
 	if (USE_ITEM_HELP(listitems[current].help)) {
 	    if (show_status) {
 		if (separate_output) {
-		    dlg_add_result(listitems[current].help);
+		    dlg_add_string(listitems[current].help);
 		    dlg_add_result("\n");
 		} else {
 		    dlg_add_quoted(listitems[current].help);
 		}
 	    } else {
-		dlg_add_result(listitems[current].help);
+		dlg_add_string(listitems[current].help);
 	    }
 	    result = DLG_EXIT_ITEM_HELP;
 	} else {
 	    if (show_status) {
 		if (separate_output) {
-		    dlg_add_result(listitems[current].name);
+		    dlg_add_string(listitems[current].name);
 		    dlg_add_result("\n");
 		} else {
 		    dlg_add_quoted(listitems[current].name);
 		}
 	    } else {
-		dlg_add_result(listitems[current].name);
+		dlg_add_string(listitems[current].name);
 	    }
 	}
 	break;
@@ -685,7 +685,7 @@ dialog_checklist(const char *title,
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].state) {
 		if (separate_output) {
-		    dlg_add_result(listitems[i].name);
+		    dlg_add_string(listitems[i].name);
 		    dlg_add_result("\n");
 		} else {
 		    if (dialog_vars.input_result && *(dialog_vars.input_result))
@@ -693,7 +693,7 @@ dialog_checklist(const char *title,
 		    if (flag == FLAG_CHECK) {
 			dlg_add_quoted(listitems[i].name);
 		    } else {
-			dlg_add_result(listitems[i].name);
+			dlg_add_string(listitems[i].name);
 		    }
 		}
 	    }

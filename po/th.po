@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2007-11-22 19:23+0700\n"
 "Last-Translator: Seksan Poltree <seksan.poltree@gmail.com>\n"
 "Language-Team: Thai <seksan.poltree@gmail.com>\n"
@@ -54,7 +54,7 @@ msgstr "เดือน"
 msgid "Year"
 msgstr "ปี"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "เปลี่ยนชื่อ"
 

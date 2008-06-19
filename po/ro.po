@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dialog 1.0-rel20041222\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-16 16:33-0400\n"
+"POT-Creation-Date: 2008-06-18 18:26-0400\n"
 "PO-Revision-Date: 2005-01-20 12:00-0500\n"
 "Last-Translator: Laurentiu Buzdugan <lbuz@rolix.org>\n"
 "Language-Team: Romanian <translation-team-ro@lists.sourceforge.net>\n"
@@ -58,7 +58,7 @@ msgstr "Luna"
 msgid "Year"
 msgstr "An"
 
-#: dialog.c:738
+#: dialog.c:741
 msgid "Rename"
 msgstr "Redenumeşte"
 

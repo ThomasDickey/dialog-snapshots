@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedform.c,v 1.4 2007/02/22 22:02:25 tom Exp $
+ *  $Id: mixedform.c,v 1.5 2008/06/15 16:08:54 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2007	Thomas E. Dickey
+ *  Copyright 2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -92,10 +92,10 @@ dialog_mixedform(const char *title,
 	dlg_add_result("HELP ");
 	show_status = dialog_vars.help_status;
 	if (USE_ITEM_HELP(listitems[choice].help)) {
-	    dlg_add_result(listitems[choice].help);
+	    dlg_add_string(listitems[choice].help);
 	    result = DLG_EXIT_ITEM_HELP;
 	} else {
-	    dlg_add_result(listitems[choice].name);
+	    dlg_add_string(listitems[choice].name);
 	}
 	if (show_status)
 	    dlg_add_result("\n");
@@ -104,7 +104,7 @@ dialog_mixedform(const char *title,
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].text_flen > 0) {
-		dlg_add_result(listitems[i].text);
+		dlg_add_string(listitems[i].text);
 		dlg_add_result("\n");
 	    }
 	}
