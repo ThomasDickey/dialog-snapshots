@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedform.c,v 1.5 2008/06/15 16:08:54 tom Exp $
+ *  $Id: mixedform.c,v 1.7 2008/06/21 12:11:42 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -52,7 +52,11 @@ dialog_mixedform(const char *title,
     int choice;
     int i;
     DIALOG_FORMITEM *listitems;
+    DIALOG_VARS save_vars;
     bool show_status = FALSE;
+
+    dlg_save_vars(&save_vars);
+    dialog_vars.separate_output = TRUE;
 
     listitems = dlg_calloc(DIALOG_FORMITEM, item_no + 1);
     assert_ptr(listitems, "dialog_mixedform");
@@ -98,19 +102,20 @@ dialog_mixedform(const char *title,
 	    dlg_add_string(listitems[choice].name);
 	}
 	if (show_status)
-	    dlg_add_result("\n");
+	    dlg_add_separator();
 	break;
     }
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].text_flen > 0) {
 		dlg_add_string(listitems[i].text);
-		dlg_add_result("\n");
+		dlg_add_separator();
 	    }
 	}
     }
 
     dlg_free_formitems(listitems);
+    dlg_restore_vars(&save_vars);
 
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.115 2008/06/15 16:07:01 tom Exp $
+ *  $Id: checklist.c,v 1.119 2008/06/20 20:58:21 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -630,10 +630,12 @@ dialog_checklist(const char *title,
     for (i = 0; i < item_no; ++i) {
 	listitems[i].name = ItemName(i);
 	listitems[i].text = ItemText(i);
-	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) :
-	    dlg_strempty();
+	listitems[i].help = ((dialog_vars.item_help)
+			     ? ItemHelp(i)
+			     : dlg_strempty());
 	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
     }
+    dlg_align_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
 
     result = dlg_checklist(title,
 			   cprompt,
@@ -658,7 +660,7 @@ dialog_checklist(const char *title,
 	    if (show_status) {
 		if (separate_output) {
 		    dlg_add_string(listitems[current].help);
-		    dlg_add_result("\n");
+		    dlg_add_separator();
 		} else {
 		    dlg_add_quoted(listitems[current].help);
 		}
@@ -670,7 +672,7 @@ dialog_checklist(const char *title,
 	    if (show_status) {
 		if (separate_output) {
 		    dlg_add_string(listitems[current].name);
-		    dlg_add_result("\n");
+		    dlg_add_separator();
 		} else {
 		    dlg_add_quoted(listitems[current].name);
 		}
@@ -686,20 +688,17 @@ dialog_checklist(const char *title,
 	    if (listitems[i].state) {
 		if (separate_output) {
 		    dlg_add_string(listitems[i].name);
-		    dlg_add_result("\n");
+		    dlg_add_separator();
 		} else {
-		    if (dialog_vars.input_result && *(dialog_vars.input_result))
-			dlg_add_result(" ");
-		    if (flag == FLAG_CHECK) {
-			dlg_add_quoted(listitems[i].name);
-		    } else {
-			dlg_add_string(listitems[i].name);
-		    }
+		    if (dlg_need_separator())
+			dlg_add_separator();
+		    dlg_add_string(listitems[i].name);
 		}
 	    }
 	}
     }
 
+    dlg_free_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
     free(listitems);
     return result;
 }

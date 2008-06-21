@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.197 2008/06/15 15:45:29 tom Exp $
+ *  $Id: dialog.h,v 1.201 2008/06/21 12:09:17 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -429,7 +429,9 @@ typedef struct {
     bool nook;			/* option "--no-ok" */
     /* 1.2-200806?? */
     bool quoted;		/* option "--quoted" */
+    char *column_header;	/* option "--column-header" */
     char *column_separator;	/* option "--column-separator" */
+    char *output_separator;	/* option "--output-separator" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -553,6 +555,10 @@ extern void dlg_button_layout(const char ** /*labels*/, int * /*limit*/);
 extern void dlg_button_sizes(const char ** /*labels*/, int /*vertical*/, int * /*longest*/, int * /*length*/);
 extern void dlg_draw_buttons(WINDOW * /*win*/, int /*y*/, int /*x*/, const char ** /*labels*/, int /*selected*/, int /*vertical*/, int /*limit*/);
 
+/* columns.c */
+extern void dlg_align_columns(char ** /* target */, int  /* per_row */, int /* num_rows */);
+extern void dlg_free_columns(char ** /* target */, int  /* per_row */, int /* num_rows */);
+
 /* editbox.c */
 extern int dlg_editbox(const char */*title*/, char ***/*list*/, int */*rows*/, int /*height*/, int /*width*/);
 
@@ -591,6 +597,7 @@ extern void dlg_killall_bg(int *retval);
 extern WINDOW * dlg_new_modal_window(WINDOW * /*parent*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_new_window(int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_sub_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
+extern bool dlg_need_separator(void);
 extern char * dlg_set_result(const char * /*string*/);
 extern char * dlg_strclone(const char * /*cprompt*/);
 extern char * dlg_strempty(void);
@@ -607,6 +614,7 @@ extern int dlg_defaultno_button(void);
 extern int dlg_max_input(int /*max_len*/);
 extern void dlg_add_quoted(char * /*string*/);
 extern void dlg_add_result(const char * /*string*/);
+extern void dlg_add_separator(void);
 extern void dlg_add_string(char * /*string*/);
 extern void dlg_attr_clear(WINDOW * /*win*/, int /*height*/, int /*width*/, chtype /*attr*/);
 extern void dlg_auto_size(const char * /*title*/, const char * /*prompt*/, int * /*height*/, int * /*width*/, int /*boxlines*/, int /*mincols*/);
@@ -627,6 +635,8 @@ extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*
 extern void dlg_print_size(int /*height*/, int /*width*/);
 extern void dlg_print_text(WINDOW * /*win*/, const char * /*txt*/, int /*len*/, chtype * /*attr*/);
 extern void dlg_put_backtitle(void);
+extern void dlg_restore_vars(DIALOG_VARS * /* save */);
+extern void dlg_save_vars(DIALOG_VARS * /* save */);
 extern void dlg_set_focus(WINDOW * /*parent*/, WINDOW * /*win*/);
 extern void dlg_tab_correct_str(char * /*prompt*/);
 extern void dlg_trim_string(char * /*src*/);

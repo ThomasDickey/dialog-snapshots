@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.169 2008/06/18 22:14:32 tom Exp $
+ * $Id: dialog.c,v 1.173 2008/06/21 12:25:13 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -100,6 +100,7 @@ typedef enum {
     ,o_nook
     ,o_ok_label
     ,o_output_fd
+    ,o_output_separator
     ,o_passwordbox
     ,o_passwordform
     ,o_pause
@@ -186,6 +187,7 @@ static const Options options[] = {
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
     { "colors",		o_colors,		1, "" },
+    { "column-separator",o_column_separator,	1, "<str>" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, NULL },
     { "default-item",	o_default_item,		1, "<str>" },
@@ -236,6 +238,7 @@ static const Options options[] = {
     { "nook",		o_nook,			1, "" }, /* See no-ok */
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
+    { "output-separator",o_output_separator,	1, "<str>" },
     { "passwordbox",	o_passwordbox,		2, "<text> <height> <width> [<init>]" },
     { "passwordform",	o_passwordform,		2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
     { "pause",		o_pause,		2, "<text> <height> <width> <seconds>" },
@@ -1126,7 +1129,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright 2000-2006,2007 Thomas E. Dickey",
+	"Copyright 2000-2007,2008 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
@@ -1205,7 +1208,6 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	case o_backtitle:
 	    dialog_vars.backtitle = optionString(argv, &offset);
 	    break;
-	case o_separator:
 	case o_separate_widget:
 	    dialog_state.separate_str = optionString(argv, &offset);
 	    break;
@@ -1300,6 +1302,13 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    if (output) {
 		fprintf(stdout, "Version: %s\n", dialog_version());
 	    }
+	    break;
+	case o_separator:
+	case o_output_separator:
+	    dialog_vars.output_separator = optionString(argv, &offset);
+	    break;
+	case o_column_separator:
+	    dialog_vars.column_separator = optionString(argv, &offset);
 	    break;
 	case o_tab_correct:
 	    dialog_vars.tab_correct = TRUE;

@@ -1,10 +1,19 @@
--- $Id: CHANGES,v 1.252 2008/06/18 22:44:32 tom Exp $
+-- $Id: CHANGES,v 1.255 2008/06/21 12:24:44 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
 2008/06/??
+	+ change --separator to be an alias for --output-separator, for
+	  compatibility with Xdialog.
+	+ add --output-separator option to allow scripts to change the output
+	  separator from a newline (for --separate-output) or a space.  This
+	  applies to other widgets such as forms and editboxes which normally
+	  use a newline.
+	+ add --column-separator option, to tell where column-aligned data for
+	  radio/checkboxes or menus should be split into columns (request by
+	  Ben Dibbens).
 	+ add ku.po, lt.po, nb.po, th.po and update fr.po, gl.po from
 		http://translationproject.org/latest/dialog/
 	+ add "--quoted" option, to quote values returned by formbox, etc.

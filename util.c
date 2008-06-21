@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.192 2008/06/18 22:16:39 tom Exp $
+ *  $Id: util.c,v 1.194 2008/06/21 12:08:16 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1915,6 +1915,46 @@ dlg_add_string(char *string)
     } else {
 	dlg_add_result(string);
     }
+}
+
+bool
+dlg_need_separator(void)
+{
+    bool result = FALSE;
+
+    if (dialog_vars.output_separator) {
+	result = TRUE;
+    } else if (dialog_vars.input_result && *(dialog_vars.input_result)) {
+	result = TRUE;
+    }
+    return result;
+}
+
+void
+dlg_add_separator(void)
+{
+    char *separator = (dialog_vars.separate_output) ? "\n" : " ";
+
+    if (dialog_vars.output_separator)
+	separator = dialog_vars.output_separator;
+
+    dlg_add_result(separator);
+}
+
+/*
+ * Some widgets support only one value of a given variable - save/restore the
+ * global dialog_vars so we can override it consistently.
+ */
+void
+dlg_save_vars(DIALOG_VARS * vars)
+{
+    *vars = dialog_vars;
+}
+
+void
+dlg_restore_vars(DIALOG_VARS * vars)
+{
+    dialog_vars = *vars;
 }
 
 /*
