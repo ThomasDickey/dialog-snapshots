@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.60 2007/07/04 19:33:35 tom Exp $
+# $Id: makefile.in,v 1.61 2008/06/19 20:41:18 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -79,6 +79,7 @@ OBJECTS = $(EXTRAOBJS) \
 	arrows$o \
 	buttons$o \
 	checklist$o \
+	columns$o \
 	dlg_keys$o \
 	editbox$o \
 	inputbox$o \

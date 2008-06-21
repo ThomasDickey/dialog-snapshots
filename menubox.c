@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.113 2008/06/15 16:07:01 tom Exp $
+ *  $Id: menubox.c,v 1.115 2008/06/20 00:54:16 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -786,9 +786,11 @@ dialog_menu(const char *title,
     for (i = 0; i < item_no; ++i) {
 	listitems[i].name = ItemName(i);
 	listitems[i].text = ItemText(i);
-	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) :
-	    dlg_strempty();
+	listitems[i].help = ((dialog_vars.item_help)
+			     ? ItemHelp(i)
+			     : dlg_strempty());
     }
+    dlg_align_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
 
     result = dlg_menu(title,
 		      cprompt,
@@ -800,6 +802,7 @@ dialog_menu(const char *title,
 		      &choice,
 		      dialog_vars.input_menu ? dlg_renamed_menutext : dlg_dummy_menutext);
 
+    dlg_free_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
     free(listitems);
     return result;
 }

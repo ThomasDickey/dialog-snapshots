@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.64 2008/06/15 16:09:16 tom Exp $
+ *  $Id: formbox.c,v 1.66 2008/06/21 12:12:05 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -818,7 +818,11 @@ dialog_form(const char *title,
     int choice;
     int i;
     DIALOG_FORMITEM *listitems;
+    DIALOG_VARS save_vars;
     bool show_status = FALSE;
+
+    dlg_save_vars(&save_vars);
+    dialog_vars.separate_output = TRUE;
 
     listitems = dlg_calloc(DIALOG_FORMITEM, item_no + 1);
     assert_ptr(listitems, "dialog_form");
@@ -863,19 +867,20 @@ dialog_form(const char *title,
 	    dlg_add_string(listitems[choice].name);
 	}
 	if (show_status)
-	    dlg_add_result("\n");
+	    dlg_add_separator();
 	break;
     }
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].text_flen > 0) {
 		dlg_add_string(listitems[i].text);
-		dlg_add_result("\n");
+		dlg_add_separator();
 	    }
 	}
     }
 
     dlg_free_formitems(listitems);
+    dlg_restore_vars(&save_vars);
 
     return result;
 }

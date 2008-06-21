@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.45 2007/09/30 17:45:18 tom Exp $
+ *  $Id: editbox.c,v 1.46 2008/06/21 12:07:54 tom Exp $
  *
- * editbox.c -- implements the edit box
+ *  editbox.c -- implements the edit box
  *
- * Copyright 2007 Thomas E. Dickey
+ *  Copyright 2007,2008 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -321,7 +321,11 @@ dlg_editbox(const char *title,
     bool show_all, show_one, was_mouse;
     WINDOW *dialog;
     WINDOW *editing;
+    DIALOG_VARS save_vars;
     const char **buttons = dlg_ok_labels();
+
+    dlg_save_vars(&save_vars);
+    dialog_vars.separate_output = TRUE;
 
     dlg_does_output();
 
@@ -657,10 +661,11 @@ dlg_editbox(const char *title,
 	int n;
 	for (n = 0; n < listsize; ++n) {
 	    dlg_add_result((*list)[n]);
-	    dlg_add_result("\n");
+	    dlg_add_separator();
 	}
     }
     free(buffer);
+    dlg_restore_vars(&save_vars);
     return result;
 }
 

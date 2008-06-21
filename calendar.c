@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.53 2007/04/08 16:43:11 tom Exp $
+ * $Id: calendar.c,v 1.54 2008/06/21 12:36:41 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- * Copyright 2001-2006,2007	Thomas E. Dickey
+ *  Copyright 2001-2007,2008	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -335,13 +335,15 @@ init_object(BOX * data,
 }
 
 static int
-CleanupResult(int code, WINDOW *dialog, char *prompt)
+CleanupResult(int code, WINDOW *dialog, char *prompt, DIALOG_VARS * save_vars)
 {
     if (dialog != 0)
 	dlg_del_window(dialog);
     dlg_mouse_free_regions();
     if (prompt != 0)
 	free(prompt);
+    dlg_restore_vars(save_vars);
+
     return code;
 }
 
@@ -406,6 +408,10 @@ dialog_calendar(const char *title,
     int longest;
     int mincols;
     char buffer[MAX_LEN];
+    DIALOG_VARS save_vars;
+
+    dlg_save_vars(&save_vars);
+    dialog_vars.separate_output = TRUE;
 
     dlg_does_output();
 
@@ -485,7 +491,7 @@ dialog_calendar(const char *title,
 		    draw_day,
 		    'D') < 0
 	|| DrawObject(&dy_box) < 0) {
-	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }
 
     if (init_object(&mn_box,
@@ -497,7 +503,7 @@ dialog_calendar(const char *title,
 		    draw_month,
 		    'M') < 0
 	|| DrawObject(&mn_box) < 0) {
-	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }
 
     if (init_object(&yr_box,
@@ -509,7 +515,7 @@ dialog_calendar(const char *title,
 		    draw_year,
 		    'Y') < 0
 	|| DrawObject(&yr_box) < 0) {
-	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt);
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }
 
     while (result == DLG_EXIT_UNKNOWN) {
@@ -630,9 +636,10 @@ dialog_calendar(const char *title,
 	}
     }
 
-    sprintf(buffer, "%02d/%02d/%0d\n",
+    sprintf(buffer, "%02d/%02d/%0d",
 	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
     dlg_add_result(buffer);
+    dlg_add_separator();
 
-    return CleanupResult(result, dialog, prompt);
+    return CleanupResult(result, dialog, prompt, &save_vars);
 }
