@@ -10,16 +10,16 @@ msgstr ""
 "Last-Translator: Kevin Scannell <kscanne@gmail.com>\n"
 "Language-Team: Irish <gaeilge-gnulinux@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
 msgid "Yes"
-msgstr "T·"
+msgstr "T√°"
 
 #: buttons.c:393
 msgid "No"
-msgstr "NÌl"
+msgstr "N√≠l"
 
 #: buttons.c:401
 msgid "OK"
@@ -44,7 +44,7 @@ msgstr "Cabhair"
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "MÌ"
+msgstr "M√≠"
 
 #. Headline "Year"
 #: calendar.c:293
@@ -65,7 +65,7 @@ msgstr "Comhaid"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr "D'Èirigh leis"
+msgstr "D'√©irigh leis"
 
 #: mixedgauge.c:61
 msgid "Failed"
@@ -77,7 +77,7 @@ msgstr "Ceadaithe"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr "CrÌochnaithe"
+msgstr "Cr√≠ochnaithe"
 
 #: mixedgauge.c:70
 msgid "Checked"
@@ -85,15 +85,15 @@ msgstr "Deimhnithe"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr "DÈanta"
+msgstr "D√©anta"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr "Scipe·ilte"
+msgstr "Scipe√°ilte"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr "Faoi Shi˙l"
+msgstr "Faoi Shi√∫l"
 
 #: mixedgauge.c:85
 msgid "N/A"
@@ -101,7 +101,7 @@ msgstr "N/A/F"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr "Dul Chun Cinn Ioml·n"
+msgstr "Dul Chun Cinn Ioml√°n"
 
 #: textbox.c:489
 msgid "Search"

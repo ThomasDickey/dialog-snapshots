@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.113 2008/06/10 00:46:31 tom Exp $
+.\" $Id: dialog.1,v 1.115 2008/07/27 22:49:40 tom Exp $
 .\" Copyright 2005-2007,2008  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2008/06/10 00:46:31 $"
+.TH DIALOG 1 "" "$Date: 2008/07/27 22:49:40 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -217,6 +217,10 @@ The settings are cumulative, e.g., "\\Zb\\Z1" makes the following text
 bold (perhaps bright) red.
 Restore normal settings with "\\Zn".
 .
+.IP "\fB--column-separator \fIstring"
+Tell \fBdialog\fP to split data for radio/checkboxes and menus on the
+occurrences of the given string, and to align the split data into columns.
+.
 .IP "\fB--cr-wrap"
 Interpret embedded newlines in the dialog text as a newline on the screen.
 Otherwise, \fBdialog\fR will only wrap lines where needed to fit inside the text box.
@@ -376,6 +380,13 @@ Direct output to the given file descriptor.
 Most \fBdialog\fR scripts write to the standard error,
 but error messages may also be written there, depending on your script.
 .
+.IP "\fB--separator \fIstring"
+.IP "\fB--output-separator\fIstring"
+Specify a string that will separate the output on \fBdialog\fP's output from
+checklists, rather than a newline (for --separate-output) or a space.
+This applies to other widgets such as forms and editboxes which normally
+use a newline.
+.
 .IP "\fB--print-maxsize"
 Print the maximum size of dialog boxes, i.e., the screen size,
 to \fBdialog\fP's output.
@@ -392,7 +403,6 @@ This may be used alone, without other options.
 For checklist widgets, output result one line at a time, with no quoting.
 This facilitates parsing by another program.
 .
-.IP "\fB--separator \fIstring"
 .IP "\fB--separate-widget \fIstring"
 Specify a string that will separate the output on \fBdialog\fP's output from
 each widget.

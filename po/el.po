@@ -7,16 +7,16 @@ msgstr ""
 "Last-Translator: kromJx <kromJx@crosswinds.net>\n"
 "Language-Team: <i18ngr@hellug.gr>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-7\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
 #: buttons.c:385
 msgid "Yes"
-msgstr "Ναι"
+msgstr "ΞΞ±ΞΉ"
 
 #: buttons.c:393
 msgid "No"
-msgstr "Όχι"
+msgstr "ΞΟ‡ΞΉ"
 
 #: buttons.c:401
 msgid "OK"
@@ -24,11 +24,11 @@ msgstr "OK"
 
 #: buttons.c:409
 msgid "Cancel"
-msgstr "¶κυρο"
+msgstr "Ξ†ΞΊΟ…ΟΞΏ"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr "Έξοδος"
+msgstr "ΞΞΎΞΏΞ΄ΞΏΟ‚"
 
 #: buttons.c:425
 msgid "Extra"
@@ -36,17 +36,17 @@ msgstr ""
 
 #: buttons.c:433
 msgid "Help"
-msgstr "Βοήθεια"
+msgstr "Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Μήνας"
+msgstr "ΞΞ®Ξ½Ξ±Ο‚"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "Έτος"
+msgstr "ΞΟ„ΞΏΟ‚"
 
 #: dialog.c:741
 msgid "Rename"
@@ -54,11 +54,11 @@ msgstr ""
 
 #: fselect.c:550
 msgid "Directories"
-msgstr "Φάκελοι"
+msgstr "Ξ¦Ξ¬ΞΊΞµΞ»ΞΏΞΉ"
 
 #: fselect.c:551
 msgid "Files"
-msgstr "Αρχεία"
+msgstr "Ξ‘ΟΟ‡ΞµΞ―Ξ±"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
@@ -67,7 +67,7 @@ msgstr ""
 #: mixedgauge.c:61
 #, fuzzy
 msgid "Failed"
-msgstr "Αρχεία"
+msgstr "Ξ‘ΟΟ‡ΞµΞ―Ξ±"
 
 #: mixedgauge.c:64
 msgid "Passed"

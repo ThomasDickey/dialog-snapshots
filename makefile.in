@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.61 2008/06/19 20:41:18 tom Exp $
+# $Id: makefile.in,v 1.62 2008/07/20 18:30:36 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -109,6 +109,8 @@ ALL	= $(LIB) $(PROG)
 
 BIN_DIRS	= $(BINDIR) $(MAN1DIR)
 LIB_DIRS	= $(LIBDIR) $(INCLUDEDIR)
+
+PO_DIR	= $(srcdir)/po
 
 all	:: $(ALL)
 
@@ -224,6 +226,10 @@ $(LIBDIR) : ; $(srcdir)/mkdirs.sh $@
 
 @MAKE_LOWER_TAGS@TAGS :
 @MAKE_LOWER_TAGS@	etags $(SRCS) $(HDRS)
+
+update-po:
+	rsync -Lrtvz  translationproject.org::tp/latest/dialog/  $(PO_DIR)
+	test -f $(PO_DIR)/makefile && cd $(PO_DIR) && $(MAKE) $@
 
 lint:
 	$(LINT) $(CPPFLAGS) *.c

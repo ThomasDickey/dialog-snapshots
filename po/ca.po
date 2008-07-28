@@ -1,14 +1,14 @@
 # Catalan translation of Dialog.
-# Copyright © 2004, 2005 Free Software Foundation, Inc.
+# Copyright © 2004, 2005, 2008 Free Software Foundation, Inc.
 # This file is distributed under the same licence as the dialog package.
-# Jordi Mallach <jordi@debian.org>, 2004, 2005.
+# Jordi Mallach <jordi@debian.org>, 2004, 2005, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.0-rel20041222\n"
+"Project-Id-Version: dialog 1.1.20070704\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2005-01-19 12:20+0200\n"
+"POT-Creation-Date: 2008-07-20 14:31-0400\n"
+"PO-Revision-Date: 2008-06-10 00:50+0200\n"
 "Last-Translator: Jordi Mallach <jordi@gnu.org>\n"
 "Language-Team: Catalan <ca@dodds.net>\n"
 "MIME-Version: 1.0\n"
@@ -53,9 +53,9 @@ msgstr "Mes"
 msgid "Year"
 msgstr "Any"
 
-#: dialog.c:741
+#: dialog.c:744
 msgid "Rename"
-msgstr "Reanomena"
+msgstr "Canvia el nom"
 
 #: fselect.c:550
 msgid "Directories"
@@ -67,44 +67,43 @@ msgstr "Fitxers"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Ha tingut èxit"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "Fitxers"
+msgstr "Ha fallat"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Ha passat"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "S'ha completat"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Activat"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Fet"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Omès"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "En progrés"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "N/D"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Progrés general"
 
 #: textbox.c:489
 msgid "Search"

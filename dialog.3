@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.40 2008/06/15 21:42:48 tom Exp $
+.\" $Id: dialog.3,v 1.42 2008/07/28 00:01:05 tom Exp $
 .\" Copyright 2005-2007,2008  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2008/06/15 21:42:48 $"
+.TH DIALOG 3 "" "$Date: 2008/07/28 00:01:05 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -953,6 +953,13 @@ is the string to add.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_add_separator
+Add an output-separator to the result buffer \fBdialog_vars.input_result\fP.
+If \fBdialog_vars.output_separator\fP is set, use that.
+Otherwise, if \fBdialog_vars.separate_output\fP is set, use newline. 
+If neither is set, use a space.
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_add_string
 Add a quoted or unquoted string to the result buffer
 (see \fBdlg_add_quoted\fP) and \fBdlg_add_result\fP),
@@ -961,6 +968,27 @@ according to whether \fBdialog_vars.quoted\fP is true.
 .TP 5
 .B char * \fIstring
 is the string to add.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_align_columns
+Copy and reformat an array of pointers to strings, aligning according to
+the column separator \fBdialog_vars.column_separator\fP.
+If no column separator is set, the array will be unmodified;
+otherwise it is copied and reformatted.
+.IP
+Caveat: This function is only implemented for 8-bit characters.
+.RS
+.TP 5
+.B char **\fItarget
+This is the array to reformat.
+It points to the first string to modify.
+.TP 5
+.B int \fIper_row
+This is the size of the struct for each row of the array.
+.TP 5
+.B int \fInum_rows
+This is the number of rows in the array.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -1748,6 +1776,22 @@ item (cursor) when it returns.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_free_columns
+Free data allocated by \fBdlg_align_columns\fP.
+.RS
+.TP 5
+.B char **\fItarget
+This is the array which was reformatted.
+It points to the first string to free.
+.TP 5
+.B int \fIper_row
+This is the size of the struct for each row of the array.
+.TP 5
+.B int \fInum_rows
+This is the number of rows in the array.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_free_formitems
 Free memory owned by a list of DIALOG_FORMITEM's.
 .RS
@@ -2093,6 +2137,13 @@ or extended (mouse) function-key.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_need_separator
+Check if an output-separator is needed.
+If \fBdialog_vars.output_separator\fP is set, return true.
+Otherwise, if \fBdialog_vars.input_result\fP is nonempty, return true.
+If neither, return false.
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_new_modal_window
 Create a modal window, optionally with a shadow.
 The shadow is created if dialog_state.use_shadow is true.
@@ -2353,6 +2404,15 @@ contains the callback information.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_restore_vars
+Restore dialog's variables from the given variable (see \fBdialog_save_vars\fP).
+.RS
+.TP 5
+.B DIALOG_VARS * \fIsave
+is the variable from which to restore.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_result_key
 Test a dialog internal keycode to see if it corresponds to one of the push
 buttons on the widget such as "OK".
@@ -2369,6 +2429,15 @@ is true if this is a function key
 .TP 5
 .B int * \fIresultp
 store the result of the mapping in the referenced location.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_save_vars
+Save dialog's variables into the given variable (see \fBdialog_restore_vars\fP).
+.RS
+.TP 5
+.B DIALOG_VARS * \fIsave
+is the variable into which to save.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5

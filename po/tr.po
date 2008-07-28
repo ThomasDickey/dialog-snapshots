@@ -13,7 +13,7 @@ msgstr ""
 "Last-Translator: Abdullah Ulas <potkal@bioinformatics.org>\n"
 "Language-Team: Turkish <gnu-tr-u12a@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-9\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
@@ -22,7 +22,7 @@ msgstr "Evet"
 
 #: buttons.c:393
 msgid "No"
-msgstr "Hayýr"
+msgstr "HayÄ±r"
 
 #: buttons.c:401
 msgid "OK"
@@ -30,11 +30,11 @@ msgstr "Tamam"
 
 #: buttons.c:409
 msgid "Cancel"
-msgstr "Ýptal"
+msgstr "Ä°ptal"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr "ÇIKIÞ"
+msgstr "Ã‡IKIÅž"
 
 #: buttons.c:425
 msgid "Extra"
@@ -42,7 +42,7 @@ msgstr "Ekstra"
 
 #: buttons.c:433
 msgid "Help"
-msgstr "Yardým"
+msgstr "YardÄ±m"
 
 #. Headline "Month"
 #: calendar.c:273
@@ -52,11 +52,11 @@ msgstr "Ay"
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "Yýl"
+msgstr "YÄ±l"
 
 #: dialog.c:741
 msgid "Rename"
-msgstr "Yeniden adlandýr"
+msgstr "Yeniden adlandÄ±r"
 
 #: fselect.c:550
 msgid "Directories"

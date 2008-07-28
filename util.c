@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.194 2008/06/21 12:08:16 tom Exp $
+ *  $Id: util.c,v 1.195 2008/07/23 00:12:48 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1146,9 +1146,11 @@ dlg_exit(int code)
 	    fclose(dialog_state.input);
 	    dialog_state.input = 0;
 	}
-	if (dialog_state.pipe_input != stdin) {
-	    fclose(dialog_state.pipe_input);
-	    dialog_state.pipe_input = 0;
+	if (dialog_state.pipe_input) {
+	    if (dialog_state.pipe_input != stdin) {
+		fclose(dialog_state.pipe_input);
+		dialog_state.pipe_input = 0;
+	    }
 	}
 	_exit(code);
     }
