@@ -10,7 +10,7 @@ msgstr ""
 "Last-Translator: Jaroslaw Swierczynski <swiergot@intersec.pl>\n"
 "Language-Team: Polish <po@lists.intersec.pl>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.0.1\n"
 
@@ -32,7 +32,7 @@ msgstr "Anuluj"
 
 #: buttons.c:417
 msgid "EXIT"
-msgstr "WYJD¬"
+msgstr "WYJDÅ¹"
 
 #: buttons.c:425
 msgid "Extra"
@@ -45,7 +45,7 @@ msgstr "Pomoc"
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Miesi±c"
+msgstr "MiesiÄ…c"
 
 #. Headline "Year"
 #: calendar.c:293
@@ -54,7 +54,7 @@ msgstr "Rok"
 
 #: dialog.c:741
 msgid "Rename"
-msgstr "Zmieñ nazwê"
+msgstr "ZmieÅ„ nazwÄ™"
 
 #: fselect.c:550
 msgid "Directories"

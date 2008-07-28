@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.201 2008/06/21 12:09:17 tom Exp $
+ *  $Id: dialog.h,v 1.202 2008/07/27 22:20:22 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -427,9 +427,9 @@ typedef struct {
     bool no_lines;		/* option "--no-lines" */
     /* 1.1-20070930 */
     bool nook;			/* option "--no-ok" */
-    /* 1.2-200806?? */
+    /* 1.2-20080727 */
     bool quoted;		/* option "--quoted" */
-    char *column_header;	/* option "--column-header" */
+    char *column_header;	/* RESERVED "--column-header" */
     char *column_separator;	/* option "--column-separator" */
     char *output_separator;	/* option "--output-separator" */
 } DIALOG_VARS;

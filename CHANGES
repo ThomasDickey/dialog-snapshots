@@ -1,10 +1,14 @@
--- $Id: CHANGES,v 1.255 2008/06/21 12:24:44 tom Exp $
+-- $Id: CHANGES,v 1.262 2008/07/28 00:12:47 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2008/06/??
+2008/07/27
+	+ add pointer-check when closing piped input (cf: 2007/03/25)
+	+ use here-documents rather than echo, when passing backslashes in
+	  strings, to accommodate the Debian shell "dash" (Debian #489563).
+	+ recode several ".po" files to UTF-8 for consistency.
 	+ change --separator to be an alias for --output-separator, for
 	  compatibility with Xdialog.
 	+ add --output-separator option to allow scripts to change the output
@@ -14,7 +18,8 @@ to it:
 	+ add --column-separator option, to tell where column-aligned data for
 	  radio/checkboxes or menus should be split into columns (request by
 	  Ben Dibbens).
-	+ add ku.po, lt.po, nb.po, th.po and update fr.po, gl.po from
+	+ add id.po, ku.po, lt.po, nb.po and update ca.po, fr.po, gl.po, ja.po,
+	  th.po from
 		http://translationproject.org/latest/dialog/
 	+ add "--quoted" option, to quote values returned by formbox, etc.
 	+ change names of EX/ES macros in dialog.1 to work around name-

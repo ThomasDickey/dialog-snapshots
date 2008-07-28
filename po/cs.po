@@ -8,7 +8,7 @@ msgstr ""
 "Last-Translator: Martin Povolny <martin@solnet.cz>\n"
 "Language-Team:\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-2\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
 
 #: buttons.c:385
@@ -42,7 +42,7 @@ msgstr ""
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Mìsíc"
+msgstr "MÄ›sÃ­c"
 
 #. Headline "Year"
 #: calendar.c:293
@@ -55,7 +55,7 @@ msgstr ""
 
 #: fselect.c:550
 msgid "Directories"
-msgstr "Adresáøe"
+msgstr "AdresÃ¡Å™e"
 
 #: fselect.c:551
 msgid "Files"

@@ -11,7 +11,7 @@ msgstr ""
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
@@ -40,17 +40,17 @@ msgstr "Extra"
 
 #: buttons.c:433
 msgid "Help"
-msgstr "Hjälp"
+msgstr "HjÃ¤lp"
 
 #. Headline "Month"
 #: calendar.c:273
 msgid "Month"
-msgstr "Månad"
+msgstr "MÃ¥nad"
 
 #. Headline "Year"
 #: calendar.c:293
 msgid "Year"
-msgstr "År"
+msgstr "Ã…r"
 
 #: dialog.c:741
 msgid "Rename"
@@ -78,7 +78,7 @@ msgstr "Klarades"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr "Färdig"
+msgstr "FÃ¤rdig"
 
 #: mixedgauge.c:70
 msgid "Checked"
@@ -90,20 +90,20 @@ msgstr "Klar"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr "Hoppades över"
+msgstr "Hoppades Ã¶ver"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr "Pågår"
+msgstr "PÃ¥gÃ¥r"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr "Inte tillgänglig"
+msgstr "Inte tillgÃ¤nglig"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr "Totalt förlopp"
+msgstr "Totalt fÃ¶rlopp"
 
 #: textbox.c:489
 msgid "Search"
-msgstr "Sök"
+msgstr "SÃ¶k"
