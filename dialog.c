@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.173 2008/06/21 12:25:13 tom Exp $
+ * $Id: dialog.c,v 1.174 2008/08/19 23:21:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -761,7 +761,7 @@ call_checklist(CALLARGS)
     int code;
     bool save_quoted = dialog_vars.quoted;
 
-    dialog_vars.quoted = TRUE;
+    dialog_vars.quoted = !dialog_vars.separate_output;
     *offset_add = 5 + tags * CHECKBOX_TAGS;
     code = dialog_checklist(t,
 			    av[1],
