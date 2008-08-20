@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.195 2008/07/23 00:12:48 tom Exp $
+ *  $Id: util.c,v 1.196 2008/08/20 00:26:37 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1935,7 +1935,7 @@ dlg_need_separator(void)
 void
 dlg_add_separator(void)
 {
-    char *separator = (dialog_vars.separate_output) ? "\n" : " ";
+    const char *separator = (dialog_vars.separate_output) ? "\n" : " ";
 
     if (dialog_vars.output_separator)
 	separator = dialog_vars.output_separator;
