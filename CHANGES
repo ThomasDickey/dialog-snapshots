@@ -1,8 +1,45 @@
--- $Id: CHANGES,v 1.264 2008/08/19 23:36:46 tom Exp $
+-- $Id: CHANGES,v 1.276 2010/01/11 01:35:34 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2010/01/??
+	+ modify editbox to allow its input buffer to be larger than MAX_LEN
+	  unless bounded by the --max-input option, and add limit-checks for
+	  the buffer (report by slakmagik).
+	+ improve manpage description of --checklist (report by Isaac Good).
+	+ several improvements to configure script macros:  CF_ADD_CFLAGS
+	  CF_CURSES_FUNCS CF_DISABLE_ECHO CF_GCC_ATTRIBUTES CF_MATH_LIB
+	  CF_POSIX_C_SOURCE CF_REMOVE_DEFINE CF_WITH_LIBTOOL CF_XOPEN_SOURCE
+	+ add is.po, lv.po, sw.po from
+		http://translationproject.org/latest/dialog/
+	+ update de.po, id.po, pl.po, pt_BR.po, vi.po from
+		http://translationproject.org/latest/dialog/
+
+2009/02/22
+	+ do not display top-arrows for scrolling if they would overwrite the
+	  title (report by slakmagik)
+	+ consistently use dlg_button_layout() when autosizing widgets (report
+	  by slakmagik).
+	+ add "-" and "+" bindings to timebox widget.
+	+ add "-" and "+" bindings to calendar widget (OpenSolaris #6739031).
+	+ review/fix other widgets to ensure that they exit on error, e.g.,
+	  editbox.c
+	+ modify check in dlg_getc() to treat closure of either stdin or stdout
+	  as an error, rather than both.  This is more stringent than the check
+	  added in 2007/07/04.
+	+ modify dlg_result_key() to map curses ERR to dialog's error exit
+	  (adapted from patch by Domagoj Pensa).
+	+ updated several configure script macros:
+	  + consistently append, rather then prepend, to $CFLAGS
+	  + add cases for AIX 6, mint, and dragonfly to CF_XOPEN_SOURCE
+	  + use $PATH_SEPARATOR rather than $PATHSEP
+	  + improve CF_FIND_LINKAGE, use in checks for more libraries, e.g.,
+	    libutf8 and libiconv.
+	+ update da.po, ru.po from
+		http://translationproject.org/latest/dialog/
+	+ updated config.guess, config.sub
 
 2008/08/19
 	+ amend changes to quoting; by default, the checklist widget quotes its

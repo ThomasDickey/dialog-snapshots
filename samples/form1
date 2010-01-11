@@ -1,6 +1,9 @@
 #! /bin/sh
-# $Id: form1,v 1.8 2005/12/05 23:27:23 tom Exp $
+# $Id: form1,v 1.9 2009/02/22 15:54:14 tom Exp $
 : ${DIALOG=dialog}
+
+DIALOG_ERROR=254
+export DIALOG_ERROR
 
 backtitle="An Example for the use of --form:"
 
@@ -57,6 +60,14 @@ $show" 10 40
 		;;
 	3)
 		echo "Button 3 (Extra) pressed."
+		exit
+		;;
+	254)
+		echo "ERROR!"
+		exit
+		;;
+	255)
+		echo "ESC pressed."
 		exit
 		;;
 	*)

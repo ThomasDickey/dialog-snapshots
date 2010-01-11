@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.58 2007/03/25 20:08:23 Brian.Rolfe Exp $
+ *  $Id: msgbox.c,v 1.59 2009/02/22 18:57:47 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2006,2007	Thomas E. Dickey
+ *  Copyright 2000-2007,2009	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -155,6 +155,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int offset = 0;
     int check;
     bool show = TRUE;
+    int min_width = (pauseopt == 1 ? 12 : 0);
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -162,10 +163,12 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
   restart:
 #endif
 
+    dlg_button_layout(buttons, &min_width);
+
     dlg_tab_correct_str(prompt);
     dlg_auto_size(title, prompt, &height, &width,
 		  (pauseopt == 1 ? 2 : 0),
-		  (pauseopt == 1 ? 12 : 0));
+		  min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

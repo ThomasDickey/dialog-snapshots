@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.119 2008/06/20 20:58:21 tom Exp $
+ *  $Id: checklist.c,v 1.120 2009/02/22 19:16:36 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -202,6 +202,7 @@ dlg_checklist(const char *title,
     } else {
 	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
     }
+    dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

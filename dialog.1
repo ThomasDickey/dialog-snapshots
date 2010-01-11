@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.115 2008/07/27 22:49:40 tom Exp $
-.\" Copyright 2005-2007,2008  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.116 2010/01/11 00:27:49 tom Exp $
+.\" Copyright 2005-2008,2010  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2008/07/27 22:49:40 $"
+.TH DIALOG 1 "" "$Date: 2010/01/11 00:27:49 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -528,6 +528,9 @@ box is similar to a
 \fBmenu\fP
 box; there are
 multiple entries presented in the form of a menu.
+Another difference is
+that you can indicate which entry is currently selected, by setting its
+.IR status " to " on "."
 Instead of choosing
 one entry among the entries, each entry can be turned on or off by the user.
 The initial on/off state of each entry is specified by

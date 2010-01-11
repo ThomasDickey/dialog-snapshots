@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.92 2007/07/04 20:28:07 tom Exp $
+ *  $Id: textbox.c,v 1.93 2009/02/22 18:57:47 tom Exp $
  *
  * textbox.c -- implements the text box
  *
- * Copyright 2000-2006,2007 Thomas E.  Dickey
+ * Copyright 2000-2007,2009 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -695,6 +695,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     bool moved;
     int result = DLG_EXIT_UNKNOWN;
     int button = dialog_vars.extra_button ? dlg_defaultno_button() : 0;
+    int min_width = 12;
 
     search_term[0] = '\0';	/* no search term entered yet */
 
@@ -718,12 +719,14 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     read_high(&obj, BUF_SIZE);
 
+    dlg_button_layout(obj.buttons, &min_width);
+
 #ifdef KEY_RESIZE
   retry:
 #endif
     moved = TRUE;
 
-    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_auto_sizefile(title, file, &height, &width, 2, min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.24 2007/09/30 21:15:42 tom Exp $
+ *  $Id: dlg_keys.c,v 1.26 2009/02/22 16:19:51 tom Exp $
  *
  * dlg_keys.c -- runtime binding support for dialog
  *
- * Copyright 2006,2007 Thomas E. Dickey
+ * Copyright 2006-2007,2009 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -281,7 +281,11 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
     if (dialog_key == ESC) {
 	*resultp = DLG_EXIT_ESC;
 	done = TRUE;
+    } else if (dialog_key == ERR) {
+	*resultp = DLG_EXIT_ERROR;
+	done = TRUE;
     }
+
     return done;
 }
 
@@ -542,7 +546,7 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
  *
  * The curses key "should" be one of the names (ignoring case) from
  * curses_names[], but may also be a single control character (prefix "^" or
- * "~" depending on whether it is C0 or C1), or an escaped single character. 
+ * "~" depending on whether it is C0 or C1), or an escaped single character.
  * Binding a printable character with dialog is possible but not useful.
  *
  * The dialog key must be one of the names from dialog_names[].

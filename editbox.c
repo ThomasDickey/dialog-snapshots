@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.46 2008/06/21 12:07:54 tom Exp $
+ *  $Id: editbox.c,v 1.50 2010/01/11 01:26:49 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007,2008 Thomas E. Dickey
+ *  Copyright 2007-2009,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -270,6 +270,22 @@ col_to_chr_offset(const char *text, int col)
 
 #define UPDATE_COL(input) col_offset = dlg_edit_offset(input, chr_offset, box_width)
 
+static int
+widest_line(char **list)
+{
+    int result = MAX_LEN;
+    char *value;
+
+    if (list != 0) {
+	while ((value = *list++) != 0) {
+	    int check = (int) strlen(value);
+	    if (check > result)
+		result = check;
+	}
+    }
+    return result;
+}
+
 /*
  * Display a dialog box for editing a copy of a file
  */
@@ -316,20 +332,21 @@ dlg_editbox(const char *title,
     int listsize = size_list(*list);
     int result = DLG_EXIT_UNKNOWN;
     int state;
-    int max_len = dlg_max_input(MAX_LEN);
+    int max_len = dlg_max_input(widest_line(*list));
     char *input, *buffer;
     bool show_all, show_one, was_mouse;
     WINDOW *dialog;
     WINDOW *editing;
     DIALOG_VARS save_vars;
     const char **buttons = dlg_ok_labels();
+    int mincols = (3 * COLS / 4);
 
     dlg_save_vars(&save_vars);
     dialog_vars.separate_output = TRUE;
 
     dlg_does_output();
 
-    buffer = dlg_malloc(char, max_len);
+    buffer = dlg_malloc(char, max_len + 1);
     assert_ptr(buffer, "dlg_editbox");
 
     thisrow = base_row = lastrow = 0;
@@ -341,7 +358,8 @@ dlg_editbox(const char *title,
     state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
     key = fkey = 0;
 
-    dlg_auto_size(title, "", &height, &width, 3 * LINES / 4, 3 * COLS / 4);
+    dlg_button_layout(buttons, &mincols);
+    dlg_auto_size(title, "", &height, &width, 3 * LINES / 4, mincols);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 
@@ -447,6 +465,13 @@ dlg_editbox(const char *title,
 	}
 
 	key = dlg_mouse_wgetch((state == sTEXT) ? editing : dialog, &fkey);
+	if (key == ERR) {
+	    result = DLG_EXIT_ERROR;
+	    break;
+	} else if (key == ESC) {
+	    result = DLG_EXIT_ESC;
+	    break;
+	}
 	if (state != sTEXT) {
 	    if (dlg_result_key(key, fkey, &result))
 		break;
@@ -564,7 +589,7 @@ dlg_editbox(const char *title,
 		    continue;
 		}
 	    }
-	    strcpy(buffer, input);
+	    strncpy(buffer, input, max_len - 1)[max_len - 1] = '\0';
 	    edit = dlg_edit_string(buffer, &chr_offset, key, fkey, FALSE);
 
 	    if (edit) {

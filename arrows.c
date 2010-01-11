@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.19 2007/02/19 01:22:19 tom Exp $
+ *  $Id: arrows.c,v 1.20 2009/02/22 19:27:20 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- * Copyright 2000-2006,2007   Thomas E. Dickey
+ * Copyright 2000-2007,2009   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -61,17 +61,31 @@ dlg_draw_arrows2(WINDOW *dialog,
 {
     chtype save = getattrs(dialog);
     int cur_x, cur_y;
+    int limit_x = getmaxx(dialog);
+    bool draw_top = TRUE;
 
     getyx(dialog, cur_y, cur_x);
 
-    (void) wmove(dialog, top, x);
-    if (top_arrow) {
-	wattrset(dialog, merge_colors(uarrow_attr, attr));
-	(void) add_acs(dialog, ACS_UARROW);
-	(void) waddstr(dialog, "(-)");
-    } else {
-	wattrset(dialog, attr);
-	(void) whline(dialog, dlg_boxchar(ACS_HLINE), 4);
+    /*
+     * If we're drawing a centered title, do not overwrite with the arrows.
+     */
+    if (dialog_vars.title) {
+	int have = (limit_x - dlg_count_columns(dialog_vars.title)) / 2;
+	int need = x + 5;
+	if (need > have)
+	    draw_top = FALSE;
+    }
+
+    if (draw_top) {
+	(void) wmove(dialog, top, x);
+	if (top_arrow) {
+	    wattrset(dialog, merge_colors(uarrow_attr, attr));
+	    (void) add_acs(dialog, ACS_UARROW);
+	    (void) waddstr(dialog, "(-)");
+	} else {
+	    wattrset(dialog, attr);
+	    (void) whline(dialog, dlg_boxchar(ACS_HLINE), 4);
+	}
     }
     mouse_mkbutton(top, x - 1, 6, KEY_PPAGE);
 

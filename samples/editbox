@@ -1,6 +1,9 @@
 #!/bin/sh
-# $Id: editbox,v 1.6 2007/01/10 23:24:44 tom Exp $
+# $Id: editbox,v 1.7 2009/02/22 15:42:04 tom Exp $
 : ${DIALOG=dialog}
+
+DIALOG_ERROR=254
+export DIALOG_ERROR
 
 input=`tempfile 2>/dev/null` || input=/tmp/input$$
 output=`tempfile 2>/dev/null` || output=/tmp/test$$
@@ -50,6 +53,8 @@ case $? in
     echo "Button 2 (Help) pressed";;
   3)
     echo "Button 3 (Extra) pressed";;
+  254)
+    echo "ERROR!";;
   255)
     echo "ESC pressed.";;
 esac

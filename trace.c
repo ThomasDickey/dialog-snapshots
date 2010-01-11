@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.8 2008/06/20 00:17:45 tom Exp $
+ *  $Id: trace.c,v 1.9 2010/01/10 22:51:22 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007,2008	Thomas E. Dickey
+ *  Copyright 2007-2008,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -135,10 +135,12 @@ dlg_trace(const char *fname)
 	    myFP = fopen(fname, "a");
 	    if (myFP != 0) {
 		time_t now = time((time_t *) 0);
-		fprintf(myFP, "** %s", ctime(&now));
+		fprintf(myFP, "** opened at %s", ctime(&now));
 	    }
 	}
     } else if (myFP != 0) {
+	time_t now = time((time_t *) 0);
+	fprintf(myFP, "** closed at %s", ctime(&now));
 	fclose(myFP);
 	myFP = 0;
     }

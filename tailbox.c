@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.52 2007/05/14 23:07:11 tom Exp $
+ *  $Id: tailbox.c,v 1.53 2009/02/22 18:57:47 tom Exp $
  *
  * tailbox.c -- implements the tail box
  *
- * Copyright 2000-2006,2007 Thomas E. Dickey
+ * Copyright 2000-2007,2009 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -278,15 +278,18 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     const char **buttons = 0;
     MY_OBJ *obj;
     FILE *fd;
+    int min_width = 12;
 
     /* Open input file for reading */
     if ((fd = fopen(file, "rb")) == NULL)
 	dlg_exiterr("Can't open input file in dialog_tailbox().");
 
+    dlg_button_layout(buttons, &min_width);
+
 #ifdef KEY_RESIZE
   retry:
 #endif
-    dlg_auto_sizefile(title, file, &height, &width, 2, 12);
+    dlg_auto_sizefile(title, file, &height, &width, 2, min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

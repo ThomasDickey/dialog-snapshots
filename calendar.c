@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.54 2008/06/21 12:36:41 tom Exp $
+ * $Id: calendar.c,v 1.56 2009/02/22 18:28:38 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2007,2008	Thomas E. Dickey
+ *  Copyright 2001-2008,2009	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -368,13 +368,15 @@ dialog_calendar(const char *title,
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ),
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	DLGK_MOUSE(KEY_NPAGE) ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_NPAGE ),
-	DLG_KEYS_DATA( DLGK_GRID_DOWN,	DLGK_MOUSE(KEY_NPAGE) ),
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,	'-' ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  'h' ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  CHR_BACKSPACE ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  CHR_PREVIOUS ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,  KEY_LEFT ),
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	'+' ),
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT, 'l' ),
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT, CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT, KEY_NEXT ),
@@ -405,8 +407,7 @@ dialog_calendar(const char *title,
     int state = dlg_defaultno_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
-    int longest;
-    int mincols;
+    int mincols = MIN_WIDE;
     char buffer[MAX_LEN];
     DIALOG_VARS save_vars;
 
@@ -446,11 +447,7 @@ dialog_calendar(const char *title,
 	    current = *localtime(&now_time);
 	}
     }
-
-    dlg_button_sizes(buttons, FALSE, &longest, &mincols);
-    mincols += (0 * MARGIN) + (dlg_button_count(buttons) * 3) - 1;
-    if (mincols < MIN_WIDE)
-	mincols = MIN_WIDE;
+    dlg_button_layout(buttons, &mincols);
 
 #ifdef KEY_RESIZE
   retry:
@@ -458,8 +455,6 @@ dialog_calendar(const char *title,
 
     dlg_auto_size(title, prompt, &height, &width, 0, mincols);
     height += MIN_HIGH - 1;
-    if (width < MIN_WIDE)
-	width = MIN_WIDE;
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

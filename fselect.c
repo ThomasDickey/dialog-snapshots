@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.70 2008/03/16 13:04:57 tom Exp $
+ * $Id: fselect.c,v 1.71 2009/02/22 18:57:47 tom Exp $
  *
  * fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2007,2008 Thomas E. Dickey
+ * Copyright 2000-2008,2009 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -560,6 +560,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
     input = dlg_set_result(path);
     offset = strlen(input);
     *current = 0;
+
+    dlg_button_layout(buttons, &min_wide);
 
 #ifdef KEY_RESIZE
   retry:
