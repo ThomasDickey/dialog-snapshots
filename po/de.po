@@ -1,18 +1,20 @@
 # Dialog
 # Copyright 2001, # Thomas Dickey
+# This file is distributed under the same license as the dialog package.
 #
 # Michael Piefel <piefel@informatik.hu-berlin.de>, 2002.
+# Roland Illig <roland.illig@gmx.de>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: Dialog\n"
+"Project-Id-Version: dialog 1.1.20080819\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2002-05-09 17:56+0200\n"
-"Last-Translator: Michael Piefel <piefel@informatik.hu-berlin.de>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2009-11-08 23:48+0100\n"
+"Last-Translator: Roland Illig <roland.illig@gmx.de>\n"
+"Language-Team: German <translation-team-de@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8-bit\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: buttons.c:385
 msgid "Yes"
@@ -36,7 +38,7 @@ msgstr "VERLASSEN"
 
 #: buttons.c:425
 msgid "Extra"
-msgstr ""
+msgstr "Extra"
 
 #: buttons.c:433
 msgid "Help"
@@ -66,46 +68,44 @@ msgstr "Dateien"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr ""
+msgstr "Erfolgreich"
 
 #: mixedgauge.c:61
-#, fuzzy
 msgid "Failed"
-msgstr "Dateien"
+msgstr "Fehlgeschlagen"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr ""
+msgstr "Bestanden"
 
 #: mixedgauge.c:67
 msgid "Completed"
-msgstr ""
+msgstr "Abgeschlossen"
 
 #: mixedgauge.c:70
 msgid "Checked"
-msgstr ""
+msgstr "Geprüft"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr ""
+msgstr "Erledigt"
 
 #: mixedgauge.c:76
 msgid "Skipped"
-msgstr ""
+msgstr "Übersprungen"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr ""
+msgstr "In Bearbeitung"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr ""
+msgstr "Gesamtfortschritt"
 
 #: textbox.c:489
-#, fuzzy
 msgid "Search"
 msgstr "Suche"

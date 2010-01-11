@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.62 2008/07/20 18:30:36 tom Exp $
+# $Id: makefile.in,v 1.63 2010/01/10 23:02:12 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -68,10 +68,10 @@ PACKAGE		= `echo @PACKAGE@ |sed @program_transform_name@`
 #
 .SUFFIXES: .c .i $o
 .c.i :
-@RULE_CC@
+	@RULE_CC@
 	@ECHO_CC@$(CPP) $(CPPFLAGS) -c $< >$@
 .c$o :
-@RULE_CC@
+	@RULE_CC@
 	@ECHO_CC@$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
 
 EXTRAOBJS = @EXTRAOBJS@

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.115 2008/06/20 00:54:16 tom Exp $
+ *  $Id: menubox.c,v 1.116 2009/02/22 19:14:36 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -345,6 +345,7 @@ dlg_menu(const char *title,
     } else {
 	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
     }
+    dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

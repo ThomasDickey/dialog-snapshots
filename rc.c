@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.43 2008/03/16 18:50:26 tom Exp $
+ *  $Id: rc.c,v 1.44 2010/01/10 22:50:56 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2007,2008	Thomas E. Dickey
+ *  Copyright 2000-2008,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -499,6 +499,7 @@ dlg_parse_rc(void)
 
     /* Scan each line and set variables */
     while ((result == 0) && (fgets(str, MAX_LEN, rc_file) != NULL)) {
+	dlg_trace_msg("rc:%s\n", str);
 	if (*str == '\0' || lastch(str) != '\n') {
 	    /* ignore rest of file if line too long */
 	    fprintf(stderr, "\nParse error: line %d of configuration"

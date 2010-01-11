@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.60 2008/03/16 13:49:48 Yura.Kalinichenko Exp $
+ *  $Id: inputbox.c,v 1.61 2009/02/22 19:13:51 tom Exp $
  *
  * inputbox.c -- implements the input box
  *
@@ -91,6 +91,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     } else {
 	dlg_auto_size(title, prompt, &height, &width, 5, 26);
     }
+    dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

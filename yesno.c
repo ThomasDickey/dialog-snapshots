@@ -1,9 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.46 2007/02/23 21:39:34 tom Exp $
+ *  $Id: yesno.c,v 1.47 2009/02/22 18:57:47 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2005,2006	Thomas E. Dickey
+ *  Copyright 1999-2006,2009	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -55,6 +55,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     int result = DLG_EXIT_UNKNOWN;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_yes_labels();
+    int min_width = 25;
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -63,7 +64,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 #endif
 
     dlg_tab_correct_str(prompt);
-    dlg_auto_size(title, prompt, &height, &width, 2, 25);
+    dlg_button_layout(buttons, &min_width);
+    dlg_auto_size(title, prompt, &height, &width, 2, min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

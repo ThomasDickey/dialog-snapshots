@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.19 2008/03/16 14:19:47 Yura.Kalinichenko Exp $
+ *  $Id: pause.c,v 1.21 2009/02/22 19:12:47 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2006,2008	Thomas E. Dickey
+ *  Copyright 2004-2008,2009	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -88,6 +88,7 @@ dialog_pause(const char *title,
 #endif
 
     dlg_auto_size(title, prompt, &height, &width, 0, 0);
+    dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 
@@ -162,8 +163,12 @@ dialog_pause(const char *title,
 
 	    napms(MY_TIMEOUT);
 	    key = dlg_mouse_wgetch_nowait(dialog, &fkey);
-	    if (dlg_result_key(key, fkey, &result))
-		break;
+	    if (key == ERR) {
+		;		/* ignore errors in nodelay mode */
+	    } else {
+		if (dlg_result_key(key, fkey, &result))
+		    break;
+	    }
 
 	    switch (key) {
 #ifdef KEY_RESIZE

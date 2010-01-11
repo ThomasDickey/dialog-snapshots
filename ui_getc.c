@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.42 2008/03/16 20:02:20 tom Exp $
+ *  $Id: ui_getc.c,v 1.43 2009/02/22 17:22:50 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2007,2008 Thomas E. Dickey
+ * Copyright 2001-2008,2009 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -301,7 +301,7 @@ dlg_getc(WINDOW *win, int *fkey)
 		done = (interval <= 0);
 	    }
 	    if (!valid_file(stdin)
-		&& !valid_file(dialog_state.screen_output)) {
+		|| !valid_file(dialog_state.screen_output)) {
 		ch = ESC;
 		done = TRUE;
 	    }

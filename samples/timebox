@@ -1,6 +1,9 @@
 #!/bin/sh
-# $Id: timebox,v 1.4 2003/10/09 22:45:06 tom Exp $
+# $Id: timebox,v 1.5 2009/02/22 16:24:08 tom Exp $
 : ${DIALOG=dialog}
+
+DIALOG_ERROR=254
+export DIALOG_ERROR
 
 exec 3>&1
 USERTIME=`$DIALOG --title "TIMEBOX" --timebox "Please set the time..." 0 0 12 34 56 2>&1 1>&3`
@@ -12,6 +15,8 @@ case $code in
     echo "Time entered: $USERTIME.";;
   1)
     echo "Cancel pressed.";;
+  254)
+    echo "ERROR!";;
   255)
     echo "Box closed.";;
 esac

@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.1.20070704\n"
+"Project-Id-Version: dialog 1.1.20080819\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
+"POT-Creation-Date: 2009-03-29 19:30-0400\n"
 "PO-Revision-Date: 2008-07-21 13:40+0700\n"
 "Last-Translator: Andhika Padmawan <andhika.padmawan@gmail.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
@@ -15,31 +15,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: buttons.c:379
+#: buttons.c:385
 msgid "Yes"
 msgstr "Ya"
 
-#: buttons.c:387
+#: buttons.c:393
 msgid "No"
 msgstr "Tidak"
 
-#: buttons.c:395
+#: buttons.c:401
 msgid "OK"
 msgstr "OK"
 
-#: buttons.c:403
+#: buttons.c:409
 msgid "Cancel"
 msgstr "Batal"
 
-#: buttons.c:411
+#: buttons.c:417
 msgid "EXIT"
 msgstr "KELUAR"
 
-#: buttons.c:419
+#: buttons.c:425
 msgid "Extra"
 msgstr "Ekstra"
 
-#: buttons.c:427
+#: buttons.c:433
 msgid "Help"
 msgstr "Bantuan"
 
@@ -53,15 +53,15 @@ msgstr "Bulan"
 msgid "Year"
 msgstr "Tahun"
 
-#: dialog.c:727
+#: dialog.c:744
 msgid "Rename"
 msgstr "Ganti Nama"
 
-#: fselect.c:548
+#: fselect.c:550
 msgid "Directories"
 msgstr "Kamus"
 
-#: fselect.c:549
+#: fselect.c:551
 msgid "Files"
 msgstr "Berkas"
 

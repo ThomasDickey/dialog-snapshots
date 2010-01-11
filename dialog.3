@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.42 2008/07/28 00:01:05 tom Exp $
-.\" Copyright 2005-2007,2008  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.43 2009/02/22 18:32:53 tom Exp $
+.\" Copyright 2005-2008,2009  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -15,7 +15,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2008/07/28 00:01:05 $"
+.TH DIALOG 3 "" "$Date: 2009/02/22 18:32:53 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -1141,7 +1141,7 @@ is a list of (pointers to) button labels terminated by a null pointer.
 .TP 5
 .B int * \fIlimit
 the function sets the referenced \fIlimit\fP to the width required for
-the widest label (limited by the screen size)
+the buttons (limited by the screen size)
 if that is wider than the passed-in limit.
 .RE
 .\" ---------------------------------------------------------------------------
