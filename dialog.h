@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.202 2008/07/27 22:20:22 tom Exp $
+ *  $Id: dialog.h,v 1.205 2010/01/12 10:14:38 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
- * Copyright 2000-2007,2008 Thomas E. Dickey
+ * Copyright 2000-2008,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -331,6 +331,10 @@ extern int dlg_getpary(WINDOW * /*win*/);
 /*
  * Callbacks are used to implement the "background" tailbox.
  */
+struct _dlg_callback;
+
+typedef void (*DIALOG_FREEBACK) (struct _dlg_callback * /* p */);
+
 typedef struct _dlg_callback {
     struct _dlg_callback *next;
     FILE *input;
@@ -338,6 +342,10 @@ typedef struct _dlg_callback {
     bool keep_bg;	/* keep in background, on exit */
     bool bg_task;	/* true if this is background task */
     bool (*handle_getc)(struct _dlg_callback *p, int ch, int fkey, int *result);
+    bool keep_win;	/* true to not erase window on exit */
+    /* data for dlg_add_callback_ref */
+    struct _dlg_callback **caller;
+    DIALOG_FREEBACK freeback;
 } DIALOG_CALLBACK;
 
 typedef struct _dlg_windows {
@@ -466,8 +474,8 @@ typedef struct {
     int hilite;
 #endif
 #ifdef HAVE_RC_FILE
-    char *name;
-    char *comment;
+    const char *name;
+    const char *comment;
 #endif
 } DIALOG_COLORS;
 
@@ -589,6 +597,7 @@ extern int dlg_getc(WINDOW * /*win*/, int * /*fkey*/);
 extern int dlg_getc_callbacks(int /*ch*/, int /*fkey*/, int * /*result*/);
 extern int dlg_last_getc(void);
 extern void dlg_add_callback(DIALOG_CALLBACK * /*p*/);
+extern void dlg_add_callback_ref(DIALOG_CALLBACK ** /*p*/, DIALOG_FREEBACK /* cleanup */);
 extern void dlg_flush_getc(void);
 extern void dlg_remove_callback(DIALOG_CALLBACK * /*p*/);
 extern void dlg_killall_bg(int *retval);

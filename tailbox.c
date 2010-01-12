@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.53 2009/02/22 18:57:47 tom Exp $
+ *  $Id: tailbox.c,v 1.54 2010/01/12 11:58:43 tom Exp $
  *
  * tailbox.c -- implements the tail box
  *
@@ -60,7 +60,7 @@ get_line(MY_OBJ * obj)
 		}
 	    } else {
 		if (col >= 0)
-		    obj->line[col] = ch;
+		    obj->line[col] = (char) ch;
 		++col;
 	    }
 	    if (col >= MAX_LEN)
@@ -284,8 +284,6 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     if ((fd = fopen(file, "rb")) == NULL)
 	dlg_exiterr("Can't open input file in dialog_tailbox().");
 
-    dlg_button_layout(buttons, &min_width);
-
 #ifdef KEY_RESIZE
   retry:
 #endif
@@ -314,6 +312,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
 
     if (!bg_task) {
 	buttons = dlg_exit_label();
+	dlg_button_layout(buttons, &min_width);
 	dlg_draw_buttons(dialog, height - (2 * MARGIN), 0, buttons, FALSE,
 			 FALSE, width);
     }
@@ -356,6 +355,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
 		dlg_del_window(dialog);
 		refresh();
 		dlg_mouse_free_regions();
+		dlg_button_layout(buttons, &min_width);
 		goto retry;
 	    }
 #endif

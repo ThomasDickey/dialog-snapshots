@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.43 2009/02/22 17:22:50 tom Exp $
+ *  $Id: ui_getc.c,v 1.46 2010/01/12 09:57:44 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
- * Copyright 2001-2008,2009 Thomas E. Dickey
+ * Copyright 2001-2009,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -71,6 +71,18 @@ dlg_add_callback(DIALOG_CALLBACK * p)
     wtimeout(p->win, WTIMEOUT_VAL);
 }
 
+/*
+ * Like dlg_add_callback(), but providing for cleanup of caller's associated
+ * state.
+ */
+void
+dlg_add_callback_ref(DIALOG_CALLBACK ** p, DIALOG_FREEBACK freeback)
+{
+    (*p)->caller = p;
+    (*p)->freeback = freeback;
+    dlg_add_callback(*p);
+}
+
 void
 dlg_remove_callback(DIALOG_CALLBACK * p)
 {
@@ -81,7 +93,8 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 	p->input = 0;
     }
 
-    dlg_del_window(p->win);
+    if (!(p->keep_win))
+	dlg_del_window(p->win);
     if ((q = dialog_state.getc_callbacks) == p) {
 	dialog_state.getc_callbacks = p->next;
     } else {
@@ -93,6 +106,13 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 	    q = q->next;
 	}
     }
+
+    /* handle dlg_add_callback_ref cleanup */
+    if (p->freeback != 0)
+	p->freeback(p);
+    if (p->caller != 0)
+	*(p->caller) = 0;
+
     free(p);
 }
 
@@ -110,7 +130,9 @@ dlg_getc_ready(DIALOG_CALLBACK * p)
     FD_SET(fd, &read_fds);
 
     test.tv_sec = 0;		/* Seconds.  */
-    test.tv_usec = WTIMEOUT_VAL * 1000;		/* Microseconds.  */
+    test.tv_usec = (isatty(fd)	/* Microseconds.  */
+		    ? (WTIMEOUT_VAL * 1000)
+		    : 1);
     return (select(fd + 1, &read_fds, (fd_set *) 0, (fd_set *) 0, &test) == 1)
 	&& (FD_ISSET(fd, &read_fds));
 }
@@ -118,6 +140,7 @@ dlg_getc_ready(DIALOG_CALLBACK * p)
 int
 dlg_getc_callbacks(int ch, int fkey, int *result)
 {
+    int code = FALSE;
     DIALOG_CALLBACK *p, *q;
 
     if ((p = dialog_state.getc_callbacks) != 0) {
@@ -129,9 +152,9 @@ dlg_getc_callbacks(int ch, int fkey, int *result)
 		}
 	    }
 	} while ((p = q) != 0);
-	return TRUE;
+	code = (dialog_state.getc_callbacks != 0);
     }
-    return FALSE;
+    return code;
 }
 
 static void
