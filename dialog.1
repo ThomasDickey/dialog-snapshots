@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.116 2010/01/11 00:27:49 tom Exp $
+.\" $Id: dialog.1,v 1.117 2010/01/12 10:33:26 tom Exp $
 .\" Copyright 2005-2008,2010  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2010/01/11 00:27:49 $"
+.TH DIALOG 1 "" "$Date: 2010/01/12 10:33:26 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -1112,6 +1112,22 @@ button is pressed.
 if errors occur inside \fBdialog\fP
 or \fBdialog\fP is exited by pressing the \fIESC\fP key.
 .
+.\" ************************************************************************
+.SH PORTABILITY
+\fBdialog\fP works with X/Open curses.
+However, some implementations have deficiencies:
+.RS 3
+.TP 3
+-
+HPUX curses (and perhaps others) do not open the terminal properly for
+the \fInewterm\fP function.
+This interferes with \fBdialog\fP's \fB--input-fd\fP option,
+by preventing cursor-keys and similar escape sequences from being recognized.
+.TP 3
+-
+NetBSD curses does not support subwindows of subwindows.
+\fBdialog\fP will not display shadows of windows.
+.RE
 .\" ************************************************************************
 .SH COMPATIBILITY
 You may want to write scripts which run with other \fBdialog\fP "clones".

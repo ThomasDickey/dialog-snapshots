@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.7 2007/04/08 16:33:06 tom Exp $
+ *  $Id: progressbox.c,v 1.8 2010/01/12 10:46:24 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -67,7 +67,7 @@ get_line(MY_OBJ * obj)
 		++col;
 	    }
 	} else {
-	    obj->line[col] = ch;
+	    obj->line[col] = (char) ch;
 	    ++col;
 	}
 	if (col >= MAX_LEN)

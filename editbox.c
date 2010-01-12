@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.50 2010/01/11 01:26:49 tom Exp $
+ *  $Id: editbox.c,v 1.51 2010/01/12 10:56:44 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -58,7 +58,7 @@ load_list(const char *file, char ***list, int *rows)
     struct stat sb;
     unsigned n, pass;
     unsigned need;
-    unsigned size;
+    size_t size;
 
     *list = 0;
     *rows = 0;
@@ -67,7 +67,7 @@ load_list(const char *file, char ***list, int *rows)
 	(sb.st_mode & S_IFMT) != S_IFREG)
 	dlg_exiterr("Not a file: %s", file);
 
-    size = sb.st_size;
+    size = (size_t) sb.st_size;
     if ((blob = dlg_malloc(char, size + 1)) == 0)
 	  fail_list();
     blob[size] = '\0';
@@ -247,7 +247,7 @@ col_to_chr_offset(const char *text, int col)
     bool found = FALSE;
     int result = 0;
     unsigned n;
-    unsigned len = dlg_count_wchars(text);
+    unsigned len = (unsigned) dlg_count_wchars(text);
 
     for (n = 0; n < len; ++n) {
 	if (cols[n] <= col && cols[n + 1] > col) {
@@ -332,7 +332,7 @@ dlg_editbox(const char *title,
     int listsize = size_list(*list);
     int result = DLG_EXIT_UNKNOWN;
     int state;
-    int max_len = dlg_max_input(widest_line(*list));
+    size_t max_len = (size_t) dlg_max_input(widest_line(*list));
     char *input, *buffer;
     bool show_all, show_one, was_mouse;
     WINDOW *dialog;
@@ -545,7 +545,8 @@ dlg_editbox(const char *title,
 			if (thisrow == 0) {
 			    beep();
 			} else {
-			    int len = strlen(THIS_ROW) + strlen(PREV_ROW) + 1;
+			    size_t len = (strlen(THIS_ROW) +
+					  strlen(PREV_ROW) + 1);
 			    char *tmp = dlg_malloc(char, len);
 
 			    assert_ptr(tmp, "dlg_editbox");

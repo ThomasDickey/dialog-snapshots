@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.77 2007/09/30 00:18:57 tom Exp $
+ *  $Id: buttons.c,v 1.78 2010/01/12 11:57:16 tom Exp $
  *
  * buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2006,2007 Thomas E. Dickey
+ * Copyright 2000-2007,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -58,19 +58,19 @@ string_to_char(const char **stringp)
     int result;
 #ifdef USE_WIDE_CURSES
     const char *string = *stringp;
-    int have = strlen(string);
-    int check;
-    int len;
+    size_t have = strlen(string);
+    size_t check;
+    size_t len;
     wchar_t cmp2[2];
     mbstate_t state;
 
     memset(&state, 0, sizeof(state));
     len = mbrlen(string, have, &state);
-    if (len > 0 && len <= have) {
+    if ((int) len > 0 && len <= have) {
 	memset(&state, 0, sizeof(state));
 	memset(cmp2, 0, sizeof(cmp2));
 	check = mbrtowc(cmp2, string, len, &state);
-	if (check <= 0)
+	if ((int) check <= 0)
 	    cmp2[0] = 0;
 	*stringp += len;
     } else {
@@ -230,13 +230,15 @@ dlg_button_layout(const char **labels, int *limit)
     int width = 1;
     int gap, margin, step;
 
-    while (!dlg_button_x_step(labels, width, &gap, &margin, &step))
-	++width;
-    width += (4 * MARGIN);
-    if (width > COLS)
-	width = COLS;
-    if (width > *limit)
-	*limit = width;
+    if (labels != 0) {
+	while (!dlg_button_x_step(labels, width, &gap, &margin, &step))
+	    ++width;
+	width += (4 * MARGIN);
+	if (width > COLS)
+	    width = COLS;
+	if (width > *limit)
+	    *limit = width;
+    }
 }
 
 /*
