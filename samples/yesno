@@ -1,11 +1,12 @@
 #!/bin/sh
-# $Id: yesno,v 1.4 2009/02/22 17:05:43 tom Exp $
-: ${DIALOG=dialog}
+# $Id: yesno,v 1.8 2010/01/13 10:23:34 tom Exp $
+
+. ./setup-vars
 
 DIALOG_ERROR=254
 export DIALOG_ERROR
 
-$DIALOG --title "YES/NO BOX" --clear \
+$DIALOG --title "YES/NO BOX" --clear "$@" \
         --yesno "Hi, this is a yes/no dialog box. You can use this to ask \
                  questions that have an answer of either yes or no. \
                  BTW, do you notice that long lines will be automatically \
@@ -15,13 +16,6 @@ $DIALOG --title "YES/NO BOX" --clear \
                  auto wrap around will be disabled and you will have to \
                  control line breaking yourself." 15 61
 
-case $? in
-  0)
-    echo "Yes chosen.";;
-  1)
-    echo "No chosen.";;
-  254)
-    echo "ERROR!";;
-  255)
-    echo "ESC pressed.";;
-esac
+retval=$?
+
+. ./report-button

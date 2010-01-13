@@ -1,8 +1,9 @@
 #!/bin/sh
-# $Id: pause,v 1.1 2004/12/20 00:41:12 tom Exp $
-: ${DIALOG=dialog}
+# $Id: pause,v 1.4 2010/01/13 10:20:03 tom Exp $
 
-$DIALOG --title "PAUSE" --pause "Hi, this is a pause widget" 20 70 10
+. ./setup-vars
+
+$DIALOG --title "PAUSE" "$@" --pause "Hi, this is a pause widget" 20 70 10
 
 retval=$?
 

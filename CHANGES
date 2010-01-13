@@ -1,10 +1,12 @@
--- $Id: CHANGES,v 1.280 2010/01/12 11:53:36 tom Exp $
+-- $Id: CHANGES,v 1.282 2010/01/13 09:56:19 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2010/01/12
+2010/01/13
+	+ cleanup sample scripts using new utility scripts setup-* and report-*,
+	  and allow command-line parameters to be added, for ad hoc testing.
 	+ correct change to tailbox widget from 2009/02/22 using
 	  dlg_button_layout(), which broke that widget.
 	+ document some of the portability caveats.

@@ -1,22 +1,13 @@
 #!/bin/sh
-# $Id: editbox-utf8,v 1.1 2007/01/12 00:09:21 tom Exp $
-: ${DIALOG=dialog}
+# $Id: editbox-utf8,v 1.9 2010/01/13 10:20:03 tom Exp $
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+. ./setup-vars
 
-case none"$LANG$LC_ALL$LC_CTYPE" in
-*UTF-8*)
-	;;
-*)
-	echo "This script must be run in a UTF-8 locale"
-	exit 1
-	;;
-esac
+. ./setup-tempfile
 
-input=`tempfile 2>/dev/null` || input=/tmp/input$$
-output=`tempfile 2>/dev/null` || output=/tmp/test$$
-trap "rm -f $input $output" 0 1 2 5 15
+. ./setup-utf8
+
+. ./setup-edit
 
 cat << EOF > $input
 Hi, this is a edit box. You can use this to 
@@ -38,19 +29,7 @@ Try it now!
 EOF
 
 $DIALOG --title "EDIT BOX" \
-	--fixed-font --editbox $input 0 0 2>$output
+	--fixed-font "$@" --editbox $input 0 0 2>$output
+retval=$?
 
-case $? in
-  0)
-    diff -c $input $output
-    echo "OK"
-    ;;
-  1)
-    echo "Button 1 (Cancel) pressed";;
-  2)
-    echo "Button 2 (Help) pressed";;
-  3)
-    echo "Button 3 (Extra) pressed";;
-  255)
-    echo "ESC pressed.";;
-esac
+. ./report-edit

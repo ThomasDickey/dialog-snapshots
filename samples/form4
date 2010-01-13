@@ -1,7 +1,8 @@
 #! /bin/sh
-# $Id: form4,v 1.2 2004/09/12 22:37:50 tom Exp $
+# $Id: form4,v 1.6 2010/01/13 10:49:52 tom Exp $
 # form3 with --item-help
-: ${DIALOG=dialog}
+
+. ./setup-vars
 
 backtitle="An Example for the use of --form:"
 
@@ -19,7 +20,7 @@ exec 3>&1
 value=`$DIALOG --ok-label "Submit" \
 	  --help-button \
 	  --item-help \
-	  --backtitle "$backtitle" \
+	  --backtitle "$backtitle" "$@" \
 	  --form "Here is a possible piece of a configuration program." \
 20 50 0 \
 	"Username:" 1 1	"$user" 1 10 10 0 "Login name" \
@@ -33,28 +34,28 @@ exec 3>&-
 show=`echo "$value" |sed -e 's/^/	/'`
 
 	case $returncode in
-	1)
+	$DIALOG_CANCEL)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" \
 		--yesno "Really quit?" 10 30
 		case $? in
-		0)
+		$DIALOG_OK)
 			break
 			;;
-		1)
+		$DIALOG_CANCEL)
 			returncode=99
 			;;
 		esac
 		;;
-	0)
+	$DIALOG_OK)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" --no-collapse --cr-wrap \
 		--msgbox "Resulting data:\n\
 $show" 10 40
 		;;
-	2)
+	$DIALOG_HELP)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" --no-collapse --cr-wrap \

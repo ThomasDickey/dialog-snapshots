@@ -1,11 +1,12 @@
 #!/bin/sh
-# $Id: msgbox4-eucjp,v 1.2 2003/08/15 19:40:37 tom Exp $
-: ${DIALOG=dialog}
+# $Id: msgbox4-eucjp,v 1.5 2010/01/13 10:20:03 tom Exp $
+
+. ./setup-vars
 
 width=35
 while test $width != 61
 do
-$DIALOG --title "MESSAGE BOX (width $width)" --clear --no-collapse \
+$DIALOG --title "MESSAGE BOX (width $width)" --clear --no-collapse "$@" \
         --msgbox "\
 This sample is written in EUC-JP.
 There are several checking points:

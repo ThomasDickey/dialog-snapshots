@@ -1,7 +1,8 @@
 #! /bin/bash
-# $Id: inputmenu,v 1.6 2004/09/19 17:59:14 tom Exp $
+# $Id: inputmenu,v 1.10 2010/01/13 10:29:22 tom Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
-: ${DIALOG=dialog}
+
+. ./setup-vars
 
 user="$USER"    ; uid="$UID"   ;
 gid="$GROUPS"  ; home="$HOME"  ;
@@ -9,7 +10,7 @@ gid="$GROUPS"  ; home="$HOME"  ;
 while [ ${returncode:-99} -ne 1 -a ${returncode:-99} -ne 250 ]; do
        exec 3>&1
        value=$("$DIALOG" --clear --ok-label "Create" \
-                          --backtitle "An Example for the use of --inputmenu:" \
+                          --backtitle "An Example for the use of --inputmenu:" "$@" \
                           --inputmenu "Originally I designed --inputmenu for a \
 configuration purpose. Here is a possible piece of a configuration program. \
 " 20 50 10 \
@@ -21,15 +22,15 @@ configuration purpose. Here is a possible piece of a configuration program. \
        returncode=$?
        exec 3>&-
        case $returncode in
-       1)
+       $DIALOG_CANCEL)
                "$DIALOG"  --clear --backtitle "An Example for the use of --inputmenu:" \
                                --yesno "Really quit?" 10 30
                case $? in
-                       0) break;;
-                       1) returncode=99;;
+                       $DIALOG_OK) break;;
+                       $DIALOG_CANCEL) returncode=99;;
                esac
                ;;
-       0)
+       $DIALOG_OK)
                "$DIALOG" --clear --backtitle "An Example for the use of --inputmenu:"  \
 			--msgbox "useradd \n\
 				-d $home \n\
@@ -37,7 +38,7 @@ configuration purpose. Here is a possible piece of a configuration program. \
 				-g $gid \n\
 				$user" 10 40
                ;;
-       3)
+       $DIALOG_EXTRA)
                value="${value:8:${#value}}"
                tag="${value%:*}"
                item="${value#*: }"
@@ -50,7 +51,7 @@ configuration purpose. Here is a possible piece of a configuration program. \
                esac
                ;;
 
-       255)
+       $DIALOG_ESC)
                 echo "ESC pressed."
                 break
                 ;;

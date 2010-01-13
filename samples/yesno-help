@@ -1,8 +1,9 @@
 #!/bin/sh
-# $Id: yesno-help,v 1.1 2005/12/05 21:04:27 tom Exp $
-: ${DIALOG=dialog}
+# $Id: yesno-help,v 1.5 2010/01/13 10:40:39 tom Exp $
 
-$DIALOG --title "YES/NO BOX" --clear --help-button \
+. ./setup-vars
+
+$DIALOG --title "YES/NO BOX" --clear --help-button "$@" \
         --yesno "Hi, this is a yes/no dialog box. You can use this to ask \
                  questions that have an answer of either yes or no. \
                  BTW, do you notice that long lines will be automatically \
@@ -12,15 +13,6 @@ $DIALOG --title "YES/NO BOX" --clear --help-button \
                  auto wrap around will be disabled and you will have to \
                  control line breaking yourself." 15 61
 
-case $? in
-  0)
-    echo "Yes chosen.";;
-  1)
-    echo "No chosen.";;
-  2)
-    echo "Help pressed.";;
-  3)
-    echo "Extra pressed.";;
-  255)
-    echo "ESC pressed.";;
-esac
+retval=$?
+
+. ./report-yesno

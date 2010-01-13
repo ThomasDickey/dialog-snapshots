@@ -1,8 +1,9 @@
 #!/bin/sh
-# $Id: wheel,v 1.4 2003/08/15 19:40:37 tom Exp $
-: ${DIALOG=dialog}
+# $Id: wheel,v 1.7 2010/01/13 01:44:12 tom Exp $
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
+. ./setup-vars
+
+. ./setup-tempfile
 
 TITLE="This screen was taken from ComeOn Point Installer! v0.9 by ComeOn Linux!"
 

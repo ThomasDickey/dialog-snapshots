@@ -1,13 +1,12 @@
 #!/bin/sh
-# $Id: editbox,v 1.7 2009/02/22 15:42:04 tom Exp $
-: ${DIALOG=dialog}
+# $Id: editbox,v 1.13 2010/01/13 10:20:03 tom Exp $
+
+. ./setup-vars
 
 DIALOG_ERROR=254
 export DIALOG_ERROR
 
-input=`tempfile 2>/dev/null` || input=/tmp/input$$
-output=`tempfile 2>/dev/null` || output=/tmp/test$$
-trap "rm -f $input $output" 0 1 2 5 15
+. ./setup-edit
 
 cat << EOF > $input
 Hi, this is an edit box. It can be used to edit text from a file.
@@ -40,21 +39,7 @@ Try to input some text below:
 EOF
 
 $DIALOG --title "EDIT BOX" \
-	--fixed-font --editbox $input 0 0 2>$output
+	--fixed-font "$@" --editbox $input 0 0 2>$output
+retval=$?
 
-case $? in
-  0)
-    diff -c $input $output
-    echo "OK"
-    ;;
-  1)
-    echo "Button 1 (Cancel) pressed";;
-  2)
-    echo "Button 2 (Help) pressed";;
-  3)
-    echo "Button 3 (Extra) pressed";;
-  254)
-    echo "ERROR!";;
-  255)
-    echo "ESC pressed.";;
-esac
+. ./report-edit

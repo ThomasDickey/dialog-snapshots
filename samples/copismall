@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: copismall,v 1.5 2003/08/15 19:34:18 tom Exp $
+# $Id: copismall,v 1.8 2010/01/13 10:26:52 tom Exp $
 #
 #  ComeOn Point Installer! v0.9a.small (small version for cdialog v0.9a)
 #  - installa il point in modo visuale e auto-detecting. Versione light.
@@ -27,7 +27,7 @@
 # demo of cdialog. ComeOn Linux! follows the GNU philosophy.
 # Send peacefully a mail to demarco_p@abramo.it for more info.
 
-: ${DIALOG=dialog}
+. ./setup-vars
 
 #COMEONDIR=/usr/lib/ComeOn
 #POINTDIR=$COMEONDIR/point
@@ -60,7 +60,7 @@ $DIALOG --backtitle "$TITLE" --title "Are you sure?" --cr-wrap --msgbox "Questo 
 auto-detect all'installazione del point.
 Premi <Enter> per iniziare o <Esc> per uscire. " 0 0
 
-if [ $? = 1 -o $? = 255 ]; then
+if [ $? = $DIALOG_CANCEL -o $? = $DIALOG_ESC ]; then
  exit
 fi
 

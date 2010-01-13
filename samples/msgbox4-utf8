@@ -1,24 +1,14 @@
 #!/bin/sh
-# $Id: msgbox4-utf8,v 1.6 2004/12/19 16:27:15 tom Exp $
-: ${DIALOG=dialog}
+# $Id: msgbox4-utf8,v 1.10 2010/01/13 10:20:03 tom Exp $
 
-: ${DIALOG_OK=0}
-: ${DIALOG_CANCEL=1}
-: ${DIALOG_ESC=255}
+. ./setup-vars
 
-case none"$LANG$LC_ALL$LC_CTYPE" in
-*UTF-8*)
-	;;
-*)
-	echo "This script must be run in a UTF-8 locale"
-	exit 1
-	;;
-esac
+. ./setup-utf8
 
 width=30
 while test $width != 61
 do
-$DIALOG --title "MESSAGE BOX (width $width)" --no-collapse \
+$DIALOG --title "MESSAGE BOX (width $width)" --no-collapse "$@" \
         --msgbox "\
 This sample is written in UTF-8.
 There are several checking points:
