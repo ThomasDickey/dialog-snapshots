@@ -1,8 +1,9 @@
 #! /bin/sh
-# $Id: inputmenu3,v 1.6 2004/12/19 23:18:53 tom Exp $
+# $Id: inputmenu3,v 1.10 2010/01/13 10:32:51 tom Exp $
 #
 # "inputmenu1" with defaultitem, help-button and item-help.
-: ${DIALOG=dialog}
+
+. ./setup-vars
 
 backtitle="An Example for the use of --inputmenu:"
 
@@ -23,7 +24,7 @@ value=`$DIALOG --clear --ok-label "Create" \
 	  --help-button \
 	  --help-label "Script" \
 	  --default-item "$defaultitem" \
-	  --item-help \
+	  --item-help "$@" \
 	  --inputmenu "Originally I designed --inputmenu for a \
 configuration purpose. Here is a possible piece of a configuration program." \
 20 60 10 \
@@ -36,21 +37,21 @@ returncode=$?
 exec 3>&-
 
 	case $returncode in
-	1)
+	$DIALOG_CANCEL)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" \
 		--yesno "Really quit?" 10 30
 		case $? in
-		0)
+		$DIALOG_OK)
 			break
 			;;
-		1)
+		$DIALOG_CANCEL)
 			returncode=99
 			;;
 		esac
 		;;
-	0)
+	$DIALOG_OK)
 		case $value in
 		HELP*)
 			"$DIALOG" \
@@ -68,11 +69,11 @@ exec 3>&-
 			;;
 		esac
 		;;
-	2)
+	$DIALOG_HELP)
 		"$DIALOG" \
 		--textbox "$0" 0 0
 		;;
-	3)
+	$DIALOG_EXTRA)
 		tag=`echo "$value" |sed -e 's/^RENAMED //' -e 's/:.*/:/'`
 		item=`echo "$value" |sed -e 's/^.*:[ ]*//' -e 's/[ ]*$//'`
 
@@ -96,7 +97,7 @@ exec 3>&-
 		test -n "$tag" && defaultitem="$tag"
 		;;
 
-        255)
+	$DIALOG_ESC)
                 echo "ESC pressed."
                 break
                 ;;

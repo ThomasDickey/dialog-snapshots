@@ -1,17 +1,14 @@
 #!/bin/sh
-# $Id: msgbox4-8bit,v 1.1 2004/12/19 17:02:40 tom Exp $
-: ${DIALOG=dialog}
+# $Id: msgbox4-8bit,v 1.4 2010/01/13 10:20:03 tom Exp $
 
-: ${DIALOG_OK=0}
-: ${DIALOG_CANCEL=1}
-: ${DIALOG_ESC=255}
+. ./setup-vars
 
 . ./testdata-8bit
 
 width=30
 while test $width != 61
 do
-$DIALOG --title "MESSAGE BOX (width $width)" --no-collapse --colors \
+$DIALOG --title "MESSAGE BOX (width $width)" --no-collapse --colors "$@" \
         --msgbox "\
 This sample uses characters which are non-printing in POSIX locale.
 

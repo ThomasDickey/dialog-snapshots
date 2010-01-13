@@ -1,15 +1,15 @@
 #!/bin/sh
-# $Id: tailboxbg,v 1.5 2003/08/15 19:40:37 tom Exp $
-: ${DIALOG=dialog}
+# $Id: tailboxbg,v 1.9 2010/01/13 10:20:03 tom Exp $
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+. ./setup-vars
+
+. ./setup-tempfile
 
 ./killall listing
 ./listing >listing.out &
 
 $DIALOG --title "TAIL BOX" \
-	--no-kill \
+	--no-kill "$@" \
         --tailboxbg listing.out 24 70 2>$tempfile
 
 # wait a while for the background process to run

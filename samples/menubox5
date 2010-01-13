@@ -1,11 +1,11 @@
 #!/bin/sh
-# $Id: menubox5,v 1.4 2004/12/19 23:18:53 tom Exp $
-: ${DIALOG=dialog}
+# $Id: menubox5,v 1.9 2010/01/13 10:20:03 tom Exp $
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+. ./setup-vars
 
-$DIALOG --clear --help-button --item-help --title "MENU BOX" \
+. ./setup-tempfile
+
+$DIALOG --clear --help-button --item-help --title "MENU BOX" "$@" \
         --menu "Hi, this is a menu box. You can use this to \n\
 present a list of choices for the user to \n\
 choose. If there are more items than can fit \n\
@@ -27,17 +27,4 @@ Try it now!\n\n\
 
 retval=$?
 
-choice=`cat $tempfile`
-
-case $retval in
-  0)
-    echo "OK '$choice' chosen.";;
-  1)
-    echo "Cancel pressed.";;
-  2)
-    echo "HELP '$choice' chosen.";;
-  255)
-    echo "ESC pressed.";;
-  *)
-    echo "Unexpected code $retval";;
-esac
+. ./report-tempfile

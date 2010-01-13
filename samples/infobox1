@@ -1,6 +1,7 @@
 #! /bin/sh
-# $Id: infobox1,v 1.1 2004/09/19 20:26:42 tom Exp $
-: ${DIALOG=dialog}
+# $Id: infobox1,v 1.4 2010/01/13 10:20:03 tom Exp $
+
+. ./setup-vars
 
 left=10
 unit="seconds"
@@ -8,7 +9,7 @@ while test $left != 0
 do
 
 sleep 1
-$DIALOG --title "INFO BOX" \
+$DIALOG --title "INFO BOX" "$@" \
         --infobox "Hi, this is an information box. It is
 different from a message box: it will
 not pause waiting for input after displaying

@@ -1,13 +1,13 @@
 #!/bin/sh
-# $Id: menubox7,v 1.4 2006/01/18 00:19:03 tom Exp $
+# $Id: menubox7,v 1.9 2010/01/13 10:20:03 tom Exp $
 # example with --extra-button
-: ${DIALOG=dialog}
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+. ./setup-vars
+
+. ./setup-tempfile
 
 $DIALOG --clear --item-help --extra-button --extra-label "Choice" \
-	--title "MENU BOX" \
+	--title "MENU BOX" "$@" \
         --menu "Hi, this is a menu box. You can use this to \n\
 present a list of choices for the user to \n\
 choose. If there are more items than can fit \n\
@@ -26,19 +26,4 @@ Try it now!\n\n\
 
 retval=$?
 
-choice=`cat $tempfile`
-
-case $retval in
-  0)
-    echo "OK '$choice' chosen.";;
-  1)
-    echo "Cancel pressed.";;
-  2)
-    echo "HELP '$choice' chosen.";;
-  3)
-    echo "Extra (Choice) chosen.";;
-  255)
-    echo "ESC pressed.";;
-  *)
-    echo "Unexpected code $retval";;
-esac
+. ./report-tempfile

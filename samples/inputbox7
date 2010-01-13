@@ -1,7 +1,8 @@
 #!/bin/sh
-# $Id: inputbox7,v 1.3 2004/09/12 22:38:38 tom Exp $
+# $Id: inputbox7,v 1.7 2010/01/13 10:20:03 tom Exp $
 # An example which produces two widget outputs.
-: ${DIALOG=dialog}
+
+. ./setup-vars
 
 MSG='Hi, this is an input dialog box. You can use \n
 this to ask questions that require the user \n
@@ -17,7 +18,7 @@ SEP='
 '
 
 exec 3>&1
-RESULT=`$DIALOG --title "INPUT BOX" --clear --separate-widget "$SEP" \
+RESULT=`$DIALOG --title "INPUT BOX" --clear --separate-widget "$SEP" "$@" \
         --inputbox "$MSG" 16 51 \
 	--title "ANOTHER INPUT BOX" \
         --inputbox "$MSG" 16 51 \
@@ -25,16 +26,4 @@ RESULT=`$DIALOG --title "INPUT BOX" --clear --separate-widget "$SEP" \
 retval=$?
 exec 3>&-
 
-case $retval in
-  0)
-    echo "Input string is $RESULT";;
-  1)
-    echo "Cancel pressed.";;
-  255)
-    if test -n "$RESULT" ; then
-      echo "$RESULT"
-    else
-      echo "ESC pressed."
-    fi
-    ;;
-esac
+. ./report-string

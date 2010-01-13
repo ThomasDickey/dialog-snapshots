@@ -1,9 +1,9 @@
 #!/bin/sh
-# $Id: progress,v 1.1 2006/01/18 23:32:18 tom Exp $
-: ${DIALOG=dialog}
+# $Id: progress,v 1.5 2010/01/13 10:20:03 tom Exp $
 
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+. ./setup-vars
+
+. ./setup-tempfile
 
 ls -1 >$tempfile
 (
@@ -16,4 +16,4 @@ sleep 1
 done <$tempfile
 ) |
 
-$DIALOG --title "PROGRESS" --progressbox 20 70
+$DIALOG --title "PROGRESS" "$@" --progressbox 20 70

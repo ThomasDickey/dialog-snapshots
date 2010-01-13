@@ -1,8 +1,9 @@
 #! /bin/sh
-# $Id: inputmenu4,v 1.4 2004/09/19 17:59:14 tom Exp $
+# $Id: inputmenu4,v 1.8 2010/01/13 10:33:35 tom Exp $
 #
 # "inputmenu1" with a different label for the extra-button
-: ${DIALOG=dialog}
+
+. ./setup-vars
 
 backtitle="An Example for the use of --inputmenu:"
 
@@ -19,7 +20,7 @@ do
 exec 3>&1
 value=`$DIALOG --clear --ok-label "Create" \
 	--extra-label "Edit" \
-	  --backtitle "$backtitle" \
+	  --backtitle "$backtitle" "$@" \
 	  --inputmenu "Originally I designed --inputmenu for a \
 configuration purpose. Here is a possible piece of a configuration program." \
 20 50 10 \
@@ -32,21 +33,21 @@ returncode=$?
 exec 3>&-
 
 	case $returncode in
-	1)
+	$DIALOG_CANCEL)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" \
 		--yesno "Really quit?" 10 30
 		case $? in
-		0)
+		$DIALOG_OK)
 			break
 			;;
-		1)
+		$DIALOG_CANCEL)
 			returncode=99
 			;;
 		esac
 		;;
-	0)
+	$DIALOG_OK)
 		"$DIALOG" \
 		--clear \
 		--backtitle "$backtitle" \
@@ -56,7 +57,7 @@ exec 3>&-
 			-g $gid \n\
 			$user" 10 40
 		;;
-	3)
+	$DIALOG_EXTRA)
 		tag=`echo "$value" |sed -e 's/^RENAMED //' -e 's/:.*//'`
 		item=`echo "$value" |sed -e 's/^.*:[ ]*//' -e 's/[ ]*$//'`
 
@@ -76,10 +77,10 @@ exec 3>&-
 		esac
 		;;
 
-        255)
-                echo "ESC pressed."
-                break
-                ;;
+	$DIALOG_ESC)
+		echo "ESC pressed."
+		break
+		;;
 
 	esac
 done
