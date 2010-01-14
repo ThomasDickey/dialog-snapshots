@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: yesno-utf8,v 1.6 2010/01/13 10:20:03 tom Exp $
+# $Id: yesno-utf8,v 1.7 2010/01/14 01:11:23 tom Exp $
 
 . ./setup-vars
 
@@ -11,4 +11,4 @@ export DIALOG_ERROR
 $DIALOG "$@" --yesno "Are you a ＤＯＧ?" 0 0
 retval=$?
 
-. ./report-button
+. ./report-yesno
