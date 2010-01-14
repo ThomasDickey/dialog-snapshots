@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.78 2010/01/12 11:57:16 tom Exp $
+ *  $Id: buttons.c,v 1.79 2010/01/14 02:01:36 tom Exp $
  *
  * buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -518,9 +518,9 @@ int
 dlg_ok_buttoncode(int button)
 {
     int result = DLG_EXIT_ERROR;
-    int n = 1;
+    int n = !dialog_vars.nook;
 
-    if (!dialog_vars.nook && button <= 0) {
+    if (!dialog_vars.nook && (button <= 0)) {
 	result = DLG_EXIT_OK;
     } else if (dialog_vars.extra_button && (button == n++)) {
 	result = DLG_EXIT_EXTRA;

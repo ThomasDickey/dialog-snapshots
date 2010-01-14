@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.46 2010/01/12 09:57:44 tom Exp $
+ *  $Id: ui_getc.c,v 1.47 2010/01/14 00:11:30 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -90,6 +90,8 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 
     if (p->input != 0) {
 	fclose(p->input);
+	if (p->input == dialog_state.pipe_input)
+	    dialog_state.pipe_input = 0;
 	p->input = 0;
     }
 

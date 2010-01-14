@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: yesno,v 1.8 2010/01/13 10:23:34 tom Exp $
+# $Id: yesno,v 1.9 2010/01/14 01:11:11 tom Exp $
 
 . ./setup-vars
 
@@ -18,4 +18,4 @@ $DIALOG --title "YES/NO BOX" --clear "$@" \
 
 retval=$?
 
-. ./report-button
+. ./report-yesno

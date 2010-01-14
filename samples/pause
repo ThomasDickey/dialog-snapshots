@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: pause,v 1.4 2010/01/13 10:20:03 tom Exp $
+# $Id: pause,v 1.5 2010/01/14 00:27:23 tom Exp $
 
 . ./setup-vars
 
@@ -7,11 +7,4 @@ $DIALOG --title "PAUSE" "$@" --pause "Hi, this is a pause widget" 20 70 10
 
 retval=$?
 
-case $retval in
-  0)
-    echo "Timeout expired.";;
-  1)
-    echo "Cancel pressed.";;
-  *)
-    echo "Unexpected return code: $retval";;
-esac
+. ./report-button

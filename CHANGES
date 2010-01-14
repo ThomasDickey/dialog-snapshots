@@ -1,16 +1,18 @@
--- $Id: CHANGES,v 1.282 2010/01/13 09:56:19 tom Exp $
+-- $Id: CHANGES,v 1.283 2010/01/14 02:03:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2010/01/13
+2010/01/14
+	+ correct mapping of button-codes with --nook option (report by Lebedev
+	  Vadim).
 	+ cleanup sample scripts using new utility scripts setup-* and report-*,
 	  and allow command-line parameters to be added, for ad hoc testing.
 	+ correct change to tailbox widget from 2009/02/22 using
 	  dlg_button_layout(), which broke that widget.
 	+ document some of the portability caveats.
-	+ modify guage widget to service callbacks (prompted by patch and
+	+ modify gauge widget to service callbacks (prompted by patch and
 	  comments by Frank Sorenson).
 	+ modify editbox to allow its input buffer to be larger than MAX_LEN
 	  unless bounded by the --max-input option, and add limit-checks for
