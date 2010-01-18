@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.47 2010/01/17 23:22:57 tom Exp $
+.\" $Id: dialog.3,v 1.48 2010/01/18 10:22:47 tom Exp $
 .\" Copyright 2005-2009,2010  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2010/01/17 23:22:57 $"
+.TH DIALOG 3 "" "$Date: 2010/01/18 10:22:47 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -263,6 +263,11 @@ Without cr-wrap, the layout of your text may be formatted to look nice
 in the source code of your script without affecting the way it will
 look in the dialog.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.date_format
+This corresponds to the command-line option "\fB--date-format\fP \fIstring\fP".
+If the host provides \fBstrftime\fP, and the value is nonnull,
+the calendar widget uses this to format its output.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.default_item
 This corresponds to the command-line option "\fB--default-item\fP \fIstring\fP".
 The given string is used as
@@ -438,6 +443,11 @@ If nonzero, this is the number of seconds after to delay after processing a dial
 This corresponds to the command-line option "\fB--tab-correct\fP".
 If true, convert each tab character of the text to one or more spaces.
 Otherwise, tabs are rendered according to the curses library's interpretation.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.time_format
+This corresponds to the command-line option "\fB--time-format\fP \fIstring\fP".
+If the host provides \fBstrftime\fP, and the value is nonnull,
+the timebox widget uses this to format its output.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.timeout_secs
 This corresponds to the command-line option "\fB--timeout\fP \fIsecs\fP".

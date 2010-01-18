@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.119 2010/01/17 23:10:34 tom Exp $
+.\" $Id: dialog.1,v 1.120 2010/01/18 10:19:07 tom Exp $
 .\" Copyright 2005-2008,2010  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 .RE
 ..
 .
-.TH DIALOG 1 "" "$Date: 2010/01/17 23:10:34 $"
+.TH DIALOG 1 "" "$Date: 2010/01/18 10:19:07 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -239,6 +239,12 @@ supports run-time configuration,
 this can be used to dump a sample configuration file to the file specified
 by
 .IR file "."
+.
+.IP "\fB--date-format \fIformat"
+If the host provides \fBstrftime\fP,
+this option allows you to specify the format of the date printed for
+the \fB--calendar\fP widget.
+The time of day (hour, minute, second) are the current local time.
 .
 .IP "\fB--defaultno"
 Make the default value of the
@@ -458,6 +464,12 @@ Specify the number of spaces that a tab character occupies if the
 The default is 8.
 This option is only effective for the \fBtextbox\fP widget.
 .
+.IP "\fB--time-format \fIformat"
+If the host provides \fBstrftime\fP,
+this option allows you to specify the format of the time printed for
+the \fB--timebox\fP widget.
+The day, month, year values in this case are for the current local time.
+.
 .IP "\fB--timeout \fIsecs"
 Timeout (exit with error code)
 if no user response within the given number of seconds.
@@ -524,6 +536,7 @@ Use tab or backtab to move between windows.
 If the year is given as zero, the current date is used as an initial value.
 .IP
 On exit, the date is printed in the form day/month/year.
+The format can be overridden using the \fB--date-format\fP option.
 .
 .
 .IP "\fB--checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
@@ -929,6 +942,7 @@ left-, up-, right- and down-arrows.
 Use tab or backtab to move between windows.
 .IP
 On exit, the result is printed in the form hour:minute:second.
+The format can be overridden using the \fB--time-format\fP option.
 .
 .
 .IP "\fB--yesno \fItext height width"
