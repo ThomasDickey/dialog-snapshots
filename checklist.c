@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.120 2009/02/22 19:16:36 tom Exp $
+ *  $Id: checklist.c,v 1.121 2010/01/17 19:32:17 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2007,2008	Thomas E. Dickey
+ *  Copyright 2000-2009,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -49,13 +49,17 @@ print_arrows(WINDOW *win,
 	     int item_no,
 	     int list_height)
 {
-    dlg_draw_arrows2(win, scrollamt,
-		     scrollamt + choice < item_no,
-		     box_x + check_x + ARROWS_COL,
-		     box_y,
-		     box_y + list_height + 1,
-		     menubox_attr,
-		     menubox_border_attr);
+    dlg_draw_scrollbar(win,
+		       scrollamt,
+		       scrollamt,
+		       scrollamt + choice,
+		       item_no,
+		       box_x + check_x,
+		       box_x + list_width,
+		       box_y,
+		       box_y + list_height + 1,
+		       menubox_attr,
+		       menubox_border_attr);
 }
 
 /*
@@ -209,7 +213,7 @@ dlg_checklist(const char *title,
     /* we need at least two states */
     if (states == 0 || strlen(states) < 2)
 	states = " *";
-    num_states = strlen(states);
+    num_states = (int) strlen(states);
 
     checkflag = flag;
 
@@ -548,6 +552,9 @@ dlg_checklist(const char *title,
 			       states,
 			       choice, TRUE);
 		    (void) wnoutrefresh(list);
+		    print_arrows(dialog,
+				 box_x, box_y,
+				 scrollamt, max_choice, item_no, use_height);
 		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh(dialog);
 		}
@@ -625,7 +632,7 @@ dialog_checklist(const char *title,
     bool show_status = FALSE;
     int current = 0;
 
-    listitems = dlg_calloc(DIALOG_LISTITEM, item_no + 1);
+    listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_checklist");
 
     for (i = 0; i < item_no; ++i) {

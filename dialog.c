@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.174 2008/08/19 23:21:36 tom Exp $
+ * $Id: dialog.c,v 1.176 2010/01/15 23:32:40 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2007,2008	Thomas E. Dickey
+ *  Copyright 2000-2008,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -111,6 +111,7 @@ typedef enum {
     ,o_quoted
     ,o_radiolist
     ,o_screen_center
+    ,o_scrollbar
     ,o_separate_output
     ,o_separate_widget
     ,o_separator
@@ -249,6 +250,7 @@ static const Options options[] = {
     { "quoted",		o_quoted,		1, "" },
     { "radiolist",	o_radiolist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "screen-center",	o_screen_center,	1, NULL },
+    { "scrollbar",	o_scrollbar,		1, "" },
     { "separate-output",o_separate_output,	1, "" },
     { "separate-widget",o_separate_widget,	1, "<str>" },
     { "separator",	o_separator,		1, NULL },
@@ -288,16 +290,16 @@ static const Options options[] = {
 static char **
 string_to_argv(char *blob)
 {
-    int n;
+    size_t n;
     int pass;
-    int length = strlen(blob);
+    size_t length = strlen(blob);
     char **result = 0;
 
     for (pass = 0; pass < 2; ++pass) {
 	bool inparm = FALSE;
 	bool quoted = FALSE;
 	char *param = blob;
-	int count = 0;
+	size_t count = 0;
 
 	for (n = 0; n < length; ++n) {
 	    if (quoted && blob[n] == '"') {
@@ -406,7 +408,7 @@ unescape_argv(int *argcp, char ***argvp)
     bool doalloc = FALSE;
     char *filename;
 
-    dialog_opts = dlg_calloc(bool, *argcp + 1);
+    dialog_opts = dlg_calloc(bool, (size_t) *argcp + 1);
     assert_ptr(dialog_opts, "unescape_argv");
 
     for (j = 1; j < *argcp; j++) {
@@ -429,8 +431,8 @@ unescape_argv(int *argcp, char ***argvp)
 		char **list;
 		char *blob;
 		int added;
-		int bytes_read;
-		int length;
+		size_t bytes_read;
+		size_t length;
 		int n;
 
 		if (*filename == '&') {
@@ -460,7 +462,7 @@ unescape_argv(int *argcp, char ***argvp)
 		    list = string_to_argv(blob);
 		    if ((added = count_argv(list)) != 0) {
 			if (added > 2) {
-			    size_t need = (*argcp + added + 1);
+			    size_t need = (size_t) (*argcp + added + 1);
 			    if (doalloc) {
 				*argvp = dlg_realloc(char *, need, *argvp);
 				assert_ptr(*argvp, "unescape_argv");
@@ -473,7 +475,7 @@ unescape_argv(int *argcp, char ***argvp)
 				*argvp = newp;
 				doalloc = TRUE;
 			    }
-			    dialog_opts = dlg_realloc(bool, *argcp + added, dialog_opts);
+			    dialog_opts = dlg_realloc(bool, need, dialog_opts);
 			    assert_ptr(dialog_opts, "unescape_argv");
 			}
 			for (n = *argcp; n >= j + 2; --n) {
@@ -557,7 +559,7 @@ lookupOption(const char *name, int pass)
 }
 
 static void
-Usage(char *msg)
+Usage(const char *msg)
 {
     dlg_exiterr("Error: %s.\nUse --help to list options.\n\n", msg);
 }
@@ -885,7 +887,7 @@ call_form(CALLARGS)
 static int
 call_password_form(CALLARGS)
 {
-    int save = dialog_vars.formitem_type;
+    unsigned save = dialog_vars.formitem_type;
     int result;
 
     dialog_vars.formitem_type = 1;
@@ -1246,6 +1248,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_beep_after:
 	    dialog_vars.beep_after_signal = TRUE;
+	    break;
+	case o_scrollbar:
+	    dialog_state.use_scrollbar = TRUE;
 	    break;
 	case o_shadow:
 	    dialog_state.use_shadow = TRUE;

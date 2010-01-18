@@ -1,9 +1,9 @@
 /*
- *  $Id: version.c,v 1.5 2006/12/27 00:50:24 tom Exp $
+ *  $Id: version.c,v 1.6 2010/01/15 23:34:46 tom Exp $
  *
  *  version.c -- dialog's version string
  *
- *  Copyright 2005,2006	Thomas E. Dickey
+ *  Copyright 2005-2006,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -26,7 +26,7 @@
 #define concat(a,b)	a "-" quoted(b)
 #define DLG_VERSION	concat(DIALOG_VERSION,DIALOG_PATCHDATE)
 
-char *
+const char *
 dialog_version(void)
 {
     return DLG_VERSION;

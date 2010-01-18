@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.56 2009/02/22 18:28:38 tom Exp $
+ * $Id: calendar.c,v 1.58 2010/01/17 22:33:44 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2008,2009	Thomas E. Dickey
+ *  Copyright 2001-2009,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -57,6 +57,86 @@ typedef struct _box {
     int height;
     BOX_DRAW box_draw;
 } BOX;
+
+static const char *
+nameOfDayOfWeek(int n)
+{
+    static const char *table[7]
+#ifndef ENABLE_NLS
+    =
+    {
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday"
+    }
+#endif
+     ;
+    const char *result = 0;
+
+    if (n >= 0 && n < 7) {
+#ifdef ENABLE_NLS
+	if (table[n] == 0) {
+	    nl_item items[7] =
+	    {
+		ABDAY_1, ABDAY_2, ABDAY_3, ABDAY_4, ABDAY_5, ABDAY_6, ABDAY_7
+	    };
+	    table[n] = nl_langinfo(items[n]);
+	}
+#endif
+	result = table[n];
+    }
+    if (result == 0) {
+	result = "?";
+    }
+    return result;
+}
+
+static const char *
+nameOfMonth(int n)
+{
+    static const char *table[12]
+#ifndef ENABLE_NLS
+    =
+    {
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"
+    }
+#endif
+     ;
+    const char *result = 0;
+
+    if (n >= 0 && n < 12) {
+#ifdef ENABLE_NLS
+	if (table[n] == 0) {
+	    nl_item items[12] =
+	    {
+		MON_1, MON_2, MON_3, MON_4, MON_5, MON_6,
+		MON_7, MON_8, MON_9, MON_10, MON_11, MON_12
+	    };
+	    table[n] = nl_langinfo(items[n]);
+	}
+#endif
+	result = table[n];
+    }
+    if (result == 0) {
+	result = "?";
+    }
+    return result;
+}
 
 static int
 days_in_month(struct tm *current, int offset /* -1, 0, 1 */ )
@@ -135,29 +215,6 @@ next_or_previous(int key, int two_d)
 static int
 draw_day(BOX * data, struct tm *current)
 {
-#ifdef ENABLE_NLS
-    char *of_week[] =
-    {
-	nl_langinfo(ABDAY_1),
-	nl_langinfo(ABDAY_2),
-	nl_langinfo(ABDAY_3),
-	nl_langinfo(ABDAY_4),
-	nl_langinfo(ABDAY_5),
-	nl_langinfo(ABDAY_6),
-	nl_langinfo(ABDAY_7)
-    };
-#else
-    static const char *const of_week[] =
-    {
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-    };
-#endif
     int cell_wide = MON_WIDE;
     int y, x, this_x = 0;
     int save_y = 0, save_x = 0;
@@ -179,7 +236,7 @@ draw_day(BOX * data, struct tm *current)
 		  0, (x + 1) * cell_wide, "%*.*s ",
 		  cell_wide - 1,
 		  cell_wide - 1,
-		  of_week[x]);
+		  nameOfDayOfWeek(x));
     }
 
     mday = ((6 + current->tm_mday - current->tm_wday) % 7) - 7;
@@ -218,6 +275,7 @@ draw_day(BOX * data, struct tm *current)
 	}
 	wmove(data->window, save_y, save_x);
     }
+    /* just draw arrows - scrollbar is unsuitable here */
     dlg_draw_arrows(data->parent, TRUE, TRUE,
 		    data->x + ARROWS_COL,
 		    data->y - 1,
@@ -232,39 +290,6 @@ draw_day(BOX * data, struct tm *current)
 static int
 draw_month(BOX * data, struct tm *current)
 {
-#ifdef ENABLE_NLS
-    char *months[] =
-    {
-	nl_langinfo(MON_1),
-	nl_langinfo(MON_2),
-	nl_langinfo(MON_3),
-	nl_langinfo(MON_4),
-	nl_langinfo(MON_5),
-	nl_langinfo(MON_6),
-	nl_langinfo(MON_7),
-	nl_langinfo(MON_8),
-	nl_langinfo(MON_9),
-	nl_langinfo(MON_10),
-	nl_langinfo(MON_11),
-	nl_langinfo(MON_12)
-    };
-#else
-    static const char *const months[] =
-    {
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-    };
-#endif
     int month;
 
     month = current->tm_mon + 1;
@@ -276,7 +301,7 @@ draw_month(BOX * data, struct tm *current)
 		 data->height + 2, data->width + 2,
 		 menubox_border_attr, menubox_attr);	/* borders of monthbox */
     wattrset(data->window, item_attr);	/* color the month selection */
-    mvwprintw(data->window, 0, 0, "%s", months[month - 1]);
+    mvwprintw(data->window, 0, 0, "%s", nameOfMonth(month - 1));
     wmove(data->window, 0, 0);
     return 0;
 }

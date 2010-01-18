@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.205 2010/01/12 10:14:38 tom Exp $
+ *  $Id: dialog.h,v 1.210 2010/01/17 23:08:30 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -366,7 +366,7 @@ typedef struct {
     FILE *screen_output;	/* newterm(), etc. */
     bool screen_initialized;
     bool use_colors;		/* use colors by default? */
-    bool use_scrollbar;		/* RESERVED */
+    bool use_scrollbar;		/* option "--scrollbar" */
     bool use_shadow;		/* shadow dialog boxes by default? */
     bool visit_items;		/* option "--visit-items" */
     char *separate_str;		/* option "--separate-widget string" */
@@ -484,7 +484,7 @@ extern DIALOG_COLORS dlg_color_table[];
 /*
  * Function prototypes
  */
-extern char *dialog_version(void);
+extern const char *dialog_version(void);
 
 /* widgets, each in separate files */
 extern int dialog_calendar(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*day*/, int /*month*/, int /*year*/);
@@ -541,6 +541,7 @@ extern int dlg_menu(const char * /*title*/, const char * /*cprompt*/, int /*heig
 /* arrows.c */
 extern void dlg_draw_arrows(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom_arrow*/, int /*x*/, int /*top*/, int /*bottom*/);
 extern void dlg_draw_arrows2(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom_arrow*/, int /*x*/, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
+extern void dlg_draw_scrollbar(WINDOW * /*dialog*/, long /* first_data */, long /* this_data */, long /* next_data */, long /* total_data */, int /* left */, int /* right */, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
 
 /* buttons.c */
 extern const char ** dlg_exit_label(void);
@@ -617,10 +618,12 @@ extern int dlg_box_x_ordinate(int /*width*/);
 extern int dlg_box_y_ordinate(int /*height*/);
 extern int dlg_calc_list_width(int /*item_no*/, DIALOG_LISTITEM * /*items*/);
 extern int dlg_calc_listw(int /*item_no*/, char ** /*items*/, int /*group*/);
+extern int dlg_check_scrolled(int /* key */, int /* last */, int /* page */, bool */* show */, int */* offset */);
 extern int dlg_default_item(char ** /*items*/, int /*llen*/);
 extern int dlg_default_listitem(DIALOG_LISTITEM * /*items*/);
 extern int dlg_defaultno_button(void);
 extern int dlg_max_input(int /*max_len*/);
+extern int dlg_print_scrolled(WINDOW * /* win */, const char * /* prompt */, int /* offset */, int /* height */, int /* width */, int /* pauseopt */);
 extern void dlg_add_quoted(char * /*string*/);
 extern void dlg_add_result(const char * /*string*/);
 extern void dlg_add_separator(void);
@@ -639,7 +642,7 @@ extern void dlg_draw_bottom_box(WINDOW * /*win*/);
 extern void dlg_draw_box(WINDOW * /*win*/, int /*y*/, int /*x*/, int /*height*/, int /*width*/, chtype /*boxchar*/, chtype /*borderchar*/);
 extern void dlg_draw_title(WINDOW *win, const char *title);
 extern void dlg_exit(int /*code*/) GCC_NORETURN;
-extern void dlg_item_help(char * /*txt*/);
+extern void dlg_item_help(const char * /*txt*/);
 extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*height*/, int /*width*/);
 extern void dlg_print_size(int /*height*/, int /*width*/);
 extern void dlg_print_text(WINDOW * /*win*/, const char * /*txt*/, int /*len*/, chtype * /*attr*/);

@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.196 2008/08/20 00:26:37 tom Exp $
+ *  $Id: util.c,v 1.200 2010/01/15 23:49:38 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2007,2008	Thomas E. Dickey
+ *  Copyright 2000-2008,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -753,6 +753,149 @@ dlg_print_autowrap(WINDOW *win, const char *prompt, int height, int width)
 		 height,
 		 width,
 		 (int *) 0, (int *) 0);
+}
+
+/*
+ * Display the message in a scrollable window.  Actually the way it works is
+ * that we create a "tall" window of the proper width, let the text wrap within
+ * that, and copy a slice of the result to the dialog.
+ *
+ * It works for ncurses.  Other curses implementations show only blanks (Tru64)
+ * or garbage (NetBSD).
+ */
+int
+dlg_print_scrolled(WINDOW *win,
+		   const char *prompt,
+		   int offset,
+		   int height,
+		   int width,
+		   int pauseopt)
+{
+    int oldy, oldx;
+    int last = 0;
+
+    getyx(win, oldy, oldx);
+#ifdef NCURSES_VERSION
+    if (pauseopt) {
+	int wide = width - (2 * MARGIN);
+	int high = LINES;
+	int y, x;
+	int len;
+	int percent;
+	WINDOW *dummy;
+	char buffer[5];
+
+#if defined(NCURSES_VERSION_PATCH) && NCURSES_VERSION_PATCH >= 20040417
+	/*
+	 * If we're not limited by the screensize, allow text to possibly be
+	 * one character per line.
+	 */
+	if ((len = dlg_count_columns(prompt)) > high)
+	    high = len;
+#endif
+	dummy = newwin(high, width, 0, 0);
+	wbkgdset(dummy, dialog_attr | ' ');
+	wattrset(dummy, dialog_attr);
+	werase(dummy);
+	dlg_print_autowrap(dummy, prompt, high, width);
+	getyx(dummy, y, x);
+
+	copywin(dummy,		/* srcwin */
+		win,		/* dstwin */
+		offset + MARGIN,	/* sminrow */
+		MARGIN,		/* smincol */
+		MARGIN,		/* dminrow */
+		MARGIN,		/* dmincol */
+		height,		/* dmaxrow */
+		wide,		/* dmaxcol */
+		FALSE);
+
+	delwin(dummy);
+
+	/* if the text is incomplete, or we have scrolled, show the percentage */
+	if (y > 0 && wide > 4) {
+	    percent = (int) ((height + offset) * 100.0 / y);
+	    if (percent < 0)
+		percent = 0;
+	    if (percent > 100)
+		percent = 100;
+	    if (offset != 0 || percent != 100) {
+		(void) wattrset(win, position_indicator_attr);
+		(void) wmove(win, MARGIN + height, wide - 4);
+		(void) sprintf(buffer, "%d%%", percent);
+		(void) waddstr(win, buffer);
+		if ((len = (int) strlen(buffer)) < 4) {
+		    wattrset(win, border_attr);
+		    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
+		}
+	    }
+	}
+	last = (y - height);
+    } else
+#endif
+    {
+	(void) offset;
+	wattrset(win, dialog_attr);
+	dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
+	last = 0;
+    }
+    wmove(win, oldy, oldx);
+    return last;
+}
+
+int
+dlg_check_scrolled(int key, int last, int page, bool * show, int *offset)
+{
+    int code = 0;
+
+    *show = FALSE;
+
+    switch (key) {
+    case DLGK_PAGE_FIRST:
+	if (*offset > 0) {
+	    *offset = 0;
+	    *show = TRUE;
+	}
+	break;
+    case DLGK_PAGE_LAST:
+	if (*offset < last) {
+	    *offset = last;
+	    *show = TRUE;
+	}
+	break;
+    case DLGK_GRID_UP:
+	if (*offset > 0) {
+	    --(*offset);
+	    *show = TRUE;
+	}
+	break;
+    case DLGK_GRID_DOWN:
+	if (*offset < last) {
+	    ++(*offset);
+	    *show = TRUE;
+	}
+	break;
+    case DLGK_PAGE_PREV:
+	if (*offset > 0) {
+	    *offset -= page;
+	    if (*offset < 0)
+		*offset = 0;
+	    *show = TRUE;
+	}
+	break;
+    case DLGK_PAGE_NEXT:
+	if (*offset < last) {
+	    *offset += page;
+	    if (*offset > last)
+		*offset = last;
+	    *show = TRUE;
+	}
+	break;
+    default:
+	code = -1;
+	break;
+    }
+    return code;
 }
 
 /*
@@ -1594,7 +1737,7 @@ dlg_default_listitem(DIALOG_LISTITEM * items)
  * Draw the string for item_help
  */
 void
-dlg_item_help(char *txt)
+dlg_item_help(const char *txt)
 {
     if (USE_ITEM_HELP(txt)) {
 	chtype attr = A_NORMAL;

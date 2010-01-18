@@ -1,9 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.47 2009/02/22 18:57:47 tom Exp $
+ *  $Id: yesno.c,v 1.49 2010/01/15 10:54:54 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2006,2009	Thomas E. Dickey
+ *  Copyright 1999-2009,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -43,6 +43,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	SCROLLKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -56,6 +57,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_yes_labels();
     int min_width = 25;
+    bool show = TRUE;
+    int page, last = 0, offset = 0;
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -88,11 +91,18 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
-    dlg_print_autowrap(dialog, prompt, height, width);
 
-    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
+    page = height - (1 + 3 * MARGIN);
+    dlg_draw_buttons(dialog,
+		     height - 2 * MARGIN, 0,
+		     buttons, button, FALSE, width);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	if (show) {
+	    last = dlg_print_scrolled(dialog, prompt, offset,
+				      page, width, TRUE);
+	    show = FALSE;
+	}
 	key = dlg_mouse_wgetch(dialog, &fkey);
 	if (dlg_result_key(key, fkey, &result))
 	    break;
@@ -136,7 +146,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 		    result = dlg_yes_buttoncode(key - M_EVENT);
 		    if (result < 0)
 			result = DLG_EXIT_OK;
-		} else {
+		} else if (dlg_check_scrolled(key, last, page,
+					      &show, &offset) != 0) {
 		    beep();
 		}
 		break;

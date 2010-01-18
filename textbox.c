@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.93 2009/02/22 18:57:47 tom Exp $
+ *  $Id: textbox.c,v 1.96 2010/01/17 18:23:56 tom Exp $
  *
  * textbox.c -- implements the text box
  *
- * Copyright 2000-2007,2009 Thomas E.  Dickey
+ * Copyright 2000-2009,2010 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -76,7 +76,7 @@ ftell_obj(MY_OBJ * obj)
 }
 
 static char *
-xalloc(long size)
+xalloc(size_t size)
 {
     char *result = dlg_malloc(char, size);
     assert_ptr(result, "xalloc");
@@ -422,13 +422,9 @@ print_page(MY_OBJ * obj, int height, int width)
 static void
 print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
 {
-    chtype save = getattrs(win);
     long fpos;
     long size;
-    int percent;
-    int len;
     long first = -1;
-    char buffer[80];
 
     fpos = ftell_obj(obj);
     if (dialog_vars.tab_correct)
@@ -436,32 +432,15 @@ print_position(MY_OBJ * obj, WINDOW *win, int height, int width)
     else
 	first = find_first(obj, obj->buf, size = obj->in_buf);
 
-    wattrset(win, position_indicator_attr);
-    percent = (!obj->file_size
-	       ? 100
-	       : (int) (((fpos - obj->fd_bytes_read + size) * 100)
-			/ obj->file_size));
-
-    if (percent < 0)
-	percent = 0;
-    if (percent > 100)
-	percent = 100;
-
-    (void) sprintf(buffer, "%d%%", percent);
-    (void) wmove(win, PAGE_LENGTH + 1, PAGE_WIDTH - 7);
-    (void) waddstr(win, buffer);
-    if ((len = dlg_count_columns(buffer)) < 4) {
-	wattrset(win, border_attr);
-	whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
-    }
-
-    wattrset(win, save);
-    dlg_draw_arrows2(win,
-		     first != 0,
-		     size < obj->fd_bytes_read,
-		     ARROWS_COL, 0, PAGE_LENGTH + 1,
-		     border_attr,
-		     border_attr);
+    dlg_draw_scrollbar(win,
+		       first,
+		       fpos - obj->fd_bytes_read + size,
+		       fpos - obj->fd_bytes_read + size,
+		       obj->file_size,
+		       0, PAGE_WIDTH,
+		       0, PAGE_LENGTH + 1,
+		       border_attr,
+		       border_attr);
 }
 
 /*

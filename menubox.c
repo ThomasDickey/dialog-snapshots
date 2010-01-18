@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.116 2009/02/22 19:14:36 tom Exp $
+ *  $Id: menubox.c,v 1.118 2010/01/17 22:24:11 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2007,2008	Thomas E. Dickey
+ *  Copyright 2000-2009,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -57,11 +57,17 @@ print_arrows(WINDOW *win,
 	     int item_no,
 	     int menu_height)
 {
-    dlg_draw_arrows(win, scrollamt,
-		    scrollamt + max_choice < item_no,
-		    box_x + tag_x + 1,
-		    box_y,
-		    box_y + menu_height + 1);
+    dlg_draw_scrollbar(win,
+		       scrollamt,
+		       scrollamt,
+		       scrollamt + max_choice,
+		       item_no,
+		       box_x,
+		       box_x + menu_width,
+		       box_y,
+		       box_y + menu_height + 1,
+		       menubox_attr,
+		       menubox_border_attr);
 }
 
 /*
@@ -80,12 +86,12 @@ print_tag(WINDOW *win,
     const int *cols;
     const int *indx;
     int limit;
-    unsigned prefix;
+    int prefix;
 
     cols = dlg_index_columns(item->name);
     indx = dlg_index_wchars(item->name);
     limit = dlg_count_wchars(item->name);
-    prefix = indx[1] - indx[0];
+    prefix = (indx[1] - indx[0]);
 
     /* highlight first char of the tag to be special */
     (void) wmove(win, my_y, tag_x);
@@ -94,7 +100,7 @@ print_tag(WINDOW *win,
 	(void) waddnstr(win, item->name, prefix);
     /* print rest of the string */
     wattrset(win, selected ? tag_selected_attr : tag_attr);
-    if (strlen(item->name) > prefix) {
+    if ((int) strlen(item->name) > prefix) {
 	limit = dlg_limit_columns(item->name, tag_width, 1);
 	if (limit > 0)
 	    (void) waddnstr(win, item->name + indx[1], indx[limit] - indx[1]);
@@ -191,9 +197,9 @@ input_menu_edit(WINDOW *win,
     bool is_inputmenu = TRUE;
     int y = ItemToRow(choice);
     int code = TRUE;
-    int max_len = dlg_max_input(MAX(strlen(items->text) + 1, MAX_LEN));
+    int max_len = dlg_max_input(MAX((int) strlen(items->text) + 1, MAX_LEN));
 
-    result = dlg_malloc(char, max_len);
+    result = dlg_malloc(char, (size_t) max_len);
     assert_ptr(result, "input_menu_edit");
 
     /* original item is used to initialize the input string. */
@@ -656,6 +662,9 @@ dlg_menu(const char *title,
 			       Selected,
 			       is_inputmenu);
 		    (void) wnoutrefresh(menu);
+		    print_arrows(dialog,
+				 box_x, box_y,
+				 scrollamt, max_choice, item_no, use_height);
 		    (void) wmove(dialog, cur_y, cur_x);
 		    wrefresh(dialog);
 		}
@@ -781,7 +790,7 @@ dialog_menu(const char *title,
     int i;
     DIALOG_LISTITEM *listitems;
 
-    listitems = dlg_calloc(DIALOG_LISTITEM, item_no + 1);
+    listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_menu");
 
     for (i = 0; i < item_no; ++i) {
