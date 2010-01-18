@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.9 2010/01/10 22:51:22 tom Exp $
+ *  $Id: trace.c,v 1.11 2010/01/17 15:36:26 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -65,7 +65,7 @@ dlg_trace_win(WINDOW *win)
 		} else if (unctrl(ch) == 0 || strlen(unctrl(ch)) > 1) {
 		    ch = '.';
 		}
-		fputc(ch & 0xff, myFP);
+		fputc((int) (ch & 0xff), myFP);
 	    }
 	    fputc('\n', myFP);
 	}
@@ -116,7 +116,7 @@ dlg_trace_chr(int ch, int fkey)
 		}
 	    }
 	} else {
-	    fkey_name = unctrl(ch);
+	    fkey_name = unctrl((chtype) ch);
 	    if (fkey_name == 0)
 		fkey_name = "UNKNOWN";
 	}

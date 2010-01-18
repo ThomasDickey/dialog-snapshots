@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.51 2010/01/12 10:56:44 tom Exp $
+ *  $Id: editbox.c,v 1.52 2010/01/17 22:32:39 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -426,14 +426,17 @@ dlg_editbox(const char *title,
 	    display_one(editing, THIS_ROW,
 			thisrow, thisrow, base_row, chr_offset);
 	    getyx(editing, y, x);
-	    dlg_draw_arrows2(dialog,
-			     base_row != 0,
-			     base_row + pagesize < listsize,
-			     box_x + ARROWS_COL,
-			     box_y + 0,
-			     box_y + getmaxy(editing) + 1,
-			     dialog_attr,
-			     border_attr);
+	    dlg_draw_scrollbar(dialog,
+			       base_row,
+			       base_row,
+			       base_row + pagesize,
+			       listsize,
+			       box_x,
+			       box_x + getmaxx(editing),
+			       box_y + 0,
+			       box_y + getmaxy(editing) + 1,
+			       dialog_attr,
+			       border_attr);
 	    wmove(editing, y, x);
 	    show_one = FALSE;
 	}

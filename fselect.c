@@ -1,9 +1,9 @@
 /*
- * $Id: fselect.c,v 1.71 2009/02/22 18:57:47 tom Exp $
+ * $Id: fselect.c,v 1.72 2010/01/17 22:50:00 tom Exp $
  *
  * fselect.c -- implements the file-selector box
  *
- * Copyright 2000-2008,2009 Thomas E. Dickey
+ * Copyright 2000-2009,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -240,11 +240,17 @@ display_list(LIST * list)
 
 	top = y - 1;
 	bottom = y + getmaxy(list->win);
-	dlg_draw_arrows(list->par, list->offset,
-			list->length - list->offset > getmaxy(list->win),
-			x + 1,
-			top,
-			bottom);
+	dlg_draw_scrollbar(list->par,
+			   list->offset,
+			   list->offset,
+			   list->offset + getmaxy(list->win),
+			   list->length,
+			   x + 1,
+			   x + getmaxx(list->win),
+			   top,
+			   bottom,
+			   menubox_attr,
+			   menubox_border_attr);
 
 	(void) wmove(list->win, list->choice - list->offset, 0);
 	(void) wnoutrefresh(list->win);

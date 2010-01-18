@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedgauge.c,v 1.17 2007/09/30 21:14:38 tom Exp $
+ *  $Id: mixedgauge.c,v 1.18 2010/01/15 23:43:53 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
- *  Copyright 2007	Thomas E. Dickey
+ *  Copyright 2007,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -46,12 +46,12 @@ typedef struct {
     DIALOG_LISTITEM *list;
 } DIALOG_MIXEDGAUGE;
 
-static char *
-status_string(char *given, bool * freeMe)
+static const char *
+status_string(char *given, char **freeMe)
 {
-    char *result;
+    const char *result;
 
-    *freeMe = FALSE;
+    *freeMe = 0;
     if (isdigit(UCH(*given))) {
 	switch (*given) {
 	case '0':
@@ -91,7 +91,7 @@ status_string(char *given, bool * freeMe)
     } else if (*given == '-') {
 	unsigned need = strlen(++given);
 	char *temp = dlg_malloc(char, need);
-	*freeMe = TRUE;
+	*freeMe = temp;
 	sprintf(temp, "%3s%%", given);
 	result = temp;
     } else if (!isspace(UCH(*given))) {
@@ -119,8 +119,8 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
     int last_y = 0, last_x = 0;
     int j, xxx;
     float percent;
-    char *status = "";
-    bool freeMe;
+    const char *status = "";
+    char *freeMe = 0;
 
     if (win) {
 	rm -= (2 * MARGIN);
@@ -144,14 +144,14 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 
 	(void) wmove(win, y, lm);
 	(void) waddch(win, '[');
-	(void) wmove(win, y, lm + (cells - strlen(status)) / 2);
+	(void) wmove(win, y, lm + (cells - (int) strlen(status)) / 2);
 	if (freeMe) {
 	    (void) wmove(win, y, lm + 1);
 	    wattrset(win, title_attr);
 	    for (j = 0; j < cells; j++)
 		(void) waddch(win, ' ');
 
-	    (void) wmove(win, y, lm + (cells - strlen(status)) / 2);
+	    (void) wmove(win, y, lm + (cells - (int) strlen(status)) / 2);
 	    (void) waddstr(win, status);
 
 	    if ((title_attr & A_REVERSE) != 0) {
@@ -171,10 +171,10 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 		}
 		(void) waddch(win, ch1);
 	    }
-	    free(status);
+	    free(freeMe);
 
 	} else {
-	    (void) wmove(win, y, lm + (cells - strlen(status)) / 2);
+	    (void) wmove(win, y, lm + (cells - (int) strlen(status)) / 2);
 	    (void) waddstr(win, status);
 	}
 	(void) wmove(win, y, limit_x - 3);
@@ -278,14 +278,14 @@ dlg_begin_mixedgauge(DIALOG_MIXEDGAUGE * dlg,
 	dlg->width = dlg->old_width = aWidth;
 	dlg->item_no = aItemNo;
 
-	dlg->list = dlg_calloc(DIALOG_LISTITEM, aItemNo);
+	dlg->list = dlg_calloc(DIALOG_LISTITEM, (size_t) aItemNo);
 	assert_ptr(dlg->list, "dialog_mixedgauge");
 
 	dlg->len_name = 0;
 	dlg->len_text = 15;
 
 	for (n = 0; n < aItemNo; ++n) {
-	    int thisWidth = strlen(ItemName(n));
+	    int thisWidth = (int) strlen(ItemName(n));
 	    if (dlg->len_name < thisWidth)
 		dlg->len_name = thisWidth;
 	    dlg->list[n].name = ItemName(n);

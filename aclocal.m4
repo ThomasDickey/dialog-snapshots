@@ -4,7 +4,7 @@ dnl
 dnl see
 dnl http://invisible-island.net/autoconf/ 
 dnl
-dnl $Id: aclocal.m4,v 1.71 2010/01/10 23:00:16 tom Exp $
+dnl $Id: aclocal.m4,v 1.72 2010/01/18 01:38:22 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
 dnl AM_GNU_GETTEXT version: 11 updated: 2004/01/26 20:58:40
@@ -906,7 +906,7 @@ ifelse($3,,[    :]dnl
 ])dnl
   ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BUNDLED_INTL version: 13 updated: 2009/01/11 15:30:48
+dnl CF_BUNDLED_INTL version: 14 updated: 2010/01/17 20:37:27
 dnl ---------------
 dnl Top-level macro for configuring an application with a bundled copy of
 dnl the intl and po directories for gettext.
@@ -915,6 +915,8 @@ dnl $1 specifies either Makefile or makefile, defaulting to the former.
 dnl $2 if nonempty sets the option to --enable-nls rather than to --disable-nls
 dnl
 dnl Sets variables which can be used to substitute in makefiles:
+dnl	GT_YES       - "#" comment unless building intl library, otherwise empty
+dnl	GT_NO        - "#" comment if building intl library, otherwise empty
 dnl	INTLDIR_MAKE - to make ./intl directory
 dnl	MSG_DIR_MAKE - to make ./po directory
 dnl	SUB_MAKEFILE - list of makefiles in ./intl, ./po directories
@@ -1873,7 +1875,7 @@ AC_SUBST(PACKAGE_CONFIG)
 EXTRA_OUTPUT="$EXTRA_OUTPUT headers-sh:$srcdir/headers-sh.in"
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_HEADER_PATH version: 9 updated: 2008/12/07 19:38:31
+dnl CF_HEADER_PATH version: 10 updated: 2010/01/17 20:36:17
 dnl --------------
 dnl Construct a search-list of directories for a nonstandard header-file
 dnl
@@ -1882,6 +1884,7 @@ dnl	$1 = the variable to return as result
 dnl	$2 = the package name
 AC_DEFUN([CF_HEADER_PATH],
 [
+$1=
 cf_header_path_list=""
 if test -n "${CFLAGS}${CPPFLAGS}" ; then
 	for cf_header_path in $CPPFLAGS $CFLAGS
@@ -1948,7 +1951,7 @@ fi
 AC_SUBST(CPPFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_INCLUDE_PATH version: 4 updated: 2001/04/15 21:21:45
+dnl CF_INCLUDE_PATH version: 5 updated: 2010/01/17 20:36:17
 dnl ---------------
 dnl	Adds to the include-path
 dnl
@@ -1957,6 +1960,7 @@ dnl	the cpp-tests.
 dnl
 AC_DEFUN([CF_INCLUDE_PATH],
 [
+$1=
 for cf_path in $1
 do
 	cf_result="no"

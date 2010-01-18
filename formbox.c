@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.67 2009/02/22 18:57:47 tom Exp $
+ *  $Id: formbox.c,v 1.69 2010/01/17 22:57:15 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2003-2008,2009	Thomas E. Dickey
+ *  Copyright 2003-2009,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -351,7 +351,7 @@ make_FORM_ELTs(DIALOG_FORMITEM * item,
 	    int max_len = dlg_max_input(MAX(item[i].text_ilen + 1, MAX_LEN));
 	    char *old_text = item[i].text;
 
-	    item[i].text = dlg_malloc(char, max_len + 1);
+	    item[i].text = dlg_malloc(char, (size_t) max_len + 1);
 	    assert_ptr(item[i].text, "make_FORM_ELTs");
 
 	    sprintf(item[i].text, "%.*s", item[i].text_ilen, old_text);
@@ -545,11 +545,17 @@ dlg_form(const char *title,
 
 	if (scroll_changed) {
 	    print_form(form, items, item_no, scrollamt, choice);
-	    dlg_draw_arrows(dialog, scrollamt,
-			    scrollamt + form_height < item_no,
-			    box_x + 1,
-			    box_y,
-			    box_y + form_height + 1);
+	    dlg_draw_scrollbar(dialog,
+			       scrollamt,
+			       scrollamt,
+			       scrollamt + form_height + 1,
+			       item_no,
+			       box_x + 1,
+			       box_x + form_width,
+			       box_y,
+			       box_y + form_height + 1,
+			       menubox_attr,
+			       menubox_border_attr);
 	    scroll_changed = FALSE;
 	}
 
@@ -825,23 +831,24 @@ dialog_form(const char *title,
     dlg_save_vars(&save_vars);
     dialog_vars.separate_output = TRUE;
 
-    listitems = dlg_calloc(DIALOG_FORMITEM, item_no + 1);
+    listitems = dlg_calloc(DIALOG_FORMITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_form");
 
     for (i = 0; i < item_no; ++i) {
 	listitems[i].type = dialog_vars.formitem_type;
 	listitems[i].name = ItemName(i);
-	listitems[i].name_len = strlen(ItemName(i));
+	listitems[i].name_len = (int) strlen(ItemName(i));
 	listitems[i].name_y = dlg_ordinate(ItemNameY(i));
 	listitems[i].name_x = dlg_ordinate(ItemNameX(i));
 	listitems[i].text = ItemText(i);
-	listitems[i].text_len = strlen(ItemText(i));
+	listitems[i].text_len = (int) strlen(ItemText(i));
 	listitems[i].text_y = dlg_ordinate(ItemTextY(i));
 	listitems[i].text_x = dlg_ordinate(ItemTextX(i));
 	listitems[i].text_flen = atoi(ItemTextFLen(i));
 	listitems[i].text_ilen = atoi(ItemTextILen(i));
-	listitems[i].help = (dialog_vars.item_help) ? ItemHelp(i) :
-	    dlg_strempty();
+	listitems[i].help = ((dialog_vars.item_help)
+			     ? ItemHelp(i)
+			     : dlg_strempty());
     }
 
     result = dlg_form(title,

@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.h,v 1.22 2007/07/04 11:17:55 tom Exp $
+ *  $Id: dlg_keys.h,v 1.23 2010/01/15 10:42:22 tom Exp $
  *
  * dlg_keys.h -- runtime binding support for dialog
  *
- * Copyright 2005,2007 Thomas E.  Dickey
+ * Copyright 2005-2007,2010 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -111,6 +111,24 @@ typedef enum {
 	DLG_KEYS_DATA( DLGK_FINAL,	   KEY_END ), \
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,	   KEY_LEFT ), \
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	   KEY_RIGHT )
+
+#define SCROLLKEY_BINDINGS \
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'J' ), \
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	'j' ), \
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_GRID_UP,	'K' ), \
+	DLG_KEYS_DATA( DLGK_GRID_UP,	'k' ), \
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_UP ), \
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	'g' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ), \
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	'G' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	'F' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	'f' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'B' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'b' ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE )
 
 extern int dlg_lookup_key(WINDOW * /*win*/, int /*curses_key*/, int * /*dialog_key*/);
 extern int dlg_result_key(int /*dialog_key*/, int /*fkey*/, int * /*resultp*/);

@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.43 2010/01/12 09:48:46 tom Exp $
+ *  $Id: guage.c,v 1.44 2010/01/15 11:55:41 tom Exp $
  *
  * guage.c -- implements the gauge dialog
  *
@@ -292,9 +292,6 @@ dialog_gauge(const char *title,
 #endif
     }
     while (handle_my_getc(&(obj->obj), ch, fkey, &result));
-
-    //fclose(dialog_state.pipe_input);
-    //dialog_state.pipe_input = 0;
 
     curs_set(1);
     dlg_del_window(dialog);
