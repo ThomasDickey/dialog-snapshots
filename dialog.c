@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.176 2010/01/15 23:32:40 tom Exp $
+ * $Id: dialog.c,v 1.177 2010/01/18 09:21:14 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -56,6 +56,7 @@ typedef enum {
     ,o_column_separator
     ,o_cr_wrap
     ,o_create_rc
+    ,o_date_format
     ,o_default_item
     ,o_defaultno
     ,o_dselect
@@ -127,6 +128,7 @@ typedef enum {
     ,o_tailbox
     ,o_tailboxbg
     ,o_textbox
+    ,o_time_format
     ,o_timebox
     ,o_timeout
     ,o_title
@@ -191,6 +193,7 @@ static const Options options[] = {
     { "column-separator",o_column_separator,	1, "<str>" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, NULL },
+    { "date-format",	o_date_format,		1, "<str>" },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
     { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
@@ -266,6 +269,7 @@ static const Options options[] = {
     { "tailbox",	o_tailbox,		2, "<file> <height> <width>" },
     { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
+    { "time-format",	o_time_format,		1, "<str>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
@@ -1367,6 +1371,12 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_help_label:
 	    dialog_vars.help_label = optionString(argv, &offset);
+	    break;
+	case o_date_format:
+	    dialog_vars.date_format = optionString(argv, &offset);
+	    break;
+	case o_time_format:
+	    dialog_vars.time_format = optionString(argv, &offset);
 	    break;
 	case o_keep_tite:
 	    dialog_vars.keep_tite = TRUE;

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.210 2010/01/17 23:08:30 tom Exp $
+ *  $Id: dialog.h,v 1.211 2010/01/18 09:22:41 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -435,11 +435,14 @@ typedef struct {
     bool no_lines;		/* option "--no-lines" */
     /* 1.1-20070930 */
     bool nook;			/* option "--no-ok" */
-    /* 1.2-20080727 */
+    /* 1.1-20080727 */
     bool quoted;		/* option "--quoted" */
     char *column_header;	/* RESERVED "--column-header" */
     char *column_separator;	/* option "--column-separator" */
     char *output_separator;	/* option "--output-separator" */
+    /* 1.1-20100118 */
+    char *date_format;		/* option "--date-format" */
+    char *time_format;		/* option "--time-format" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)

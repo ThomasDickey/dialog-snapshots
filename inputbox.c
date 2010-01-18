@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.61 2009/02/22 19:13:51 tom Exp $
+ *  $Id: inputbox.c,v 1.62 2010/01/18 10:29:07 tom Exp $
  *
  * inputbox.c -- implements the input box
  *
- * Copyright 2000-2005,2006 Thomas E. Dickey
+ * Copyright 2000-2009,2010 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -87,7 +87,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		      MIN(MAX(dlg_count_columns(init) + 7, 26),
 			  SCOLS - (dialog_vars.begin_set ?
 				   dialog_vars.begin_x : 0)));
-	chr_offset = strlen(init);
+	chr_offset = (int) strlen(init);
     } else {
 	dlg_auto_size(title, prompt, &height, &width, 5, 26);
     }

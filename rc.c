@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.44 2010/01/10 22:50:56 tom Exp $
+ *  $Id: rc.c,v 1.45 2010/01/18 10:28:16 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -151,7 +151,7 @@ find_vars(char *name)
 
     for (i = 0; i < VAR_COUNT; i++) {
 	if (dlg_strcmp(vars[i].name, name) == 0) {
-	    result = i;
+	    result = (int) i;
 	    break;
 	}
     }
@@ -268,7 +268,7 @@ str_to_attr(char *str, int *fg, int *bg, int *hl)
     part = tempstr + i;		/* set 'part' to start of highlight string */
 
     /* trim trailing white space from highlight string */
-    i = strlen(part) - 1;
+    i = (int) strlen(part) - 1;
     while (whitespace(part[i]) && i > 0)
 	i--;
     part[i + 1] = '\0';
@@ -366,7 +366,7 @@ parse_line(char *line, char **var, char **value)
 	*value = line + i;	/* set 'value' to value string */
 
     /* trim trailing white space from 'value' */
-    i = strlen(*value) - 1;
+    i = (int) strlen(*value) - 1;
     while (whitespace((*value)[i]) && i > 0)
 	i--;
     (*value)[i + 1] = '\0';

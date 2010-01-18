@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.39 2009/02/22 17:53:17 tom Exp $
+ * $Id: timebox.c,v 1.41 2010/01/18 10:33:42 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2008,2009   Thomas E. Dickey
+ *  Copyright 2001-2009,2010   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -119,7 +119,7 @@ init_object(BOX * data,
 }
 
 static int
-CleanupResult(int code, WINDOW *dialog, char *prompt, DIALOG_VARS *save_vars)
+CleanupResult(int code, WINDOW *dialog, char *prompt, DIALOG_VARS * save_vars)
 {
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
@@ -381,8 +381,29 @@ dialog_timebox(const char *title,
 	}
     }
 
-    sprintf(buffer, "%02d:%02d:%02d",
-	    hr_box.value, mn_box.value, sc_box.value);
+#define DefaultFormat(dst, src) \
+	sprintf(dst, "%02d:%02d:%02d", \
+		hr_box.value, mn_box.value, sc_box.value)
+
+#if defined(HAVE_STRFTIME)
+    if (dialog_vars.time_format != 0) {
+	size_t used;
+	time_t now = time((time_t *) 0);
+	struct tm *parts = localtime(&now);
+
+	parts->tm_sec = sc_box.value;
+	parts->tm_min = mn_box.value;
+	parts->tm_hour = hr_box.value;
+	used = strftime(buffer,
+			sizeof(buffer) - 1,
+			dialog_vars.time_format,
+			parts);
+	if (used == 0 || *buffer == '\0')
+	    DefaultFormat(buffer, hr_box);
+    } else
+#endif
+	DefaultFormat(buffer, hr_box);
+
     dlg_add_result(buffer);
     dlg_add_separator();
 

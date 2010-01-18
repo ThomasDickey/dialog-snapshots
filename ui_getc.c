@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.47 2010/01/14 00:11:30 tom Exp $
+ *  $Id: ui_getc.c,v 1.48 2010/01/18 10:24:06 tom Exp $
  *
  * ui_getc.c - user interface glue for getc()
  *
@@ -261,7 +261,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	    ch = ERR;
 	    *fkey = 0;
 	    code = wget_wch(win, &my_wint);
-	    my_wchar = my_wint;
+	    my_wchar = (wchar_t) my_wint;
 	    switch (code) {
 	    case KEY_CODE_YES:
 		ch = *fkey = my_wchar;
@@ -269,12 +269,12 @@ dlg_getc(WINDOW *win, int *fkey)
 		break;
 	    case OK:
 		memset(&state, 0, sizeof(state));
-		have_last_getc = wcrtomb(last_getc_bytes, my_wchar, &state);
+		have_last_getc = (int) wcrtomb(last_getc_bytes, my_wchar, &state);
 		if (have_last_getc < 0) {
 		    have_last_getc = used_last_getc = 0;
-		    last_getc_bytes[0] = my_wchar;
+		    last_getc_bytes[0] = (char) my_wchar;
 		}
-		ch = CharOf(last_getc_bytes[used_last_getc++]);
+		ch = (int) CharOf(last_getc_bytes[used_last_getc++]);
 		last_getc = my_wchar;
 		break;
 	    case ERR:
@@ -285,7 +285,7 @@ dlg_getc(WINDOW *win, int *fkey)
 		break;
 	    }
 	} else {
-	    ch = CharOf(last_getc_bytes[used_last_getc++]);
+	    ch = (int) CharOf(last_getc_bytes[used_last_getc++]);
 	}
 #else
 	ch = wgetch(win);

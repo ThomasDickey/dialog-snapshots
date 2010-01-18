@@ -1,9 +1,9 @@
 /*
- *  $Id: columns.c,v 1.4 2008/06/21 12:27:35 tom Exp $
+ *  $Id: columns.c,v 1.5 2010/01/18 10:26:36 tom Exp $
  *
  *  columns.c -- implements column-alignment
  *
- *  Copyright 2008	Thomas E. Dickey
+ *  Copyright 2008,2010	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -65,15 +65,15 @@ next_col(char *source, unsigned offset)
 static unsigned
 split_row(char *source, unsigned *offsets, unsigned *widths)
 {
-    int mark = strlen(column_separator());
+    int mark = (int) strlen(column_separator());
     char *next = 0;
     unsigned result = 0;
     unsigned offset = 0;
 
     do {
 	if (result) {
-	    offset = mark + next - source;
-	    widths[result - 1] = offset - offsets[result - 1] - mark;
+	    offset = (unsigned) (mark + next - source);
+	    widths[result - 1] = offset - offsets[result - 1] - (unsigned) mark;
 	}
 	offsets[result] = offset;
 	++result;

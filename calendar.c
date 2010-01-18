@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.58 2010/01/17 22:33:44 tom Exp $
+ * $Id: calendar.c,v 1.59 2010/01/18 09:50:44 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -656,8 +656,21 @@ dialog_calendar(const char *title,
 	}
     }
 
-    sprintf(buffer, "%02d/%02d/%0d",
-	    current.tm_mday, current.tm_mon + 1, current.tm_year + 1900);
+#define DefaultFormat(dst, src) \
+	sprintf(dst, "%02d/%02d/%0d", \
+		src.tm_mday, src.tm_mon + 1, src.tm_year + 1900)
+#ifdef HAVE_STRFTIME
+    if (dialog_vars.date_format != 0) {
+       size_t used = strftime(buffer,
+			      sizeof(buffer) - 1,
+			      dialog_vars.date_format,
+			      &current);
+	if (used == 0 || *buffer == '\0')
+	    DefaultFormat(buffer, current);
+    } else
+#endif
+	DefaultFormat(buffer, current);
+
     dlg_add_result(buffer);
     dlg_add_separator();
 
