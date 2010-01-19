@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.69 2010/01/17 22:57:15 tom Exp $
+ *  $Id: formbox.c,v 1.70 2010/01/19 01:16:30 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -407,6 +407,17 @@ prev_valid_buttonindex(int state, int extra, bool non_editable)
     return state;
 }
 
+#define NAVIGATE_BINDINGS \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PREVIOUS ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE )
 /*
  * Display a form for fulfill a number of fields
  */
@@ -422,18 +433,14 @@ dlg_form(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
+	NAVIGATE_BINDINGS,
+	END_KEYS_BINDING
+    };
+    static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN ),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ),
-	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
-	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PREVIOUS ),
-	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
-	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
-	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
+	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -501,6 +508,7 @@ dlg_form(const char *title,
 
     dialog = dlg_new_window(height, width, y, x);
     dlg_register_window(dialog, "formbox", binding);
+    dlg_register_window(dialog, "formfield", binding2);
     dlg_register_buttons(dialog, "formbox", buttons);
 
     dlg_mouse_setbase(x, y);

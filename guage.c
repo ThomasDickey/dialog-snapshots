@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.44 2010/01/15 11:55:41 tom Exp $
+ *  $Id: guage.c,v 1.45 2010/01/19 09:15:20 tom Exp $
  *
  * guage.c -- implements the gauge dialog
  *
@@ -227,8 +227,8 @@ dialog_gauge(const char *title,
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
-    int fkey;
 #endif
+    int fkey;
     int ch, result;
     int x, y;
     char *prompt = dlg_strclone(cprompt);

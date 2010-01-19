@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.27 2010/01/17 22:27:30 tom Exp $
+ *  $Id: arrows.c,v 1.28 2010/01/19 10:07:36 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -178,7 +178,8 @@ dlg_draw_scrollbar(WINDOW *win,
 		wmove(win, top + 1 + bar_y, right);
 
 		wattrset(win, position_indicator_attr);
-		wvline(win, ACS_BLOCK | A_REVERSE, bar_high);
+		wattron(win, A_REVERSE);
+		wvline(win, ACS_BLOCK, bar_high);
 	    }
 	}
     }

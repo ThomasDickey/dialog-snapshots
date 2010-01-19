@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.52 2010/01/17 22:32:39 tom Exp $
+ *  $Id: editbox.c,v 1.53 2010/01/19 00:59:50 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -286,6 +286,20 @@ widest_line(char **list)
     return result;
 }
 
+#define NAVIGATE_BINDINGS \
+	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	KEY_RIGHT ), \
+	DLG_KEYS_DATA( DLGK_GRID_LEFT,	KEY_LEFT ), \
+	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_UP ), \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ), \
+	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ), \
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ), \
+	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_LL ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	DLGK_MOUSE(KEY_NPAGE) ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,	DLGK_MOUSE(KEY_PPAGE) )
 /*
  * Display a dialog box for editing a copy of a file
  */
@@ -298,21 +312,14 @@ dlg_editbox(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	ENTERKEY_BINDINGS,
+	NAVIGATE_BINDINGS,
+	END_KEYS_BINDING
+    };
+    static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_GRID_DOWN,	KEY_DOWN ),
-	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	KEY_RIGHT ),
-	DLG_KEYS_DATA( DLGK_GRID_LEFT,	KEY_LEFT ),
-	DLG_KEYS_DATA( DLGK_GRID_UP,	KEY_UP ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_PAGE_FIRST,	KEY_HOME ),
-	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_END ),
-	DLG_KEYS_DATA( DLGK_PAGE_LAST,	KEY_LL ),
-	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	KEY_NPAGE ),
-	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	DLGK_MOUSE(KEY_NPAGE) ),
-	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
-	DLG_KEYS_DATA( DLGK_PAGE_PREV,	DLGK_MOUSE(KEY_PPAGE) ),
+	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -400,7 +407,7 @@ dlg_editbox(const char *title,
 			     box_width - (2 * MARGIN),
 			     getbegy(dialog) + box_y + 1,
 			     getbegx(dialog) + box_x + 1);
-    dlg_register_window(editing, "editbox", binding);
+    dlg_register_window(editing, "editbox", binding2);
 
     show_all = TRUE;
     show_one = FALSE;
