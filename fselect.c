@@ -1,5 +1,5 @@
 /*
- * $Id: fselect.c,v 1.72 2010/01/17 22:50:00 tom Exp $
+ * $Id: fselect.c,v 1.73 2010/01/19 01:11:31 tom Exp $
  *
  * fselect.c -- implements the file-selector box
  *
@@ -504,6 +504,18 @@ usable_state(int state, LIST * dirs, LIST * files)
 			: ((state == sDIRS) \
 			  ? &d_list \
 			  : 0))
+#define NAVIGATE_BINDINGS \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ), \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ), \
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ), \
+	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE )
+
 /*
  * Display a dialog box for entering a filename
  */
@@ -512,19 +524,14 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),	/* override inputstr */
+	ENTERKEY_BINDINGS,
+	NAVIGATE_BINDINGS,
+	END_KEYS_BINDING
+    };
+    static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ),
-	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ),
-	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ),
-	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ),
-	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
-	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE ),
+	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -613,6 +620,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
 			  tbox_width + (MARGIN + EXT_WIDE),
 			  MOUSE_T, 1, 1, 3 /* doesn't matter */ );
 
+    dlg_register_window(w_text, "fselect", binding2);
+
     /* Draw the directory listing box */
     if (dselect)
 	dbox_width = (width - (6 * MARGIN));
@@ -696,7 +705,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
 	} else {
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
-	    key = dlg_mouse_wgetch(dialog, &fkey);
+	    key = dlg_mouse_wgetch((state == sTEXT) ? w_text : dialog, &fkey);
 	    if (dlg_result_key(key, fkey, &result))
 		break;
 	}
@@ -838,6 +847,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, bool dse
 	}
     }
 
+    dlg_unregister_window(w_text);
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
     free_list(&d_list, FALSE);

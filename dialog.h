@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.211 2010/01/18 09:22:41 tom Exp $
+ *  $Id: dialog.h,v 1.213 2010/01/19 10:47:42 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -29,6 +29,10 @@
 
 #include <dlg_config.h>
 
+#ifdef __hpux
+#define __HP_CURSES_COMPAT	/* workaround for getattrs, etc. */
+#endif
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -47,10 +51,13 @@
 #include <ncurses/curses.h>
 #elif defined(HAVE_NCURSES_H)
 #include <ncurses.h>
-#elif defined(ultrix)
-#include <cursesX.h>
 #else
 #include <curses.h>
+#endif
+
+/* most curses.h headers include this, some do not */
+#if defined(HAVE_UNCTRL_H)
+#include <unctrl.h>
 #endif
 
 /* possible conflicts with <term.h> which may be included in <curses.h> */
@@ -89,6 +96,7 @@
 #ifdef __hpux
 #undef ACS_UARROW
 #undef ACS_DARROW
+#undef ACS_BLOCK
 #endif
 
 /*
@@ -184,6 +192,9 @@
 #endif
 #ifndef ACS_DARROW
 #define ACS_DARROW 'v'
+#endif
+#ifndef ACS_BLOCK
+#define ACS_BLOCK '#'
 #endif
 
 /* these definitions may work for antique versions of curses */

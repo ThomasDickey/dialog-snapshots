@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.h,v 1.23 2010/01/15 10:42:22 tom Exp $
+ *  $Id: dlg_keys.h,v 1.24 2010/01/19 00:57:36 tom Exp $
  *
  * dlg_keys.h -- runtime binding support for dialog
  *
@@ -28,8 +28,8 @@
 
 #ifdef USE_WIDE_CURSES
 #include <wctype.h>
-#define dlg_toupper(ch) towupper(ch)
-#define dlg_isupper(ch) iswupper(ch)
+#define dlg_toupper(ch) towupper((wint_t)ch)
+#define dlg_isupper(ch) iswupper((wint_t)ch)
 #else
 #define dlg_toupper(ch) toupper(ch)
 #define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
