@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.79 2010/01/14 02:01:36 tom Exp $
+ *  $Id: buttons.c,v 1.80 2010/04/27 23:44:42 tom Exp $
  *
  * buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -230,7 +230,7 @@ dlg_button_layout(const char **labels, int *limit)
     int width = 1;
     int gap, margin, step;
 
-    if (labels != 0) {
+    if (labels != 0 && dlg_button_count(labels)) {
 	while (!dlg_button_x_step(labels, width, &gap, &margin, &step))
 	    ++width;
 	width += (4 * MARGIN);

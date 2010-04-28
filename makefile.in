@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.70 2010/02/23 10:30:45 tom Exp $
+# $Id: makefile.in,v 1.71 2010/04/28 00:45:38 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -45,6 +45,9 @@ RANLIB		= @LIB_PREP@
 
 RM		= rm -f
 LINT		= lint
+
+CTAGS		= @CTAGS@
+ETAGS		= @ETAGS@
 
 LIBTOOL		= @LIBTOOL@ @ECHO_LT@
 LIBTOOL_OPTS	= @LIBTOOL_OPTS@
@@ -264,13 +267,13 @@ $(MAN1DIR) \
 $(MAN3DIR) \
 $(BINDIR) \
 $(INCLUDEDIR) \
-$(LIBDIR) : ; $(srcdir)/mkdirs.sh $@
+$(LIBDIR) : ; mkdir -p $@
 
 @MAKE_LOWER_TAGS@tags :
-@MAKE_LOWER_TAGS@	ctags $(SRCS) $(HDRS)
+@MAKE_LOWER_TAGS@	$(CTAGS) $(SRCS) $(HDRS)
 
 @MAKE_LOWER_TAGS@TAGS :
-@MAKE_LOWER_TAGS@	etags $(SRCS) $(HDRS)
+@MAKE_LOWER_TAGS@	$(ETAGS) $(SRCS) $(HDRS)
 
 update-po:
 	rsync -Lrtvz  translationproject.org::tp/latest/dialog/  $(PO_DIR)
