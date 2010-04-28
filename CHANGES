@@ -1,10 +1,29 @@
--- $Id: CHANGES,v 1.293 2010/02/24 10:46:55 Samuel.Martin.Moro Exp $
+-- $Id: CHANGES,v 1.297 2010/04/28 00:59:53 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2010/02/24
+2010/04/27
+	+ several improvements to configure script:
+	  + modify CF_CURSES_TERM_H to handle cases such as cygwin where
+	    packager has installed curses.h and term.h in different
+	    directories, e.g., to wedge in a termcap library.
+	  + modify CF_XOPEN_SOURCE, adding special case for OpenSolaris
+	  + modify CF_MAKE_TAGS to add check for exctags and exetags, prefer to
+	    ctags and etags to work around pkgsrc (NetBSD) renaming.
+	  + correct CF_FIND_LINKAGE, setting cache variable for library_file in
+	    the special case where no directory search is made.
+	  + improve CF_GCC_VERSION, suppress stderr for c89 alias of gcc.
+	  + improve CF_GCC_WARNINGS, moving -W and -Wall into the list to
+	    check, since c89 alias for gcc complains about these options.
+	  + modify CF_HEADER_PATH, to not search for variations of everything
+	    in the current include-path
+	  + use "mkdir -p", remove mkdirs.sh
+	+ modify pause widget to autosize like gauge, and to omit the area for
+	  buttons when none are displayed.
+	+ fix an infinite loop in dlg_button_layout() if there are no buttons
+	  to display (Debian #579390).
 	+ add makefile rules for generating html, etc., documentation from
 	  nroff.
 	> patches by Samuel Martín Moro
