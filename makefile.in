@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.71 2010/04/28 00:45:38 tom Exp $
+# $Id: makefile.in,v 1.72 2010/12/31 01:24:00 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -118,7 +118,7 @@ HDRS = \
 	dlg_config.h \
 	dlg_keys.h
 
-LIB	= @LIB_PREFIX@dialog$a
+LIB	= @LIB_PREFIX@@LIBRARY_NAME@$a
 PROG	= dialog$x
 ALL	= $(LIB) $(PROG)
 
@@ -201,7 +201,7 @@ uninstall-man ::
 # most users do not want/need the library, so the install rules are distinct.
 install-lib :: $(BINDIR) dialog-config
 	@ echo "** installing config script in $(BINDIR)"
-	@ $(INSTALL_SCRIPT) dialog-config $(BINDIR)
+	@ $(INSTALL_SCRIPT) dialog-config $(BINDIR)/$(PACKAGE)-config
 
 install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ echo "** installing library in $(LIBDIR)"
@@ -213,7 +213,7 @@ install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
 
 uninstall-lib :: $(BINDIR)
-	$(RM) $(BINDIR)/dialog-config
+	$(RM) $(BINDIR)/$(PACKAGE)-config
 
 uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(LIBDIR)/$(LIB)

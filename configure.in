@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.57 2010/04/28 20:33:01 tom Exp $
+dnl $Id: configure.in,v 1.58 2010/12/31 01:22:33 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
@@ -37,6 +37,14 @@ CF_XOPEN_SOURCE
 CF_LARGEFILE
 
 CF_WITH_WARNINGS
+
+dnl
+dnl Allow dialog library to be renamed.
+AC_ARG_WITH(library-name,
+	[  --with-library-name=XXX rename dialog library to libXXX.a, etc],
+	[LIBRARY_NAME=$withval],
+	[LIBRARY_NAME=dialog])
+AC_SUBST(LIBRARY_NAME)
 
 dnl
 dnl Checks for libraries.
