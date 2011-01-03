@@ -1,11 +1,10 @@
-dnl $Id: configure.in,v 1.58 2010/12/31 01:22:33 tom Exp $
+dnl $Id: configure.in,v 1.59 2011/01/03 00:04:18 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 AC_PREREQ(2.13.20020210)
 AC_INIT(dialog.h)
 AC_CONFIG_HEADER(dlg_config.h:config.hin)
 
-CF_VERSION_INFO(dialog)
 AC_ARG_PROGRAM
 
 DESTDIR=
@@ -39,12 +38,12 @@ CF_LARGEFILE
 CF_WITH_WARNINGS
 
 dnl
-dnl Allow dialog library to be renamed.
-AC_ARG_WITH(library-name,
-	[  --with-library-name=XXX rename dialog library to libXXX.a, etc],
-	[LIBRARY_NAME=$withval],
-	[LIBRARY_NAME=dialog])
-AC_SUBST(LIBRARY_NAME)
+dnl Allow dialog program and library to be renamed.
+AC_ARG_WITH(package,
+	[  --with-package=XXX      rename dialog to XXX, library to libXXX.a, etc],
+	[PACKAGE=$withval],
+	[PACKAGE=dialog])
+CF_VERSION_INFO(dialog,$PACKAGE)
 
 dnl
 dnl Checks for libraries.

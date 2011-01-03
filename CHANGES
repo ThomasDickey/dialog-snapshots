@@ -1,13 +1,32 @@
--- $Id: CHANGES,v 1.302 2010/12/31 01:20:15 tom Exp $
+-- $Id: CHANGES,v 1.305 2011/01/03 00:55:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2010/12/30
-	+ add --with-library-name option to configure script to allow renaming
-	  of the dialog library, to support the package scripts.
+2011/01/02
+	+ add --with-package option to configure script to allow renaming
+	  of the dialog program and library, to support the package scripts.
 	+ add Debian and RPM package scripts for test-builds.
+	+ several improvements to configure script:
+	  + quote params of ifelse()
+	  + change obsolete ${name-value} to standard ${name:-value}
+	  + use new macros CF_ADD_LIB/CF_ADD_LIBS to enforce consistency.
+	  + AM_GNU_GETTEXT, drop $MKINSTALLDIRS, use "mkdir -p" consistently.
+	  + CF_ADD_SUBDIR_PATH, workaround - if $prefix was not mkdir'd yet, no
+	    directories were added.
+	  + CF_BUNDLED_INTL, add --with-textdomain option, to use with lynx-dev
+	    package
+	  + CF_FIND_LINKAGE, simplify save/restore of $LIBS
+	  + CF_GCC_WARNINGS, fix for Mac OS X (compiler makes conftest.dSYM
+	    directory)
+	  + CF_HEADER_PATH, don't search for variations of everything in the
+	    current include-path
+	  + CF_WITH_CURSES_DIR, move the calls to CF_ADD_INCDIR and
+	    CF_ADD_LIBDIR for the curses-directory here, from
+	    CF_NCURSES_CPPFLAGS and CF_NCURSES_LDFLAGS, so it will work even
+	    with the default checking, e.g., no --with-ncurses, etc.
+	+ updated config.guess, config.sub
 
 2010/04/28
 	+ several improvements to configure script:

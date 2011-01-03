@@ -1,4 +1,4 @@
-Source: dialog
+Source: cdialog
 Maintainer: Thomas E. Dickey <dickey@invisible-island.net>
 Section: misc
 Priority: optional
@@ -6,7 +6,7 @@ Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 5)
 Homepage: http://invisible-island.net/dialog/
 
-Package: dialog
+Package: cdialog
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: dialog - display dialog boxes from shell scripts
@@ -20,3 +20,5 @@ Description: dialog - display dialog boxes from shell scripts
       msgbox (message), passwordbox, passwordform, pause, progressbox,
       radiolist, tailbox, tailboxbg, textbox, timebox, and yesno
       (yes/no).
+ .
+ This package installs as "cdialog" to avoid conflict with other packages.
