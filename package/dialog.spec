@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.1
-%define AppRelease 20101230
+%define AppRelease 20110102
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.4 2010/12/31 01:46:26 tom Exp $
+# $XTermId: dialog.spec,v 1.6 2011/01/03 00:00:17 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -39,7 +39,6 @@ INSTALL_PROGRAM='${INSTALL}' \
 		--bindir=%{_bindir} \
 		--libdir=%{_libdir} \
 		--mandir=%{_mandir} \
-		--program-prefix=c \
 		--with-package=%{ActualProg} \
 		--enable-nls \
 		--enable-widec \

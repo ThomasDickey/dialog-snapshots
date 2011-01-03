@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.72 2010/12/31 01:24:00 tom Exp $
+# $Id: makefile.in,v 1.73 2011/01/02 23:50:19 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -65,7 +65,16 @@ INSTALL_DATA	= @INSTALL_DATA@
 
 LINK		= $(LIBTOOL_LINK)
 
-PACKAGE		= `echo @PACKAGE@ |sed @program_transform_name@`
+# The library is always named for the package, but the program can be further
+# renamed at install time, starting with the package name.
+PACKAGE		= @PACKAGE@
+ACTUAL_PROG	= `echo $(PACKAGE) |sed @program_transform_name@`
+LIB_CONFIG	= $(PACKAGE)-config
+
+# The library name $(LIB) is set at configure/make time, since it is used as a
+# makefile target.  Ditto for $(PROG).
+LIB		= @LIB_PREFIX@@PACKAGE@$a
+PROG		= dialog$x
 #
 # Standard .c to .o compile line.
 #
@@ -118,14 +127,12 @@ HDRS = \
 	dlg_config.h \
 	dlg_keys.h
 
-LIB	= @LIB_PREFIX@@LIBRARY_NAME@$a
-PROG	= dialog$x
-ALL	= $(LIB) $(PROG)
+ALL		= $(LIB) $(PROG)
 
 BIN_DIRS	= $(BINDIR) $(MAN1DIR)
 LIB_DIRS	= $(LIBDIR) $(INCLUDEDIR)
 
-PO_DIR	= $(srcdir)/po
+PO_DIR		= $(srcdir)/po
 
 all	:: $(ALL)
 
@@ -186,22 +193,22 @@ uninstall :: uninstall-bin uninstall-man
 uninstall-full :: uninstall-bin uninstall-man uninstall-lib
 	@echo "made $@"
 
-install-bin : $(PROG) $(BINDIR) 
-	$(INSTALL_PROGRAM) $(PROG) $(BINDIR)/$(PACKAGE)$x
+install-bin : $(PROG) $(BINDIR)
+	$(INSTALL_PROGRAM) $(PROG) $(BINDIR)/$(ACTUAL_PROG)$x
 
 uninstall-bin :
-	$(RM) $(BINDIR)/$(PACKAGE)$x
+	$(RM) $(BINDIR)/$(ACTUAL_PROG)$x
 
 install-man :: $(MAN1DIR)
-	$(INSTALL_DATA) $(srcdir)/dialog.1 $(MAN1DIR)/$(PACKAGE).1
+	$(INSTALL_DATA) $(srcdir)/dialog.1 $(MAN1DIR)/$(ACTUAL_PROG).1
 
 uninstall-man ::
-	$(RM) $(MAN1DIR)/$(PACKAGE).1
+	$(RM) $(MAN1DIR)/$(ACTUAL_PROG).1
 
 # most users do not want/need the library, so the install rules are distinct.
 install-lib :: $(BINDIR) dialog-config
 	@ echo "** installing config script in $(BINDIR)"
-	@ $(INSTALL_SCRIPT) dialog-config $(BINDIR)/$(PACKAGE)-config
+	@ $(INSTALL_SCRIPT) dialog-config $(BINDIR)/$(LIB_CONFIG)
 
 install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ echo "** installing library in $(LIBDIR)"
@@ -213,7 +220,7 @@ install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
 
 uninstall-lib :: $(BINDIR)
-	$(RM) $(BINDIR)/$(PACKAGE)-config
+	$(RM) $(BINDIR)/$(LIB_CONFIG)
 
 uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(LIBDIR)/$(LIB)

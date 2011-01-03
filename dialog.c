@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.177 2010/01/18 09:21:14 tom Exp $
+ * $Id: dialog.c,v 1.178 2011/01/03 01:04:37 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2008,2010	Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1487,8 +1487,8 @@ main(int argc, char *argv[])
 #if defined(ENABLE_NLS)
     /* initialize locale support */
     setlocale(LC_ALL, "");
-    bindtextdomain(PACKAGE, LOCALEDIR);
-    textdomain(PACKAGE);
+    bindtextdomain(NLS_TEXTDOMAIN, LOCALEDIR);
+    textdomain(NLS_TEXTDOMAIN);
 #elif defined(HAVE_SETLOCALE)
     (void) setlocale(LC_ALL, "");
 #endif
