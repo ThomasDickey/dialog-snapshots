@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.1
-%define AppRelease 20110102
+%define AppRelease 20110104
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.6 2011/01/03 00:00:17 tom Exp $
+# $XTermId: dialog.spec,v 1.9 2011/01/04 11:54:24 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -40,6 +40,7 @@ INSTALL_PROGRAM='${INSTALL}' \
 		--libdir=%{_libdir} \
 		--mandir=%{_mandir} \
 		--with-package=%{ActualProg} \
+		--enable-header-subdir \
 		--enable-nls \
 		--enable-widec \
 		--with-libtool \
@@ -64,11 +65,10 @@ strip $RPM_BUILD_ROOT%{_bindir}/%{ActualProg}
 %{_bindir}/%{ActualProg}-config
 %{_mandir}/man1/%{ActualProg}.*
 %{_mandir}/man3/%{ActualProg}.*
-#%{_includedir}/%{ActualProg}.h
-%{_includedir}/dialog.h
-%{_includedir}/dlg_colors.h
-%{_includedir}/dlg_config.h
-%{_includedir}/dlg_keys.h
+%{_includedir}/%{ActualProg}.h
+%{_includedir}/%{ActualProg}/dlg_colors.h
+%{_includedir}/%{ActualProg}/dlg_config.h
+%{_includedir}/%{ActualProg}/dlg_keys.h
 %{_libdir}/lib%{ActualProg}.*
 %{_datadir}/locale/*/LC_MESSAGES/%{ActualProg}.mo 
 

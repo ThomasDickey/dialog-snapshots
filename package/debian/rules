@@ -33,6 +33,7 @@ configure-stamp:
 		--prefix=/usr \
 		--mandir=\$${prefix}/share/man \
 		--enable-nls \
+		--enable-header-subdir \
 		--enable-widec \
 		--with-libtool \
 		--with-ncursesw \

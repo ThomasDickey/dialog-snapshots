@@ -1,6 +1,32 @@
-dnl $Id: configure.in,v 1.59 2011/01/03 00:04:18 tom Exp $
+dnl $Id: configure.in,v 1.60 2011/01/04 10:37:47 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
+dnl ---------------------------------------------------------------------------
+dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
 dnl
+dnl Permission is hereby granted, free of charge, to any person obtaining a
+dnl copy of this software and associated documentation files (the
+dnl "Software"), to deal in the Software without restriction, including
+dnl without limitation the rights to use, copy, modify, merge, publish,
+dnl distribute, distribute with modifications, sublicense, and/or sell
+dnl copies of the Software, and to permit persons to whom the Software is
+dnl furnished to do so, subject to the following conditions:
+dnl 
+dnl The above copyright notice and this permission notice shall be included
+dnl in all copies or portions of the Software.
+dnl 
+dnl THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+dnl OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+dnl MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+dnl IN NO EVENT SHALL THE ABOVE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+dnl DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+dnl OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+dnl THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+dnl 
+dnl Except as contained in this notice, the name(s) of the above copyright
+dnl holders shall not be used in advertising or otherwise to promote the
+dnl sale, use or other dealings in this Software without prior written
+dnl authorization.
+dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.13.20020210)
 AC_INIT(dialog.h)
 AC_CONFIG_HEADER(dlg_config.h:config.hin)
@@ -44,6 +70,16 @@ AC_ARG_WITH(package,
 	[PACKAGE=$withval],
 	[PACKAGE=dialog])
 CF_VERSION_INFO(dialog,$PACKAGE)
+
+dnl
+dnl If package is renamed, it is useful to have the dlg_XXX headers in a
+dnl subdirectory (using the package name) so that multiple versions of the
+dnl headers can coexist.
+AC_ARG_ENABLE(header-subdir,
+	[  --enable-header-subdir  install dlg_XXX headers to subdirectory],
+	[SUB_INC=$enableval],
+	[SUB_INC=no])
+AC_SUBST(SUB_INC)
 
 dnl
 dnl Checks for libraries.
