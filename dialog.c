@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.178 2011/01/03 01:04:37 tom Exp $
+ * $Id: dialog.c,v 1.179 2011/01/04 00:45:07 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -666,7 +666,8 @@ show_result(int ret)
 		  dialog_state.output);
 	    either = TRUE;
 	}
-	if (dialog_vars.input_result[0] != '\0') {
+	if (dialog_vars.input_result != 0
+	    && dialog_vars.input_result[0] != '\0') {
 	    fputs(dialog_vars.input_result, dialog_state.output);
 	    either = TRUE;
 	}
@@ -1664,8 +1665,10 @@ main(int argc, char *argv[])
 						   &offset_add));
 	offset += offset_add;
 
-	if (dialog_vars.input_result != my_buffer)
+	if (dialog_vars.input_result != my_buffer) {
 	    free(dialog_vars.input_result);
+	    dialog_vars.input_result = 0;
+	}
 
 	if (retval == DLG_EXIT_ESC) {
 	    esc_pressed = TRUE;

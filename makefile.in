@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.73 2011/01/02 23:50:19 tom Exp $
+# $Id: makefile.in,v 1.74 2011/01/04 00:25:41 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -34,7 +34,7 @@ MAN3DIR		= $(MANDIR)/man3
 localedir       = $(prefix)/@DATADIRNAME@/locale
 
 CFLAGS		= @CFLAGS@
-CPPFLAGS	= @CPPFLAGS@ @DEFS@ -I. -I$(srcdir) -DLOCALEDIR=\"$(localedir)\"
+CPPFLAGS	= -I. -I$(srcdir) @CPPFLAGS@ @DEFS@ -DLOCALEDIR=\"$(localedir)\"
 EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 CC		= @CC@
 CPP		= @CPP@

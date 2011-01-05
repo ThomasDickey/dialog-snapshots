@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.22 2010/04/28 00:29:50 tom Exp $
+ *  $Id: pause.c,v 1.23 2011/01/03 23:29:17 Creidieki.M.Crouch Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2009,2010	Thomas E. Dickey
+ *  Copyright 2004-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -229,7 +229,6 @@ dialog_pause(const char *title,
 	    case ERR:
 		break;
 	    default:
-		result = DLG_EXIT_OK;
 		break;
 	    }
 	}

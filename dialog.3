@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.49 2010/02/23 10:33:59 tom Exp $
-.\" Copyright 2005-2009,2010  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.52 2011/01/04 09:28:55 tom Exp $
+.\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -15,7 +15,11 @@
 .\"	Free Software Foundation, Inc.
 .\"	51 Franklin St., Fifth Floor
 .\"	Boston, MA 02110, USA.
-.TH DIALOG 3 "" "$Date: 2010/02/23 10:33:59 $"
+.\" Bulleted paragraph
+.de bP
+.IP \(bu 4
+..
+.TH DIALOG 3 "" "$Date: 2011/01/04 09:28:55 $"
 .SH NAME
 dialog \- widgets and utilities for the dialog program
 .SH SYNOPSIS
@@ -342,11 +346,26 @@ This flag is set to denote whether the menubox widget
 implements a menu versus a inputmenu widget.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.input_result
+This may be either a user-supplied buffer,
+or a buffer dynamically allocated by the library,
+depending on \fIDIALOG_VARS.input_length\fP:
+.RS
+.bP
 If \fIDIALOG_VARS.input_length\fP is zero,
 this is a pointer to user buffer (on the stack, or static).
+The buffer size is assumed to be \fBMAX_LEN\fP,
+which is defined in \fI<dialog.h>\fP.
+.bP
 When \fIDIALOG_VARS.input_length\fP is nonzero,
 this is a dynamically-allocated buffer used by the widgets to return
 printable results to the calling application.
+.RE
+.IP
+Certain widgets copy a result to this buffer.
+If the pointer is NULL, or if the length is insufficient for
+the result, then the dialog library allocates a buffer which is large enough,
+and sets \fIDIALOG_VARS.input_length\fP.
+Callers should check for this case if they have supplied their own buffer.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.insecure
 This corresponds to the command-line option "\fB--insecure\fP".
@@ -1406,6 +1425,7 @@ This is set in the rc-file with \fBscreen_color\fP.
 .TP 5
 .B dlg_clr_result
 Free storage used for the result buffer (\fBdialog_vars.input_result\fP).
+The corresponding pointer is set to NULL.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_color_count
@@ -2576,6 +2596,12 @@ Restore dialog's variables from the given variable (see \fBdialog_save_vars\fP).
 .B DIALOG_VARS * \fIsave
 is the variable from which to restore.
 .RE
+.IP
+The 
+\fIDIALOG_VARS.input_length\fP and
+\fIDIALOG_VARS.input_result\fP members are treated specially,
+since these are used by a widget to pass data to the caller.
+They are not modified by this function.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_result_key

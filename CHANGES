@@ -1,10 +1,22 @@
--- $Id: CHANGES,v 1.305 2011/01/03 00:55:12 tom Exp $
+-- $Id: CHANGES,v 1.310 2011/01/04 10:36:06 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/01/02
+2011/01/04
+	+ add configure option --enable-header-subdir to allow the header files
+	  to be installed into a subdirectory named for the package.
+	+ modify dlg_restore_vars() to retain the updated values of
+	  input_result and input_length, eliminating the need for a caller to
+	  provide their own user buffer (prompted by report by Thiago Bimbatti
+	  Felicio).
+	+ add a null-pointer check in show_result() for
+	  dialog_vars.input_result, and ensure it is set to null after freeing
+	  (prompted by report by Thiago Bimbatti Felicio).
+	+ change order of -I options in CPPFLAGS (report by Michel Feldheim)
+	+ modify pause-widget so that it no longer exits when an unrecognized
+	  key is pressed (patch by Creidieki M Crouch).
 	+ add --with-package option to configure script to allow renaming
 	  of the dialog program and library, to support the package scripts.
 	+ add Debian and RPM package scripts for test-builds.
@@ -302,7 +314,7 @@ to it:
 	+ make --program-prefix, etc., work in configure script, e.g., to make
 	  program install as "cdialog".  This does not alter the library name.
 	+ add install-bin, install-man (and uninstall) rules to makefile.
-	+ updates for configure script macros (originally vile, lynx, xterm): 
+	+ updates for configure script macros (originally vile, lynx, xterm):
 	  AM_PATH_PROG_WITH_TEST, AM_WITH_NLS, CF_CURSES_CPPFLAGS,
 	  CF_CURSES_LIBS, CF_INCLUDE_DIRS, CF_LARGEFILE, CF_MAKEFLAGS,
 	  CF_PATH_SYNTAX, CF_SUBDIR_PATH, CF_SUBST, CF_WITH_DBMALLOC,
@@ -431,7 +443,7 @@ to it:
 	+ fix marker in textbox.c to make it disappear at the top of the file
 	  (report by Patrick J. Volkerding).
 	+ fix marker shown in arrows.c for checklists, etc., which was "(+)"
-	  where it should have been "(-)" (report/patch by Patrick J. 
+	  where it should have been "(-)" (report/patch by Patrick J.
 	  Volkerding).
 	+ fix --input-fd (changes in glibc since 2003 made dialog hang on exit
 	  due to the way dialog updated stdin).

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.201 2010/04/28 21:12:42 tom Exp $
+ *  $Id: util.c,v 1.203 2011/01/05 01:09:53 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1964,14 +1964,14 @@ dlg_add_result(const char *string)
 	if (dialog_vars.input_length == 0
 	    || dialog_vars.input_result == 0) {
 
-	    char *save = dialog_vars.input_result;
+	    char *save_result = dialog_vars.input_result;
 
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = dlg_malloc(char, dialog_vars.input_length);
 	    assert_ptr(dialog_vars.input_result, "dlg_add_result malloc");
-	    dialog_vars.input_result[0] = 0;
-	    if (save != 0)
-		strcpy(dialog_vars.input_result, save);
+	    dialog_vars.input_result[0] = '\0';
+	    if (save_result != 0)
+		strcpy(dialog_vars.input_result, save_result);
 	} else if (want >= dialog_vars.input_length) {
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = dlg_realloc(char,
@@ -2096,10 +2096,20 @@ dlg_save_vars(DIALOG_VARS * vars)
     *vars = dialog_vars;
 }
 
+/*
+ * Most of the data in DIALOG_VARS is normally set by command-line options.
+ * The input_result member is an exception; it is normally set by the dialog
+ * library to return result values.
+ */
 void
 dlg_restore_vars(DIALOG_VARS * vars)
 {
+    char *save_result = dialog_vars.input_result;
+    unsigned save_length = dialog_vars.input_length;
+
     dialog_vars = *vars;
+    dialog_vars.input_result = save_result;
+    dialog_vars.input_length = save_length;
 }
 
 /*
