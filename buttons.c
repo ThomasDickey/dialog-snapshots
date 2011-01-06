@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.81 2010/04/28 20:57:29 tom Exp $
+ *  $Id: buttons.c,v 1.82 2011/01/06 01:39:29 tom Exp $
  *
- * buttons.c -- draw buttons, e.g., OK/Cancel
+ *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- * Copyright 2000-2007,2010 Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -252,7 +252,7 @@ dlg_draw_buttons(WINDOW *win,
 		 int vertical,
 		 int limit)
 {
-    chtype save = getattrs(win);
+    chtype save = (chtype) getattrs(win);
     int n;
     int step = 0;
     int length;

@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.56 2010/04/28 20:52:20 tom Exp $
+ *  $Id: tailbox.c,v 1.57 2011/01/06 01:39:29 tom Exp $
  *
- * tailbox.c -- implements the tail box
+ *  tailbox.c -- implements the tail box
  *
- * Copyright 2000-2009,2010 Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -106,10 +106,11 @@ static void
 last_lines(MY_OBJ * obj, int target)
 {
     FILE *fp = obj->obj.input;
-    long inx;
+    size_t inx;
     int count = 0;
     char buf[BUFSIZ + 1];
-    long size_to_read;
+    size_t size_to_read;
+    size_t size_as_read;
     long offset = 0;
     long fpos = 0;
 
@@ -123,21 +124,27 @@ last_lines(MY_OBJ * obj, int target)
 	    if (fpos >= BUFSIZ) {
 		size_to_read = BUFSIZ;
 	    } else {
-		size_to_read = fpos;
+		size_to_read = (size_t) fpos;
 	    }
-	    fpos = fpos - size_to_read;
+	    fpos = fpos - (long) size_to_read;
 	    if (fseek(fp, fpos, SEEK_SET) == -1)
 		dlg_exiterr("Error moving file pointer in last_lines().");
-	    (void) fread(buf, (size_t) size_to_read, 1, fp);
+	    size_as_read = fread(buf, sizeof(char), size_to_read, fp);
 	    if (ferror(fp))
 		dlg_exiterr("Error reading file in last_lines().");
 
-	    offset += size_to_read;
-	    for (inx = size_to_read - 1; inx >= 0; --inx) {
+	    if (size_as_read == 0) {
+		fpos = 0;
+		offset = 0;
+		break;
+	    }
+
+	    offset += (long) size_as_read;
+	    for (inx = size_as_read - 1; inx != 0; --inx) {
 		if (buf[inx] == '\n') {
 		    if (++count > target)
 			break;
-		    offset = inx + 1;
+		    offset = (long) (inx + 1);
 		}
 	    }
 
