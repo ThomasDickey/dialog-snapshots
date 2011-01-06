@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.121 2010/01/17 19:32:17 tom Exp $
+ *  $Id: checklist.c,v 1.122 2011/01/06 01:38:12 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2009,2010	Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -73,7 +73,7 @@ print_item(WINDOW *win,
 	   int choice,
 	   int selected)
 {
-    chtype save = getattrs(win);
+    chtype save = (chtype) getattrs(win);
     int i;
     chtype attr = A_NORMAL;
     const int *cols;

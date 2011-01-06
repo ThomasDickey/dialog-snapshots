@@ -1,10 +1,10 @@
--- $Id: CHANGES,v 1.310 2011/01/04 10:36:06 tom Exp $
+-- $Id: CHANGES,v 1.311 2011/01/05 10:37:17 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/01/04
+2011/01/05
 	+ add configure option --enable-header-subdir to allow the header files
 	  to be installed into a subdirectory named for the package.
 	+ modify dlg_restore_vars() to retain the updated values of

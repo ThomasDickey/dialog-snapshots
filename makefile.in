@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.74 2011/01/04 00:25:41 tom Exp $
+# $Id: makefile.in,v 1.75 2011/01/05 10:31:50 tom Exp $
 # template makefile for DIALOG
 #
 SHELL		= /bin/sh
@@ -151,7 +151,7 @@ $(LIB) : $(LIB_OBJECT)
 	$(RANLIB) $@
 
 dialog$x : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
-	$(LINK) -o $@ dialog$o -L. -ldialog $(LDFLAGS) $(LIBS)
+	$(LINK) -o $@ dialog$o -L. -l@PACKAGE@ $(LDFLAGS) $(LIBS)
 
 clean	\
 distclean \

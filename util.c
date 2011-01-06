@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.203 2011/01/05 01:09:53 tom Exp $
+ *  $Id: util.c,v 1.204 2011/01/06 01:38:12 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2008,2010	Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -436,7 +436,7 @@ dlg_color_pair(int foreground, int background)
 static chtype
 define_color(WINDOW *win, int foreground)
 {
-    chtype attrs = getattrs(win);
+    chtype attrs = (chtype) getattrs(win);
     int pair;
     short fg, bg, background;
 
@@ -1142,7 +1142,7 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
 	     chtype boxchar, chtype borderchar)
 {
     int i, j;
-    chtype save = getattrs(win);
+    chtype save = (chtype) getattrs(win);
 
     wattrset(win, 0);
     for (i = 0; i < height; i++) {
@@ -1179,7 +1179,7 @@ static void
 draw_childs_shadow(WINDOW *parent, WINDOW *child)
 {
     if (has_colors()) {		/* Whether terminal supports color? */
-	chtype save = getattrs(parent);
+	chtype save = (chtype) getattrs(parent);
 
 	dlg_draw_shadow(parent,
 			getbegy(child) - getbegy(parent),
@@ -1509,7 +1509,7 @@ dlg_draw_title(WINDOW *win, const char *title)
 {
     if (title != NULL) {
 	chtype attr = A_NORMAL;
-	chtype save = getattrs(win);
+	chtype save = (chtype) getattrs(win);
 	int x = centered(getmaxx(win), title);
 
 	wattrset(win, title_attr);

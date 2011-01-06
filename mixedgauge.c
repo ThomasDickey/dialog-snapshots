@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedgauge.c,v 1.18 2010/01/15 23:43:53 tom Exp $
+ *  $Id: mixedgauge.c,v 1.19 2011/01/06 01:38:12 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
- *  Copyright 2007,2010	Thomas E. Dickey
+ *  Copyright 2007-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -191,7 +191,7 @@ mydraw_mixed_box(WINDOW *win, int y, int x, int height, int width,
     {
 	chtype attr = A_NORMAL;
 	char *message = _("Overall Progress");
-	chtype save2 = getattrs(win);
+	chtype save2 = (chtype) getattrs(win);
 	wattrset(win, title_attr);
 	(void) wmove(win, y, x + 2);
 	dlg_print_text(win, message, width, &attr);
