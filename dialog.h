@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.214 2010/04/28 21:11:49 tom Exp $
+ *  $Id: dialog.h,v 1.215 2011/01/06 09:52:56 tom Exp $
  *
  * dialog.h -- common declarations for all dialog modules
  *
@@ -389,6 +389,8 @@ typedef struct {
 #ifdef HAVE_DLG_TRACE
     FILE *trace_output;		/* option "--trace file" */
 #endif
+    /* 1.1-20110106 */
+    bool no_mouse;		/* option "--no-mouse" */
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;
