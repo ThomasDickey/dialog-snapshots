@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.179 2011/01/04 00:45:07 tom Exp $
+ * $Id: dialog.c,v 1.181 2011/01/06 09:54:18 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -95,6 +95,7 @@ typedef enum {
     ,o_no_kill
     ,o_no_label
     ,o_no_lines
+    ,o_no_mouse
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
@@ -235,6 +236,7 @@ static const Options options[] = {
     { "no-kill",	o_no_kill,		1, "" },
     { "no-label",	o_no_label,		1, "<str>" },
     { "no-lines",	o_no_lines, 		1, "" },
+    { "no-mouse",	o_no_mouse,		1, "" },
     { "no-ok",		o_nook,			1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
@@ -1136,7 +1138,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright 2000-2007,2008 Thomas E. Dickey",
+	"Copyright 2000-2008,2011 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
@@ -1389,6 +1391,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	case o_no_lines:
 	    dialog_vars.no_lines = TRUE;
 	    dialog_vars.ascii_lines = FALSE;
+	    break;
+	case o_no_mouse:
+	    dialog_state.no_mouse = TRUE;
 	    break;
 	case o_noitem:
 	case o_fullbutton:

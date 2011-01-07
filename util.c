@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.204 2011/01/06 01:38:12 tom Exp $
+ *  $Id: util.c,v 1.205 2011/01/06 09:53:13 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -327,7 +327,10 @@ init_dialog(FILE *input, FILE *output)
     (void) keypad(stdscr, TRUE);
     (void) cbreak();
     (void) noecho();
-    mouse_open();
+
+    if (!dialog_state.no_mouse)
+	mouse_open();
+
     dialog_state.screen_initialized = TRUE;
 
 #ifdef HAVE_COLOR
