@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.215 2011/01/06 09:52:56 tom Exp $
+ *  $Id: dialog.h,v 1.217 2011/01/09 15:41:57 tom Exp $
  *
- * dialog.h -- common declarations for all dialog modules
+ *  dialog.h -- common declarations for all dialog modules
  *
- * Copyright 2000-2008,2010 Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -155,7 +155,7 @@
 #define DEFAULT_ASPECT_RATIO 9
 /* how many spaces is a tab long (default)? */
 #define TAB_LEN 8
-#define WTIMEOUT_VAL        10
+#define WTIMEOUT_VAL        10	/* minimum amount of time needed for curses */
 
 #ifndef A_CHARTEXT
 #define A_CHARTEXT 0xff
@@ -357,6 +357,9 @@ typedef struct _dlg_callback {
     /* data for dlg_add_callback_ref */
     struct _dlg_callback **caller;
     DIALOG_FREEBACK freeback;
+    /* 1.1-20110107 */
+    bool (*handle_input)(struct _dlg_callback *p);
+    bool input_ready;
 } DIALOG_CALLBACK;
 
 typedef struct _dlg_windows {

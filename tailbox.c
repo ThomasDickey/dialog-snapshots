@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.57 2011/01/06 01:39:29 tom Exp $
+ *  $Id: tailbox.c,v 1.59 2011/01/13 10:00:15 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -34,6 +34,7 @@ typedef struct {
     int hscroll;
     int old_hscroll;
     char line[MAX_LEN + 1];
+    off_t last_pos;
 } MY_OBJ;
 
 /*
@@ -188,13 +189,32 @@ print_last_page(MY_OBJ * obj)
 static void
 repaint_text(MY_OBJ * obj)
 {
+    FILE *fp = obj->obj.input;
     int cur_y, cur_x;
 
     getyx(obj->obj.win, cur_y, cur_x);
     obj->old_hscroll = obj->hscroll;
+
     print_last_page(obj);
+    obj->last_pos = ftell(fp);
+
     (void) wmove(obj->obj.win, cur_y, cur_x);	/* Restore cursor position */
     wrefresh(obj->obj.win);
+}
+
+static bool
+handle_input(DIALOG_CALLBACK * cb)
+{
+    MY_OBJ *obj = (MY_OBJ *) cb;
+    FILE *fp = obj->obj.input;
+    struct stat sb;
+
+    if (fstat(fileno(fp), &sb) == 0
+	&& sb.st_size != obj->last_pos) {
+	repaint_text(obj);
+    }
+
+    return TRUE;
 }
 
 static bool
@@ -238,8 +258,8 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 	    clearerr(cb->input);
 	    ch = getc(cb->input);
 	    (void) ungetc(ch, cb->input);
-	    if ((ch != EOF) || (obj->hscroll != obj->old_hscroll)) {
-		repaint_text(obj);
+	    if (ch != EOF) {
+		handle_input(cb);
 	    }
 	    break;
 	case ESC:
@@ -334,6 +354,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     obj->obj.input = fd;
     obj->obj.win = dialog;
     obj->obj.handle_getc = handle_my_getc;
+    obj->obj.handle_input = bg_task ? handle_input : 0;
     obj->obj.keep_bg = bg_task && dialog_vars.cant_kill;
     obj->obj.bg_task = bg_task;
     obj->text = text;
