@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.45 2010/01/19 09:15:20 tom Exp $
+ *  $Id: guage.c,v 1.48 2011/01/09 16:27:04 tom Exp $
  *
- * guage.c -- implements the gauge dialog
+ *  guage.c -- implements the gauge dialog
  *
- * Copyright 2000-2007,2010 Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -38,7 +38,6 @@
 typedef struct {
     DIALOG_CALLBACK obj;
     WINDOW *text;
-    bool done;
     const char *title;
     char *prompt;
     char prompt_buf[MY_LEN];
@@ -133,9 +132,11 @@ repaint_text(MY_OBJ * obj)
     (void) wrefresh(dialog);
 }
 
-static int
-handle_input(MY_OBJ * obj)
+static bool
+handle_input(DIALOG_CALLBACK * cb)
 {
+    MY_OBJ *obj = (MY_OBJ *) cb;
+    bool result;
     int status;
     char buf[MY_LEN];
 
@@ -172,24 +173,28 @@ handle_input(MY_OBJ * obj)
 	    obj->percent = atoi(buf);
 	}
     } else {
-	obj->done = TRUE;
+	dlg_remove_callback(cb);
     }
 
-    return status;
+    if (status > 0) {
+	result = TRUE;
+	repaint_text(obj);
+    } else {
+	result = FALSE;
+    }
+
+    return result;
 }
 
 static bool
 handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 {
-    MY_OBJ *obj = (MY_OBJ *) cb;
     int status = TRUE;
 
     *result = DLG_EXIT_OK;
-    if (obj != 0) {
+    if (cb != 0) {
 	if (!fkey && (ch == ERR)) {
-	    if (handle_input(obj) > 0)
-		repaint_text(obj);
-	    else
+	    if (!handle_input(cb))
 		status = FALSE;
 	}
     } else {
@@ -265,6 +270,7 @@ dialog_gauge(const char *title,
 	obj->obj.keep_win = TRUE;
 	obj->obj.bg_task = TRUE;
 	obj->obj.handle_getc = handle_my_getc;
+	obj->obj.handle_input = handle_input;
 	obj->title = title;
 	obj->prompt = prompt;
 	obj->percent = percent;
