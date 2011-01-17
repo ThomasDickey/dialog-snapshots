@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.217 2011/01/09 15:41:57 tom Exp $
+ *  $Id: dialog.h,v 1.219 2011/01/17 00:06:40 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -143,7 +143,7 @@
 #define ARROWS_COL  5
 
 #define MAX_LEN 2048
-#define BUF_SIZE (10*1024)
+#define BUF_SIZE (10L*1024)
 
 #undef  MIN
 #define MIN(x,y) ((x) < (y) ? (x) : (y))
@@ -336,6 +336,7 @@ extern int dlg_getpary(WINDOW * /*win*/);
 #define form_active_text_attr         DIALOG_ATR(30)
 #define form_text_attr                DIALOG_ATR(31)
 #define form_item_readonly_attr       DIALOG_ATR(32)
+#define gauge_attr                    DIALOG_ATR(33)
 
 #define DLGK_max (KEY_MAX + 256)
 
@@ -478,8 +479,8 @@ extern DIALOG_VARS dialog_vars;
 
 #define assert_ptr(ptr,msg) if ((ptr) == 0) dlg_exiterr("cannot allocate memory in " msg)
 
-#define dlg_malloc(t,n)    (t *) malloc((n) * sizeof(t))
-#define dlg_calloc(t,n)    (t *) calloc((n), sizeof(t))
+#define dlg_malloc(t,n)    (t *) malloc((size_t)(n) * sizeof(t))
+#define dlg_calloc(t,n)    (t *) calloc((size_t)(n), sizeof(t))
 #define dlg_realloc(t,n,p) (t *) realloc((p), (n) * sizeof(t))
 
 /*

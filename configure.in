@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.60 2011/01/04 10:37:47 tom Exp $
+dnl $Id: configure.in,v 1.61 2011/01/16 19:55:00 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
@@ -218,6 +218,7 @@ wget_wch \
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
 CF_CURSES_CHTYPE
+CF_CURSES_WACS_SYMBOLS
 CF_FUNC_WAIT
 CF_MBSTATE_T
 

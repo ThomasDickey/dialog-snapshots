@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.19 2011/01/06 01:38:12 tom Exp $
+ *  $Id: mixedgauge.c,v 1.22 2011/01/17 00:05:29 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -89,7 +89,7 @@ status_string(char *given, char **freeMe)
 	    break;
 	}
     } else if (*given == '-') {
-	unsigned need = strlen(++given);
+	size_t need = strlen(++given);
 	char *temp = dlg_malloc(char, need);
 	*freeMe = temp;
 	sprintf(temp, "%3s%%", given);
@@ -190,7 +190,7 @@ mydraw_mixed_box(WINDOW *win, int y, int x, int height, int width,
     dlg_draw_box(win, y, x, height, width, boxchar, borderchar);
     {
 	chtype attr = A_NORMAL;
-	char *message = _("Overall Progress");
+	const char *message = _("Overall Progress");
 	chtype save2 = (chtype) getattrs(win);
 	wattrset(win, title_attr);
 	(void) wmove(win, y, x + 2);
@@ -223,7 +223,7 @@ dlg_update_mixedgauge(DIALOG_MIXEDGAUGE * dlg, int percent)
      * attribute.
      */
     (void) wmove(dlg->dialog, dlg->height - 3, 4);
-    wattrset(dlg->dialog, title_attr);
+    wattrset(dlg->dialog, gauge_attr);
 
     for (i = 0; i < (dlg->width - 2 * (3 + MARGIN)); i++)
 	(void) waddch(dlg->dialog, ' ');

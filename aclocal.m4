@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.77 2011/01/03 00:58:25 tom Exp $
+dnl $Id: aclocal.m4,v 1.79 2011/01/16 22:44:00 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
 dnl
@@ -1219,7 +1219,7 @@ fi
 AC_CHECK_HEADERS($cf_cv_ncurses_header)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_LIBS version: 31 updated: 2010/10/23 15:54:49
+dnl CF_CURSES_LIBS version: 32 updated: 2011/01/16 17:43:15
 dnl --------------
 dnl Look for the curses libraries.  Older curses implementations may require
 dnl termcap/termlib to be linked as well.  Call CF_CURSES_CPPFLAGS first.
@@ -1250,8 +1250,20 @@ hpux10.*) #(vi
         ac_cv_func_initscr=yes
         ])])
     ;;
-linux*) # Suse Linux does not follow /usr/lib convention
-    CF_ADD_LIBDIR(/lib)
+linux*)
+	case `arch` in
+	x86_64)
+		if test -d /lib64
+		then
+			CF_ADD_LIBDIR(/lib64)
+		else
+			CF_ADD_LIBDIR(/lib)
+		fi
+		;;
+	*)
+		CF_ADD_LIBDIR(/lib)
+		;;
+	esac
     ;;
 sunos3*|sunos4*)
     if test -d /usr/5lib ; then
@@ -1381,6 +1393,63 @@ ncursesw/term.h)
 	AC_DEFINE(HAVE_NCURSESW_TERM_H)
 	;;
 esac
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CURSES_WACS_MAP version: 5 updated: 2011/01/15 11:28:59
+dnl ------------------
+dnl Check for likely values of wacs_map[].
+AC_DEFUN([CF_CURSES_WACS_MAP],
+[
+AC_CACHE_CHECK(for wide alternate character set array, cf_cv_curses_wacs_map,[
+	cf_cv_curses_wacs_map=unknown
+	for name in wacs_map _wacs_map __wacs_map _nc_wacs _wacs_char
+	do
+	AC_TRY_LINK([
+#ifndef _XOPEN_SOURCE_EXTENDED
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+#include <${cf_cv_ncurses_header:-curses.h}>],
+	[void *foo = &($name['k'])],
+	[cf_cv_curses_wacs_map=$name
+	 break])
+	done])
+
+test "$cf_cv_curses_wacs_map" != unknown && AC_DEFINE_UNQUOTED(CURSES_WACS_ARRAY,$cf_cv_curses_wacs_map)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CURSES_WACS_SYMBOLS version: 1 updated: 2011/01/15 11:28:59
+dnl ----------------------
+dnl Do a check to see if the WACS_xxx constants are defined compatibly with
+dnl X/Open Curses.  In particular, NetBSD's implementation of the WACS_xxx
+dnl constants is broken since those constants do not point to cchar_t's.
+AC_DEFUN([CF_CURSES_WACS_SYMBOLS],
+[
+AC_REQUIRE([CF_CURSES_WACS_MAP])
+
+AC_CACHE_CHECK(for wide alternate character constants, cf_cv_curses_wacs_symbols,[
+cf_cv_curses_wacs_symbols=no
+if test "$cf_cv_curses_wacs_map" != unknown
+then
+	AC_TRY_LINK([
+#ifndef _XOPEN_SOURCE_EXTENDED
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+#include <${cf_cv_ncurses_header:-curses.h}>],
+	[cchar_t *foo = WACS_PLUS;
+	 $cf_cv_curses_wacs_map['k'] = *WACS_PLUS],
+	[cf_cv_curses_wacs_symbols=yes])
+else
+	AC_TRY_LINK([
+#ifndef _XOPEN_SOURCE_EXTENDED
+#define _XOPEN_SOURCE_EXTENDED
+#endif
+#include <${cf_cv_ncurses_header:-curses.h}>],
+	[cchar_t *foo = WACS_PLUS],
+	[cf_cv_curses_wacs_symbols=yes])
+fi
+])
+
+test "$cf_cv_curses_wacs_symbols" != no && AC_DEFINE(CURSES_WACS_SYMBOLS)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_DIRNAME version: 4 updated: 2002/12/21 19:25:52

@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.59 2011/01/13 10:00:15 tom Exp $
+ *  $Id: tailbox.c,v 1.61 2011/01/16 21:48:16 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -26,6 +26,7 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+#include <sys/stat.h>
 
 typedef struct {
     DIALOG_CALLBACK obj;
@@ -115,7 +116,7 @@ last_lines(MY_OBJ * obj, int target)
     long offset = 0;
     long fpos = 0;
 
-    if (fseek(fp, 0, SEEK_END) == -1
+    if (fseek(fp, 0L, SEEK_END) == -1
 	|| (fpos = ftell(fp)) < 0)
 	dlg_exiterr("Error moving file pointer in last_lines().");
 

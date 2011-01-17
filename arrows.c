@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.30 2011/01/06 01:39:29 tom Exp $
+ *  $Id: arrows.c,v 1.32 2011/01/16 21:49:48 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -24,6 +24,13 @@
 #include <dialog.h>
 
 #ifdef USE_WIDE_CURSES
+#if defined(CURSES_WACS_ARRAY) && !defined(CURSES_WACS_SYMBOLS)
+/* workaround for NetBSD 5.1 curses */
+#undef WACS_DARROW
+#undef WACS_UARROW
+#define WACS_DARROW &(CURSES_WACS_ARRAY['.'])
+#define WACS_UARROW &(CURSES_WACS_ARRAY['-'])
+#endif
 #define add_acs(win, code) wadd_wch(win, W ## code)
 #else
 #define add_acs(win, code) waddch(win, dlg_boxchar(code))
@@ -154,7 +161,7 @@ dlg_draw_scrollbar(WINDOW *win,
 	    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
 	}
     }
-#define BARSIZE(num) ((all_high * (num)) + all_high - 1) / total_data
+#define BARSIZE(num) (int) (((all_high * (num)) + all_high - 1) / total_data)
 
     if (dialog_state.use_scrollbar) {
 	int all_high = (bottom - top - 1);

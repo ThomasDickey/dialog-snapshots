@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.181 2011/01/06 09:54:18 tom Exp $
+ * $Id: dialog.c,v 1.183 2011/01/16 22:44:41 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -455,7 +455,7 @@ unescape_argv(int *argcp, char ***argvp)
 			assert_ptr(blob, "unescape_argv");
 			bytes_read = fread(blob + length,
 					   sizeof(char),
-					   BUFSIZ,
+					     (size_t) BUFSIZ,
 					   fp);
 			length += bytes_read;
 			if (ferror(fp))
@@ -507,7 +507,7 @@ unescape_argv(int *argcp, char ***argvp)
 	}
 	if (!escaped
 	    && (*argvp)[j] != 0
-	    && !strncmp((*argvp)[j], "--", 2)
+	    && !strncmp((*argvp)[j], "--", (size_t) 2)
 	    && isalpha(UCH((*argvp)[j][2]))) {
 	    dialog_opts[j] = TRUE;
 	}
@@ -540,7 +540,7 @@ isOption(const char *arg)
 		    break;
 		}
 	    }
-	} else if (!strncmp(arg, "--", 2) && isalpha(UCH(arg[2]))) {
+	} else if (!strncmp(arg, "--", (size_t) 2) && isalpha(UCH(arg[2]))) {
 	    result = TRUE;
 	}
     }
@@ -616,7 +616,7 @@ static int
 numeric_arg(char **av, int n)
 {
     char *last = 0;
-    int result = strtol(av[n], &last, 10);
+    int result = (int) strtol(av[n], &last, 10);
     char msg[80];
 
     if (last == 0 || *last != 0) {
@@ -743,24 +743,33 @@ static int
 call_inputmenu(CALLARGS)
 {
     int tags = howmany_tags(av + 5, MENUBOX_TAGS);
+    bool free_extra_label = FALSE;
+    int result;
 
     dialog_vars.input_menu = TRUE;
 
     if (dialog_vars.max_input == 0)
 	dialog_vars.max_input = MAX_LEN / 2;
 
-    if (dialog_vars.extra_label == 0)
-	dialog_vars.extra_label = _("Rename");
+    if (dialog_vars.extra_label == 0) {
+	free_extra_label = TRUE;
+	dialog_vars.extra_label = dlg_strclone(_("Rename"));
+    }
 
     dialog_vars.extra_button = TRUE;
 
     *offset_add = 5 + tags * MENUBOX_TAGS;
-    return dialog_menu(t,
-		       av[1],
-		       numeric_arg(av, 2),
-		       numeric_arg(av, 3),
-		       numeric_arg(av, 4),
-		       tags, av + 5);
+    result = dialog_menu(t,
+			 av[1],
+			 numeric_arg(av, 2),
+			 numeric_arg(av, 3),
+			 numeric_arg(av, 4),
+			 tags, av + 5);
+    if (free_extra_label) {
+	free(dialog_vars.extra_label);
+	dialog_vars.extra_label = 0;
+    }
+    return result;
 }
 
 static int
@@ -1070,7 +1079,7 @@ optionValue(char **argv, int *num)
     int result = 0;
 
     if (src != 0) {
-	result = strtol(src, &tmp, 0);
+	result = (int) strtol(src, &tmp, 0);
 	if (tmp == 0 || *tmp != 0)
 	    src = 0;
     }
@@ -1159,8 +1168,8 @@ Help(void)
 	"Global-auto-size if also menu_height/list_height = 0.",
 	0
     };
-    unsigned limit = sizeof(options) / sizeof(options[0]);
-    unsigned j, k;
+    size_t limit = sizeof(options) / sizeof(options[0]);
+    size_t j, k;
     const Options **opts;
 
     opts = dlg_calloc(const Options *, limit);
@@ -1175,7 +1184,7 @@ Help(void)
     for (j = k = 0; j < limit; j++) {
 	if ((opts[j]->pass & 1)
 	    && opts[j]->help != 0) {
-	    unsigned len = 6 + strlen(opts[j]->name) + strlen(opts[j]->help);
+	    size_t len = 6 + strlen(opts[j]->name) + strlen(opts[j]->help);
 	    k += len;
 	    if (k > 75) {
 		fprintf(dialog_state.output, "\n ");

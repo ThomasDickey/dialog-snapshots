@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.122 2011/01/06 01:38:12 tom Exp $
+ *  $Id: checklist.c,v 1.123 2011/01/14 01:20:52 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -50,10 +50,10 @@ print_arrows(WINDOW *win,
 	     int list_height)
 {
     dlg_draw_scrollbar(win,
-		       scrollamt,
-		       scrollamt,
-		       scrollamt + choice,
-		       item_no,
+		       (long) (scrollamt),
+		       (long) (scrollamt),
+		       (long) (scrollamt + choice),
+		       (long) (item_no),
 		       box_x + check_x,
 		       box_x + list_width,
 		       box_y,
@@ -643,7 +643,7 @@ dialog_checklist(const char *title,
 			     : dlg_strempty());
 	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
     }
-    dlg_align_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
+    dlg_align_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
 
     result = dlg_checklist(title,
 			   cprompt,
@@ -706,7 +706,7 @@ dialog_checklist(const char *title,
 	}
     }
 
-    dlg_free_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
+    dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
     free(listitems);
     return result;
 }
