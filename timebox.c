@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.41 2010/01/18 10:33:42 tom Exp $
+ * $Id: timebox.c,v 1.42 2011/01/14 10:50:13 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2009,2010   Thomas E. Dickey
+ *  Copyright 2001-2010,2011   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -97,6 +97,8 @@ init_object(BOX * data,
 	    int period, int value,
 	    int code)
 {
+    (void) code;
+
     data->parent = parent;
     data->x = x;
     data->y = y;

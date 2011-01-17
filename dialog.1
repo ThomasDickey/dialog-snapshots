@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.123 2011/01/06 22:29:38 tom Exp $
+.\" $Id: dialog.1,v 1.124 2011/01/16 20:51:05 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/01/06 22:29:38 $"
+.TH \*D 1 "" "$Date: 2011/01/16 20:51:05 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -1162,8 +1162,8 @@ This interferes with \fB\*p\fP's \fB--input-fd\fP option,
 by preventing cursor-keys and similar escape sequences from being recognized.
 .TP 3
 -
-NetBSD curses does not support subwindows of subwindows.
-\fB\*p\fP will not display shadows of windows.
+NetBSD 5.1 curses has incomplete support for wide-characters.
+\fB\*p\fP will build, but not all examples display properly.
 .RE
 .\" ************************************************************************
 .SH COMPATIBILITY

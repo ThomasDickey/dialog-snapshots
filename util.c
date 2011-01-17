@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.205 2011/01/06 09:53:13 tom Exp $
+ *  $Id: util.c,v 1.208 2011/01/17 00:10:11 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -99,7 +99,8 @@ DIALOG_COLORS dlg_color_table[] =
     DATA(A_NORMAL,	ITEMHELP,		itemhelp, "Item help-text"),
     DATA(A_BOLD,	FORM_ACTIVE_TEXT,	form_active_text, "Active form text"),
     DATA(A_REVERSE,	FORM_TEXT,		form_text, "Form text"),
-    DATA(A_NORMAL,	FORM_ITEM_READONLY,	form_item_readonly, "Readonly form item") 
+    DATA(A_NORMAL,	FORM_ITEM_READONLY,	form_item_readonly, "Readonly form item"),
+    DATA(A_REVERSE,	GAUGE,			gauge, "Dialog box gauge")
 };
 /* *INDENT-ON* */
 
@@ -328,8 +329,9 @@ init_dialog(FILE *input, FILE *output)
     (void) cbreak();
     (void) noecho();
 
-    if (!dialog_state.no_mouse)
+    if (!dialog_state.no_mouse) {
 	mouse_open();
+    }
 
     dialog_state.screen_initialized = TRUE;
 
@@ -777,6 +779,8 @@ dlg_print_scrolled(WINDOW *win,
     int oldy, oldx;
     int last = 0;
 
+    (void) pauseopt;		/* used only for ncurses */
+
     getyx(win, oldy, oldx);
 #ifdef NCURSES_VERSION
     if (pauseopt) {
@@ -1108,12 +1112,12 @@ dlg_auto_sizefile(const char *title,
 		offset++;
 
 	if (offset > len)
-	    len = offset;
+	    len = (int) offset;
 
 	count++;
     }
 
-    /* now 'count' has the number of lines of fd and 'len' the max lenght */
+    /* now 'count' has the number of lines of fd and 'len' the max length */
 
     *height = MIN(SLINES, count + numlines + boxlines);
     *width = MIN(SCOLS, MAX((len + nc), mincols));
@@ -1257,7 +1261,7 @@ dlg_exit(int code)
 	    if ((name = getenv(table[n].name)) != 0) {
 		value = strtol(name, &temp, 0);
 		if (temp != 0 && temp != name && *temp == '\0') {
-		    code = value;
+		    code = (int) value;
 		    overridden = TRUE;
 		}
 	    }
@@ -1923,7 +1927,7 @@ dlg_clr_result(void)
 char *
 dlg_set_result(const char *string)
 {
-    unsigned need = string ? strlen(string) + 1 : 0;
+    unsigned need = string ? (unsigned) strlen(string) + 1 : 0;
 
     /* inputstr.c needs a fixed buffer */
     if (need < MAX_LEN)
@@ -1956,9 +1960,9 @@ void
 dlg_add_result(const char *string)
 {
     unsigned have = (dialog_vars.input_result
-		     ? strlen(dialog_vars.input_result)
+		     ? (unsigned) strlen(dialog_vars.input_result)
 		     : 0);
-    unsigned want = strlen(string) + 1 + have;
+    unsigned want = (unsigned) strlen(string) + 1 + have;
 
     if ((want >= MAX_LEN)
 	|| (dialog_vars.input_length != 0)
@@ -2011,7 +2015,7 @@ must_quote(char *string)
     bool code = FALSE;
 
     if (*string != '\0') {
-	unsigned len = strlen(string);
+	size_t len = strlen(string);
 	if (strcspn(string, quote_delimiter()) != len)
 	    code = TRUE;
 	else if (strcspn(string, "\n\t ") != len)
