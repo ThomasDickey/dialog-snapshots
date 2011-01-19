@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.61 2011/01/16 19:55:00 tom Exp $
+dnl $Id: configure.in,v 1.63 2011/01/19 00:24:46 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
@@ -105,6 +105,8 @@ if test "$with_libtool" = "yes" ; then
 fi
 AC_SUBST(LIBTOOL_MAKE)
 
+CF_WITH_CURSES_DIR
+
 use_ncurses=no
 AC_ARG_WITH(ncurses,
 	[  --with-ncurses          compile/link with ncurses library],
@@ -193,14 +195,24 @@ dnl
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(\
 _nc_free_and_exit \
+btowc \
+mblen \
+mbrlen \
+mbrtowc \
+mbtowc \
 strcasecmp \
 strftime \
 tsearch \
 waitpid \
+wcsrtombs \
+wcstombs \
+wctob \
+wctomb \
 )
 
 CF_CURSES_FUNCS(\
 flushinp \
+getattrs \
 getbegx \
 getbegy \
 getbegyx \

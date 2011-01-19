@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.124 2011/01/16 20:51:05 tom Exp $
+.\" $Id: dialog.1,v 1.125 2011/01/18 00:40:47 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/01/16 20:51:05 $"
+.TH \*D 1 "" "$Date: 2011/01/18 00:40:47 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -496,7 +496,9 @@ Specifies a
 string to be displayed at the top of the dialog box.
 .
 .IP "\fB--trace \fIfilename"
-logs keystrokes to the given file.
+logs the command-line parameters and
+keystrokes to the given file.
+If \fBdialog\fP reads a configure file, it is logged as well.
 Use control/T to log a picture of the current dialog window.
 .
 .IP "\fB--trim"

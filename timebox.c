@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.42 2011/01/14 10:50:13 tom Exp $
+ * $Id: timebox.c,v 1.43 2011/01/18 01:07:45 Garrett.Cooper Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -212,6 +212,11 @@ dialog_timebox(const char *title,
     dialog = dlg_new_window(height, width,
 			    dlg_box_y_ordinate(height),
 			    dlg_box_x_ordinate(width));
+
+    if (hour >= 24 || minute >= 60 || second >= 60) {
+	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
+    }
+
     dlg_register_window(dialog, "timebox", binding);
     dlg_register_buttons(dialog, "timebox", buttons);
 

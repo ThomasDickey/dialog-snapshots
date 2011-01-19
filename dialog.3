@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.55 2011/01/06 10:20:01 tom Exp $
+.\" $Id: dialog.3,v 1.58 2011/01/19 00:55:45 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,16 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/01/06 10:20:01 $"
+.TH \*D 3 "" "$Date: 2011/01/19 00:55:45 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
 .B cc [ flag ... ] file ...  -l\*l [ library ... ]
-
+.br
+\ \ \ or
+.br
+.B cc `\*p-config --cflags` file ... `\*p-config --libs` ]
+.sp
 .B #include <\*l.h>
 .PP
 \fB\*L\fP
@@ -545,17 +549,14 @@ which is adjusted up to the calendar grid's minimum width if needed.
 .IP day
 is the initial day of the week shown,
 counting zero as Sunday.
-If the value is negative,
-the current day of the week is used.
+If the value is negative, the current day of the week is used.
 .IP month
 is the initial month of the year shown,
 counting one as January.
-If the value is negative,
-the current month of the year is used.
+If the value is negative, the current month of the year is used.
 .IP year
 is the initial year shown.
-If the value is negative,
-the current year is used.
+If the value is negative, the current year is used.
 .RE
 .\" ************************************************************************
 .IP \fBdialog_checklist
@@ -931,16 +932,16 @@ is the desired width of the box.
 If zero, the height is based on the screen size.
 .IP hour
 is the initial hour shown.
-If the value is negative,
-the current hour is used.
+If the value is negative, the current hour is used.
+Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 24.
 .IP minute
 is the initial minute shown.
-If the value is negative,
-the current minute is used.
+If the value is negative, the current minute is used.
+Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 60.
 .IP second
 is the initial second shown.
-If the value is negative,
-the current second is used.
+If the value is negative, the current second is used.
+Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 60.
 .RE
 .\" ************************************************************************
 .IP \fBdialog_yesno
@@ -1983,6 +1984,15 @@ is the window within which to read.
 .TP 5
 .B int * \fIfkey
 as a side-effect, set this to true if the key-code is really a function-key.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_get_attrs
+extract the video attributes from the given window.
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window from which to get attributes.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
