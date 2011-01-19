@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.123 2011/01/14 01:20:52 tom Exp $
+ *  $Id: checklist.c,v 1.124 2011/01/19 00:27:53 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -73,7 +73,7 @@ print_item(WINDOW *win,
 	   int choice,
 	   int selected)
 {
-    chtype save = (chtype) getattrs(win);
+    chtype save = dlg_get_attrs(win);
     int i;
     chtype attr = A_NORMAL;
     const int *cols;

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.183 2011/01/16 22:44:41 tom Exp $
+ * $Id: dialog.c,v 1.184 2011/01/18 00:35:08 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1216,6 +1216,9 @@ Help(void)
 static int
 process_common_options(int argc, char **argv, int offset, bool output)
 {
+#ifdef HAVE_DLG_TRACE
+    int n;
+#endif
     bool done = FALSE;
 
     while (offset < argc && !done) {	/* Common options */
@@ -1433,6 +1436,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 #ifdef HAVE_DLG_TRACE
 	case o_trace:
 	    dlg_trace(optionString(argv, &offset));
+	    for (n = 0; argv[n] != 0; ++n) {
+		dlg_trace_msg("argv[%d] = %s\n", n, argv[n]);
+	    }
 	    break;
 #endif
 	}

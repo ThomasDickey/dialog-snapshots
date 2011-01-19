@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.79 2011/01/16 22:44:00 tom Exp $
+dnl $Id: aclocal.m4,v 1.80 2011/01/18 23:17:01 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
 dnl
@@ -3803,7 +3803,7 @@ fi
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_CURSES version: 10 updated: 2010/10/23 15:54:49
+dnl CF_XOPEN_CURSES version: 11 updated: 2011/01/18 18:15:30
 dnl ---------------
 dnl Test if we should define X/Open source for curses, needed on Digital Unix
 dnl 4.x, to see the extended functions, but breaks on IRIX 6.x.
@@ -3818,7 +3818,7 @@ AC_TRY_LINK([
 #include <stdlib.h>
 #include <${cf_cv_ncurses_header:-curses.h}>],[
 #if defined(NCURSES_VERSION_PATCH)
-if (NCURSES_VERSION_PATCH < 20100501) && (NCURSES_VERSION_PATCH >= 20100403)
+#if (NCURSES_VERSION_PATCH < 20100501) && (NCURSES_VERSION_PATCH >= 20100403)
 	make an error
 #endif
 #endif

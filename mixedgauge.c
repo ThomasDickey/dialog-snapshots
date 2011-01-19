@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.22 2011/01/17 00:05:29 tom Exp $
+ *  $Id: mixedgauge.c,v 1.23 2011/01/19 00:27:53 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -191,7 +191,7 @@ mydraw_mixed_box(WINDOW *win, int y, int x, int height, int width,
     {
 	chtype attr = A_NORMAL;
 	const char *message = _("Overall Progress");
-	chtype save2 = (chtype) getattrs(win);
+	chtype save2 = dlg_get_attrs(win);
 	wattrset(win, title_attr);
 	(void) wmove(win, y, x + 2);
 	dlg_print_text(win, message, width, &attr);

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.219 2011/01/17 00:06:40 tom Exp $
+ *  $Id: dialog.h,v 1.220 2011/01/19 00:26:01 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -43,6 +43,8 @@
 #include <signal.h>	/* fork() etc. */
 #include <math.h>	/* sqrt() */
 
+#undef ERR		/* header conflict with Solaris xpg4 */
+
 #if defined(HAVE_NCURSESW_NCURSES_H)
 #include <ncursesw/ncurses.h>
 #elif defined(HAVE_NCURSES_NCURSES_H)
@@ -58,6 +60,19 @@
 /* most curses.h headers include this, some do not */
 #if defined(HAVE_UNCTRL_H)
 #include <unctrl.h>
+#endif
+
+/* Solaris xpg4 renames these */
+#ifndef KEY_MAX
+#ifdef __KEY_MAX
+#define KEY_MAX __KEY_MAX
+#endif
+#endif
+
+#ifndef KEY_MIN
+#ifdef __KEY_MIN
+#define KEY_MIN __KEY_MIN
+#endif
 #endif
 
 /* possible conflicts with <term.h> which may be included in <curses.h> */
@@ -633,6 +648,7 @@ extern char * dlg_strclone(const char * /*cprompt*/);
 extern char * dlg_strempty(void);
 extern chtype dlg_asciibox(chtype /*ch*/);
 extern chtype dlg_boxchar(chtype /*ch*/);
+extern chtype dlg_get_attrs(WINDOW * /*win*/);
 extern const char * dlg_print_line(WINDOW */*win*/, chtype */*attr*/, const char */*prompt*/, int /*lm*/, int /*rm*/, int */*x*/);
 extern int dlg_box_x_ordinate(int /*width*/);
 extern int dlg_box_y_ordinate(int /*height*/);

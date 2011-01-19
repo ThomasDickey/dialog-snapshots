@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.57 2011/01/13 10:35:31 tom Exp $
+ *  $Id: ui_getc.c,v 1.58 2011/01/18 10:41:01 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -400,7 +400,7 @@ dlg_getc(WINDOW *win, int *fkey)
     int result;
     bool done = FALSE;
     bool literal = FALSE;
-    DIALOG_CALLBACK *p;
+    DIALOG_CALLBACK *p = 0;
     int interval = dialog_vars.timeout_secs;
     time_t expired = time((time_t *) 0) + dialog_vars.timeout_secs;
     time_t current;
