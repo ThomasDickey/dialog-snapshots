@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.186 2011/03/02 09:58:29 tom Exp $
+ * $Id: dialog.c,v 1.187 2011/06/13 10:45:53 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1356,6 +1356,7 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_no_mouse:
 	    dialog_state.no_mouse = TRUE;
+	    mouse_close();
 	    break;
 	case o_noitem:
 	case o_fullbutton:
