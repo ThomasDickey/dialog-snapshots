@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.211 2011/01/19 00:31:43 tom Exp $
+ *  $Id: util.c,v 1.212 2011/06/15 08:42:56 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -411,7 +411,7 @@ dlg_get_attrs(WINDOW *win)
 {
     chtype result;
 #ifdef HAVE_GETATTRS
-    result = getattrs(win);
+    result = (chtype) getattrs(win);
 #else
     attr_t my_result;
     short my_pair;
@@ -1340,6 +1340,10 @@ dlg_exit(int code)
 	code = DLG_EXIT_HELP;
 	goto retry;
     }
+#ifdef HAVE_DLG_TRACE
+    dlg_trace((const char *) 0);	/* close it */
+#endif
+
 #ifdef NO_LEAKS
     _dlg_inputstr_leaks();
 #if defined(NCURSES_VERSION) && defined(HAVE__NC_FREE_AND_EXIT)

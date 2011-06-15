@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.224 2011/06/13 09:29:42 tom Exp $
+ *  $Id: dialog.h,v 1.225 2011/06/13 21:54:26 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -621,6 +621,11 @@ extern int dlg_editbox(const char */*title*/, char ***/*list*/, int */*rows*/, i
 extern int dlg_default_formitem(DIALOG_FORMITEM * /*items*/);
 extern int dlg_ordinate(const char * /*s*/);
 extern void dlg_free_formitems(DIALOG_FORMITEM * /*items*/);
+
+/* guage.c */
+extern void * dlg_allocate_gauge(const char * /* title */, const char * /* cprompt */, int /* height */, int /* width */, int /* percent */);
+extern void dlg_free_gauge(void * /* objptr */);
+extern void dlg_update_gauge(void * /* objptr */, int /* percent */);
 
 /* inputstr.c */
 extern bool dlg_edit_string(char * /*string*/, int * /*offset*/, int /*key*/, int /*fkey*/, bool /*force*/);
