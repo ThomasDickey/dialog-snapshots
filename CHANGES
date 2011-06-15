@@ -1,10 +1,14 @@
--- $Id: CHANGES,v 1.336 2011/06/13 10:47:50 tom Exp $
+-- $Id: CHANGES,v 1.341 2011/06/15 10:57:11 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/06/13
+2011/06/15
+	+ add piped-in data for gauge widget to traces.
+	+ add entrypoints to gauge widget, for allocating, updating and freeing
+	  the widget (adapted from patch by Stephen Hurd).
+	+ fix a reference to freed memory in the gauge widget.
 	+ fix --no-mouse option by actually closing the mouse (report by
 	  xDog Walker).
 	+ add sk.po from
@@ -13,6 +17,35 @@ to it:
 	  the specific value found in <sys/regset.h>, in case an application
 	  includes dialog.h after curses.h (FreeBSD #156601, report by Jaakko
 	  Heinonen, Stephen Hurd).
+	+ update configure macros:
+	  + CF_CURSES_CPPFLAGS,
+	  + CF_CURSES_LIBS, make checks for special libraries on hpux10 and
+	    sunos4 optional
+	  + CF_CURSES_FUNCS, workaround for bug in gcc 4.2.1 (FreeBSD 8.1)
+	    which caused part of test program to be omitted, i.e., when it saw
+	    two return-statements in a row it omitted the _first_ one.  Also
+	    add expression to pointer check to help FreeBSD's linker decide it
+	    should be validated.  Just an assignment was not enough.  Also, add
+	    check for unctrl.h
+	  + CF_CURSES_HEADER, change order for curses.h / ncurses.h pairs to
+	    put ncurses.h first, which will tend to provide the same #define's
+	    as in CF_NCURSES_HEADER (report by Dennis Preiser).
+	  + CF_CURSES_TERM_H, modify to avoid spurious check for
+	    <curses.hterm.h> if there is no ncurses version.  Look for
+	    ncurses's term.h anyway, to work around breakage by packagers who
+	    separate ncurses' header files.
+	  + CF_DISABLE_RPATH_HACK, fix garbled message
+	  + CF_LD_RPATH_OPT, add mirbsd
+	  + CF_MAKEFLAGS, filter out GNU make's entering/leaving messages. 
+	    This only appeared when using the macro in a dpkg script, though it
+	    should have in other cases.
+	  + CF_RPATH_HACK, add a check for libraries not found, e.g., from
+	    suppressed functionality of gcc in linking from /usr/local/lib, and
+	    add a -L option to help work around this.
+	  + CF_XOPEN_SOURCE, workaround for cygwin to get ncurses' configure
+	    script to define _XOPEN_SOURCE_EXTENDED (cygwin's features.h
+	    doesn't do anything, so it needs a crutch).
+	+ updated config.guess, config.sub
 
 2011/03/02
 	+ add --prgbox and --programbox (adapted from patch by David Boyd).
