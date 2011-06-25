@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.124 2011/01/19 00:27:53 tom Exp $
+ *  $Id: checklist.c,v 1.125 2011/06/21 00:04:01 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -149,6 +149,7 @@ dlg_checklist(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),

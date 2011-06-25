@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.99 2011/01/16 22:20:34 tom Exp $
+ *  $Id: textbox.c,v 1.100 2011/06/21 00:04:01 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -452,6 +452,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
 	INPUTSTR_BINDINGS,
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	END_KEYS_BINDING
     };
@@ -628,6 +629,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'J' ),
 	DLG_KEYS_DATA( DLGK_GRID_DOWN,  'j' ),

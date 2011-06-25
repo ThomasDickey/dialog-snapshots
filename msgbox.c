@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.64 2010/01/15 10:50:17 tom Exp $
+ *  $Id: msgbox.c,v 1.65 2011/06/21 00:10:46 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2009,2010	Thomas E. Dickey
+ *  Copyright 2000-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -37,6 +37,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
 	SCROLLKEY_BINDINGS,

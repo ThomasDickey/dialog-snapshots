@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.76 2011/01/16 22:20:16 tom Exp $
+ *  $Id: fselect.c,v 1.77 2011/06/21 00:04:01 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -532,12 +532,14 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING

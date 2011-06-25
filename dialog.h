@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.225 2011/06/13 21:54:26 tom Exp $
+ *  $Id: dialog.h,v 1.228 2011/06/25 00:26:42 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -143,6 +143,7 @@
 
 #define DLG_CTRL(n)	((n) & 0x1f)	/* CTRL is preferred, but conflicts */
 
+#define CHR_HELP	DLG_CTRL('E')
 #define CHR_BACKSPACE	DLG_CTRL('H')
 #define CHR_REPAINT	DLG_CTRL('L')
 #define CHR_KILL	DLG_CTRL('U')
@@ -479,6 +480,10 @@ typedef struct {
     /* 1.1-20100118 */
     char *date_format;		/* option "--date-format" */
     char *time_format;		/* option "--time-format" */
+    /* 1.1-20110624 */
+    char *help_line;		/* option "--hline" */
+    char *help_file;		/* option "--hfile" */
+    bool in_helpfile;		/* flag to prevent recursion in --hfile */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -533,6 +538,7 @@ extern int dialog_editbox(const char * /*title*/, const char * /*file*/, int /*h
 extern int dialog_form(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*form_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_fselect(const char * /*title*/, const char * /*path*/, int /*height*/, int /*width*/);
 extern int dialog_gauge(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*percent*/);
+extern int dialog_helpfile(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/);
 extern int dialog_inputbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, const char * /*init*/, const int /*password*/);
 extern int dialog_menu(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*menu_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_mixedform(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*form_height*/, int /*item_no*/, char ** /*items*/);

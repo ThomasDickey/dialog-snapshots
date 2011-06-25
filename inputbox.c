@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.64 2010/01/19 01:03:39 tom Exp $
+ *  $Id: inputbox.c,v 1.65 2011/06/21 00:10:46 tom Exp $
  *
- * inputbox.c -- implements the input box
+ *  inputbox.c -- implements the input box
  *
- * Copyright 2000-2009,2010 Thomas E. Dickey
+ *  Copyright 2000-2010,2011 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -46,12 +46,14 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING

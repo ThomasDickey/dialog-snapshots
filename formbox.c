@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.71 2010/02/24 10:45:57 Samuel.Martin.Moro Exp $
+ *  $Id: formbox.c,v 1.72 2011/06/21 00:10:46 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2003-2009,2010	Thomas E. Dickey
+ *  Copyright 2003-2010,2011	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -433,12 +433,14 @@ dlg_form(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
 	INPUTSTR_BINDINGS,
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
 	END_KEYS_BINDING

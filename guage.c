@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.58 2011/06/15 09:55:59 tom Exp $
+ *  $Id: guage.c,v 1.59 2011/06/20 22:29:51 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -93,7 +93,7 @@ read_data(char *buffer, FILE *fp)
     if (feof(fp)) {
 	result = 0;
     } else if (fgets(buffer, MY_LEN, fp) != 0) {
-	dlg_trace_msg("read_data:%s", buffer);
+	DLG_TRACE(("read_data:%s", buffer));
 	dlg_trim_string(buffer);
 	result = 1;
     } else {

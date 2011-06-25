@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.60 2011/01/03 23:29:51 tom Exp $
+ * $Id: calendar.c,v 1.61 2011/06/21 00:04:01 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -388,6 +388,7 @@ dialog_calendar(const char *title,
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
