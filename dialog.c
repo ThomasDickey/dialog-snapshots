@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.187 2011/06/13 10:45:53 tom Exp $
+ * $Id: dialog.c,v 1.189 2011/06/25 00:40:55 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -71,7 +71,9 @@ typedef enum {
     ,o_gauge
     ,o_help
     ,o_help_button
+    ,o_help_file
     ,o_help_label
+    ,o_help_line
     ,o_help_status
     ,o_icon
     ,o_ignore
@@ -215,6 +217,8 @@ static const Options options[] = {
     { "help-button",	o_help_button,		1, "" },
     { "help-label",	o_help_label,		1, "<str>" },
     { "help-status",	o_help_status,		1, "" },
+    { "hfile",		o_help_file,		1, "<str>" },
+    { "hline",		o_help_line,		1, "<str>" },
     { "icon",		o_icon,			1, NULL },
     { "ignore",		o_ignore,		1, "" },
     { "infobox",	o_infobox,		2, "<text> <height> <width>" },
@@ -872,6 +876,7 @@ call_mixed_gauge(CALLARGS)
 }
 #endif
 
+#ifdef HAVE_DLG_GAUGE
 static int
 call_prgbox(CALLARGS)
 {
@@ -891,6 +896,7 @@ call_prgbox(CALLARGS)
 			    numeric_arg(av, 2),
 			    numeric_arg(av, 3), TRUE));
 }
+#endif
 
 #ifdef HAVE_DLG_GAUGE
 static int
@@ -1235,6 +1241,12 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_item_help:
 	    dialog_vars.item_help = TRUE;
+	    break;
+	case o_help_line:
+	    dialog_vars.help_line = optionString(argv, &offset);
+	    break;
+	case o_help_file:
+	    dialog_vars.help_file = optionString(argv, &offset);
 	    break;
 	case o_help_button:
 	    dialog_vars.help_button = TRUE;

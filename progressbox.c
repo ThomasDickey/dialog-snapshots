@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.11 2011/03/02 01:10:08 tom Exp $
+ *  $Id: progressbox.c,v 1.12 2011/06/21 00:04:01 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -109,6 +109,7 @@ pause_for_ok(WINDOW *dialog, int height, int width)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
+	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
 	END_KEYS_BINDING
