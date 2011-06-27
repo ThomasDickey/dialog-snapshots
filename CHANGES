@@ -1,10 +1,10 @@
--- $Id: CHANGES,v 1.345 2011/06/25 00:43:13 tom Exp $
+-- $Id: CHANGES,v 1.346 2011/06/27 10:57:52 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/06/24
+2011/06/27
 	+ improve repainting after erasing a widget and its shadow.
 	+ add "--hline" and "--hfile" options for compatibility with FreeBSD
 	  dialog (request by Devin Teske).

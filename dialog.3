@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.63 2011/06/20 22:24:37 tom Exp $
+.\" $Id: dialog.3,v 1.65 2011/06/27 10:56:15 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/06/20 22:24:37 $"
+.TH \*D 3 "" "$Date: 2011/06/27 10:56:15 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -78,7 +78,7 @@ Colors and video attributes are categorized and associated with
 settings in the configuration file
 (see the discussion of \fI$DIALOGRC\fP in \fB\*p\fP(1)).
 The \fIDIALOG_ATR(n)\fP macro is used for defining the references
-to the combined color and attribute table \fIdlg_color_table[]\fP.
+to the combined color and attribute table \fBdlg_color_table[]\fP.
 .PP
 The \fB\*p\fP application passes its command-line parameters
 to the widget functions.  Some of those parameters are single values,
@@ -97,7 +97,7 @@ These include definitions based on the generated \fI<dlg_config.h>\fP header.
 .SH DATA STRUCTURES
 All of the global data for the \fB\*l\fP library is stored in
 a few structures: \fIDIALOG_STATE\fP, \fIDIALOG_VARS\fP and \fIDIALOG_COLORS\fP.
-The corresponding \fIdialog_state\fP, \fIdialog_vars\fP and \fIdlg_color_table\fP
+The corresponding \fBdialog_state\fP, \fBdialog_vars\fP and \fBdlg_color_table\fP
 global variables should be initialized to zeros,
 and then populated with the data to use.
 A few of these must be nonzero for the corresponding widgets to function.
@@ -145,7 +145,7 @@ prefer to write results to the standard output,
 e.g., by using the "\fB--stdout\fP" option.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_STATE.output_count
-This is incremented by \fIdlg_does_output\fP,
+This is incremented by \fBdlg_does_output\fP,
 which is called by each widget that writes text to the output.
 The \fB\*p\fP application uses that to decide if it should
 also write a separator, i.e.,
@@ -217,7 +217,7 @@ suppress shadows that would be drawn to the right and bottom of each dialog box.
 This corresponds to the command-line option "\fB--visit-items\fP".
 .\" ---------------------------------------------------------------------------
 .PP
-The \fB\*p\fP application resets the \fIdialog_vars\fP data before
+The \fB\*p\fP application resets the \fBdialog_vars\fP data before
 accepting options to invoke each widget.
 Most of the \fIDIALOG_VARS\fP members are set directly from \fB\*p\fP's
 command-line options:
@@ -356,9 +356,19 @@ and the item-help text will be written to \fB\*p\fP's output after the token "HE
 Otherwise, the return status will indicate that the Help button was pressed,
 and no message printed.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.help_file
+This corresponds to the command-line option "\fB--hfile\fP \fIstring\fP".
+The given filename is passed to \fBdialog_helpfile\fP when the user
+presses F1.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.help_label
 This corresponds to the command-line option "\fB--help-label\fP \fIstring\fP".
 The given string overrides the label used for "Help" buttons.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.help_line
+This corresponds to the command-line option "\fB--hline\fP \fIstring\fP".
+The given string is displayed in the bottom of dialog windows,
+like a subtitle.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.help_status
 This corresponds to the command-line option "\fB--help-status\fP".
@@ -402,6 +412,10 @@ Callers should check for this case if they have supplied their own buffer.
 This corresponds to the command-line option "\fB--insecure\fP".
 If true, make the password widget friendlier but less secure,
 by echoing asterisks for each character.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.in_helpfile
+This variable is used to prevent \fBdialog_helpfile\fP from showing
+anything, e.g., if F1 were pressed within a help-file display. 
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.item_help
 This corresponds to the command-line option "\fB--item-help\fP".
@@ -615,7 +629,7 @@ or
 \fItag item status help\fR
 .RE
 .IP
-depending on whether \fIdialog_vars.item_help\fP is set.
+depending on whether \fBdialog_vars.item_help\fP is set.
 .IP flag
 is either \fIFLAG_CHECK\fP, for checklists,
 or \fIFLAG_RADIO\fP for radiolists.
@@ -696,7 +710,7 @@ or
 \fIName NameY NameX Text TextY TextX FLen ILen Help\fR
 .RE
 .IP
-depending on whether \fIdialog_vars.item_help\fP is set.
+depending on whether \fBdialog_vars.item_help\fP is set.
 .RE
 .\" ************************************************************************
 .IP \fBdialog_fselect
@@ -773,9 +787,32 @@ when auto-sizing the width of the dialog box.
 if true, causes typed input to be echoed as asterisks.
 .RE
 .\" ************************************************************************
+.IP \fBdialog_helpfile
+implements the "\fB--hfile\fP" option.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title on the top of the widget.
+.TP 5
+.B const char * \fIfile
+is the name of a file containing the text to display.
+This function is internally bound to F1 (function key "1"),
+passing \fBdialog_vars.help_file\fP as a parameter.
+The \fBdialog\fP program sets that variable when the \fB--hfile\fP option
+is given.
+.TP 5
+.B int \fIheight
+is the desired height of the box.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the box.
+If zero, the height is based on the screen size.
+.RE
+.\" ************************************************************************
 .IP \fBdialog_menu
 implements the "\fB--menu\fP" or "\fB--inputmenu\fP" option
-depending on whether \fIdialog_vars.input_menu\fP is set.
+depending on whether \fBdialog_vars.input_menu\fP is set.
 .RS
 .TP 5
 .B const char * \fItitle
@@ -810,7 +847,7 @@ or
 \fItag item help\fR
 .RE
 .IP
-depending on whether \fIdialog_vars.item_help\fP is set.
+depending on whether \fBdialog_vars.item_help\fP is set.
 .RE
 .\" ************************************************************************
 .IP \fBdialog_mixedform
@@ -849,7 +886,7 @@ or
 \fIName NameY NameX Text TextY TextX FLen ILen Ityp Help\fR
 .RE
 .IP
-depending on whether \fIdialog_vars.item_help\fP is set.
+depending on whether \fBdialog_vars.item_help\fP is set.
 .RE
 .\" ************************************************************************
 .IP \fBdialog_mixedgauge
@@ -1022,7 +1059,7 @@ If zero, the height is based on the screen size.
 .TP 5
 .B int \fIbg_task
 if true,
-the window is added to the callback list in \fIdialog_state\fP,
+the window is added to the callback list in \fBdialog_state\fP,
 and the application will poll for the window to be updated.
 Otherwise an "OK" button is added to the window,
 and it will be closed when the button is activated.
@@ -1109,7 +1146,7 @@ Bowing to longstanding usage, the functions that initialize the
 display and end it are named \fIinit_dialog\fP and \fIend_dialog\fP.
 .PP
 The only non-widget function whose name begins with "\fIdialog_\fP"
-is \fIdialog_version\fP, which returns the version number of the
+is \fBdialog_version\fP, which returns the version number of the
 library as a string.
 .
 .PP
@@ -1469,7 +1506,7 @@ is the number of \fIitems\fP in the list.
 .TP 5
 .B dlg_calc_listw
 This function is obsolete, provided for library-compatibility.
-It is replaced by \fIdlg_calc_list_width\fP.
+It is replaced by \fBdlg_calc_list_width\fP.
 .RS
 .TP 5
 .B int \fIitem_no
@@ -1685,7 +1722,7 @@ It is terminated by an entry with a null \fIname\fP field.
 .TP 5
 .B dlg_default_item
 This function is obsolete, provided for library-compatibility.
-It is replaced by \fIdlg_default_formitem\fP and \fIdlg_default_listitem\fP.
+It is replaced by \fBdlg_default_formitem\fP and \fBdlg_default_listitem\fP.
 .RS
 .TP 5
 .B char ** \fIitems
@@ -1842,6 +1879,18 @@ is true if the buttons are arranged in a column rather than a row.
 .TP 5
 .B int \fIlimit
 is the number of columns (or rows if \fIvertical\fP) allowed for the display.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_draw_helpline
+draw the text in \fBdialog_vars.help_line\fP at the bottom of the given window.
+.RS
+.TP 5
+.B WINDOW * \fIdialog
+is the window to modify.
+.TP 5
+.B bool \fIdecorations
+if true, allow room for the scrolling arrows.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5

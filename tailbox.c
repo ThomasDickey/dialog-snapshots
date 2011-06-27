@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.62 2011/06/21 00:04:01 tom Exp $
+ *  $Id: tailbox.c,v 1.63 2011/06/27 08:19:43 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -339,6 +339,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
     dlg_draw_title(dialog, title);
+    dlg_draw_helpline(dialog, FALSE);
 
     if (!bg_task) {
 	buttons = dlg_exit_label();

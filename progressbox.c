@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.12 2011/06/21 00:04:01 tom Exp $
+ *  $Id: progressbox.c,v 1.13 2011/06/27 08:18:20 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -190,6 +190,7 @@ dlg_progressbox(const char *title,
 
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_title(dialog, title);
+    dlg_draw_helpline(dialog, FALSE);
 
     if (*prompt != '\0') {
 	int y2, x2;

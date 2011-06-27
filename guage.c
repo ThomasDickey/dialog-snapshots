@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.59 2011/06/20 22:29:51 tom Exp $
+ *  $Id: guage.c,v 1.60 2011/06/27 00:52:28 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -127,6 +127,7 @@ repaint_text(MY_OBJ * obj)
 	dlg_draw_title(dialog, obj->title);
 
 	wattrset(dialog, dialog_attr);
+	dlg_draw_helpline(dialog, FALSE);
 	dlg_print_autowrap(dialog, obj->prompt, obj->height, obj->width);
 
 	dlg_draw_box(dialog,

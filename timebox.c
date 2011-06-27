@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.44 2011/06/21 00:04:01 tom Exp $
+ * $Id: timebox.c,v 1.45 2011/06/27 08:20:22 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -224,6 +224,7 @@ dialog_timebox(const char *title,
     dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
     dlg_draw_bottom_box(dialog);
     dlg_draw_title(dialog, title);
+    dlg_draw_helpline(dialog, FALSE);
 
     wattrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);

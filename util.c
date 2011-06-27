@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.222 2011/06/24 23:16:39 tom Exp $
+ *  $Id: util.c,v 1.223 2011/06/27 10:41:29 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1844,7 +1844,8 @@ dlg_del_window(WINDOW *win)
     }
 
     if (q) {
-	erase_childs_shadow(q);
+	if (dialog_state.all_windows != 0)
+	    erase_childs_shadow(q);
 	delwin(q->normal);
 	dlg_unregister_window(q->normal);
 	free(q);
