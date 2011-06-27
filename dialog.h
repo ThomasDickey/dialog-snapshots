@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.228 2011/06/25 00:26:42 tom Exp $
+ *  $Id: dialog.h,v 1.229 2011/06/27 00:29:23 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -593,6 +593,7 @@ extern int dlg_eat_argv(int * /* argcp */, char *** /* argvp */, int /* start */
 /* arrows.c */
 extern void dlg_draw_arrows(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom_arrow*/, int /*x*/, int /*top*/, int /*bottom*/);
 extern void dlg_draw_arrows2(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom_arrow*/, int /*x*/, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
+extern void dlg_draw_helpline(WINDOW * /*dialog*/, bool /*decorations*/);
 extern void dlg_draw_scrollbar(WINDOW * /*dialog*/, long /* first_data */, long /* this_data */, long /* next_data */, long /* total_data */, int /* left */, int /* right */, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
 
 /* buttons.c */

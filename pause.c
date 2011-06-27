@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.27 2011/06/21 00:04:01 tom Exp $
+ *  $Id: pause.c,v 1.28 2011/06/27 00:50:22 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -125,6 +125,7 @@ dialog_pause(const char *title,
 	dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
 
 	dlg_draw_title(dialog, title);
+	dlg_draw_helpline(dialog, FALSE);
 
 	wattrset(dialog, dialog_attr);
 	dlg_print_autowrap(dialog, prompt, height, width);
