@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.190 2011/06/28 08:39:25 tom Exp $
+ * $Id: dialog.c,v 1.193 2011/06/29 09:10:56 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -98,6 +98,7 @@ typedef enum {
     ,o_no_label
     ,o_no_lines
     ,o_no_mouse
+    ,o_no_nl_expand
     ,o_no_shadow
     ,o_nocancel
     ,o_noitem
@@ -244,6 +245,7 @@ static const Options options[] = {
     { "no-label",	o_no_label,		1, "<str>" },
     { "no-lines",	o_no_lines, 		1, "" },
     { "no-mouse",	o_no_mouse,		1, "" },
+    { "no-nl-expand",	o_no_nl_expand,		1, "" },
     { "no-ok",		o_nook,			1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
@@ -1210,6 +1212,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	case o_cr_wrap:
 	    dialog_vars.cr_wrap = TRUE;
 	    break;
+	case o_no_nl_expand:
+	    dialog_vars.no_nl_expand = TRUE;
+	    break;
 	case o_no_collapse:
 	    dialog_vars.nocollapse = TRUE;
 	    break;
@@ -1660,6 +1665,8 @@ main(int argc, char *argv[])
 	    case o_unknown:
 	    case o_title:
 	    case o_backtitle:
+	    case o_help_line:
+	    case o_help_file:
 		break;
 	    default:
 		if (argv[j] != 0) {

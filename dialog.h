@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.229 2011/06/27 00:29:23 tom Exp $
+ *  $Id: dialog.h,v 1.231 2011/06/29 09:51:00 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -480,10 +480,11 @@ typedef struct {
     /* 1.1-20100118 */
     char *date_format;		/* option "--date-format" */
     char *time_format;		/* option "--time-format" */
-    /* 1.1-20110624 */
+    /* 1.1-20110629 */
     char *help_line;		/* option "--hline" */
     char *help_file;		/* option "--hfile" */
     bool in_helpfile;		/* flag to prevent recursion in --hfile */
+    bool no_nl_expand;		/* option "--no-nl-expand" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -753,6 +754,12 @@ extern void dlg_trace(const char * /*fname*/);
 #ifdef KEY_RESIZE
 extern void dlg_move_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 #endif
+
+/*
+ * Normally "enter" means "ok".  Use this macro to handle the explicit
+ * check for DLGK_ENTER:
+ */
+#define dlg_enter_buttoncode(code) (dialog_vars.nook ? DLG_EXIT_OK : dlg_ok_buttoncode(code))
 
 /*
  * The following stuff is needed for mouse support

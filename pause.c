@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.28 2011/06/27 00:50:22 tom Exp $
+ *  $Id: pause.c,v 1.29 2011/06/29 09:48:53 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -217,7 +217,7 @@ dialog_pause(const char *title,
 				 FALSE, width);
 		break;
 	    case DLGK_ENTER:
-		result = dlg_ok_buttoncode(button);
+		result = dlg_enter_buttoncode(button);
 		break;
 	    case DLGK_MOUSE(0):
 		result = DLG_EXIT_OK;

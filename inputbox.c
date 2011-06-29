@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.66 2011/06/27 00:54:03 tom Exp $
+ *  $Id: inputbox.c,v 1.67 2011/06/29 09:48:34 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -205,7 +205,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    case ' ':		/* FIXME: conflict with inputstr.c */
 	    case DLGK_ENTER:
 		dlg_del_window(dialog);
-		result = (state >= 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+		result = (state >= 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
