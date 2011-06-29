@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.223 2011/06/27 10:41:29 tom Exp $
+ *  $Id: util.c,v 1.224 2011/06/29 08:39:36 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2059,7 +2059,7 @@ dlg_trim_string(char *s)
     char *base = s;
     char *p1;
     char *p = s;
-    int has_newlines = (strstr(s, "\\n") != 0);
+    int has_newlines = !dialog_vars.no_nl_expand && (strstr(s, "\\n") != 0);
 
     while (*p != '\0') {
 	if (*p == TAB && !dialog_vars.nocollapse)

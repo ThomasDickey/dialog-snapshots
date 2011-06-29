@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.131 2011/06/28 09:01:06 tom Exp $
+.\" $Id: dialog.1,v 1.133 2011/06/29 09:39:29 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/06/28 09:01:06 $"
+.TH \*D 1 "" "$Date: 2011/06/29 09:39:29 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -392,6 +392,10 @@ See also "\fB--ascii-lines\fR".
 .IP "\fB--no-mouse
 Do not enable the mouse.
 .
+.IP "\fB--no-nl-expand
+Do not convert "\\n" substrings of the message/prompt text into
+literal newlines.
+.
 .IP "\fB--no-ok"
 .IP "\fB--nook"
 Suppress the "OK" button in checklist, inputbox and menu box modes.
@@ -429,7 +433,7 @@ Prints \fB\*p\fR's version to \fB\*p\fP's output.
 This may be used alone, without other options.
 It does not cause \fBdialog\fP to exit by itself.
 .
-.IP "\fB--scrollbar \fIstring"
+.IP "\fB--scrollbar"
 For widgets holding a scrollable set of data,
 draw a scrollbar on its right-margin.
 This does not respond to the mouse.

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.121 2011/06/21 00:04:01 tom Exp $
+ *  $Id: menubox.c,v 1.122 2011/06/29 09:48:46 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -687,7 +687,7 @@ dlg_menu(const char *title,
 				 FALSE, width);
 		break;
 	    case DLGK_ENTER:
-		result = dlg_ok_buttoncode(button);
+		result = dlg_enter_buttoncode(button);
 
 		/*
 		 * If dlg_menu() is called from dialog_menu(), we want to

@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.65 2011/06/27 10:56:15 tom Exp $
+.\" $Id: dialog.3,v 1.68 2011/06/29 09:07:36 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 .ds l dialog
 .ds L Dialog
 .ds D DIALOG
-..
+.
 .de ES
 .ne 8
 .IP
@@ -33,11 +33,12 @@
 .de EE
 .fi
 .RE
+..
 .\" Bulleted paragraph
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/06/27 10:56:15 $"
+.TH \*D 3 "" "$Date: 2011/06/29 09:07:36 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -223,6 +224,9 @@ Most of the \fIDIALOG_VARS\fP members are set directly from \fB\*p\fP's
 command-line options:
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.ascii_lines
+This corresponds to the command-line option "\fB--ascii-lines\fP.
+It causes line-drawing to be done with ASCII characters, e.g., "+" and "-".
+See \fIDIALOG_VARS.no_lines\fP.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.backtitle
 This corresponds to the command-line option "\fB--backtitle\fP \fIbacktitle\fP".
@@ -449,6 +453,14 @@ This corresponds to the command-line option "\fB--no-label\fP \fIstring\fP".
 The given string overrides the label used for "No" buttons.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.no_lines
+This corresponds to the command-line option "\fB--no-lines\fP.
+It suppresses line-drawing.
+See \fIDIALOG_VARS.ascii_lines\fP.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.no_nl_expand
+This corresponds to the command-line option "\fB--no-nl-expand\fP".
+If false, \fBdlg_trim_string\fP converts literal "\\n" substrings
+in a message into newlines.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.nocancel
 This corresponds to the command-line option "\fB--no-cancel\fP".
@@ -3077,7 +3089,6 @@ Some of these may be values declared in the DLG_KEYS_ENUM.
 .B dlg_trace_msg
 Write a formatted message to the trace file.
 .RS
-.RS
 .TP 5
 .B const char * \fIfmt
 is the format of the \fBprintf\fP-like message to write.
@@ -3093,7 +3104,7 @@ It uses an extra level of parentheses to work with a variable number of
 parameters, e.g.,
 .ES
 .EX
-DLG_TRACE(("this is dialog version %s\n", dialog_version()));
+DLG_TRACE(("this is dialog version %s\\n", dialog_version()));
 .EE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -3103,10 +3114,38 @@ log a printable picture of the given window.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_trim_string
-Change embedded "\\n" substrings to '\\n' characters and tabs to single spaces.
-If there are no "\\n"s, the function strips all extra spaces, for justification.
-If it has "\\n"'s, the function preserves extra spaces.
-If \fBdialog_vars.cr_wrap\fP is set, the function preserves '\\n's.
+The \fBdialog\fP program uses this in each widget to adjust the
+message string,
+which may contain the newline character (referred to as '\\n')
+and/or the special substring "\\n"
+(which can be translated into a newline character).
+.IP
+There are several optional features:
+.RS
+.bP
+Unless \fBdialog_vars.no_nl_expand\fP is set,
+.RS
+.bP
+If it has "\\n" substrings,
+the function preserves extra spaces.
+For instance, spaces following a newline (substring or character)
+are preserved to use as an indentation.
+.bP
+The function changes embedded "\\n" substrings to '\\n' characters.
+.RE
+.bP
+If \fBdialog_vars.no_nl_expand\fP is not set,
+or if there are no "\\n" substrings,
+this function strips all extra spaces to simplify justification.
+.bP
+If \fBdialog_vars.cr_wrap\fP is set,
+the function preserves '\\n' newline characters.
+Otherwise, each '\\n' newline character is converted to a space.
+.bP
+Unless \fBdialog_vars.nocollapse\fP is set,
+each tab character is converted to a space,
+and sequences of blanks (space or tab) are reduced to a single space.
+.RE
 .RS
 .TP 5
 .B char * \fIsrc

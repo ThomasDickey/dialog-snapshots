@@ -1,10 +1,17 @@
--- $Id: CHANGES,v 1.350 2011/06/28 10:47:32 tom Exp $
+-- $Id: CHANGES,v 1.353 2011/06/29 09:56:49 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/06/28
+2011/06/29
+	+ add/use macro dlg_enter_buttoncode() to improve implementation of
+	  "--nook" option (report by xDog Walker).
+	+ add option "--no-nl-expand" to suppress the conversion of "\n"
+	  strings into newlines (request by xDog Walker).
+	+ modify LIB_CREATE symbol in makefile.in to include the library
+	  dependencies such as ncurses.  This is needed when dynamically
+	  loading the library (report/analysis by xDog Walker).
 	+ modify dlg_exit_label() to suppress the Cancel button, for
 	  consistency.
 	+ modify dlg_exit_label() to honor the --nook option, except when there

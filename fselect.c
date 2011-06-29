@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.77 2011/06/21 00:04:01 tom Exp $
+ *  $Id: fselect.c,v 1.78 2011/06/29 09:48:21 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -797,7 +797,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		}
 		/* FALLTHRU */
 	    case DLGK_ENTER:
-		result = (state > 0) ? dlg_ok_buttoncode(state) : DLG_EXIT_OK;
+		result = (state > 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;
 		continue;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
