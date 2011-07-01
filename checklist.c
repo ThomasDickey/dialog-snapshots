@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.126 2011/06/29 09:47:45 tom Exp $
+ *  $Id: checklist.c,v 1.127 2011/06/29 23:04:09 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -194,6 +194,24 @@ dlg_checklist(const char *title,
     dlg_does_output();
     dlg_tab_correct_str(prompt);
 
+    /*
+     * If this is a radiobutton list, ensure that no more than one item is
+     * selected initially.  Allow none to be selected, since some users may
+     * wish to provide this flavor.
+     */
+    if (flag == FLAG_RADIO) {
+	bool first = TRUE;
+
+	for (i = 0; i < item_no; i++) {
+	    if (items[i].state) {
+		if (first) {
+		    first = FALSE;
+		} else {
+		    items[i].state = 0;
+		}
+	    }
+	}
+    }
 #ifdef KEY_RESIZE
   retry:
 #endif
@@ -292,11 +310,12 @@ dlg_checklist(const char *title,
 	choice = max_choice - 1;
     }
     /* Print the list */
-    for (i = 0; i < max_choice; i++)
+    for (i = 0; i < max_choice; i++) {
 	print_item(list,
 		   &items[i + scrollamt],
 		   states,
 		   i, i == choice);
+    }
     (void) wnoutrefresh(list);
 
     /* register the new window, along with its borders */

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.224 2011/06/29 08:39:36 tom Exp $
+ *  $Id: util.c,v 1.225 2011/06/30 10:25:27 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -489,6 +489,7 @@ end_dialog(void)
     }
 }
 
+#define ESCAPE_LEN 3
 #define isOurEscape(p) (((p)[0] == '\\') && ((p)[1] == 'Z') && ((p)[2] != 0))
 
 static int
@@ -502,7 +503,7 @@ centered(int width, const char *string)
     if (dialog_vars.colors) {
 	for (n = 0; n < len; ++n) {
 	    if (isOurEscape(string + n)) {
-		hide += 3;
+		hide += ESCAPE_LEN;
 	    }
 	}
     }
@@ -663,6 +664,7 @@ dlg_print_line(WINDOW *win,
 {
     const char *wrap_ptr = prompt;
     const char *test_ptr = prompt;
+    const char *hide_ptr = 0;
     const int *cols = dlg_index_columns(prompt);
     const int *indx = dlg_index_wchars(prompt);
     int wrap_inx = 0;
@@ -689,8 +691,9 @@ dlg_print_line(WINDOW *win,
 	    wrap_inx = n;
 	    *x = cur_x;
 	} else if (isOurEscape(test_ptr)) {
-	    hidden += 3;
-	    n += 2;
+	    hide_ptr = test_ptr;
+	    hidden += ESCAPE_LEN;
+	    n += (ESCAPE_LEN - 1);
 	}
 	cur_x = lm + tabbed + cols[n + 1];
 	if (cur_x > (rm + hidden))
@@ -727,6 +730,23 @@ dlg_print_line(WINDOW *win,
 #endif
 
     /*
+     * If we found hidden text past the last point that we will display,
+     * discount that from the displayed length.
+     */
+    if ((hide_ptr != 0) && (hide_ptr >= wrap_ptr)) {
+	hidden -= ESCAPE_LEN;
+	test_ptr = wrap_ptr;
+	while (test_ptr < wrap_ptr) {
+	    if (isOurEscape(test_ptr)) {
+		hidden -= ESCAPE_LEN;
+		test_ptr += ESCAPE_LEN;
+	    } else {
+		++test_ptr;
+	    }
+	}
+    }
+
+    /*
      * Print the line if we have a window pointer.  Otherwise this routine
      * is just being called for sizing the window.
      */
@@ -737,6 +757,8 @@ dlg_print_line(WINDOW *win,
     /* *x tells the calling function how long the line was */
     if (*x == 1)
 	*x = rm;
+
+    *x -= hidden;
 
     /* Find the start of the next line and return a pointer to it */
     test_ptr = wrap_ptr;
@@ -1039,6 +1061,25 @@ longest_word(const char *string)
     return result;
 }
 
+static int
+count_real_columns(const char *text)
+{
+    int result = dlg_count_columns(text);
+    if (result && dialog_vars.colors) {
+	int hidden = 0;
+	while (*text) {
+	    if (isOurEscape(text)) {
+		hidden += ESCAPE_LEN;
+		text += ESCAPE_LEN;
+	    } else {
+		++text;
+	    }
+	}
+	result -= hidden;
+    }
+    return result;
+}
+
 /*
  * if (height or width == -1) Maximize()
  * if (height or width == 0), justify and return actual limits.
@@ -1076,7 +1117,7 @@ real_auto_size(const char *title,
     } else if (prompt != 0) {
 	wide = MAX(title_length, mincols);
 	if (strchr(prompt, '\n') == 0) {
-	    double val = dialog_state.aspect_ratio * dlg_count_columns(prompt);
+	    double val = dialog_state.aspect_ratio * count_real_columns(prompt);
 	    double xxx = sqrt(val);
 	    int tmp = (int) xxx;
 	    wide = MAX(wide, tmp);

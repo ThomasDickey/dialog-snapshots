@@ -1,10 +1,15 @@
--- $Id: CHANGES,v 1.353 2011/06/29 09:56:49 tom Exp $
+-- $Id: CHANGES,v 1.358 2011/07/01 01:02:33 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/06/29
+2011/06/30
+	+ correct license statement for prgbox.c (Debian #632198).
+	+ correct layout when "--colors" is used, by discounting characters in
+	  the escape sequences from the column counts (report by xDog Walker).
+	+ modify dlg_checklist() so that only one item in the list can
+	  initially be selected (report by xDog Walker).
 	+ add/use macro dlg_enter_buttoncode() to improve implementation of
 	  "--nook" option (report by xDog Walker).
 	+ add option "--no-nl-expand" to suppress the conversion of "\n"
@@ -45,7 +50,7 @@ to it:
 	  the specific value found in <sys/regset.h>, in case an application
 	  includes dialog.h after curses.h (FreeBSD #156601, report by Jaakko
 	  Heinonen, Stephen Hurd).
-	+ update configure macros:
+	+ updated configure macros:
 	  + CF_CURSES_CPPFLAGS,
 	  + CF_CURSES_LIBS, make checks for special libraries on hpux10 and
 	    sunos4 optional
@@ -720,7 +725,7 @@ to it:
 	  colors to be the same, provided that bold attribute is set.
 	  Also improved the logic for choosing a background color when the
 	  foreground and background are the same (report by Erika Pacholleck).
-	+ update configure script macro CF_XOPEN_SOURCE, ensuring that the
+	+ updated configure script macro CF_XOPEN_SOURCE, ensuring that the
 	  _POSIX_C_SOURCE value is defined with a specific value (bug report
 	  originally for lynx).
 	+ fix configure script so that po/makefile is generated properly when
