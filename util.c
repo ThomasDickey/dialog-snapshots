@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.225 2011/06/30 10:25:27 tom Exp $
+ *  $Id: util.c,v 1.227 2011/07/07 23:42:30 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -35,6 +35,20 @@
 #else
 #include <term.h>
 #endif
+#endif
+
+#if defined(HAVE_WCHGAT)
+#  if defined(NCURSES_VERSION_PATCH)
+#    if NCURSES_VERSION_PATCH >= 20060715
+#      define USE_WCHGAT 1
+#    else
+#      define USE_WCHGAT 0
+#    endif
+#  else
+#    define USE_WCHGAT 1
+#  endif
+#else
+#  define USE_WCHGAT 0
 #endif
 
 /* globals */
@@ -887,43 +901,49 @@ dlg_print_scrolled(WINDOW *win,
 	    high = len;
 #endif
 	dummy = newwin(high, width, 0, 0);
-	wbkgdset(dummy, dialog_attr | ' ');
-	wattrset(dummy, dialog_attr);
-	werase(dummy);
-	dlg_print_autowrap(dummy, prompt, high, width);
-	getyx(dummy, y, x);
+	if (dummy == 0) {
+	    wattrset(win, dialog_attr);
+	    dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
+	    last = 0;
+	} else {
+	    wbkgdset(dummy, dialog_attr | ' ');
+	    wattrset(dummy, dialog_attr);
+	    werase(dummy);
+	    dlg_print_autowrap(dummy, prompt, high, width);
+	    getyx(dummy, y, x);
 
-	copywin(dummy,		/* srcwin */
-		win,		/* dstwin */
-		offset + MARGIN,	/* sminrow */
-		MARGIN,		/* smincol */
-		MARGIN,		/* dminrow */
-		MARGIN,		/* dmincol */
-		height,		/* dmaxrow */
-		wide,		/* dmaxcol */
-		FALSE);
+	    copywin(dummy,	/* srcwin */
+		    win,	/* dstwin */
+		    offset + MARGIN,	/* sminrow */
+		    MARGIN,	/* smincol */
+		    MARGIN,	/* dminrow */
+		    MARGIN,	/* dmincol */
+		    height,	/* dmaxrow */
+		    wide,	/* dmaxcol */
+		    FALSE);
 
-	delwin(dummy);
+	    delwin(dummy);
 
-	/* if the text is incomplete, or we have scrolled, show the percentage */
-	if (y > 0 && wide > 4) {
-	    percent = (int) ((height + offset) * 100.0 / y);
-	    if (percent < 0)
-		percent = 0;
-	    if (percent > 100)
-		percent = 100;
-	    if (offset != 0 || percent != 100) {
-		(void) wattrset(win, position_indicator_attr);
-		(void) wmove(win, MARGIN + height, wide - 4);
-		(void) sprintf(buffer, "%d%%", percent);
-		(void) waddstr(win, buffer);
-		if ((len = (int) strlen(buffer)) < 4) {
-		    wattrset(win, border_attr);
-		    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
+	    /* if the text is incomplete, or we have scrolled, show the percentage */
+	    if (y > 0 && wide > 4) {
+		percent = (int) ((height + offset) * 100.0 / y);
+		if (percent < 0)
+		    percent = 0;
+		if (percent > 100)
+		    percent = 100;
+		if (offset != 0 || percent != 100) {
+		    (void) wattrset(win, position_indicator_attr);
+		    (void) wmove(win, MARGIN + height, wide - 4);
+		    (void) sprintf(buffer, "%d%%", percent);
+		    (void) waddstr(win, buffer);
+		    if ((len = (int) strlen(buffer)) < 4) {
+			wattrset(win, border_attr);
+			whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
+		    }
 		}
 	    }
+	    last = (y - height);
 	}
-	last = (y - height);
     } else
 #endif
     {
@@ -1431,7 +1451,7 @@ repaint_cell(DIALOG_WINDOWS * dw, bool draw, int y, int x)
 	if (dlg_get_cell_attrs(cellwin) & A_ALTCHARSET) {
 	    the_attr |= A_ALTCHARSET;
 	}
-#ifdef HAVE_WCHGAT
+#if USE_WCHGAT
 	wchgat(cellwin, 1,
 	       the_attr & (chtype) (~A_COLOR),
 	       PAIR_NUMBER(the_attr),
@@ -1454,7 +1474,7 @@ repaint_shadow(DIALOG_WINDOWS * dw, bool draw, int y, int x, int height, int wid
     int i, j;
 
     if (UseShadow(dw)) {
-#ifndef HAVE_WCHGAT
+#if !USE_WCHGAT
 	chtype save = dlg_get_attrs(dw->shadow);
 	wattrset(dw->shadow, draw ? shadow_attr : screen_attr);
 #endif
@@ -1469,7 +1489,7 @@ repaint_shadow(DIALOG_WINDOWS * dw, bool draw, int y, int x, int height, int wid
 	    }
 	}
 	(void) wnoutrefresh(dw->shadow);
-#ifndef HAVE_WCHGAT
+#if !USE_WCHGAT
 	wattrset(dw->shadow, save);
 #endif
     }
