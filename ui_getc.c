@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.62 2011/06/24 23:49:42 tom Exp $
+ *  $Id: ui_getc.c,v 1.63 2011/07/07 22:05:58 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -415,6 +415,8 @@ dlg_getc(WINDOW *win, int *fkey)
 	wtimeout(win, interval);
 
     while (!done) {
+	bool handle_others = FALSE;
+
 	/*
 	 * If there was no pending file-input, check the keyboard.
 	 */
@@ -513,21 +515,27 @@ dlg_getc(WINDOW *win, int *fkey)
 		    break;
 		}
 #endif
-		if ((p = dialog_state.getc_redirect) != 0) {
-		    if (!(p->handle_getc(p, ch, *fkey, &result))) {
-			dlg_remove_callback(p);
-			dialog_state.getc_redirect = 0;
-			win = save_win;
-		    }
-		} else {
-		    done = TRUE;
-		}
+		handle_others = TRUE;
 		break;
 #ifdef HAVE_DLG_TRACE
 	    case CHR_TRACE:
 		dlg_trace_win(win);
 		break;
 #endif
+	    }
+	} else {
+	    handle_others = TRUE;
+	}
+
+	if (handle_others) {
+	    if ((p = dialog_state.getc_redirect) != 0) {
+		if (!(p->handle_getc(p, ch, *fkey, &result))) {
+		    dlg_remove_callback(p);
+		    dialog_state.getc_redirect = 0;
+		    win = save_win;
+		}
+	    } else {
+		done = TRUE;
 	    }
 	}
     }
