@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.360 2011/07/07 23:35:10 tom Exp $
+-- $Id: CHANGES,v 1.361 2011/09/08 00:17:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2011/09/07
+	+ ensure result from dlg_align_columns() has trailing null on each
+	  string.  Analysis was hindered by libc6's continuance of libc5's
+	  early-1990s misfeature of clearing the result from malloc, noting
+	  that libc6's documentation incorrectly claims that it does not do
+	  this (report by xDog Walker).
 
 2011/07/07
 	+ modify util.c to work better with old versions of ncurses:
