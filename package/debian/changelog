@@ -1,3 +1,9 @@
+cdialog (20110907) unstable; urgency=high
+
+  * fix missing trailing null from dlg_align_columns
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 07 Sep 2011 20:04:04 -0400
+
 cdialog (20110707) unstable; urgency=high
 
   * fix a regression in dlg_getc() from 20110630 changes.
