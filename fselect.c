@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.78 2011/06/29 09:48:21 tom Exp $
+ *  $Id: fselect.c,v 1.79 2011/09/18 20:21:22 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -563,6 +563,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
     int button = state;
     int first = (state == sTEXT);
+    int first_trace = TRUE;
     char *input;
     char *completed;
     char current[MAX_LEN + 1];
@@ -696,6 +697,12 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	    button = (state < 0) ? 0 : state;
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	}
+
+	if (first_trace) {
+	    first_trace = FALSE;
+	    dlg_trace_win(dialog);
+	}
+
 	if (state < 0) {
 	    switch (state) {
 	    case sTEXT:

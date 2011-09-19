@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.13 2011/06/27 08:18:20 tom Exp $
+ *  $Id: progressbox.c,v 1.15 2011/09/19 00:51:56 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -99,6 +99,7 @@ print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 #endif
 
     getyx(win, y, x);
+    (void) y;
     /* Clear 'residue' of previous line */
     for (i = 0; i < width - x; i++)
 	(void) waddch(win, ' ');
@@ -198,6 +199,7 @@ dlg_progressbox(const char *title,
 	wattrset(dialog, dialog_attr);
 	dlg_print_autowrap(dialog, prompt, height, width);
 	getyx(dialog, y2, x2);
+	(void) x2;
 	++y2;
 	wmove(dialog, y2, MARGIN);
 	for (i = 0; i < getmaxx(dialog) - 2 * MARGIN; i++)
@@ -236,6 +238,7 @@ dlg_progressbox(const char *title,
 	    print_line(obj, text, thigh - 1, width - (2 * MARGIN));
 	}
 	(void) wrefresh(text);
+	dlg_trace_win(dialog);
 	if (obj->is_eof)
 	    break;
     }
@@ -254,7 +257,7 @@ dlg_progressbox(const char *title,
     free(prompt);
     free(obj);
 
-    return DLG_EXIT_OK;
+    return result;
 }
 
 /*

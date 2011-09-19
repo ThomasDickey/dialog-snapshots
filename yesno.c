@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.51 2011/06/27 08:20:57 tom Exp $
+ *  $Id: yesno.c,v 1.52 2011/09/18 19:34:47 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -103,6 +103,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 	if (show) {
 	    last = dlg_print_scrolled(dialog, prompt, offset,
 				      page, width, TRUE);
+	    dlg_trace_win(dialog);
 	    show = FALSE;
 	}
 	key = dlg_mouse_wgetch(dialog, &fkey);

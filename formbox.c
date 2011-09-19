@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.73 2011/06/29 09:48:08 tom Exp $
+ *  $Id: formbox.c,v 1.75 2011/09/19 00:51:12 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -454,6 +454,7 @@ dlg_form(const char *title,
 
     int form_width;
     int first = TRUE;
+    int first_trace = TRUE;
     int chr_offset = 0;
     int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
     int x, y, cur_x, cur_y, box_x, box_y;
@@ -524,6 +525,7 @@ dlg_form(const char *title,
 
     form_width = width - 6;
     getyx(dialog, cur_y, cur_x);
+    (void) cur_x;
     box_y = cur_y + 1;
     box_x = (width - form_width) / 2 - 1;
 
@@ -577,6 +579,11 @@ dlg_form(const char *title,
 			      : state),
 			     FALSE, width);
 	    show_buttons = FALSE;
+	}
+
+	if (first_trace) {
+	    first_trace = FALSE;
+	    dlg_trace_win(dialog);
 	}
 
 	if (field_changed || state == sTEXT) {

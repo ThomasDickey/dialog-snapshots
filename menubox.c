@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.122 2011/06/29 09:48:46 tom Exp $
+ *  $Id: menubox.c,v 1.124 2011/09/19 01:00:03 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -83,12 +83,10 @@ print_tag(WINDOW *win,
     int my_x = item_x;
     int my_y = ItemToRow(choice);
     int tag_width = (my_x - tag_x - GUTTER);
-    const int *cols;
     const int *indx;
     int limit;
     int prefix;
 
-    cols = dlg_index_columns(item->name);
     indx = dlg_index_wchars(item->name);
     limit = dlg_count_wchars(item->name);
     prefix = (indx[1] - indx[0]);
@@ -461,6 +459,7 @@ dlg_menu(const char *title,
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
+    dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {
 	if (button < 0)		/* --visit-items */
 	    wmove(dialog, box_y + ItemToRow(choice) + 1, box_x + tag_x + 1);

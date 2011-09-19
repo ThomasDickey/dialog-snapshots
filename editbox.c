@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.55 2011/06/21 00:10:46 tom Exp $
+ *  $Id: editbox.c,v 1.56 2011/09/18 20:23:27 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -344,6 +344,7 @@ dlg_editbox(const char *title,
     size_t max_len = (size_t) dlg_max_input(widest_line(*list));
     char *input, *buffer;
     bool show_all, show_one, was_mouse;
+    bool first_trace = TRUE;
     WINDOW *dialog;
     WINDOW *editing;
     DIALOG_VARS save_vars;
@@ -474,6 +475,11 @@ dlg_editbox(const char *title,
 		display_one(editing, input, thisrow,
 			    thisrow, base_row, chr_offset);
 	    }
+	}
+
+	if (first_trace) {
+	    first_trace = FALSE;
+	    dlg_trace_win(dialog);
 	}
 
 	key = dlg_mouse_wgetch((state == sTEXT) ? editing : dialog, &fkey);

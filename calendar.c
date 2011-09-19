@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.62 2011/06/29 09:47:06 tom Exp $
+ * $Id: calendar.c,v 1.63 2011/09/18 19:30:34 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -539,6 +539,7 @@ dialog_calendar(const char *title,
 	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }
 
+    dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sDAY ? &dy_box
 		    : (state == sMONTH ? &mn_box :

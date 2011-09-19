@@ -1,5 +1,7 @@
-cdialog (20110907) unstable; urgency=high
+cdialog (20110918) unstable; urgency=high
 
+  * misc bug-fixes.
+  * various improvements to tracing.
   * fix missing trailing null from dlg_align_columns
 
  -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 07 Sep 2011 20:04:04 -0400

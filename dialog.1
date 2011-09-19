@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.133 2011/06/29 09:39:29 tom Exp $
+.\" $Id: dialog.1,v 1.135 2011/09/18 21:07:51 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/06/29 09:39:29 $"
+.TH \*D 1 "" "$Date: 2011/09/18 21:07:51 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -338,7 +338,8 @@ adding a column which is displayed in the bottom line of the
 screen, for the currently selected item.
 .
 .IP "\fB--keep-tite"
-Normally \fB\*p\fP checks to see if it is running in an \fBxterm\fP,
+When built with \fBncurses\fP,
+\fB\*p\fP normally checks to see if it is running in an \fBxterm\fP,
 and in that case tries to suppress the initialization strings that
 would make it switch to the alternate screen.
 Switching between the normal and alternate screens
@@ -899,7 +900,8 @@ If only two parameters are given, this text is omitted.
 .IP "\fB--programbox \fIheight width"
 A \fBprogrambox\fP is very similar to a \fBprogressbox\fP.
 The only difference between a \fBprogram\fP box and a \fBprogress\fP
-box is that a \fBprogram\fP box displays an \fBOK\fP button.
+box is that a \fBprogram\fP box displays an \fBOK\fP button
+(but only after the command completes).
 .IP
 This dialog box is used to display the piped output of a command.
 After the command completes, the user can press the \fIENTER\fP key so that
@@ -913,7 +915,16 @@ If only two parameters are given, this text is omitted.
 .IP "\fB--progressbox \fItext height width"
 .IP "\fB--progressbox \fIheight width"
 A \fBprogressbox\fP is similar to an \fBtailbox\fP,
-except that it will exit when it reaches the end of the file.
+except that
+.RS
+.TP 3
+a) rather than displaying the contents of a file,
+it displays the piped output of a command and
+.TP 3
+b) it will exit when it reaches the end of the file
+(there is no "OK" button).
+.RE
+.IP
 If three parameters are given, it displays the text under the title,
 delineated from the scrolling file's contents.
 If only two parameters are given, this text is omitted.

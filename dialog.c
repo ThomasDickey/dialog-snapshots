@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.193 2011/06/29 09:10:56 tom Exp $
+ * $Id: dialog.c,v 1.194 2011/09/18 23:19:29 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1458,12 +1458,20 @@ init_result(char *buffer)
 	    special_argv = dlg_string_to_argv(env);
 	    special_argc = dlg_count_argv(special_argv);
 	}
+	first = FALSE;
     }
+
+    /*
+     * If we are not checking memory leaks, just do the parse of the
+     * environment once.
+     */
     if (special_argv != 0) {
 	process_common_options(special_argc, special_argv, 0, FALSE);
 #ifdef NO_LEAKS
 	free(special_argv[0]);
 	free(special_argv);
+	special_argv = 0;
+	special_argc = 0;
 	first = TRUE;
 #endif
     }

@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.29 2011/06/29 09:48:53 tom Exp $
+ *  $Id: pause.c,v 1.30 2011/09/18 20:04:01 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -77,6 +77,7 @@ dialog_pause(const char *title,
     WINDOW *dialog;
     const char **buttons = dlg_ok_labels();
     bool have_buttons = (dlg_button_count(buttons) != 0);
+    bool first;
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     int button_high = (have_buttons ? BTN_HIGH : MARGIN);
@@ -120,6 +121,7 @@ dialog_pause(const char *title,
     dlg_mouse_setbase(x, y);
     nodelay(dialog, TRUE);
 
+    first = TRUE;
     do {
 	(void) werase(dialog);
 	dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
@@ -175,7 +177,11 @@ dialog_pause(const char *title,
 	    dlg_draw_bottom_box(dialog);
 	    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	}
-	(void) wrefresh(dialog);
+	if (first) {
+	    (void) wrefresh(dialog);
+	    dlg_trace_win(dialog);
+	    first = FALSE;
+	}
 
 	for (step = 0;
 	     (result == DLG_EXIT_UNKNOWN) && (step < 1000);

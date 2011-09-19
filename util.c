@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.227 2011/07/07 23:42:30 tom Exp $
+ *  $Id: util.c,v 1.231 2011/09/19 00:59:25 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -26,6 +26,10 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+
+#ifdef HAVE_SETLOCALE
+#include <locale.h>
+#endif
 
 #ifdef NCURSES_VERSION
 #if defined(HAVE_NCURSESW_TERM_H)
@@ -225,6 +229,8 @@ init_dialog(FILE *input, FILE *output)
 {
     int fd1, fd2;
     char *device = 0;
+
+    setlocale(LC_ALL, "");
 
     dialog_state.output = output;
     dialog_state.tab_len = TAB_LEN;
@@ -647,8 +653,10 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	 * more blanks.
 	 */
 	thisTab = (CharOf(*txt) == TAB);
-	if (thisTab)
+	if (thisTab) {
 	    getyx(win, y_before, x_before);
+	    (void) y_before;
+	}
 	(void) waddch(win, CharOf(*txt++) | useattr);
 	getyx(win, y_after, x_after);
 	if (thisTab && (y_after == y_origin))
@@ -704,7 +712,7 @@ dlg_print_line(WINDOW *win,
 	} else if (*test_ptr == ' ' && n != 0 && prompt[indx[n - 1]] != ' ') {
 	    wrap_inx = n;
 	    *x = cur_x;
-	} else if (isOurEscape(test_ptr)) {
+	} else if (dialog_vars.colors && isOurEscape(test_ptr)) {
 	    hide_ptr = test_ptr;
 	    hidden += ESCAPE_LEN;
 	    n += (ESCAPE_LEN - 1);
@@ -751,7 +759,7 @@ dlg_print_line(WINDOW *win,
 	hidden -= ESCAPE_LEN;
 	test_ptr = wrap_ptr;
 	while (test_ptr < wrap_ptr) {
-	    if (isOurEscape(test_ptr)) {
+	    if (dialog_vars.colors && isOurEscape(test_ptr)) {
 		hidden -= ESCAPE_LEN;
 		test_ptr += ESCAPE_LEN;
 	    } else {
@@ -911,6 +919,7 @@ dlg_print_scrolled(WINDOW *win,
 	    werase(dummy);
 	    dlg_print_autowrap(dummy, prompt, high, width);
 	    getyx(dummy, y, x);
+	    (void) x;
 
 	    copywin(dummy,	/* srcwin */
 		    win,	/* dstwin */
@@ -1088,7 +1097,7 @@ count_real_columns(const char *text)
     if (result && dialog_vars.colors) {
 	int hidden = 0;
 	while (*text) {
-	    if (isOurEscape(text)) {
+	    if (dialog_vars.colors && isOurEscape(text)) {
 		hidden += ESCAPE_LEN;
 		text += ESCAPE_LEN;
 	    } else {
@@ -1454,7 +1463,7 @@ repaint_cell(DIALOG_WINDOWS * dw, bool draw, int y, int x)
 #if USE_WCHGAT
 	wchgat(cellwin, 1,
 	       the_attr & (chtype) (~A_COLOR),
-	       PAIR_NUMBER(the_attr),
+	       (short) PAIR_NUMBER(the_attr),
 	       NULL);
 #else
 	{
@@ -2057,6 +2066,7 @@ dlg_item_help(const char *txt)
 	if (itemhelp_attr & A_COLOR) {
 	    /* fill the remainder of the line with the window's attributes */
 	    getyx(stdscr, y, x);
+	    (void) y;
 	    while (x < COLS) {
 		(void) addch(' ');
 		++x;
