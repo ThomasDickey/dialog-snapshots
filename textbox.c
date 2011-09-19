@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.101 2011/06/29 09:53:03 tom Exp $
+ *  $Id: textbox.c,v 1.102 2011/09/18 19:40:49 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -414,6 +414,7 @@ print_page(MY_OBJ * obj, int height, int width)
 	    passed_end = 1;
     }
     (void) wnoutrefresh(obj->text);
+    dlg_trace_win(obj->text);
 }
 
 /*

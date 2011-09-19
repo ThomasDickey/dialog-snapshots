@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.127 2011/06/29 23:04:09 tom Exp $
+ *  $Id: checklist.c,v 1.128 2011/09/18 19:30:34 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -328,6 +328,7 @@ dlg_checklist(const char *title,
 
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
+    dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {
 	if (button < 0)		/* --visit-items */
 	    wmove(dialog, box_y + choice + 1, box_x + check_x + 2);

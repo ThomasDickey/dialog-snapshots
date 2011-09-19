@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.45 2011/06/27 08:20:22 tom Exp $
+ * $Id: timebox.c,v 1.46 2011/09/18 19:30:34 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -275,6 +275,7 @@ dialog_timebox(const char *title,
 	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }
 
+    dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sHR ? &hr_box
 		    : (state == sMN ? &mn_box :

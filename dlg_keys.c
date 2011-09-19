@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.26 2009/02/22 16:19:51 tom Exp $
+ *  $Id: dlg_keys.c,v 1.27 2011/09/19 01:01:55 tom Exp $
  *
- * dlg_keys.c -- runtime binding support for dialog
+ *  dlg_keys.c -- runtime binding support for dialog
  *
- * Copyright 2006-2007,2009 Thomas E. Dickey
+ *  Copyright 2006-2009,2011 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -705,7 +705,6 @@ dlg_dump_keys(FILE *fp)
 {
     LIST_BINDINGS *p;
     const char *last = "";
-    unsigned n;
     unsigned count = 0;
 
     for (p = all_bindings; p != 0; p = p->link) {
@@ -714,7 +713,7 @@ dlg_dump_keys(FILE *fp)
 	}
     }
     if (count != 0) {
-	for (p = all_bindings, n = 0; p != 0; p = p->link) {
+	for (p = all_bindings; p != 0; p = p->link) {
 	    if (p->win == 0) {
 		if (dlg_strcmp(last, p->name)) {
 		    fprintf(fp, "\n# key bindings for %s widgets\n",

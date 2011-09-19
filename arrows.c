@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.36 2011/06/27 09:13:56 tom Exp $
+ *  $Id: arrows.c,v 1.37 2011/09/19 00:56:09 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -166,14 +166,13 @@ dlg_draw_scrollbar(WINDOW *win,
     char buffer[80];
     int percent;
     int len;
-    int oldy, oldx, maxy, maxx;
+    int oldy, oldx;
 
     chtype save = dlg_get_attrs(win);
     int top_arrow = (first_data != 0);
     int bottom_arrow = (next_data < total_data);
 
     getyx(win, oldy, oldx);
-    getmaxyx(win, maxy, maxx);
 
     dlg_draw_helpline(win, TRUE);
     if (bottom_arrow || top_arrow || dialog_state.use_scrollbar) {

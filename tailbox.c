@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.63 2011/06/27 08:19:43 tom Exp $
+ *  $Id: tailbox.c,v 1.65 2011/09/19 00:54:43 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -96,6 +96,7 @@ print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 #endif
 
     getyx(win, y, x);
+    (void) y;
     /* Clear 'residue' of previous line */
     for (i = 0; i < width - x; i++)
 	(void) waddch(win, ' ');
@@ -371,6 +372,7 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     dlg_attr_clear(text, thigh, getmaxx(text), dialog_attr);
     repaint_text(obj);
 
+    dlg_trace_win(dialog);
     if (bg_task) {
 	result = DLG_EXIT_OK;
     } else {

@@ -1,10 +1,35 @@
--- $Id: CHANGES,v 1.361 2011/09/08 00:17:12 tom Exp $
+-- $Id: CHANGES,v 1.372 2011/09/19 00:55:38 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/09/07
+2011/09/18
+	+ save/restore window current position in dlg_update_mixedgauge().
+	+ pass return-code from pause_for_ok() from dlg_progressbox() when
+	  pauseopt is set, rather than only DLG_OK.
+	+ call setlocale() in init_dialog() rather than relying on on-demand
+	  use within inputstr.c, since there are paths in textbox widget which
+	  do not exercise the latter (report by xDog Walker).
+	+ fix some places where checks for "\Z" were done without also checking
+	  dialog_vars.colors (report by Moray Henderson).
+	+ correct logic for DIALOGOPTS parsing so that the parse happens only
+	  once unless memory leak checking is enabled (report by xDog Walker).
+	+ remove an incorrect free() call in dlg_free_gauge() (report by xDog
+	  Walker).
+	+ modify dlg_trace_win() to log wide-characters (report by xDog Walker).
+	+ make traces shorter by skipping repeated ERR's, but showing the
+	  number skipped (report by xDog Walker).
+	+ improve description in manpage to distinguish program box and
+	  progress box from tailboxes (adapted from email by xDog Walker).
+	+ modify dlg_trace_win() so that it looks for the topmost window in a
+	  dialog.  Because subwindows share space with the top window, tracing
+	  the latter shows the whole widget (report by xDog Walker).
+	+ expand tracing so that each window is traced before soliciting input,
+	  making the ^T feature to print a window on demand partly redundant
+	  (suggested by xDog Walker).
+	+ cosmetic change in dialog.h to avoid "*/*" strings from comments next
+	  to "*" (report by xDog Walker).
 	+ ensure result from dlg_align_columns() has trailing null on each
 	  string.  Analysis was hindered by libc6's continuance of libc5's
 	  early-1990s misfeature of clearing the result from malloc, noting

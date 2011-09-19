@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.60 2011/06/27 00:52:28 tom Exp $
+ *  $Id: guage.c,v 1.62 2011/09/18 23:07:29 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -335,7 +335,6 @@ dlg_free_gauge(void *objptr)
 	delink(obj);
 	obj->obj.keep_win = FALSE;
 	dlg_remove_callback(&(obj->obj));
-	free(obj);
     }
 }
 
@@ -362,6 +361,7 @@ dialog_gauge(const char *title,
     dlg_add_callback_ref((DIALOG_CALLBACK **) & obj, my_cleanup);
     dlg_update_gauge(obj, percent);
 
+    dlg_trace_win(obj->obj.win);
     do {
 	ch = dlg_getc(obj->obj.win, &fkey);
 #ifdef KEY_RESIZE

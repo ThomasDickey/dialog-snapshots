@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.66 2011/06/27 08:36:28 tom Exp $
+ *  $Id: msgbox.c,v 1.67 2011/09/18 20:09:31 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -110,6 +110,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	    if (show) {
 		last = dlg_print_scrolled(dialog, prompt, offset,
 					  page, width, pauseopt);
+		dlg_trace_win(dialog);
 		show = FALSE;
 	    }
 	    key = dlg_mouse_wgetch(dialog, &fkey);
@@ -176,6 +177,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 	dlg_print_scrolled(dialog, prompt, offset, page, width, pauseopt);
 	dlg_draw_helpline(dialog, FALSE);
 	wrefresh(dialog);
+	dlg_trace_win(dialog);
 	result = DLG_EXIT_OK;
     }
 

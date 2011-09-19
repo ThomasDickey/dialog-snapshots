@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.231 2011/06/29 09:51:00 tom Exp $
+ *  $Id: dialog.h,v 1.234 2011/09/18 19:45:02 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -95,6 +95,10 @@
 #else
 #undef _
 #define _(s) s
+#endif
+
+#ifndef GCC_PRINTFLIKE
+#define GCC_PRINTFLIKE(fmt,var) /*nothing*/
 #endif
 
 #ifndef GCC_NORETURN
@@ -231,6 +235,11 @@
 #ifndef HAVE_GETPARYX
 #undef  getparyx
 #define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
+#endif
+
+#ifndef HAVE_WGETPARENT
+#undef  wgetparent
+#define wgetparent(win)		((win) ? (win)->_parent : 0)
 #endif
 
 #ifdef __cplusplus
@@ -623,7 +632,7 @@ extern void dlg_align_columns(char ** /* target */, int  /* per_row */, int /* n
 extern void dlg_free_columns(char ** /* target */, int  /* per_row */, int /* num_rows */);
 
 /* editbox.c */
-extern int dlg_editbox(const char */*title*/, char ***/*list*/, int */*rows*/, int /*height*/, int /*width*/);
+extern int dlg_editbox(const char * /*title*/, char *** /*list*/, int * /*rows*/, int /*height*/, int /*width*/);
 
 /* formbox.c */
 extern int dlg_default_formitem(DIALOG_FORMITEM * /*items*/);
@@ -673,12 +682,12 @@ extern char * dlg_strempty(void);
 extern chtype dlg_asciibox(chtype /*ch*/);
 extern chtype dlg_boxchar(chtype /*ch*/);
 extern chtype dlg_get_attrs(WINDOW * /*win*/);
-extern const char * dlg_print_line(WINDOW */*win*/, chtype */*attr*/, const char */*prompt*/, int /*lm*/, int /*rm*/, int */*x*/);
+extern const char * dlg_print_line(WINDOW * /*win*/, chtype * /*attr*/, const char * /*prompt*/, int /*lm*/, int /*rm*/, int * /*x*/);
 extern int dlg_box_x_ordinate(int /*width*/);
 extern int dlg_box_y_ordinate(int /*height*/);
 extern int dlg_calc_list_width(int /*item_no*/, DIALOG_LISTITEM * /*items*/);
 extern int dlg_calc_listw(int /*item_no*/, char ** /*items*/, int /*group*/);
-extern int dlg_check_scrolled(int /* key */, int /* last */, int /* page */, bool */* show */, int */* offset */);
+extern int dlg_check_scrolled(int /* key */, int /* last */, int /* page */, bool * /* show */, int * /* offset */);
 extern int dlg_default_item(char ** /*items*/, int /*llen*/);
 extern int dlg_default_listitem(DIALOG_LISTITEM * /*items*/);
 extern int dlg_defaultno_button(void);
@@ -715,11 +724,7 @@ extern void dlg_trim_string(char * /*src*/);
 extern void end_dialog(void);
 extern void init_dialog(FILE * /*input*/, FILE * /*output*/);
 
-extern void dlg_exiterr(const char *, ...) GCC_NORETURN
-#if defined(__GNUC__) && !defined(printf)
-__attribute__((format(printf,1,2)))
-#endif
-;
+extern void dlg_exiterr(const char *, ...) GCC_NORETURN GCC_PRINTFLIKE(1,2);
 
 #ifdef HAVE_COLOR
 extern chtype dlg_color_pair(int /*foreground*/, int /*background*/);
@@ -736,11 +741,7 @@ extern int dlg_strcmp(const char * /*a*/, const char * /*b*/);
 
 #ifdef HAVE_DLG_TRACE
 #define DLG_TRACE(params) dlg_trace_msg params
-extern void dlg_trace_msg(const char *fmt, ...)
-#ifdef GCC_PRINTF
-    __attribute__((format(printf,1,2)))
-#endif
-;
+extern void dlg_trace_msg(const char *fmt, ...) GCC_PRINTFLIKE(1,2);
 extern void dlg_trace_win(WINDOW * /*win*/);
 extern void dlg_trace_chr(int /*ch*/, int /*fkey*/);
 extern void dlg_trace(const char * /*fname*/);

@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.24 2011/06/27 08:16:38 tom Exp $
+ *  $Id: mixedgauge.c,v 1.26 2011/09/19 00:54:57 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -181,6 +181,8 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	(void) waddch(win, ']');
 	(void) wnoutrefresh(win);
     }
+    if (win != 0)
+	wmove(win, last_y, last_x);
 }
 
 static void
@@ -251,6 +253,7 @@ dlg_update_mixedgauge(DIALOG_MIXEDGAUGE * dlg, int percent)
 	(void) waddch(dlg->dialog, ch);
     }
     myprint_status(dlg);
+    dlg_trace_win(dlg->dialog);
 }
 
 /*
