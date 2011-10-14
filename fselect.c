@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.79 2011/09/18 20:21:22 tom Exp $
+ *  $Id: fselect.c,v 1.81 2011/10/14 09:43:34 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -429,6 +429,8 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 static bool
 fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
 {
+    bool result = TRUE;
+    bool rescan = FALSE;
     DIR *dp;
     DIRENT *de;
     struct stat sb;
@@ -441,51 +443,60 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
 	if (current[n] != input[n])
 	    break;
     }
-    if (current[n] == input[n])
-	return FALSE;
-    if (strchr(current + n, '/') == 0
-	&& strchr(input + n, '/') == 0) {
-	return show_both_lists(input, d_list, f_list, keep);
-    }
 
-    strcpy(current, input);
-
-    /* refill the lists */
-    free_list(d_list, TRUE);
-    free_list(f_list, TRUE);
-    strcpy(path, current);
-    if ((leaf = strrchr(path, '/')) != 0) {
-	*++leaf = 0;
+    if (current[n] == input[n]) {
+	result = FALSE;
+	rescan = (n == 0 && d_list->length == 0);
+    } else if (strchr(current + n, '/') == 0
+	       && strchr(input + n, '/') == 0) {
+	result = show_both_lists(input, d_list, f_list, keep);
     } else {
-	strcpy(path, "./");
-	leaf = path + strlen(path);
-    }
-    if ((dp = opendir(path)) != 0) {
-	while ((de = readdir(dp)) != 0) {
-	    strncpy(leaf, de->d_name, NAMLEN(de))[NAMLEN(de)] = 0;
-	    if (stat(path, &sb) == 0) {
-		if ((sb.st_mode & S_IFMT) == S_IFDIR)
-		    add_to_list(d_list, leaf);
-		else if (f_list->win)
-		    add_to_list(f_list, leaf);
-	    }
-	}
-	(void) closedir(dp);
-	/* sort the lists */
-	qsort(d_list->data,
-	      (size_t) d_list->length,
-	      sizeof(d_list->data[0]),
-	      compar);
-	qsort(f_list->data,
-	      (size_t) f_list->length,
-	      sizeof(f_list->data[0]),
-	      compar);
+	rescan = TRUE;
     }
 
-    (void) show_both_lists(input, d_list, f_list, FALSE);
-    d_list->offset = d_list->choice;
-    f_list->offset = f_list->choice;
-    return TRUE;
+    if (rescan) {
+
+	strcpy(current, input);
+
+	/* refill the lists */
+	free_list(d_list, TRUE);
+	free_list(f_list, TRUE);
+	strcpy(path, current);
+	if ((leaf = strrchr(path, '/')) != 0) {
+	    *++leaf = 0;
+	} else {
+	    strcpy(path, "./");
+	    leaf = path + strlen(path);
+	}
+	dlg_trace_msg("opendir '%s'\n", path);
+	if ((dp = opendir(path)) != 0) {
+	    while ((de = readdir(dp)) != 0) {
+		strncpy(leaf, de->d_name, NAMLEN(de))[NAMLEN(de)] = 0;
+		if (stat(path, &sb) == 0) {
+		    if ((sb.st_mode & S_IFMT) == S_IFDIR)
+			add_to_list(d_list, leaf);
+		    else if (f_list->win)
+			add_to_list(f_list, leaf);
+		}
+	    }
+	    (void) closedir(dp);
+	    /* sort the lists */
+	    qsort(d_list->data,
+		  (size_t) d_list->length,
+		  sizeof(d_list->data[0]),
+		  compar);
+	    qsort(f_list->data,
+		  (size_t) f_list->length,
+		  sizeof(f_list->data[0]),
+		  compar);
+	}
+
+	(void) show_both_lists(input, d_list, f_list, FALSE);
+	d_list->offset = d_list->choice;
+	f_list->offset = f_list->choice;
+	result = TRUE;
+    }
+    return result;
 }
 
 static bool
@@ -631,7 +642,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 			  tbox_width + (MARGIN + EXT_WIDE),
 			  MOUSE_T, 1, 1, 3 /* doesn't matter */ );
 
-    dlg_register_window(w_text, "fselect", binding2);
+    dlg_register_window(w_text, "fselect2", binding2);
 
     /* Draw the directory listing box */
     if (dselect)

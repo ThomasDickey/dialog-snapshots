@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.69 2011/09/19 00:57:09 tom Exp $
+ *  $Id: inputbox.c,v 1.70 2011/10/12 22:24:57 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -136,7 +136,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     /* Make a window for the input-field, to associate bindings */
     editor = dlg_sub_window(dialog, 1, box_width, yorg + box_y, xorg + box_x);
-    dlg_register_window(editor, "inputbox", binding2);
+    dlg_register_window(editor, "inputbox2", binding2);
 
     dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {

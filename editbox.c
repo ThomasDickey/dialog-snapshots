@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.56 2011/09/18 20:23:27 tom Exp $
+ *  $Id: editbox.c,v 1.57 2011/10/12 22:24:35 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -410,7 +410,7 @@ dlg_editbox(const char *title,
 			     box_width - (2 * MARGIN),
 			     getbegy(dialog) + box_y + 1,
 			     getbegx(dialog) + box_x + 1);
-    dlg_register_window(editing, "editbox", binding2);
+    dlg_register_window(editing, "editbox2", binding2);
 
     show_all = TRUE;
     show_one = FALSE;

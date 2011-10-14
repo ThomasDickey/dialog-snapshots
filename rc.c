@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.47 2011/06/20 22:30:04 tom Exp $
+ *  $Id: rc.c,v 1.48 2011/10/04 23:34:18 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -507,7 +507,10 @@ dlg_parse_rc(void)
 
 	lastch(str) = '\0';
 	if (begins_with(str, "bindkey", &params)) {
-	    dlg_parse_bindkey(params);
+	    if (!dlg_parse_bindkey(params)) {
+		fprintf(stderr, "\nParse error: line %d of configuration\n", l);
+		result = -1;
+	    }
 	    continue;
 	}
 	parse = parse_line(str, &var, &value);	/* parse current line */

@@ -1,10 +1,40 @@
--- $Id: CHANGES,v 1.372 2011/09/19 00:55:38 tom Exp $
+-- $Id: CHANGES,v 1.379 2011/10/14 09:45:26 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/09/18
+2011/10/14
+	+ modify fselect.c to scan the current directory if the input field
+	  happens to be empty (Debian #640905).
+	+ repeated the discussion of environment variables that can override
+	  the exit-status values in the manpage's return-codes section
+	  (Debian #642105).
+	+ add an example to the manpage showing how to override the form
+	  widget's keys used for field/button traversal (Debian #642108).
+	+ modify call to dlg_register_window() in formbox.c so that the editing
+	  bindings are attached to the form sub-window rather than the
+	  top-level dialog window.  Also change the name by which the editing
+	  bindings are bound for editbox.c, fselect.c and inputbox.c, so that
+	  the editing and navigation bindings can be different.
+	+ correct logic in dlg_lookup_key() so that it matches the widget name
+	  before using a binding from .dialogrc, allowing the inner/outer
+	  windows of form and other editing widgets to have different bindings.
+	+ modify dlg_register_window() to call dlg_dump_window_keys() after
+	  its updates, via the --trace output, to supplement the manpage
+	  description of key bindings (Debian #642108).
+	+ add DLGK_FORM_PREV and DLGK_FORM_NEXT key-bindings to form.c, to
+	  allow binding a single key to traverse both form-fields and buttons
+	  (Debian #642108).
+	+ modify dlg_parse_rc() to check for error return from
+	  dlg_parse_bindkey().
+	+ add function dlg_dump_window_keys(), to help with debugging widgets.
+	+ add CR, LF, TAB, FF and ESC to table of curses names to help make
+	  key bindings more readable.
+	+ update table of dialog key-names so that helpfile and trace are
+	  dumped properly.
+	+ correct dlg_dump_keys(), which was showing only the first item in
+	  the matched binding table.
 	+ save/restore window current position in dlg_update_mixedgauge().
 	+ pass return-code from pause_for_ok() from dlg_progressbox() when
 	  pauseopt is set, rather than only DLG_OK.

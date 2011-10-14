@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.68 2011/06/29 09:07:36 tom Exp $
+.\" $Id: dialog.3,v 1.69 2011/10/14 00:44:15 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/06/29 09:07:36 $"
+.TH \*D 3 "" "$Date: 2011/10/14 00:44:15 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1999,6 +1999,20 @@ e.g., as part of \fBdlg_create_rc\fP.
 .TP 5
 .B FILE * \fIfp
 is the stream on which to write the bindings.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_dump_window_keys
+Write all user-defined key-bindings to the given stream,
+e.g., as part of \fBdlg_create_rc\fP.
+.RS
+.TP 5
+.B FILE * \fIfp
+is the stream on which to write the bindings.
+.TP 5
+.B WINDOW * \fIwin
+is the window for which bindings should be dumped.
+If it is null, then only built-in bindings are dumped.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5

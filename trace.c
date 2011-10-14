@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.18 2011/09/19 00:45:50 tom Exp $
+ *  $Id: trace.c,v 1.19 2011/10/04 23:53:20 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -164,6 +164,10 @@ dlg_trace_chr(int ch, int fkey)
 		    CASE(DLGK_FIELD_LAST);
 		    CASE(DLGK_FIELD_NEXT);
 		    CASE(DLGK_FIELD_PREV);
+		    CASE(DLGK_FORM_FIRST);
+		    CASE(DLGK_FORM_LAST);
+		    CASE(DLGK_FORM_NEXT);
+		    CASE(DLGK_FORM_PREV);
 		    CASE(DLGK_GRID_UP);
 		    CASE(DLGK_GRID_DOWN);
 		    CASE(DLGK_GRID_LEFT);

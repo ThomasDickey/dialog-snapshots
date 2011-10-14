@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.128 2011/09/18 19:30:34 tom Exp $
+ *  $Id: checklist.c,v 1.129 2011/10/13 00:24:46 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -190,6 +190,7 @@ dlg_checklist(const char *title,
     WINDOW *dialog, *list;
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
+    const char *widget_name;
 
     dlg_does_output();
     dlg_tab_correct_str(prompt);
@@ -211,6 +212,9 @@ dlg_checklist(const char *title,
 		}
 	    }
 	}
+	widget_name = "radiolist";
+    } else {
+	widget_name = "checklist";
     }
 #ifdef KEY_RESIZE
   retry:
@@ -240,8 +244,8 @@ dlg_checklist(const char *title,
     y = dlg_box_y_ordinate(height);
 
     dialog = dlg_new_window(height, width, y, x);
-    dlg_register_window(dialog, "checklist", binding);
-    dlg_register_buttons(dialog, "checklist", buttons);
+    dlg_register_window(dialog, widget_name, binding);
+    dlg_register_buttons(dialog, widget_name, buttons);
 
     dlg_mouse_setbase(x, y);
 
