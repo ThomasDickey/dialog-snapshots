@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.75 2011/09/19 00:51:12 tom Exp $
+ *  $Id: formbox.c,v 1.78 2011/10/13 00:01:40 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -186,6 +186,34 @@ form_limit(DIALOG_FORMITEM item[])
 	    limit = item[n].text_y;
     }
     return limit;
+}
+
+static int
+is_first_field(DIALOG_FORMITEM item[], int choice)
+{
+    int count = 0;
+    while (choice >= 0) {
+	if (item[choice].text_flen > 0) {
+	    ++count;
+	}
+	--choice;
+    }
+
+    return (count == 1);
+}
+
+static int
+is_last_field(DIALOG_FORMITEM item[], int choice, int item_no)
+{
+    int count = 0;
+    while (choice < item_no) {
+	if (item[choice].text_flen > 0) {
+	    ++count;
+	}
+	++choice;
+    }
+
+    return (count == 1);
 }
 
 /*
@@ -511,7 +539,6 @@ dlg_form(const char *title,
 
     dialog = dlg_new_window(height, width, y, x);
     dlg_register_window(dialog, "formbox", binding);
-    dlg_register_window(dialog, "formfield", binding2);
     dlg_register_buttons(dialog, "formbox", buttons);
 
     dlg_mouse_setbase(x, y);
@@ -532,6 +559,7 @@ dlg_form(const char *title,
     /* create new window for the form */
     form = dlg_sub_window(dialog, form_height, form_width, y + box_y + 1,
 			  x + box_x + 1);
+    dlg_register_window(form, "formfield", binding2);
 
     /* draw a box around the form items */
     dlg_draw_box(dialog, box_y, box_x, form_height + 2, form_width + 2,
@@ -601,7 +629,7 @@ dlg_form(const char *title,
 	    field_changed = FALSE;
 	}
 
-	key = dlg_mouse_wgetch(dialog, &fkey);
+	key = dlg_mouse_wgetch((state == sTEXT) ? form : dialog, &fkey);
 	if (dlg_result_key(key, fkey, &result))
 	    break;
 
@@ -660,6 +688,25 @@ dlg_form(const char *title,
 		    continue;
 		}
 
+	    case DLGK_FORM_PREV:
+		if (state == sTEXT && !is_first_field(items, choice)) {
+		    do_tab = TRUE;
+		    move_by = -1;
+		    break;
+		} else {
+		    int old_state = state;
+		    state = prev_valid_buttonindex(state, sTEXT, non_editable);
+		    show_buttons = TRUE;
+		    if (old_state >= 0 && state == sTEXT) {
+			new_choice = item_no - 1;
+			if (choice != new_choice) {
+			    print_item(form, items + choice, scrollamt, FALSE);
+			    choice = new_choice;
+			}
+		    }
+		    continue;
+		}
+
 	    case DLGK_FIELD_PREV:
 		state = prev_valid_buttonindex(state, sTEXT, non_editable);
 		show_buttons = TRUE;
@@ -683,6 +730,21 @@ dlg_form(const char *title,
 		} else {
 		    state = next_valid_buttonindex(state, 0, non_editable);
 		    show_buttons = TRUE;
+		    continue;
+		}
+
+	    case DLGK_FORM_NEXT:
+		if (state == sTEXT && !is_last_field(items, choice, item_no)) {
+		    do_tab = TRUE;
+		    move_by = 1;
+		    break;
+		} else {
+		    state = next_valid_buttonindex(state, sTEXT, non_editable);
+		    show_buttons = TRUE;
+		    if (state == sTEXT && choice) {
+			print_item(form, items + choice, scrollamt, FALSE);
+			choice = 0;
+		    }
 		    continue;
 		}
 

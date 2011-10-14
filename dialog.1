@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.135 2011/09/18 21:07:51 tom Exp $
+.\" $Id: dialog.1,v 1.138 2011/10/14 00:23:54 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -27,16 +27,17 @@
 .ne 8
 .IP
 ..
-.de EX
-.RS +10
+.de Ex
+.RS +7
+.PP
 .nf
 ..
-.de EE
+.de Ee
 .fi
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/09/18 21:07:51 $"
+.TH \*D 1 "" "$Date: 2011/10/14 00:23:54 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -172,39 +173,39 @@ To compare the effects, use these:
 .
 .ES
 All three widgets visible, staircase effect, ordered 1,2,3:
-.EX
-\*p \
+.Ex
+\*p \\
                                --begin 2 2 --yesno "" 0 0 \\
     --and-widget               --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
-.EE
+.Ee
 .
 .ES
 Only the last widget is left visible:
-.EX
-\*p \
+.Ex
+\*p \\
                  --clear       --begin 2 2 --yesno "" 0 0 \\
     --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
-.EE
+.Ee
 .
 .ES
 All three widgets visible, staircase effect, ordered 3,2,1:
-.EX
-\*p \
+.Ex
+\*p \\
                  --keep-window --begin 2 2 --yesno "" 0 0 \\
     --and-widget --keep-window --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
-.EE
+.Ee
 .
 .ES
 First and third widget visible, staircase effect, ordered 3,1:
-.EX
-\*p \
+.Ex
+\*p \\
                  --keep-window --begin 2 2 --yesno "" 0 0 \\
     --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
     --and-widget               --begin 6 6 --yesno "" 0 0
-.EE
+.Ee
 .IP
 Note, if you want to restore original console colors and send your
 cursor home after the dialog program has exited, use the \fBclear\fR\ (1)
@@ -345,7 +346,7 @@ would make it switch to the alternate screen.
 Switching between the normal and alternate screens
 is visually distracting in a script which runs \fB\*p\fP
 several times.
-Use this option to allow \fB\*p\fP to use those initialization strings. 
+Use this option to allow \fB\*p\fP to use those initialization strings.
 .
 .IP "\fB--keep-window"
 Normally when \fB\*p\fR performs several \fBtailboxbg\fR widgets
@@ -622,7 +623,7 @@ On exit, the contents of the text-entry window are written to \fB\*p\fP's output
 .
 .IP "\fB--editbox \fIfilepath height width\fR"
 The edit-box dialog displays a copy of the file.
-You may edit it using 
+You may edit it using
 the \fIbackspace\fP, \fIdelete\fP and cursor keys
 to correct typing errors.
 It also recognizes pageup/pagedown.
@@ -848,7 +849,7 @@ On exit, no text is written to \fB\*p\fP's output.
 Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
 .
-.IP "\fB\-\-pause \fItext height width seconds\fR"
+.IP "\fB--pause \fItext height width seconds\fR"
 A
 \fBpause\fP
 box displays a meter along the bottom of the box.
@@ -1105,9 +1106,10 @@ can find, as stated in step 2 above.
 You can override or add to key bindings in \fB\*p\fP
 by adding to the configuration file.
 \fB\*L\fP's \fBbindkey\fP command maps single keys to its internal coding.
-.EX
+.Ex
 bindkey \fIwidget\fP \fIcurses_key\fP \fIdialog_key\fP
-.EE
+.Ee
+.PP
 The \fIwidget\fP name can be "*" (all widgets), or
 specific widgets such as \fBtextbox\fP.
 Specific widget bindings override the "*" bindings.
@@ -1122,6 +1124,82 @@ Finally, it allows any single character to be escaped with a backslash.
 \fB\*L\fP's internal keycode names correspond to the
 \fBDLG_KEYS_ENUM\fP type in
 \fBdlg_keys.h\fP, e.g., "HELP" from "DLGK_HELP".
+.SS Widget Names
+.PP
+Some widgets (such as the formbox) have an area where fields can be edited.
+Those are managed in a subwindow of the widget, and
+may have separate keybindings from the main widget
+because the subwindows are registered using a different name.
+.TS
+center tab(/) ;
+l l l
+l l l .
+\fIWidget\fR/\fIWindow name\fR/\fISubwindow Name\fR
+calendar/calendar
+checklist/checklist
+editbox/editbox/editbox2
+form/formbox/formfield
+fselect/fselect/fselect2
+inputbox/inputbox/inputbox2
+menu/menubox/menu
+msgbox/msgbox
+pause/pause
+progressbox/progressbox
+radiolist/radiolist
+tailbox/tailbox
+textbox/textbox/searchbox
+timebox/timebox
+yesno/yesno
+.TE
+.PP
+Some widgets are actually other widgets,
+using internal settings to modify the behavior.
+Those use the same widget name as the actual widget:
+.TS
+center tab(/) ;
+l l
+l l .
+\fIWidget\fR/\fIActual Widget\fR
+dselect/fselect
+infobox/msgbox
+inputmenu/menu
+mixedform/form
+passwordbox/inputbox
+passwordform/form
+prgbox/progressbox
+programbox/progressbox
+tailboxbg/tailbox
+.TE
+.SS Built-in Bindings
+This manual page does not list the key bindings for each widget,
+because that detailed information can be obtained by running \fB\*p\fP.
+If you have set the \fB--trace\fP option,
+\fB\*p\fP writes the key-binding information for each widget
+as it is registered.
+.SS Example
+Normally \fB\*p\fP uses different keys for navigating between the buttons
+and editing part of a dialog versus navigating within the editing part.
+That is, tab (and back-tab) traverse buttons
+(or between buttons and the editing part),
+while arrow keys traverse fields within the editing part.
+Tabs are also recognized as a special case for traversing between
+widgets, e.g., when using multiple tailboxbg widgets.
+.PP
+Some users may wish to use the same key for traversing within the
+editing part as for traversing between buttons.
+The form widget is written to support this sort of redefinition of
+the keys, by adding a special group in <code>dlgk_keys.h</code>
+for "form" (left/right/next/prev).
+Here is an example binding demonstrating how to do this:
+.Ex
+bindkey formfield TAB  form_NEXT
+bindkey formbox   TAB  form_NEXT
+bindkey formfield BTAB form_prev
+bindkey formbox   BTAB form_prev
+.Ee
+.PP
+That type of redefinition would not be useful in other widgets,
+e.g., calendar, due to the potentially large number of fields to traverse.
 .
 .\" ************************************************************************
 .SH ENVIRONMENT
@@ -1160,7 +1238,7 @@ error (-1),
 ESC (255),
 Extra (3),
 Help (2),
-Help with --item-help (2),
+Help with \fB--item-help\fP (2),
 or OK (0).
 Normally shell scripts cannot distinguish between -1 and 255.
 .TP 15
@@ -1178,35 +1256,39 @@ of how to use the different box options and how they look.
 Just take a look into the directory \fBsamples/\fP of the source.
 .SH DIAGNOSTICS
 Exit status is subject to being overridden by environment variables.
-Normally they are:
+The default values and corresponding environment variables
+that can override them are:
 .TP 5
 0
 if
 .BR \*p " is exited by pressing the " Yes " or " OK
-button.
+button (DIALOG_OK).
 .TP 5
 1
 if the
 .BR No " or " Cancel
-button is pressed.
+button is pressed (DIALOG_CANCEL).
 .TP 5
 2
 if the
 .BR Help
-button is pressed.
+button is pressed (DIALOG_HELP).
 .TP 5
 3
 if the
 .BR Extra
-button is pressed.
+button is pressed (DIALOG_EXTRA).
+.TP 5
 4
 if the
-.BR Item Help
-button is pressed.
+.BR Help
+button is pressed (DIALOG_HELP),
+or the \fB--item-help\fP option is set
+when the \fBHelp\fP button is pressed (DIALOG_ITEM_HELP),
 .TP 5
 -1
-if errors occur inside \fB\*p\fP
-or \fB\*p\fP is exited by pressing the \fIESC\fP key.
+if errors occur inside \fB\*p\fP (DIALOG_ERROR)
+or \fB\*p\fP is exited by pressing the \fIESC\fP key (DIALOG_ESC).
 .
 .\" ************************************************************************
 .SH PORTABILITY
@@ -1281,7 +1363,8 @@ Its documentation claims
 .sp
 .nf
 whiptail(1) is a lightweight replacement for \*p(1),
-to provide dialog boxes for shell scripts. It is built on the 
+to provide dialog boxes for shell scripts.
+It is built on the
 newt windowing library rather than the ncurses library, allowing
 it to be smaller in embedded enviroments such as installers,
 rescue disks, etc.
@@ -1309,7 +1392,7 @@ but oddly cites only \fB\*p\fP versions up to 0.4 (1996) as a source.
 That is, its manpage refers to features which
 were borrowed from more recent versions of \fB\*p\fP, e.g.,
 the \fB--gauge\fP and \fB--password\fP boxes,
-as well as options such as \fB-separate-output\fP (2008).
+as well as options such as \fB--separate-output\fP (2008).
 Somewhat humorously, one may note that the \fBpopt\fP feature
 (undocumented in its manpage)
 of using a "--" as an escape was documented in \fB\*p\fP's manpage about

@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.h,v 1.26 2011/06/21 22:09:22 tom Exp $
+ *  $Id: dlg_keys.h,v 1.29 2011/10/04 23:50:56 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
@@ -23,6 +23,7 @@
 
 #ifndef DLG_KEYS_H_included
 #define DLG_KEYS_H_included 1
+/* *INDENT-OFF* */
 
 #include <dialog.h>
 
@@ -45,7 +46,7 @@ typedef struct {
     int dialog_key;
 } DLG_KEYS_BINDING;
 
-#define DLG_KEYS_DATA(dialog, curses)  { curses >= KEY_MIN, curses, dialog }
+#define DLG_KEYS_DATA(dialog, curses)  { (curses) >= KEY_MIN, curses, dialog }
 
 #define END_KEYS_BINDING { -1, 0, 0 }
 
@@ -75,6 +76,11 @@ typedef enum {
     DLGK_FIELD_LAST,
     DLGK_FIELD_NEXT,
     DLGK_FIELD_PREV,
+    /* moving from form-field to form-field (or buttons) */
+    DLGK_FORM_FIRST,
+    DLGK_FORM_LAST,
+    DLGK_FORM_NEXT,
+    DLGK_FORM_PREV,
     /* moving within a grid */
     DLGK_GRID_UP,
     DLGK_GRID_DOWN,
@@ -145,10 +151,12 @@ extern void dlg_unregister_window(WINDOW * /*win*/);
 #ifdef HAVE_RC_FILE
 extern int dlg_parse_bindkey(char * /*params*/);
 extern void dlg_dump_keys(FILE * /*fp*/);
+extern void dlg_dump_window_keys(FILE * /*fp*/, WINDOW * /*win*/);
 #endif
 
 #ifdef __cplusplus
 }
 #endif
+/* *INDENT-ON* */
 
 #endif /* DLG_KEYS_H_included */
