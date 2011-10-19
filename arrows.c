@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.37 2011/09/19 00:56:09 tom Exp $
+ *  $Id: arrows.c,v 1.40 2011/10/16 21:19:58 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -79,9 +79,9 @@ dlg_draw_helpline(WINDOW *win, bool decorations)
 	const int *cols = dlg_index_columns(dialog_vars.help_line);
 	int other = decorations ? (ON_LEFT + ON_RIGHT) : 0;
 	int avail = (getmaxx(win) - other - 2);
-	int limit = dlg_limit_columns(dialog_vars.help_line, avail, 0);
+	int limit = dlg_count_real_columns(dialog_vars.help_line) + 2;
 
-	if (limit > 0) {
+	if (limit < avail) {
 	    getyx(win, cur_y, cur_x);
 	    other = decorations ? ON_LEFT : 0;
 	    (void) wmove(win, bottom, other + (avail - limit) / 2);
@@ -107,13 +107,14 @@ dlg_draw_arrows2(WINDOW *win,
     int cur_x, cur_y;
     int limit_x = getmaxx(win);
     bool draw_top = TRUE;
+    bool is_toplevel = (wgetparent(win) == stdscr);
 
     getyx(win, cur_y, cur_x);
 
     /*
      * If we're drawing a centered title, do not overwrite with the arrows.
      */
-    if (dialog_vars.title) {
+    if (dialog_vars.title && is_toplevel && (top - getbegy(win)) < MARGIN) {
 	int have = (limit_x - dlg_count_columns(dialog_vars.title)) / 2;
 	int need = x + 5;
 	if (need > have)
@@ -254,6 +255,6 @@ dlg_draw_arrows(WINDOW *win,
 		     x,
 		     top,
 		     bottom,
-		     menubox_attr,
+		     menubox_border2_attr,
 		     menubox_border_attr);
 }

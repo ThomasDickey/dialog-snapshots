@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.46 2011/09/18 19:30:34 tom Exp $
+ * $Id: timebox.c,v 1.48 2011/10/15 12:43:07 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -82,7 +82,7 @@ draw_cell(BOX * data)
     dlg_draw_box(data->parent,
 		 data->y - MARGIN, data->x - MARGIN,
 		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
-		 menubox_border_attr, menubox_attr);
+		 menubox_border_attr, menubox_border2_attr);
 
     wattrset(data->window, item_attr);
     wprintw(data->window, "%02d", data->value);
@@ -221,8 +221,8 @@ dialog_timebox(const char *title,
     dlg_register_window(dialog, "timebox", binding);
     dlg_register_buttons(dialog, "timebox", buttons);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
     dlg_draw_helpline(dialog, FALSE);
 

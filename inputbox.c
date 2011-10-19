@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.70 2011/10/12 22:24:57 tom Exp $
+ *  $Id: inputbox.c,v 1.72 2011/10/15 12:43:07 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -116,8 +116,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     dlg_mouse_setbase(xorg, yorg);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
@@ -132,7 +132,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     box_x = (width - box_width) / 2;
     dlg_mouse_mkregion(y + 1, box_x - 1, 3, box_width + 2, 'i');
     dlg_draw_box(dialog, y + 1, box_x - 1, 3, box_width + 2,
-		 border_attr, dialog_attr);
+		 border_attr, border2_attr);
 
     /* Make a window for the input-field, to associate bindings */
     editor = dlg_sub_window(dialog, 1, box_width, yorg + box_y, xorg + box_x);

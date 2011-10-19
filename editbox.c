@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.57 2011/10/12 22:24:35 tom Exp $
+ *  $Id: editbox.c,v 1.58 2011/10/15 12:57:37 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -382,8 +382,8 @@ dlg_editbox(const char *title,
 
     dlg_mouse_setbase(x, y);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
@@ -399,7 +399,7 @@ dlg_editbox(const char *title,
 		 box_x,
 		 box_height,
 		 box_width,
-		 border_attr, dialog_attr);
+		 border_attr, border2_attr);
     dlg_mouse_mkbigregion(box_y + MARGIN,
 			  box_x + MARGIN,
 			  box_height - (2 * MARGIN),
@@ -445,7 +445,7 @@ dlg_editbox(const char *title,
 			       box_x + getmaxx(editing),
 			       box_y + 0,
 			       box_y + getmaxy(editing) + 1,
-			       dialog_attr,
+			       border2_attr,
 			       border_attr);
 	    wmove(editing, y, x);
 	    show_one = FALSE;

@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.69 2011/10/14 00:44:15 tom Exp $
+.\" $Id: dialog.3,v 1.71 2011/10/17 22:27:27 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/10/14 00:44:15 $"
+.TH \*D 3 "" "$Date: 2011/10/17 22:27:27 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -107,6 +107,11 @@ variables beginning with "\fIdialog_\fP"
 are designed for use by the calling application
 while variables beginning with "\fIdlg_\fP"
 are intended for lower levels, e.g., by the \fB\*l\fP library.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_STATE.all_subwindows
+This is a linked list of all subwindows created by the library.
+The \fBdlg_del_window\fP function uses this
+to free storage for subwindows when deleting a window.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_STATE.all_windows
 This is a linked list of all windows created by the library.
@@ -1340,7 +1345,7 @@ is the nominal height.
 If it is -1, use the screen's height after subtracting \fBdialog_vars.begin_y\fP
 if \fBdialog_vars.begin_set\fP is true.
 .TP 5
-.B int \fI*width
+.B int * \fIwidth
 is the nominal width.
 If it is -1, use the screen's width after subtracting \fBdialog_vars.begin_x\fP
 if \fBdialog_vars.begin_set\fP is true.
@@ -1685,6 +1690,18 @@ is the string to measure.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_count_real_columns
+Returns the number of columns used for a string,
+accounting for "\\Z" sequences which can be used for
+coloring the text if \fBdialog_vars.colors\fP is set.
+This is not necessarily the number of bytes in a string.
+.RS
+.TP 5
+.B const char * \fIstring
+is the string to measure.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_count_wchars
 Returns the number of wide-characters in the string.
 .RS
@@ -1830,12 +1847,34 @@ is the window's border attribute.
 Draw a partial box at the bottom of a window,
 e.g., to surround a row of buttons.
 It is designed to merge with an existing box around
-the whole window, so it uses tee-elements rather than corner-elements
+the whole window (see \fBdlg_draw_box\fP),
+so it uses tee-elements rather than corner-elements
 on the top corners of this box.
 .RS
 .TP 5
 .B WINDOW * \fIwin
 is the window to update.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_draw_bottom_box2
+Draw a partial box at the bottom of a window,
+e.g., to surround a row of buttons.
+It is designed to merge with an existing box around
+the whole window (see \fBdlg_draw_box2\fP),
+so it uses tee-elements rather than corner-elements
+on the top corners of this box.
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.B chtype \fIon_left
+is used to color the upper/left edges of the box, i.e., the tee-element and
+horizontal line
+.B chtype \fIon_right
+is used to color the right edge of the box, i.e., the tee-element
+.B chtype \fIon_inside
+is used to fill-color the inside of the box
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -1864,6 +1903,36 @@ It also is fill-color used for the box contents.
 .TP 5
 .B chtype \fIborderchar
 is used to color the upper/left edges.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_draw_box2
+Draw a rectangular box with line drawing characters.
+.RS
+.TP 5
+.B WINDOW * \fIwin
+is the window to update.
+.TP 5
+.B int \fIy
+is the top row of the box.
+.TP 5
+.B int \fIx
+is the left column of the box.
+.TP 5
+.B int \fIheight
+is the height of the box.
+.TP 5
+.B int \fIwidth
+is the width of the box.
+.TP 5
+.B chtype \fIboxchar
+is used to fill-color for the box contents.
+.TP 5
+.B chtype \fIborderchar
+is used to color the upper/left edges.
+.TP 5
+.B chtype \fIborderchar2
+is used to color the right/lower edges.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -1989,6 +2058,24 @@ is the window to update.
 .TP 5
 .B const char * \fItitle
 is the title string to display at the top of the widget.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_dummy_menutext
+This is a utility function which supports the \fB--inputmenu\fP option of
+the \fB\*p\fP program.
+If \fBdialog_vars.input_menu\fP is set, \fBdialog_menu\fP passes this
+pointer to \fBdlg_menu\fP as the \fIrename_menutext\fP parameter.
+Otherwise, it passes \fBdlg_dummy_menutext\fP.
+.IP
+The function should only return \fBDLG_EXIT_ERROR\fP.
+.RS
+.B DIALOG_LISTITEM * \fIitems
+is the list of menu items
+.B int \fIcurrent
+is the index of the currently-selected item
+.B char * \fInewtext
+is the updated text for the menu item
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -2430,6 +2517,10 @@ The widget sets the referenced location to the index of the current display
 item (cursor) when it returns.
 .TP 5
 .B DIALOG_INPUTMENU \fIrename_menutext
+If this is not \fBdlg_dummy_menutext\fP,
+the widget acts like an \fIinputmenu\fP widget,
+providing an extra "Rename" button,
+which activates an edit feature on the selected menu item.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -2912,8 +3003,29 @@ is the binding table
 Remove a callback.
 .RS
 .TP 5
-.B DIALOG_CALLBACK \fI* p
+.B DIALOG_CALLBACK * \fIp
 contains the callback information.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_renamed_menutext
+This is a utility function which supports the \fB--inputmenu\fP option of
+the \fB\*p\fP program.
+If \fBdialog_vars.input_menu\fP is set, \fBdialog_menu\fP passes this
+pointer to \fBdlg_menu\fP as the \fIrename_menutext\fP parameter.
+Otherwise, it passes \fBdlg_dummy_menutext\fP.
+.IP
+The function should add "RENAMED" to \fBdialog_vars.input_result\fP ,
+followed by the menu item's name and the \fInewtext\fP value
+(with a space separating the three items),
+and return \fBDLG_EXIT_EXTRA\fP.
+.RS
+.B DIALOG_LISTITEM * \fIitems
+is the list of menu items
+.B int \fIcurrent
+is the index of the currently-selected item
+.B char * \fInewtext
+is the updated text for the menu item
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -3029,10 +3141,10 @@ is the string to duplicate
 compare two strings, ignoring case.
 .RS
 .TP 5
-.B const char \fI* a
+.B const char * \fIa
 is one string
 .TP 5
-.B const char \fI* b
+.B const char * \fIb
 is the other string
 .RE
 .\" ---------------------------------------------------------------------------

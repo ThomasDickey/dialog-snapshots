@@ -1,10 +1,41 @@
--- $Id: CHANGES,v 1.379 2011/10/14 09:45:26 tom Exp $
+-- $Id: CHANGES,v 1.389 2011/10/18 08:27:46 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/10/14
+2011/10/18
+	+ modify header-sh.in to work around limit on sed script length on
+	  HPUX.
+	+ add a special case of parameter parsing for "--trace" to the
+	  initialization done before calling init_dialog(), to allow users to
+	  capture the initial state of the parameter list before any options
+	  are processed and removed.  This is only done if "--trace" is the
+	  first option, otherwise it is handled in the common options as before
+	  (report by xDog Walker).
+	+ modify samples/testdata-8bit, discarding $1 from the parameter list
+	  if it was used, so that the source'ing scripts can consistently use
+	  "$@" to insert parameters before the widget, e.g., as an alternative
+	  to using $DIALOGOPTS (report by xDog Walker).
+	+ modify treatment of function pointers in menubox.c, make
+	  dlg_renamed_menutext() and dlg_dummy_menutext() visible to library
+	  users (request by xDog Walker).
+	+ add dlg_count_real_columns(), use to modify centering for "--hline"
+	  text to account for "\Z"s (report by xDog Walker).
+	+ improve check in dlg_draw_arrows2() for conflict between the window
+	  title and up-arrow marker to take into account that the given window
+	  may not be the top-level window of the widget.
+	+ change width of page up/down mouse areas in fselect panes to use the
+	  full width of the panes rather than only the portion from the left
+	  margin to the up/down arrow.
+	+ add/use dlg_draw_box2() and dlg_draw_bottom_box2() to use the
+	  secondary borders.
+	+ modify rc-file read/write to accept/generate color values that refer
+	  to previously-processed items in the color table.  This reduces the
+	  number of distinct colors that must be specified to set up a color
+	  scheme.
+	+ add color table entries for secondary borders, i.e., the ones that
+	  are normally drawn with the dialog's text-colors (Debian #641168).
 	+ modify fselect.c to scan the current directory if the input field
 	  happens to be empty (Debian #640905).
 	+ repeated the discussion of environment variables that can override
@@ -149,7 +180,7 @@ to it:
 	  + CF_XOPEN_SOURCE, workaround for cygwin to get ncurses' configure
 	    script to define _XOPEN_SOURCE_EXTENDED (cygwin's features.h
 	    doesn't do anything, so it needs a crutch).
-	+ updated config.guess, config.sub
+	+ update config.guess, config.sub
 
 2011/03/02
 	+ add --prgbox and --programbox (adapted from patch by David Boyd).
@@ -217,7 +248,7 @@ to it:
 	    CF_ADD_LIBDIR for the curses-directory here, from
 	    CF_NCURSES_CPPFLAGS and CF_NCURSES_LDFLAGS, so it will work even
 	    with the default checking, e.g., no --with-ncurses, etc.
-	+ updated config.guess, config.sub
+	+ update config.guess, config.sub
 
 2010/04/28
 	+ several improvements to configure script:
@@ -312,7 +343,7 @@ to it:
 	    libutf8 and libiconv.
 	+ update da.po, ru.po from
 		http://translationproject.org/latest/dialog/
-	+ updated config.guess, config.sub
+	+ update config.guess, config.sub
 
 2008/08/19
 	+ amend changes to quoting; by default, the checklist widget quotes its
@@ -395,7 +426,7 @@ to it:
 	  ESC to be returned, quitting dialog (report by Reiner Huober).
 	+ add extern "C" declarations to dlg_keys.h so the corresponding
 	  function declarations are exported to C++ as C symbols.
-	+ updated config.guess, config.sub
+	+ update config.guess, config.sub
 
 2007/06/04
 	+ fix a memory leak in editbox.c
@@ -498,7 +529,7 @@ to it:
 	  CF_CURSES_LIBS, CF_INCLUDE_DIRS, CF_LARGEFILE, CF_MAKEFLAGS,
 	  CF_PATH_SYNTAX, CF_SUBDIR_PATH, CF_SUBST, CF_WITH_DBMALLOC,
 	  CF_WITH_DMALLOC, CF_WITH_LIBTOOL and CF_XOPEN_SOURCE.
-	+ updated config.guess, config.sub
+	+ update config.guess, config.sub
 	> adapted fixes from SuSE package (Werner Fink):
 	  + add some limit-checks in dlg_draw_shadow().
 	  + make shadows resizable, using new dlg_move_window() in msgbox.c

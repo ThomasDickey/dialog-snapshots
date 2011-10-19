@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.26 2011/09/19 00:54:57 tom Exp $
+ *  $Id: mixedgauge.c,v 1.27 2011/10/15 13:13:00 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -327,11 +327,11 @@ dlg_begin_mixedgauge(DIALOG_MIXEDGAUGE * dlg,
     dlg->dialog = dlg_new_window(dlg->height, dlg->width, y, x);
 
     (void) werase(dlg->dialog);
-    dlg_draw_box(dlg->dialog,
-		 0, 0,
-		 dlg->height,
-		 dlg->width,
-		 dialog_attr, border_attr);
+    dlg_draw_box2(dlg->dialog,
+		  0, 0,
+		  dlg->height,
+		  dlg->width,
+		  dialog_attr, border_attr, border2_attr);
 
     dlg_draw_title(dlg->dialog, dlg->title);
     dlg_draw_helpline(dlg->dialog, FALSE);

@@ -1,7 +1,9 @@
-cdialog (20111014) unstable; urgency=high
+cdialog (20111018) unstable; urgency=high
 
+  * improve color configurability
   * misc bug-fixes.
   * various improvements to tracing.
+  * remove an incorrect free() call in dlg_free_gauge()
   * fix missing trailing null from dlg_align_columns
 
  -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 07 Sep 2011 20:04:04 -0400

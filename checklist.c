@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.129 2011/10/13 00:24:46 tom Exp $
+ *  $Id: checklist.c,v 1.131 2011/10/15 12:43:07 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -58,7 +58,7 @@ print_arrows(WINDOW *win,
 		       box_x + list_width,
 		       box_y,
 		       box_y + list_height + 1,
-		       menubox_attr,
+		       menubox_border2_attr,
 		       menubox_border_attr);
 }
 
@@ -249,8 +249,8 @@ dlg_checklist(const char *title,
 
     dlg_mouse_setbase(x, y);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
@@ -280,7 +280,7 @@ dlg_checklist(const char *title,
     dlg_draw_box(dialog, box_y, box_x,
 		 use_height + 2 * MARGIN,
 		 list_width + 2 * MARGIN,
-		 menubox_border_attr, menubox_attr);
+		 menubox_border_attr, menubox_border2_attr);
 
     text_width = 0;
     name_width = 0;
