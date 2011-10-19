@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.62 2011/09/18 23:07:29 tom Exp $
+ *  $Id: guage.c,v 1.63 2011/10/15 13:10:42 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -122,7 +122,8 @@ repaint_text(MY_OBJ * obj)
 
     if (dialog != 0 && obj->obj.input != 0) {
 	(void) werase(dialog);
-	dlg_draw_box(dialog, 0, 0, obj->height, obj->width, dialog_attr, border_attr);
+	dlg_draw_box2(dialog, 0, 0, obj->height, obj->width, dialog_attr,
+		      border_attr, border2_attr);
 
 	dlg_draw_title(dialog, obj->title);
 
@@ -130,15 +131,16 @@ repaint_text(MY_OBJ * obj)
 	dlg_draw_helpline(dialog, FALSE);
 	dlg_print_autowrap(dialog, obj->prompt, obj->height, obj->width);
 
-	dlg_draw_box(dialog,
-		     obj->height - 4, 2 + MARGIN,
-		     2 + MARGIN, obj->width - 2 * (2 + MARGIN),
-		     dialog_attr,
-		     border_attr);
+	dlg_draw_box2(dialog,
+		      obj->height - 4, 2 + MARGIN,
+		      2 + MARGIN, obj->width - 2 * (2 + MARGIN),
+		      dialog_attr,
+		      border_attr,
+		      border2_attr);
 
 	/*
 	 * Clear the area for the progress bar by filling it with spaces
-	 * in the title-attribute, and write the percentage with that
+	 * in the gauge-attribute, and write the percentage with that
 	 * attribute.
 	 */
 	(void) wmove(dialog, obj->height - 3, 4);
@@ -156,7 +158,7 @@ repaint_text(MY_OBJ * obj)
 	 * but requires some tweaks to reverse it.
 	 */
 	x = (obj->percent * (obj->width - 2 * (3 + MARGIN))) / 100;
-	if ((title_attr & A_REVERSE) != 0) {
+	if ((gauge_attr & A_REVERSE) != 0) {
 	    wattroff(dialog, A_REVERSE);
 	} else {
 	    wattrset(dialog, A_REVERSE);
@@ -164,7 +166,7 @@ repaint_text(MY_OBJ * obj)
 	(void) wmove(dialog, obj->height - 3, 4);
 	for (i = 0; i < x; i++) {
 	    chtype ch2 = winch(dialog);
-	    if (title_attr & A_REVERSE) {
+	    if (gauge_attr & A_REVERSE) {
 		ch2 &= ~A_REVERSE;
 	    }
 	    (void) waddch(dialog, ch2);

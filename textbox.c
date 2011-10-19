@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.102 2011/09/18 19:40:49 tom Exp $
+ *  $Id: textbox.c,v 1.104 2011/10/15 12:43:07 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -489,9 +489,10 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     keypad(widget, TRUE);
     dlg_register_window(widget, "searchbox", binding);
 
-    dlg_draw_box(widget, 0, 0, box_height, box_width,
-		 searchbox_attr,
-		 searchbox_border_attr);
+    dlg_draw_box2(widget, 0, 0, box_height, box_width,
+		  searchbox_attr,
+		  searchbox_border_attr,
+		  searchbox_border2_attr);
     wattrset(widget, searchbox_title_attr);
     (void) wmove(widget, 0, (box_width - len_caption) / 2);
 
@@ -726,8 +727,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 
     /* register the new window, along with its borders */
     dlg_mouse_mkbigregion(0, 0, PAGE_LENGTH + 2, width, KEY_MAX, 1, 1, 1 /* lines */ );
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     dlg_draw_buttons(dialog, PAGE_LENGTH + 2, 0, obj.buttons, button, FALSE, width);

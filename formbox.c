@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.78 2011/10/13 00:01:40 tom Exp $
+ *  $Id: formbox.c,v 1.79 2011/10/15 12:45:11 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -543,8 +543,8 @@ dlg_form(const char *title,
 
     dlg_mouse_setbase(x, y);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
@@ -563,7 +563,7 @@ dlg_form(const char *title,
 
     /* draw a box around the form items */
     dlg_draw_box(dialog, box_y, box_x, form_height + 2, form_width + 2,
-		 menubox_border_attr, menubox_attr);
+		 menubox_border_attr, menubox_border2_attr);
 
     /* register the new window, along with its borders */
     dlg_mouse_mkbigregion(getbegy(form) - getbegy(dialog),
@@ -594,7 +594,7 @@ dlg_form(const char *title,
 			       box_x + form_width,
 			       box_y,
 			       box_y + form_height + 1,
-			       menubox_attr,
+			       menubox_border2_attr,
 			       menubox_border_attr);
 	    scroll_changed = FALSE;
 	}

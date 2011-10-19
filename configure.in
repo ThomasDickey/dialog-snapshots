@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.66 2011/09/18 19:45:37 tom Exp $
+dnl $Id: configure.in,v 1.67 2011/10/17 10:53:25 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
@@ -227,12 +227,12 @@ getparyx \
 use_default_colors \
 wchgat \
 wget_wch \
-wgetparent \
 )
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
 CF_CURSES_CHTYPE
 CF_CURSES_WACS_SYMBOLS
+CF_CURSES_WGETPARENT
 CF_FUNC_WAIT
 CF_MBSTATE_T
 

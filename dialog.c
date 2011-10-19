@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.194 2011/09/18 23:19:29 tom Exp $
+ * $Id: dialog.c,v 1.196 2011/10/17 00:15:55 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1179,6 +1179,25 @@ Help(void)
     dlg_exit(DLG_EXIT_OK);
 }
 
+#ifdef HAVE_DLG_TRACE
+/*
+ * Only the first call to dlg_trace will open a trace file.  But each time
+ * --trace is parsed, we show the whole parameter list as it is at that moment,
+ * counting discarded parameters.  The only way to capture the whole parameter
+ * list is if --trace is the first option.
+ */
+static void
+process_trace_option(char **argv, int *offset)
+{
+    int j;
+
+    dlg_trace(NULL);
+    dlg_trace(optionString(argv, offset));
+    for (j = 0; argv[j] != 0; ++j) {
+	dlg_trace_msg("argv[%d] = %s\n", j, argv[j]);
+    }
+}
+#endif
 /*
  * "Common" options apply to all widgets more/less.  Most of the common options
  * set values in dialog_vars, a few set dialog_state and a couple write to the
@@ -1187,9 +1206,6 @@ Help(void)
 static int
 process_common_options(int argc, char **argv, int offset, bool output)
 {
-#ifdef HAVE_DLG_TRACE
-    int n;
-#endif
     bool done = FALSE;
 
     while (offset < argc && !done) {	/* Common options */
@@ -1416,10 +1432,7 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 #ifdef HAVE_DLG_TRACE
 	case o_trace:
-	    dlg_trace(optionString(argv, &offset));
-	    for (n = 0; argv[n] != 0; ++n) {
-		dlg_trace_msg("argv[%d] = %s\n", n, argv[n]);
-	    }
+	    process_trace_option(argv, &offset);
 	    break;
 #endif
 	}
@@ -1547,10 +1560,28 @@ main(int argc, char *argv[])
 	case o_help:
 	    Help();
 	    break;
+#ifdef HAVE_DLG_TRACE
+	case o_trace:
+	    /*
+	     * Process/remove the --trace option if it is the first option.
+	     * Otherwise, process it in more/less expected order as a
+	     * "common" option.
+	     */
+	    if (base == 1) {
+		process_trace_option(argv, &offset);
+		break;
+	    } else {
+		++offset;
+		continue;
+	    }
+#endif
 	default:
 	    ++offset;
 	    continue;
 	}
+	dlg_trace_msg("...discarding %d parameters starting with argv[%d] (%s)\n",
+		      1 + offset - base, base,
+		      argv[base]);
 	for (j = base; j < argc; ++j) {
 	    dialog_argv[j] = dialog_argv[j + 1 + (offset - base)];
 	    if (dialog_opts != 0)

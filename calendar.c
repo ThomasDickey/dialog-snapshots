@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.63 2011/09/18 19:30:34 tom Exp $
+ * $Id: calendar.c,v 1.64 2011/10/15 13:10:41 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -225,10 +225,12 @@ draw_day(BOX * data, struct tm *current)
     int prev = days_in_month(current, -1);
 
     werase(data->window);
-    dlg_draw_box(data->parent,
-		 data->y - MARGIN, data->x - MARGIN,
-		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
-		 menubox_border_attr, menubox_attr);	/* border of daybox */
+    dlg_draw_box2(data->parent,
+		  data->y - MARGIN, data->x - MARGIN,
+		  data->height + (2 * MARGIN), data->width + (2 * MARGIN),
+		  menubox_attr,
+		  menubox_border_attr,
+		  menubox_border2_attr);
 
     wattrset(data->window, menubox_attr);	/* daynames headline */
     for (x = 0; x < 7; x++) {
@@ -296,10 +298,12 @@ draw_month(BOX * data, struct tm *current)
 
     wattrset(data->parent, dialog_attr);	/* Headline "Month" */
     (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Month"));
-    dlg_draw_box(data->parent,
-		 data->y - 1, data->x - 1,
-		 data->height + 2, data->width + 2,
-		 menubox_border_attr, menubox_attr);	/* borders of monthbox */
+    dlg_draw_box2(data->parent,
+		  data->y - 1, data->x - 1,
+		  data->height + 2, data->width + 2,
+		  menubox_attr,
+		  menubox_border_attr,
+		  menubox_border2_attr);
     wattrset(data->window, item_attr);	/* color the month selection */
     mvwprintw(data->window, 0, 0, "%s", nameOfMonth(month - 1));
     wmove(data->window, 0, 0);
@@ -316,10 +320,12 @@ draw_year(BOX * data, struct tm *current)
 
     wattrset(data->parent, dialog_attr);	/* Headline "Year" */
     (void) mvwprintw(data->parent, data->y - 2, data->x - 1, _("Year"));
-    dlg_draw_box(data->parent,
-		 data->y - 1, data->x - 1,
-		 data->height + 2, data->width + 2,
-		 menubox_border_attr, menubox_attr);	/* borders of yearbox */
+    dlg_draw_box2(data->parent,
+		  data->y - 1, data->x - 1,
+		  data->height + 2, data->width + 2,
+		  menubox_attr,
+		  menubox_border_attr,
+		  menubox_border2_attr);
     wattrset(data->window, item_attr);	/* color the year selection */
     mvwprintw(data->window, 0, 0, "%4d", year);
     wmove(data->window, 0, 0);
@@ -491,8 +497,8 @@ dialog_calendar(const char *title,
     dlg_register_buttons(dialog, "calendar", buttons);
 
     /* mainbox */
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);	/* text mainbox */

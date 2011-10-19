@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.138 2011/10/14 00:23:54 tom Exp $
+.\" $Id: dialog.1,v 1.140 2011/10/17 00:19:28 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/10/14 00:23:54 $"
+.TH \*D 1 "" "$Date: 2011/10/17 00:19:28 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -512,11 +512,16 @@ Specifies a
 string to be displayed at the top of the dialog box.
 .
 .IP "\fB--trace \fIfilename"
-logs the command-line parameters and
-keystrokes to the given file.
+logs the command-line parameters,
+keystrokes and other information to the given file.
 If \fBdialog\fP reads a configure file, it is logged as well.
 Piped input to the \fIgauge\fP widget is logged.
 Use control/T to log a picture of the current dialog window.
+.PP
+The \fB\*p\fR program handles some command-line parameters specially,
+and removes them from the parameter list as they are processed.
+For example, if the first option is \fB--trace\fP,
+then that is processed (and removed) before \fB\*p\fR initializes the display.
 .
 .IP "\fB--trim"
 eliminate leading blanks,

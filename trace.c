@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.19 2011/10/04 23:53:20 tom Exp $
+ *  $Id: trace.c,v 1.20 2011/10/18 10:47:26 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -23,6 +23,10 @@
 #include <dialog.h>
 
 #ifdef HAVE_DLG_TRACE
+
+#ifdef NEED_WCHAR_H
+#include <wchar.h>
+#endif
 
 #include <dlg_keys.h>
 #include <time.h>

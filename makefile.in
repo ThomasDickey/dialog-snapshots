@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.79 2011/06/25 00:27:56 tom Exp $
+# $Id: makefile.in,v 1.80 2011/10/18 08:33:19 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2010,2011 Thomas E. Dickey                              #
@@ -249,20 +249,20 @@ install-lib :: $(LIB_DIRS) $(LIB) headers.sed
 	@ echo "** installing library in $(LIBDIR)"
 	@ $(LIBTOOL_INSTALL) $(INSTALL_DATA) $(LIB) $(LIBDIR)
 	@ echo "** installing headers in $(INCLUDEDIR)"
-	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dialog.h
-	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_colors.h
-	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_keys.h
-	@ $(SHELL) $(srcdir)/headers-sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
+	@ $(SHELL) headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dialog.h
+	@ $(SHELL) headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_colors.h
+	@ $(SHELL) headers-sh $(INSTALL_DATA) $(INCLUDEDIR) $(srcdir) dlg_keys.h
+	@ $(SHELL) headers-sh $(INSTALL_DATA) $(INCLUDEDIR) .         dlg_config.h
 
 uninstall-lib :: $(BINDIR)
 	$(RM) $(BINDIR)/$(LIB_CONFIG)
 
 uninstall-lib :: $(LIB_DIRS)
 	- $(LIBTOOL_UNINSTALL) $(RM) $(LIBDIR)/$(LIB)
-	@ $(SHELL) $(srcdir)/headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dialog.h
-	@ $(SHELL) $(srcdir)/headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dlg_colors.h
-	@ $(SHELL) $(srcdir)/headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dlg_keys.h
-	@ $(SHELL) $(srcdir)/headers-sh $(RM) $(INCLUDEDIR) .         dlg_config.h
+	@ $(SHELL) headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dialog.h
+	@ $(SHELL) headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dlg_colors.h
+	@ $(SHELL) headers-sh $(RM) $(INCLUDEDIR) $(srcdir) dlg_keys.h
+	@ $(SHELL) headers-sh $(RM) $(INCLUDEDIR) .         dlg_config.h
 
 install-lib :: $(MAN3DIR)
 	@ echo "** installing @PACKAGE@.3"
@@ -276,8 +276,8 @@ install-lib :: $(MAN3DIR)
 uninstall-lib ::
 	$(RM) $(MAN3DIR)/@PACKAGE@.3
 
-headers.sed : $(srcdir)/headers-sh
-	$(SHELL) $(srcdir)/headers-sh $(INCLUDEDIR) $(srcdir)
+headers.sed : headers-sh
+	$(SHELL) headers-sh $(INCLUDEDIR) $(srcdir)
 
 ################################################################################
 TOP_DOCS = \

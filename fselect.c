@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.81 2011/10/14 09:43:34 tom Exp $
+ *  $Id: fselect.c,v 1.83 2011/10/16 19:30:12 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -249,7 +249,7 @@ display_list(LIST * list)
 			   x + getmaxx(list->win),
 			   top,
 			   bottom,
-			   menubox_attr,
+			   menubox_border2_attr,
 			   menubox_border_attr);
 
 	(void) wmove(list->win, list->choice - list->offset, 0);
@@ -270,18 +270,20 @@ fix_arrows(LIST * list)
     int x;
     int y;
     int top;
+    int right;
     int bottom;
 
     if (list->win != 0) {
 	getparyx(list->win, y, x);
 	top = y - 1;
+	right = getmaxx(list->win);
 	bottom = y + getmaxy(list->win);
 
-	mouse_mkbutton(top, x, 6,
+	mouse_mkbutton(top, x, right,
 		       ((list->mousex == MOUSE_D)
 			? KEY_PREVIOUS
 			: KEY_PPAGE));
-	mouse_mkbutton(bottom, x, 6,
+	mouse_mkbutton(bottom, x, right,
 		       ((list->mousex == MOUSE_D)
 			? KEY_NEXT
 			: KEY_NPAGE));
@@ -616,8 +618,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 
     dlg_mouse_setbase(0, 0);
 
-    dlg_draw_box(dialog, 0, 0, height, width, dialog_attr, border_attr);
-    dlg_draw_bottom_box(dialog);
+    dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
+    dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
     wattrset(dialog, dialog_attr);
@@ -635,7 +637,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     (void) keypad(w_text, TRUE);
     dlg_draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
 		 (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
-		 menubox_border_attr, menubox_attr);
+		 menubox_border_attr, menubox_border2_attr);
     dlg_mouse_mkbigregion(getbegy(dialog) + tbox_y - MARGIN,
 			  getbegx(dialog) + tbox_x - MARGIN,
 			  1 + (2 * MARGIN),
@@ -662,7 +664,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dlg_draw_box(dialog,
 		 dbox_y - MARGIN, dbox_x - MARGIN,
 		 dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
-		 menubox_border_attr, menubox_attr);
+		 menubox_border_attr, menubox_border2_attr);
     init_list(&d_list, dialog, w_work, MOUSE_D);
 
     if (!dselect) {
@@ -681,7 +683,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	dlg_draw_box(dialog,
 		     fbox_y - MARGIN, fbox_x - MARGIN,
 		     fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),
-		     menubox_border_attr, menubox_attr);
+		     menubox_border_attr, menubox_border2_attr);
 	init_list(&f_list, dialog, w_work, MOUSE_F);
     } else {
 	memset(&f_list, 0, sizeof(f_list));
