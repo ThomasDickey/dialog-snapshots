@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.71 2011/10/17 22:27:27 tom Exp $
+.\" $Id: dialog.3,v 1.72 2011/10/19 23:12:58 tom Exp $
 .\" Copyright 2005-2010,2011  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/10/17 22:27:27 $"
+.TH \*D 3 "" "$Date: 2011/10/19 23:12:58 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -923,7 +923,8 @@ If zero, the height is based on the screen size.
 .B int \fIwidth
 is the desired width of the box.
 If zero, the height is based on the screen size.
-.IP percent
+.TP 5
+.B int \fIpercent
 is the percentage to show in the progress bar.
 .TP 5
 .B int \fIitem_no
@@ -1281,6 +1282,10 @@ is the percentage to show in the progress bar.
 returns its parameter transformed to the
 corresponding "+" or "-", etc. for the line-drawing characters used in \fB\*p\fP.
 If the parameter is not a line-drawing or other special character such as ACS_DARROW, it returns 0.
+.RS
+.TP 5
+.B chtype \fIch
+is the parameter, usually one of the \fBACS_\fP\fIxxx\fP constants.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -1342,13 +1347,13 @@ is the name of the file.
 .TP 5
 .B int * \fIheight
 is the nominal height.
-If it is -1, use the screen's height after subtracting \fBdialog_vars.begin_y\fP
-if \fBdialog_vars.begin_set\fP is true.
+If it is -1, use the screen's height (after subtracting \fBdialog_vars.begin_y\fP
+if \fBdialog_vars.begin_set\fP is true).
 .TP 5
 .B int * \fIwidth
 is the nominal width.
-If it is -1, use the screen's width after subtracting \fBdialog_vars.begin_x\fP
-if \fBdialog_vars.begin_set\fP is true.
+If it is -1, use the screen's width (after subtracting \fBdialog_vars.begin_x\fP
+if \fBdialog_vars.begin_set\fP is true).
 .TP 5
 .B int \fIboxlines
 is the number of lines to reserve on the screen for drawing boxes.
@@ -1365,7 +1370,7 @@ this calls \fBbeep\fP once and sets
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_boxchar
-returns its parameter transformed as follows:
+returns its \fBchtype\fP parameter transformed as follows:
 .RS
 .TP 3
 .B -
@@ -2070,10 +2075,13 @@ Otherwise, it passes \fBdlg_dummy_menutext\fP.
 .IP
 The function should only return \fBDLG_EXIT_ERROR\fP.
 .RS
+.TP 5
 .B DIALOG_LISTITEM * \fIitems
 is the list of menu items
+.TP 5
 .B int \fIcurrent
 is the index of the currently-selected item
+.TP 5
 .B char * \fInewtext
 is the updated text for the menu item
 .RE
@@ -3020,10 +3028,13 @@ followed by the menu item's name and the \fInewtext\fP value
 (with a space separating the three items),
 and return \fBDLG_EXIT_EXTRA\fP.
 .RS
+.TP 5
 .B DIALOG_LISTITEM * \fIitems
 is the list of menu items
+.TP 5
 .B int \fIcurrent
 is the index of the currently-selected item
+.TP 5
 .B char * \fInewtext
 is the updated text for the menu item
 .RE

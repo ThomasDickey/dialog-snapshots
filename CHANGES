@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.389 2011/10/18 08:27:46 tom Exp $
+-- $Id: CHANGES,v 1.391 2011/10/20 00:04:46 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2011/10/19
+	+ fix logic in freeing subwindows (report by xDog Walker).
+	+ fix a regression in logic distinguishing between inputmenu and menu
+	  widgets (report by xDog Walker).
+	+ minor fixes to library manpage.
 
 2011/10/18
 	+ modify header-sh.in to work around limit on sed script length on

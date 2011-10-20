@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.127 2011/10/17 00:49:25 tom Exp $
+ *  $Id: menubox.c,v 1.128 2011/10/19 21:28:12 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -695,7 +695,8 @@ dlg_menu(const char *title,
 		 */
 		if (result == DLG_EXIT_ERROR) {
 		    result = DLG_EXIT_UNKNOWN;
-		} else if (is_inputmenu) {
+		} else if (is_inputmenu
+			   || rename_menutext == dlg_dummy_menutext) {
 		    result = handle_button(result,
 					   items,
 					   scrollamt + choice);
