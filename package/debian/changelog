@@ -1,3 +1,9 @@
+cdialog (20111019) unstable; urgency=high
+
+  * fix regression in menubox.c logic for inputmenu vs menu.
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 19 Oct 2011 19:17:40 -0400
+
 cdialog (20111018) unstable; urgency=high
 
   * improve color configurability

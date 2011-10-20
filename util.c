@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.239 2011/10/18 22:25:13 tom Exp $
+ *  $Id: util.c,v 1.240 2011/10/20 00:01:07 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -159,18 +159,24 @@ add_subwindow(WINDOW *parent, WINDOW *child)
 static void
 del_subwindows(WINDOW *parent)
 {
-    DIALOG_WINDOWS *p, *q;
+    DIALOG_WINDOWS *p = dialog_state.all_subwindows;
+    DIALOG_WINDOWS *q = 0;
+    DIALOG_WINDOWS *r;
 
-    for (p = dialog_state.all_subwindows, q = 0; p != 0; q = p, p = p->next) {
+    while (p != 0) {
 	if (p->normal == parent) {
 	    delwin(p->shadow);
+	    r = p->next;
 	    if (q == 0) {
-		dialog_state.all_subwindows = p->next;
+		dialog_state.all_subwindows = r;
 	    } else {
-		q->next = p->next;
+		q->next = r;
 	    }
 	    free(p);
-	    continue;
+	    p = r;
+	} else {
+	    q = p;
+	    p = p->next;
 	}
     }
 }
