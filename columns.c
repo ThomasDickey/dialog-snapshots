@@ -1,5 +1,5 @@
 /*
- *  $Id: columns.c,v 1.9 2011/09/07 23:38:54 tom Exp $
+ *  $Id: columns.c,v 1.10 2011/10/20 20:53:55 tom Exp $
  *
  *  columns.c -- implements column-alignment
  *
@@ -45,7 +45,7 @@ next_row(char **target, int per_row)
 {
     char *result = (char *) target;
     result += per_row;
-    return (char **) result;
+    return (char **) (void *) result;
 }
 
 static char *

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.72 2011/10/15 12:43:07 tom Exp $
+ *  $Id: inputbox.c,v 1.73 2011/10/20 23:38:07 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -120,7 +120,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    wattrset(dialog, dialog_attr);
+    (void) wattrset(dialog, dialog_attr);
     dlg_draw_helpline(dialog, FALSE);
     dlg_print_autowrap(dialog, prompt, height, width);
 

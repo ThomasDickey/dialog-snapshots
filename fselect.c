@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.83 2011/10/16 19:30:12 tom Exp $
+ *  $Id: fselect.c,v 1.86 2011/10/20 23:34:05 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -230,11 +230,11 @@ display_list(LIST * list)
 		break;
 	    (void) wmove(list->win, y, 0);
 	    if (n == list->choice)
-		wattrset(list->win, item_selected_attr);
+		(void) wattrset(list->win, item_selected_attr);
 	    (void) waddstr(list->win, list->data[n]);
-	    wattrset(list->win, item_attr);
+	    (void) wattrset(list->win, item_attr);
 	}
-	wattrset(list->win, item_attr);
+	(void) wattrset(list->win, item_attr);
 
 	getparyx(list->win, y, x);
 
@@ -574,7 +574,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int code;
     int result = DLG_EXIT_UNKNOWN;
     int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
-    int button = state;
+    int button;
     int first = (state == sTEXT);
     int first_trace = TRUE;
     char *input;
@@ -622,7 +622,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    wattrset(dialog, dialog_attr);
+    (void) wattrset(dialog, dialog_attr);
 
     /* Draw the input field box */
     tbox_height = 1;
@@ -660,7 +660,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	return DLG_EXIT_ERROR;
 
     (void) keypad(w_work, TRUE);
-    (void) mvwprintw(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
+    (void) mvwaddstr(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
     dlg_draw_box(dialog,
 		 dbox_y - MARGIN, dbox_x - MARGIN,
 		 dbox_height + (MARGIN + 1), dbox_width + (MARGIN + 1),
@@ -679,7 +679,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	    return DLG_EXIT_ERROR;
 
 	(void) keypad(w_work, TRUE);
-	(void) mvwprintw(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
+	(void) mvwaddstr(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
 	dlg_draw_box(dialog,
 		     fbox_y - MARGIN, fbox_x - MARGIN,
 		     fbox_height + (MARGIN + 1), fbox_width + (MARGIN + 1),

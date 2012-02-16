@@ -1,10 +1,10 @@
 #! /bin/bash
-# $Id: inputmenu,v 1.10 2010/01/13 10:29:22 tom Exp $
+# $Id: inputmenu,v 1.11 2012/02/16 01:29:39 Pedro.Giffuni Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
 
 . ./setup-vars
 
-user="$USER"    ; uid="$UID"   ;
+user="$USER"    ; uid="$(id -ru)"   ;
 gid="$GROUPS"  ; home="$HOME"  ;
 
 while [ ${returncode:-99} -ne 1 -a ${returncode:-99} -ne 250 ]; do
