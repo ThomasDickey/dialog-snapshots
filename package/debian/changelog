@@ -1,4 +1,10 @@
-cdialog (20111019) unstable; urgency=high
+cdialog (20120215) unstable; urgency=high
+
+  * minor fixes
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Wed, 15 Feb 2012 19:40:32 -0500
+
+cdialog (20111020) unstable; urgency=high
 
   * fix regression in menubox.c logic for inputmenu vs menu.
 

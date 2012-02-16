@@ -1,5 +1,5 @@
-#!/bin/bash
-# $Id: copi.wheel,v 1.2 2001/01/15 22:26:33 tom Exp $
+#!/usr/bin/env bash
+# $Id: copi.wheel,v 1.3 2012/02/16 01:29:39 tom Exp $
 
 mkstemp size
 dialog --print-maxsize 2>$tmp_size

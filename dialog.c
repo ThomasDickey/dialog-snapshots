@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.196 2011/10/17 00:15:55 tom Exp $
+ * $Id: dialog.c,v 1.197 2011/10/20 09:34:08 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1718,6 +1718,7 @@ main(int argc, char *argv[])
 	retval = show_result((*(modePtr->jumper)) (dialog_vars.title,
 						   argv + offset,
 						   &offset_add));
+	dlg_trace_msg("...widget returns %d\n", retval);
 	offset += offset_add;
 
 	if (dialog_vars.input_result != my_buffer) {

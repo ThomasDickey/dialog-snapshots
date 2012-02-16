@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.131 2011/10/15 12:43:07 tom Exp $
+ *  $Id: checklist.c,v 1.133 2012/02/16 02:04:09 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -81,30 +81,30 @@ print_item(WINDOW *win,
     int limit;
 
     /* Clear 'residue' of last item */
-    wattrset(win, menubox_attr);
+    (void) wattrset(win, menubox_attr);
     (void) wmove(win, choice, 0);
     for (i = 0; i < list_width; i++)
 	(void) waddch(win, ' ');
 
     (void) wmove(win, choice, check_x);
-    wattrset(win, selected ? check_selected_attr : check_attr);
+    (void) wattrset(win, selected ? check_selected_attr : check_attr);
     (void) wprintw(win,
 		   (checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
 		   states[item->state]);
-    wattrset(win, menubox_attr);
+    (void) wattrset(win, menubox_attr);
     (void) waddch(win, ' ');
 
     if (strlen(item->name) != 0) {
 
 	indx = dlg_index_wchars(item->name);
 
-	wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
+	(void) wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
 	(void) waddnstr(win, item->name, indx[1]);
 
 	if ((int) strlen(item->name) > indx[1]) {
 	    limit = dlg_limit_columns(item->name, (item_x - check_x - 6), 1);
 	    if (limit > 1) {
-		wattrset(win, selected ? tag_selected_attr : tag_attr);
+		(void) wattrset(win, selected ? tag_selected_attr : tag_attr);
 		(void) waddnstr(win,
 				item->name + indx[1],
 				indx[limit] - indx[1]);
@@ -118,7 +118,7 @@ print_item(WINDOW *win,
 
 	if (limit > 0) {
 	    (void) wmove(win, choice, item_x);
-	    wattrset(win, selected ? item_selected_attr : item_attr);
+	    (void) wattrset(win, selected ? item_selected_attr : item_attr);
 	    dlg_print_text(win, item->text, cols[limit], &attr);
 	}
     }
@@ -126,7 +126,7 @@ print_item(WINDOW *win,
     if (selected) {
 	dlg_item_help(item->help);
     }
-    wattrset(win, save);
+    (void) wattrset(win, save);
 }
 
 /*
@@ -221,13 +221,14 @@ dlg_checklist(const char *title,
 #endif
 
     use_height = list_height;
+    use_width = dlg_calc_list_width(item_no, items) + 10;
+    use_width = MAX(26, use_width);
     if (use_height == 0) {
-	use_width = dlg_calc_list_width(item_no, items) + 10;
 	/* calculate height without items (4) */
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MAX(26, use_width));
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, use_width);
 	dlg_calc_listh(&height, &use_height, item_no);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, use_width);
     }
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
@@ -253,7 +254,7 @@ dlg_checklist(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    wattrset(dialog, dialog_attr);
+    (void) wattrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     list_width = width - 6;

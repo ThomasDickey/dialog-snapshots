@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.79 2011/10/15 12:45:11 tom Exp $
+ *  $Id: formbox.c,v 1.80 2011/10/20 23:34:21 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -547,7 +547,7 @@ dlg_form(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    wattrset(dialog, dialog_attr);
+    (void) wattrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     form_width = width - 6;

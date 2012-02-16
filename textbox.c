@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.104 2011/10/15 12:43:07 tom Exp $
+ *  $Id: textbox.c,v 1.106 2011/10/20 23:41:38 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -500,8 +500,6 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
     limit = dlg_limit_columns(caption, len_caption, 0);
     (void) waddnstr(widget, caption + indx[0], indx[limit] - indx[0]);
 
-    box_y++;
-    box_x++;
     box_width -= 2;
     offset = dlg_count_columns(input);
 
@@ -583,7 +581,6 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	back_lines(obj, (dir
 			 ? obj->page_length - 1
 			 : obj->page_length + 1));
-	found = FALSE;
 	if (dir) {		/* Forward search */
 	    while ((found = match_string(obj, search_term)) == FALSE) {
 		if (obj->end_reached)
@@ -917,7 +914,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		height = old_height;
 		width = old_width;
 		back_lines(&obj, obj.page_length);
-		moved = TRUE;
 		/* repaint */
 		dlg_clear();
 		dlg_del_window(dialog);

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.240 2011/10/20 00:01:07 tom Exp $
+ *  $Id: util.c,v 1.242 2011/10/20 23:42:10 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -315,7 +315,7 @@ init_dialog(FILE *input, FILE *output)
      */
     dialog_state.pipe_input = stdin;
     if (fileno(input) != fileno(stdin)) {
-	if ((fd1 = dup(fileno(input))) >= 0
+	if (dup(fileno(input)) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    (void) dup2(fileno(input), fileno(stdin));
 	    dialog_state.pipe_input = fdopen(fd2, "r");
@@ -324,7 +324,7 @@ init_dialog(FILE *input, FILE *output)
 	} else
 	    dlg_exiterr("cannot open tty-input");
     } else if (!isatty(fileno(stdin))) {
-	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0
+	if (open_terminal(&device, O_RDONLY) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    dialog_state.pipe_input = fdopen(fd2, "r");
 	    if (freopen(device, "r", stdin) == 0)
@@ -1189,23 +1189,24 @@ real_auto_size(const char *title,
 	high = SLINES - y;
     }
 
-    if (*width > 0) {
-	wide = *width;
-    } else if (prompt != 0) {
-	wide = MAX(title_length, mincols);
-	if (strchr(prompt, '\n') == 0) {
-	    double val = dialog_state.aspect_ratio * dlg_count_real_columns(prompt);
-	    double xxx = sqrt(val);
-	    int tmp = (int) xxx;
-	    wide = MAX(wide, tmp);
-	    wide = MAX(wide, longest_word(prompt));
-	    justify_text((WINDOW *) 0, prompt, high, wide, height, width);
+    if (*width <= 0) {
+	if (prompt != 0) {
+	    wide = MAX(title_length, mincols);
+	    if (strchr(prompt, '\n') == 0) {
+		double val = (dialog_state.aspect_ratio *
+			      dlg_count_real_columns(prompt));
+		double xxx = sqrt(val);
+		int tmp = (int) xxx;
+		wide = MAX(wide, tmp);
+		wide = MAX(wide, longest_word(prompt));
+		justify_text((WINDOW *) 0, prompt, high, wide, height, width);
+	    } else {
+		auto_size_preformatted(prompt, height, width);
+	    }
 	} else {
-	    auto_size_preformatted(prompt, height, width);
+	    wide = SCOLS - x;
+	    justify_text((WINDOW *) 0, prompt, high, wide, height, width);
 	}
-    } else {
-	wide = SCOLS - x;
-	justify_text((WINDOW *) 0, prompt, high, wide, height, width);
     }
 
     if (*width < title_length) {

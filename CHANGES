@@ -1,10 +1,29 @@
--- $Id: CHANGES,v 1.391 2011/10/20 00:04:46 tom Exp $
+-- $Id: CHANGES,v 1.399 2012/02/16 02:11:02 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2011/10/19
+2012/02/15
+	+ modify menubox.c to use the same improvement as in checklist.c
+	+ improve auto width computation for checklist widget by using
+	  dlg_calc_list_width as in the non-auto case (Edho Arief).
+	+ eliminate some bashisms in the sample scripts (Pedro Giffuni).
+	+ makefile fixes from FreeBSD ports (Li-Wen Hsu):
+	  + make --with-package option of configure script work.
+	  + get LIBTOOL_VERSION from configure script, needed by
+	    ${LIBTOOL_VERSION} in LIBTOOL_CREATE (LIB_CREATE in configure and
+	    aclocal.m4)
+	+ update cs.po and sr.po from
+		http://translationproject.org/latest/dialog/
+	+ updated configure script macros, improving CF_XOPEN_SOURCE among
+	  other fixes.
+
+2011/10/20
+	+ fix --analyze warnings for clang versions 2.8, 2.9.
+	+ add configure check for lint program.
+	+ add check in dlg_getc() in case its window is freed as a side effect
+	  of removing callbacks.
 	+ fix logic in freeing subwindows (report by xDog Walker).
 	+ fix a regression in logic distinguishing between inputmenu and menu
 	  widgets (report by xDog Walker).

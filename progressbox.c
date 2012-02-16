@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.17 2011/10/15 12:43:07 tom Exp $
+ *  $Id: progressbox.c,v 1.18 2011/10/20 23:35:17 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -196,7 +196,7 @@ dlg_progressbox(const char *title,
     if (*prompt != '\0') {
 	int y2, x2;
 
-	wattrset(dialog, dialog_attr);
+	(void) wattrset(dialog, dialog_attr);
 	dlg_print_autowrap(dialog, prompt, height, width);
 	getyx(dialog, y2, x2);
 	(void) x2;

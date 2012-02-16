@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.128 2011/10/19 21:28:12 tom Exp $
+ *  $Id: menubox.c,v 1.130 2012/02/16 02:03:58 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -88,7 +88,6 @@ print_tag(WINDOW *win,
     int prefix;
 
     indx = dlg_index_wchars(item->name);
-    limit = dlg_count_wchars(item->name);
     prefix = (indx[1] - indx[0]);
 
     /* highlight first char of the tag to be special */
@@ -327,7 +326,7 @@ dlg_menu(const char *title,
     int choice = dlg_default_listitem(items);
     int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
-    int max_choice, min_width;
+    int max_choice;
     int found;
     int use_height, use_width, name_width, text_width;
     WINDOW *dialog, *menu;
@@ -344,13 +343,14 @@ dlg_menu(const char *title,
 #endif
 
     use_height = menu_height;
+    use_width = dlg_calc_list_width(item_no, items) + 10;
+    use_width = MAX(26, use_width);
     if (use_height == 0) {
-	min_width = dlg_calc_list_width(item_no, items) + 10;
 	/* calculate height without items (4) */
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MAX(26, min_width));
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, use_width);
 	dlg_calc_listh(&height, &use_height, item_no);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, 26);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH + use_height, use_width);
     }
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);

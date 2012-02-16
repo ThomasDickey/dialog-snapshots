@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.86 2011/06/28 10:46:46 tom Exp $
+ *  $Id: buttons.c,v 1.87 2011/10/20 23:50:37 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -104,11 +104,11 @@ print_button(WINDOW *win, char *label, int y, int x, int selected)
 			 : button_label_inactive_attr);
 
     (void) wmove(win, y, x);
-    wattrset(win, selected
-	     ? button_active_attr
-	     : button_inactive_attr);
+    (void) wattrset(win, selected
+		    ? button_active_attr
+		    : button_inactive_attr);
     (void) waddstr(win, "<");
-    wattrset(win, label_attr);
+    (void) wattrset(win, label_attr);
     for (i = 0; i < limit; ++i) {
 	int first = indx[i];
 	int last = indx[i + 1];
@@ -120,14 +120,14 @@ print_button(WINDOW *win, char *label, int y, int x, int selected)
 		const char *temp = (label + first);
 		int cmp = string_to_char(&temp);
 		if (dlg_isupper(cmp)) {
-		    wattrset(win, key_attr);
+		    (void) wattrset(win, key_attr);
 		    state = 1;
 		}
 		break;
 	    }
 #endif
 	    if (dlg_isupper(UCH(label[first]))) {
-		wattrset(win, key_attr);
+		(void) wattrset(win, key_attr);
 		state = 1;
 	    }
 	    break;
@@ -138,9 +138,9 @@ print_button(WINDOW *win, char *label, int y, int x, int selected)
 	}
 	waddnstr(win, label + first, last - first);
     }
-    wattrset(win, selected
-	     ? button_active_attr
-	     : button_inactive_attr);
+    (void) wattrset(win, selected
+		    ? button_active_attr
+		    : button_inactive_attr);
     (void) waddstr(win, ">");
     (void) wmove(win, y, x + ((int) strspn(label, " ")) + 1);
 }
@@ -310,7 +310,7 @@ dlg_draw_buttons(WINDOW *win,
     (void) wmove(win, final_y, final_x);
     wrefresh(win);
     free(buffer);
-    wattrset(win, save);
+    (void) wattrset(win, save);
 }
 
 /*
