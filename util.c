@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.242 2011/10/20 23:42:10 tom Exp $
+ *  $Id: util.c,v 1.243 2012/06/30 12:58:04 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -2415,7 +2415,7 @@ dlg_add_quoted(char *string)
 			    ? FIX_SINGLE
 			    : FIX_DOUBLE);
 
-    if (dialog_vars.quoted || must_quote(string)) {
+    if (must_quote(string)) {
 	temp[1] = '\0';
 	dlg_add_result(my_quote);
 	while (*string != '\0') {

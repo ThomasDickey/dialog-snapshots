@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.140 2011/10/17 00:19:28 tom Exp $
-.\" Copyright 2005-2010,2011  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.143 2012/07/01 13:52:16 tom Exp $
+.\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -37,7 +37,7 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2011/10/17 00:19:28 $"
+.TH \*D 1 "" "$Date: 2012/07/01 13:52:16 $"
 .SH NAME
 \*p \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -503,8 +503,11 @@ The day, month, year values in this case are for the current local time.
 .IP "\fB--timeout \fIsecs"
 Timeout (exit with error code)
 if no user response within the given number of seconds.
-This is overridden if the background "\fB--tailboxbg\fP is used.
 A timeout of zero seconds is ignored.
+.IP
+This option is ignored by the "\fB--pause\fP" widget.
+It is also overridden if the background "\fB--tailboxbg\fP" option is used
+to setup multiple concurrent widgets.
 .
 .IP "\fB--title \fItitle"
 Specifies a
@@ -596,8 +599,10 @@ The initial on/off state of each entry is specified by
 On exit, a list of the \fItag\fP
 strings of those entries that are turned on
 will be printed on \fB\*p\fP's output.
+.IP
 If the "\fB--separate-output\fP" option is not given,
-the strings will be quoted to make it simple for scripts to separate them.
+the strings will be quoted as needed to make it simple for scripts to separate them.
+By default, this uses double-quotes.
 See the "\fB--single-quoted\fP" option, which modifies the quoting behavior.
 .
 .

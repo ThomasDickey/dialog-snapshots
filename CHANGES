@@ -1,8 +1,31 @@
--- $Id: CHANGES,v 1.399 2012/02/16 02:11:02 tom Exp $
+-- $Id: CHANGES,v 1.407 2012/07/01 14:38:58 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2012/06/29
+	+ amend include of unctrl.h to apply only to the case where curses.h
+	  is included, to avoid conflict of ncurses' unctrl.h with a system
+	  implementation (report by Martin Roedlach)
+	+ add limit-check to dlg_toupper() in non-wide curses mode to work
+	  when non-character values such as arrow-key codes are passed to
+	  it (patch by Zoltan Kelemen).
+	+ override timeout value, e.g., as set via --timeout command-line
+	  option in pause widget because that interferes with pause's behavior
+	  (report by Jan Spitalnik).
+	+ modify samples/inputmenu* to allow ":" in renamed text (report by
+	  Andreas Stoewing).
+	+ modify double-quoting to make it more consistent, i.e., checklist
+	  output is quoted only when needed.  This fixes the case where
+	  single-quotes were used whether or not needed, but also modifies
+	  older checklist behavior for double-quoting which always added those
+	  (Debian #663664).
+	+ correct exit-code used in inputmenu for "rename" button (Debian
+	  #673041, forwarded from Ubuntu #333909, patch by Lebedev Vadim).
+	+ update el.po and hr.po from
+		http://translationproject.org/latest/dialog/
+	+ use checkbashisms to clean up sample scripts.
 
 2012/02/15
 	+ modify menubox.c to use the same improvement as in checklist.c

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.133 2012/02/16 02:04:09 tom Exp $
+ *  $Id: checklist.c,v 1.134 2012/06/30 12:55:46 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -726,7 +726,10 @@ dialog_checklist(const char *title,
 		} else {
 		    if (dlg_need_separator())
 			dlg_add_separator();
-		    dlg_add_string(listitems[i].name);
+		    if (flag == FLAG_CHECK)
+			dlg_add_quoted(listitems[i].name);
+		    else
+			dlg_add_string(listitems[i].name);
 		}
 	    }
 	}

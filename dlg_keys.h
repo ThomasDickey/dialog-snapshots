@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.h,v 1.29 2011/10/04 23:50:56 tom Exp $
+ *  $Id: dlg_keys.h,v 1.30 2012/07/01 13:53:54 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
- *  Copyright 2005-2010,2011 Thomas E.  Dickey
+ *  Copyright 2005-2011,2012 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -32,7 +32,7 @@
 #define dlg_toupper(ch) towupper((wint_t)ch)
 #define dlg_isupper(ch) iswupper((wint_t)ch)
 #else
-#define dlg_toupper(ch) toupper(ch)
+#define dlg_toupper(ch) (((ch) > 0 && (ch) <= 255) ? toupper(ch) : (ch))
 #define dlg_isupper(ch) (isalpha(ch) && isupper(ch))
 #endif
 

@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.197 2011/10/20 09:34:08 tom Exp $
+ * $Id: dialog.c,v 1.199 2012/06/30 14:39:35 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -685,9 +685,7 @@ call_checklist(CALLARGS)
 {
     int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
     int code;
-    bool save_quoted = dialog_vars.quoted;
 
-    dialog_vars.quoted = !dialog_vars.separate_output;
     *offset_add = 5 + tags * CHECKBOX_TAGS;
     code = dialog_checklist(t,
 			    av[1],
@@ -695,7 +693,6 @@ call_checklist(CALLARGS)
 			    numeric_arg(av, 3),
 			    numeric_arg(av, 4),
 			    tags, av + 5, FLAG_CHECK);
-    dialog_vars.quoted = save_quoted;
     return code;
 }
 
@@ -1115,7 +1112,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright 2000-2008,2011 Thomas E. Dickey",
+	"Copyright 2000-2011,2012 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",

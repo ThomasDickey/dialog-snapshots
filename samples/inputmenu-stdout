@@ -1,10 +1,10 @@
-#! /bin/bash
-# $Id: inputmenu-stdout,v 1.9 2012/02/16 01:29:39 Pedro.Giffuni Exp $
+#! /bin/sh
+# $Id: inputmenu-stdout,v 1.10 2012/06/29 09:21:47 tom Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
 
 . ./setup-vars
 
-user="$USER"    ; uid="$(id -ru)"   ;
+user="$USER"   ; uid="$(id -ru)" ;
 gid="$GROUPS"  ; home="$HOME"  ;
 
 while [ ${returncode:-99} -ne 1 -a ${returncode:-99} -ne 250 ]; do

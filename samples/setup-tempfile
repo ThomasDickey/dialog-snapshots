@@ -1,5 +1,6 @@
-# $Id: setup-tempfile,v 1.1 2010/01/13 01:41:02 tom Exp $
+#!/bin/sh
+# $Id: setup-tempfile,v 1.2 2012/06/29 09:31:14 tom Exp $
 # vile:shmode
 
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
+trap "rm -f $tempfile" $SIG_NONE $SIG_HUP $SIG_INT $SIG_TRAP $SIG_TERM

@@ -1,5 +1,5 @@
-.\" $Id: dialog.3,v 1.72 2011/10/19 23:12:58 tom Exp $
-.\" Copyright 2005-2010,2011  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.73 2012/06/30 13:22:32 tom Exp $
+.\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2011/10/19 23:12:58 $"
+.TH \*D 3 "" "$Date: 2012/06/30 13:22:32 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -317,6 +317,7 @@ This corresponds to the command-line option "\fB--default-item\fP \fIstring\fP".
 The given string is used as
 the default item in a checklist, form or menu box.
 Normally the first item in the box is the default.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.defaultno
 This corresponds to the command-line option "\fB--defaultno\fP".
 If true,
@@ -506,8 +507,9 @@ If true,
 Use single-quoting as needed (and no quotes if unneeded) for the
 output of checklist's as well as the item-help text.
 If this option is not set, \fB\*p\fP uses double quotes around each item.
-That requires occasional use of backslashes to make the output useful in
+The latter requires occasional use of backslashes to make the output useful in
 shell scripts.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.size_err
 This corresponds to the command-line option "\fB--size-err\fP".
 If true,
@@ -1199,6 +1201,9 @@ function to call when input ends, e.g., to free caller's additional data.
 .TP 5
 .B dlg_add_quoted
 Add a quoted string to the result buffer (see \fBdlg_add_result\fP).
+If no quotes are necessary, none are used.
+If \fIDIALOG_VARS.single_quoted\fR is set, single-quotes are used.
+Otherwise, double-quotes are used.
 .RS
 .TP 5
 .B char * \fIstring
@@ -1207,7 +1212,7 @@ is the string to add.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_add_result
-Add a quoted string to the result buffer \fBdialog_vars.input_result\fP.
+Add a string to the result buffer \fBdialog_vars.input_result\fP.
 .RS
 .TP 5
 .B char * \fIstring
