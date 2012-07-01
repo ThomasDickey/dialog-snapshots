@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.33 2011/10/20 23:35:17 tom Exp $
+ *  $Id: pause.c,v 1.34 2012/07/01 13:05:24 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2010,2011	Thomas E. Dickey
+ *  Copyright 2004-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -83,11 +83,13 @@ dialog_pause(const char *title,
     int button_high = (have_buttons ? BTN_HIGH : MARGIN);
     int gauge_y;
     char *prompt = dlg_strclone(cprompt);
+    int save_timeout = dialog_vars.timeout_secs;
 
     curs_set(0);
 
     dlg_tab_correct_str(prompt);
 
+    dialog_vars.timeout_secs = 0;
     seconds_orig = (seconds > 0) ? seconds : 1;
 
 #ifdef KEY_RESIZE
@@ -240,10 +242,12 @@ dialog_pause(const char *title,
 	}
     } while ((result == DLG_EXIT_UNKNOWN) && (seconds-- > 0));
 
-    nodelay(dialog, FALSE);
     curs_set(1);
     dlg_mouse_free_regions();
     dlg_del_window(dialog);
     free(prompt);
+
+    dialog_vars.timeout_secs = save_timeout;
+
     return ((result == DLG_EXIT_UNKNOWN) ? DLG_EXIT_OK : result);
 }

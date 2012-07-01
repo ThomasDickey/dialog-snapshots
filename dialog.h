@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.242 2011/10/17 22:26:22 tom Exp $
+ *  $Id: dialog.h,v 1.243 2012/07/01 14:39:32 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -59,11 +59,9 @@
 #include <ncurses.h>
 #else
 #include <curses.h>
-#endif
-
-/* most curses.h headers include this, some do not */
 #if defined(HAVE_UNCTRL_H)
-#include <unctrl.h>
+#include <unctrl.h> /* most curses.h headers include this, some do not */
+#endif
 #endif
 
 /* Solaris xpg4 renames these */
