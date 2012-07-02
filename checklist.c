@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.134 2012/06/30 12:55:46 tom Exp $
+ *  $Id: checklist.c,v 1.135 2012/07/01 16:30:04 Zoltan.Kelemen Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -178,7 +178,7 @@ dlg_checklist(const char *title,
 #endif
     int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = dialog_state.visit_items ? -1 : dlg_defaultno_button();
+    int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
     int scrollamt = 0;
     int max_choice;

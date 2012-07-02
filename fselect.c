@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.86 2011/10/20 23:34:05 tom Exp $
+ *  $Id: fselect.c,v 1.87 2012/07/01 18:14:09 Zoltan.Kelemen Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -573,7 +573,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int fkey = FALSE;
     int code;
     int result = DLG_EXIT_UNKNOWN;
-    int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
+    int state = dialog_vars.default_button >=0 ? dlg_default_button() : sTEXT;
     int button;
     int first = (state == sTEXT);
     int first_trace = TRUE;

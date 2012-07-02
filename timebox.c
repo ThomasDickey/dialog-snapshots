@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.49 2011/10/20 23:34:17 tom Exp $
+ * $Id: timebox.c,v 1.51 2012/07/02 00:02:26 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2010,2011   Thomas E. Dickey
+ *  Copyright 2001-2011,2012   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -184,7 +184,7 @@ dialog_timebox(const char *title,
     WINDOW *dialog;
     time_t now_time = time((time_t *) 0);
     struct tm current;
-    int state = dlg_defaultno_button();
+    int state = dlg_default_button();
     const char **buttons = dlg_ok_labels();
     char *prompt = dlg_strclone(subtitle);
     char buffer[MAX_LEN];
@@ -297,10 +297,16 @@ dialog_timebox(const char *title,
 	    if (fkey) {
 		switch (key) {
 		case DLGK_MOUSE(0):
-		    result = DLG_EXIT_OK;
+		    result = dlg_ok_buttoncode(0);
 		    break;
 		case DLGK_MOUSE(1):
-		    result = DLG_EXIT_CANCEL;
+		    result = dlg_ok_buttoncode(1);
+		    break;
+		case DLGK_MOUSE(2):
+		    result = dlg_ok_buttoncode(2);
+		    break;
+		case DLGK_MOUSE(3):
+		    result = dlg_ok_buttoncode(3);
 		    break;
 		case DLGK_MOUSE('H'):
 		    state = sHR;
@@ -312,7 +318,7 @@ dialog_timebox(const char *title,
 		    state = sSC;
 		    break;
 		case DLGK_ENTER:
-		    result = button;
+		    result = dlg_ok_buttoncode(button);
 		    break;
 		case DLGK_FIELD_PREV:
 		    state = dlg_prev_ok_buttonindex(state, sHR);

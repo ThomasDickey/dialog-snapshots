@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.34 2012/07/01 13:05:24 tom Exp $
+ *  $Id: pause.c,v 1.35 2012/07/02 00:43:57 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -72,7 +72,7 @@ dialog_pause(const char *title,
 #endif
 
     int i, x, y, step;
-    int button = 0;
+    int button = dlg_default_button();
     int seconds_orig;
     WINDOW *dialog;
     const char **buttons = dlg_ok_labels();
@@ -228,15 +228,14 @@ dialog_pause(const char *title,
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
 		break;
-	    case DLGK_MOUSE(0):
-		result = DLG_EXIT_OK;
-		break;
-	    case DLGK_MOUSE(1):
-		result = DLG_EXIT_CANCEL;
-		break;
 	    case ERR:
 		break;
 	    default:
+		if (is_DLGK_MOUSE(key)) {
+		    result = dlg_ok_buttoncode(key - M_EVENT);
+		    if (result < 0)
+			result = DLG_EXIT_OK;
+		}
 		break;
 	    }
 	}

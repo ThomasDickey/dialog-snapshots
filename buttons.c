@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.87 2011/10/20 23:50:37 tom Exp $
+ *  $Id: buttons.c,v 1.90 2012/07/01 20:42:05 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -488,10 +488,12 @@ dlg_exit_buttoncode(int button)
 const char **
 dlg_ok_label(void)
 {
-    static const char *labels[3];
+    static const char *labels[4];
     int n = 0;
 
     labels[n++] = my_ok_label();
+    if (dialog_vars.extra_button)
+	labels[n++] = my_extra_label();
     if (dialog_vars.help_button)
 	labels[n++] = my_help_label();
     labels[n] = 0;
@@ -537,6 +539,7 @@ dlg_ok_buttoncode(int button)
     } else if (dialog_vars.help_button && (button == n)) {
 	result = DLG_EXIT_HELP;
     }
+    dlg_trace_msg("# dlg_ok_buttoncode(%d) = %d\n", button, result);
     return result;
 }
 
@@ -575,7 +578,7 @@ dlg_prev_ok_buttonindex(int current, int extra)
 /*
  * Find the button-index for the "OK" or "Cancel" button, according to
  * whether --defaultno is given.  If --nocancel was given, we always return
- * the index for "OK".
+ * the index for the first button (usually "OK" unless --nook was used).
  */
 int
 dlg_defaultno_button(void)
@@ -586,6 +589,30 @@ dlg_defaultno_button(void)
 	while (dlg_ok_buttoncode(result) != DLG_EXIT_CANCEL)
 	    ++result;
     }
+    dlg_trace_msg("# dlg_defaultno_button() = %d\n", result);
+    return result;
+}
+
+/*
+ * Find the button-index for a button named with --default-button. If the
+ * option was not specified, or if the selected button does not exist, return
+ * the index of the first button (usually "OK" unless --nook was used).
+ */
+int
+dlg_default_button(void)
+{
+    int i, n;
+    int result = 0;
+
+    if (dialog_vars.default_button >= 0) {
+	for (i = 0; (n = dlg_ok_buttoncode(i)) >= 0; i++) {
+	    if (n == dialog_vars.default_button) {
+		result = i;
+		break;
+	    }
+	}
+    }
+    dlg_trace_msg("# dlg_default_button() = %d\n", result);
     return result;
 }
 

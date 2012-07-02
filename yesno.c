@@ -1,9 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.54 2011/10/15 12:43:07 tom Exp $
+ *  $Id: yesno.c,v 1.55 2012/07/01 18:14:17 Zoltan.Kelemen Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2010,2011	Thomas E. Dickey
+ *  Copyright 1999-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -52,7 +52,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     int x, y;
     int key = 0, fkey;
     int code;
-    int button = dlg_defaultno_button();
+    int button = dlg_default_button();
     WINDOW *dialog = 0;
     int result = DLG_EXIT_UNKNOWN;
     char *prompt = dlg_strclone(cprompt);

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.131 2012/06/29 23:17:47 Lebedev.Vadim Exp $
+ *  $Id: menubox.c,v 1.132 2012/07/01 16:30:04 Zoltan.Kelemen Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -322,7 +322,7 @@ dlg_menu(const char *title,
 #endif
     int i, j, x, y, cur_x, cur_y, box_x, box_y;
     int key = 0, fkey;
-    int button = dialog_state.visit_items ? -1 : dlg_defaultno_button();
+    int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
     int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
