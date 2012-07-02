@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.68 2011/10/15 12:43:07 tom Exp $
+ *  $Id: msgbox.c,v 1.71 2012/07/02 00:42:17 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -52,7 +52,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     /* *INDENT-ON* */
 
     int x, y, last = 0, page;
-    int button = 0;
+    int button;
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog = 0;
@@ -62,6 +62,10 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int check;
     bool show = TRUE;
     int min_width = (pauseopt == 1 ? 12 : 0);
+    int save_nocancel = dialog_vars.nocancel;
+
+    dialog_vars.nocancel = TRUE;
+    button = dlg_default_button();
 
 #ifdef KEY_RESIZE
     int req_high = height;
@@ -118,7 +122,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		break;
 
 	    if (!fkey && (check = dlg_char_to_button(key, buttons)) >= 0) {
-		result = check ? DLG_EXIT_HELP : DLG_EXIT_OK;
+		result = dlg_ok_buttoncode(check);
 		break;
 	    }
 
@@ -150,23 +154,19 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 				     buttons, button,
 				     FALSE, width);
 		    break;
-		case DLGK_ENTER:
-		    result = button ? DLG_EXIT_HELP : DLG_EXIT_OK;
-		    break;
-		case DLGK_MOUSE(0):
-		    result = DLG_EXIT_OK;
-		    break;
-		case DLGK_MOUSE(1):
-		    result = DLG_EXIT_HELP;
-		    break;
 		default:
-		    if (dlg_check_scrolled(key,
-					   last,
-					   page,
-					   &show,
-					   &offset) == 0)
-			break;
-		    beep();
+		    if (is_DLGK_MOUSE(key)) {
+			result = dlg_ok_buttoncode(key - M_EVENT);
+			if (result < 0)
+			    result = DLG_EXIT_OK;
+		    } else if (dlg_check_scrolled(key,
+						  last,
+						  page,
+						  &show,
+						  &offset) == 0) {
+		    } else {
+			beep();
+		    }
 		    break;
 		}
 	    } else {
@@ -184,5 +184,8 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
     free(prompt);
+
+    dialog_vars.nocancel = save_nocancel;
+
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.18 2011/10/20 23:35:17 tom Exp $
+ *  $Id: progressbox.c,v 1.19 2012/07/01 23:18:11 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -117,7 +117,7 @@ pause_for_ok(WINDOW *dialog, int height, int width)
     };
     /* *INDENT-ON* */
 
-    int button = 0;
+    int button = dlg_default_button();
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     const char **buttons = dlg_ok_label();

@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.80 2011/10/20 23:34:21 tom Exp $
+ *  $Id: formbox.c,v 1.81 2012/07/01 18:13:51 Zoltan.Kelemen Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
- *  Copyright 2003-2010,2011	Thomas E. Dickey
+ *  Copyright 2003-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -484,7 +484,7 @@ dlg_form(const char *title,
     int first = TRUE;
     int first_trace = TRUE;
     int chr_offset = 0;
-    int state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
+    int state = dialog_vars.default_button >=0 ? dlg_default_button() : sTEXT;
     int x, y, cur_x, cur_y, box_x, box_y;
     int code;
     int key = 0;

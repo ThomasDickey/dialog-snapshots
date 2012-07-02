@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.73 2011/10/20 23:38:07 tom Exp $
+ *  $Id: inputbox.c,v 1.74 2012/07/01 18:13:40 Zoltan.Kelemen Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2010,2011 Thomas E. Dickey
+ *  Copyright 2000-2011,2012 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -90,7 +90,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
   retry:
 #endif
     show_buttons = TRUE;
-    state = dialog_vars.defaultno ? dlg_defaultno_button() : sTEXT;
+    state = dialog_vars.default_button >= 0 ? dlg_default_button() : sTEXT;
     first = (state == sTEXT);
     key = fkey = 0;
 

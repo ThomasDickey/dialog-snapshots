@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.106 2011/10/20 23:41:38 tom Exp $
+ *  $Id: textbox.c,v 1.107 2012/07/01 18:13:24 Zoltan.Kelemen Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2010,2011	Thomas E.  Dickey
+ *  Copyright 2000-2011,2012	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -674,7 +674,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     WINDOW *dialog;
     bool moved;
     int result = DLG_EXIT_UNKNOWN;
-    int button = dialog_vars.extra_button ? dlg_defaultno_button() : 0;
+    int button = dlg_default_button();
     int min_width = 12;
 
     search_term[0] = '\0';	/* no search term entered yet */
