@@ -1,10 +1,11 @@
-cdialog (20120701) unstable; urgency=high
+cdialog (20120703) unstable; urgency=low
 
   * minor fixes
+  * add --default-button
 
  -- Thomas E. Dickey <dickey@invisible-island.net>  Sat, 30 Jun 2012 10:41:05 -0400
 
-cdialog (20120215) unstable; urgency=high
+cdialog (20120215) unstable; urgency=low
 
   * minor fixes
 

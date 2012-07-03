@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.h,v 1.30 2012/07/01 13:53:54 tom Exp $
+ *  $Id: dlg_keys.h,v 1.31 2012/07/02 23:57:52 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
@@ -141,6 +141,15 @@ typedef enum {
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'B' ), \
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	'b' ), \
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE )
+
+#define TRAVERSE_BINDINGS \
+	DLG_KEYS_DATA( DLGK_ENTER,	' ' ), \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ), \
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ), \
+	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT )
 
 extern int dlg_lookup_key(WINDOW * /*win*/, int /*curses_key*/, int * /*dialog_key*/);
 extern int dlg_result_key(int /*dialog_key*/, int /*fkey*/, int * /*resultp*/);

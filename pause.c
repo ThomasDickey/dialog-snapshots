@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.35 2012/07/02 00:43:57 tom Exp $
+ *  $Id: pause.c,v 1.36 2012/07/03 00:01:59 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -55,13 +55,7 @@ dialog_pause(const char *title,
     static DLG_KEYS_BINDING binding[] = {
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	TRAVERSE_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */

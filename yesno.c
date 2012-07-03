@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.55 2012/07/01 18:14:17 Zoltan.Kelemen Exp $
+ *  $Id: yesno.c,v 1.56 2012/07/02 23:58:08 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -37,13 +37,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     static DLG_KEYS_BINDING binding[] = {
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
+	TRAVERSE_BINDINGS,
 	SCROLLKEY_BINDINGS,
 	END_KEYS_BINDING
     };

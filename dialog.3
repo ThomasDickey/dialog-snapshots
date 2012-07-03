@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.73 2012/06/30 13:22:32 tom Exp $
+.\" $Id: dialog.3,v 1.76 2012/07/03 08:22:10 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/06/30 13:22:32 $"
+.TH \*D 3 "" "$Date: 2012/07/03 08:22:10 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -295,6 +295,9 @@ bright red.
 Restore normal settings with "\\Zn".
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.column_separator
+This corresponds to the command-line option "\fB--column-separator\fP".
+\fB\*L\fP splits data for radio/checkboxes and menus on the
+occurrences of the given string, and aligns the split data into columns.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.cr_wrap
 This corresponds to the command-line option "\fB--cr-wrap\fP".
@@ -311,6 +314,10 @@ look in the dialog.
 This corresponds to the command-line option "\fB--date-format\fP \fIstring\fP".
 If the host provides \fBstrftime\fP, and the value is nonnull,
 the calendar widget uses this to format its output.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.default_button
+This is set by the command-line option "\fB--default-button\fP.
+It is used by \fBdlg_default_button\fP.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.default_item
 This corresponds to the command-line option "\fB--default-item\fP \fIstring\fP".
@@ -483,6 +490,8 @@ Note that \fB\*p\fR will still wrap text, subject to the \fB--cr-wrap\fR
 option.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.nook
+This corresponds to the command-line option "\fB--nook\fP.
+\fB\*L\fP will suppress the "ok" (or "yes") button from the widget.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.ok_label
 This corresponds to the command-line option "\fB--ok-label\fP \fIstring\fP".
@@ -494,6 +503,7 @@ If true,
 each widget prints its size to \fB\*p\fP's output when it is invoked.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.quoted
+This corresponds to the command-line option "\fB--quoted\fP.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.separate_output
 This corresponds to the command-line option "\fB--separate-output\fP".
@@ -1202,7 +1212,7 @@ function to call when input ends, e.g., to free caller's additional data.
 .B dlg_add_quoted
 Add a quoted string to the result buffer (see \fBdlg_add_result\fP).
 If no quotes are necessary, none are used.
-If \fIDIALOG_VARS.single_quoted\fR is set, single-quotes are used.
+If \fBdialog_vars.single_quoted\fR is set, single-quotes are used.
 Otherwise, double-quotes are used.
 .RS
 .TP 5
@@ -1744,6 +1754,13 @@ is the window's height
 .B int \fIwidth
 is the window's width
 .RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_default_button
+If \fBdialog_vars.default_button\fP is positive,
+return the button-index for that button code,
+using \fBdlg_ok_buttoncode\fP to test indices starting with zero.
+Otherwise (or if no match was found for the button code), return zero.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_default_formitem

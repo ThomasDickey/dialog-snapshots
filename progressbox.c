@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.19 2012/07/01 23:18:11 tom Exp $
+ *  $Id: progressbox.c,v 1.21 2012/07/03 00:12:52 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -112,54 +112,79 @@ pause_for_ok(WINDOW *dialog, int height, int width)
     static DLG_KEYS_BINDING binding[] = {
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	TRAVERSE_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
 
-    int button = dlg_default_button();
+    int button;
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     const char **buttons = dlg_ok_label();
     int check;
+    int save_nocancel = dialog_vars.nocancel;
+    bool redraw = TRUE;
+
+    dialog_vars.nocancel = TRUE;
+    button = dlg_default_button();
 
     dlg_register_window(dialog, "progressbox", binding);
     dlg_register_buttons(dialog, "progressbox", buttons);
 
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
-    dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	if (redraw) {
+	    redraw = FALSE;
+	    if (button < 0)
+		button = 0;
+	    dlg_draw_buttons(dialog,
+			     height - 2, 0,
+			     buttons, button,
+			     FALSE, width);
+	}
+
 	key = dlg_mouse_wgetch(dialog, &fkey);
 	if (dlg_result_key(key, fkey, &result))
 	    break;
 
 	if (!fkey && (check = dlg_char_to_button(key, buttons)) >= 0) {
-	    result = check ? DLG_EXIT_HELP : DLG_EXIT_OK;
+	    result = dlg_ok_buttoncode(check);
 	    break;
 	}
 
 	if (fkey) {
 	    switch (key) {
+	    case DLGK_FIELD_NEXT:
+		button = dlg_next_button(buttons, button);
+		redraw = TRUE;
+		break;
+	    case DLGK_FIELD_PREV:
+		button = dlg_prev_button(buttons, button);
+		redraw = TRUE;
+		break;
 	    case DLGK_ENTER:
-		result = button ? DLG_EXIT_HELP : DLG_EXIT_OK;
-		break;
-	    case DLGK_MOUSE(0):
-		result = DLG_EXIT_OK;
-		break;
-	    case DLGK_MOUSE(1):
-		result = DLG_EXIT_HELP;
+		result = dlg_ok_buttoncode(button);
 		break;
 	    default:
-		beep();
+		if (is_DLGK_MOUSE(key)) {
+		    result = dlg_ok_buttoncode(key - M_EVENT);
+		    if (result < 0)
+			result = DLG_EXIT_OK;
+		} else {
+		    beep();
+		}
 		break;
 	    }
+
 	} else {
 	    beep();
 	}
     }
     dlg_unregister_window(dialog);
+
+    dialog_vars.nocancel = save_nocancel;
     return result;
 }
 

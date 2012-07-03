@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.51 2012/07/02 00:02:26 tom Exp $
+ * $Id: timebox.c,v 1.52 2012/07/02 09:34:04 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -296,18 +296,6 @@ dialog_timebox(const char *title,
 	    /* handle function-keys */
 	    if (fkey) {
 		switch (key) {
-		case DLGK_MOUSE(0):
-		    result = dlg_ok_buttoncode(0);
-		    break;
-		case DLGK_MOUSE(1):
-		    result = dlg_ok_buttoncode(1);
-		    break;
-		case DLGK_MOUSE(2):
-		    result = dlg_ok_buttoncode(2);
-		    break;
-		case DLGK_MOUSE(3):
-		    result = dlg_ok_buttoncode(3);
-		    break;
 		case DLGK_MOUSE('H'):
 		    state = sHR;
 		    break;
@@ -368,7 +356,11 @@ dialog_timebox(const char *title,
 		    goto retry;
 #endif
 		default:
-		    if (obj != 0) {
+		    if (is_DLGK_MOUSE(key)) {
+			result = dlg_ok_buttoncode(key - M_EVENT);
+			if (result < 0)
+			    result = DLG_EXIT_OK;
+		    } else if (obj != 0) {
 			int step = next_or_previous(key);
 			if (step != 0) {
 			    obj->value += step;
