@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.71 2012/07/02 00:42:17 tom Exp $
+ *  $Id: msgbox.c,v 1.73 2012/07/03 10:41:34 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -39,14 +39,8 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     static DLG_KEYS_BINDING binding[] = {
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	TRAVERSE_BINDINGS,
 	SCROLLKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_DOWN ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ),
-	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_LEFT ),
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -63,13 +57,17 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     bool show = TRUE;
     int min_width = (pauseopt == 1 ? 12 : 0);
     int save_nocancel = dialog_vars.nocancel;
+#ifdef KEY_RESIZE
+    int req_high;
+    int req_wide;
+#endif
 
     dialog_vars.nocancel = TRUE;
     button = dlg_default_button();
 
 #ifdef KEY_RESIZE
-    int req_high = height;
-    int req_wide = width;
+    req_high = height;
+    req_wide = width;
   restart:
 #endif
 
