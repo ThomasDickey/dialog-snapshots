@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.73 2012/07/03 10:41:34 tom Exp $
+ *  $Id: msgbox.c,v 1.74 2012/07/06 16:53:53 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -151,6 +151,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 				     height - 2, 0,
 				     buttons, button,
 				     FALSE, width);
+		    break;
+		case DLGK_ENTER:
+		    result = dlg_ok_buttoncode(button);
 		    break;
 		default:
 		    if (is_DLGK_MOUSE(key)) {

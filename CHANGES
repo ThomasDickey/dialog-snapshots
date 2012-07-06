@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.416 2012/07/03 09:46:02 tom Exp $
+-- $Id: CHANGES,v 1.419 2012/07/06 18:18:48 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2012/07/06
+	+ modify samples/setup-tempfile to work with Tru64's shell.
+	+ modify inputmenu sample scripts to make them more portable:
+	  + use "id" rather than "$GROUPS", use sed to work with Solaris.
+	  + use sed to split-up the rename results to work with HPUX.
+	+ fix regression in msgbox (ArchLinux #30574)
 
 2012/07/03
 	+ modify prgbox widget to work with --extra-button, etc.
