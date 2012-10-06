@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.68 2011/10/20 21:02:43 tom Exp $
+dnl $Id: configure.in,v 1.69 2012/10/06 12:30:28 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
@@ -95,7 +95,7 @@ CF_ARG_MSG_ENABLE([if you want --trace option],
 	trace,
 	[  --disable-trace         do not support --trace option],
 	[EXTRAOBJS="$EXTRAOBJS trace\$o"
-	 AC_DEFINE(HAVE_DLG_TRACE)],,yes)
+	 AC_DEFINE(HAVE_DLG_TRACE,1,[Define to 1 to support --trace option])],,yes)
 
 LIBTOOL_MAKE="#"
 CF_WITH_LIBTOOL
@@ -136,48 +136,48 @@ CF_ARG_MSG_ENABLE([if you want config-file support],
 	rc-file,
 	[  --disable-rc-file       do not include config-file support],
 	[EXTRAOBJS="$EXTRAOBJS rc\$o"
-	 AC_DEFINE(HAVE_RC_FILE)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_RC_FILE,1,[Define to 1 to include config-file support])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want Xdialog-style dialogs],
 	Xdialog,
 	[  --disable-Xdialog       do not include Xdialog-style dialogs],
 	[EXTRAOBJS="$EXTRAOBJS calendar\$o fselect\$o timebox\$o"
-	 AC_DEFINE(HAVE_XDIALOG)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_XDIALOG,1,[Define to 1 to include Xdialog-style dialogs])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the form dialog],
 	form,
 	[  --disable-form          do not include the form dialog],
 	[EXTRAOBJS="$EXTRAOBJS formbox\$o"
-	 AC_DEFINE(HAVE_DLG_FORMBOX)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_DLG_FORMBOX,1,[Define to 1 to include the form dialog])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the gauge dialog],
 	gauge,
 	[  --disable-gauge         do not include the gauge dialogs],
 	[EXTRAOBJS="$EXTRAOBJS guage\$o pause\$o prgbox\$o progressbox\$o"
-	 AC_DEFINE(HAVE_DLG_GAUGE)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_DLG_GAUGE,1,[Define to 1 to include the gauge dialogs])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the tailbox dialog],
 	tailbox,
 	[  --disable-tailbox       do not include the tailbox dialog],
 	[EXTRAOBJS="$EXTRAOBJS tailbox\$o"
-	 AC_DEFINE(HAVE_DLG_TAILBOX)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_DLG_TAILBOX,1,[Define to 1 to include the tailbox dialog])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the mixedform dialog],
 	mixedform,
 	[  --disable-mixedform     do not include the mixedform dialog],
 	[EXTRAOBJS="$EXTRAOBJS mixedform\$o"
-	 AC_DEFINE(HAVE_DLG_MIXEDFORM)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_DLG_MIXEDFORM,1,[Define to 1 to include the mixedform dialog])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the mixedgauge dialog],
 	mixedgauge,
 	[  --disable-mixedgauge    do not include the mixedgauge dialog],
 	[EXTRAOBJS="$EXTRAOBJS mixedgauge\$o"
-	 AC_DEFINE(HAVE_MIXEDGAUGE)],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_MIXEDGAUGE,1,[Define to 1 to include the mixedgauge dialog])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the wide-curses features],
 	widec,
 	[  --enable-widec          enable wide-curses features],
-	[AC_DEFINE(USE_WIDE_CURSES)],,$cf_wide_curses)
+	[AC_DEFINE(USE_WIDE_CURSES,1,[Define to 1 to enable wide-curses features])],,$cf_wide_curses)
 
 AC_SUBST(EXTRAOBJS)
 
@@ -230,7 +230,7 @@ wchgat \
 wget_wch \
 )
 
-AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR)])
+AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR,1,[Define to 1 if (n)curses has start_color function])])
 CF_CURSES_CHTYPE
 CF_CURSES_WACS_SYMBOLS
 CF_CURSES_WGETPARENT
@@ -239,7 +239,7 @@ CF_MBSTATE_T
 
 CF_HEADERS_SH(DLG,dlg_config.h)
 
-AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE)])
+AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE,1,[Define to 1 if locale feature can be enabled])])
 
 CF_DISABLE_RPATH_HACK
 
