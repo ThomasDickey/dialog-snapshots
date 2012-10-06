@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.419 2012/07/06 18:18:48 tom Exp $
+-- $Id: CHANGES,v 1.421 2012/10/06 12:18:59 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2012/10/06
+	+ miscellaneous configure script fixes/updates:
+	  + check for clang compiler
+	  + check for tinfo library when looking for ncurses
+	  + add 3rd parameter to AC_DEFINE for autoheader
+	  + remove unused macros from aclocal.m4
+	+ update config.guess, config.sub
 
 2012/07/06
 	+ modify samples/setup-tempfile to work with Tru64's shell.

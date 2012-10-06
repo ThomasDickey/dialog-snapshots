@@ -1,3 +1,9 @@
+cdialog (20121006) unstable; urgency=low
+
+  * configure-script updates
+
+ -- Thomas E. Dickey <dickey@invisible-island.net>  Sat, 06 Oct 2012 09:19:29 -0400
+
 cdialog (20120706) unstable; urgency=high
 
   * fix regression in msgbox (ArchLinux #30574)
