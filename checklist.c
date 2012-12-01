@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.135 2012/07/01 16:30:04 Zoltan.Kelemen Exp $
+ *  $Id: checklist.c,v 1.137 2012/11/30 10:05:09 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -296,7 +296,10 @@ dlg_checklist(const char *title,
      * leave it intact.
      */
     use_width = (list_width - 6);
-    if (text_width + name_width > use_width) {
+    if (text_width >= 0
+	&& name_width >= 0
+	&& use_width > 0
+	&& text_width + name_width > use_width) {
 	int need = (int) (0.25 * use_width);
 	if (name_width > need) {
 	    int want = (int) (use_width * ((double) name_width) /

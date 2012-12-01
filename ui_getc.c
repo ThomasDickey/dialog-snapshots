@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.65 2011/10/20 23:45:48 tom Exp $
+ *  $Id: ui_getc.c,v 1.66 2012/11/30 01:56:14 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- *  Copyright 2001-2010,2011	Thomas E. Dickey
+ *  Copyright 2001-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -440,12 +440,9 @@ dlg_getc(WINDOW *win, int *fkey)
 	if (!*fkey || *fkey != before_fkey) {
 	    switch (ch) {
 	    case CHR_LITERAL:
-		if (!literal) {
-		    literal = TRUE;
-		    keypad(win, FALSE);
-		    continue;
-		}
-		break;
+		literal = TRUE;
+		keypad(win, FALSE);
+		continue;
 	    case CHR_REPAINT:
 		(void) touchwin(win);
 		(void) wrefresh(curscr);

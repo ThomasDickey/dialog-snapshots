@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.70 2011/10/20 23:42:49 tom Exp $
+ *  $Id: inputstr.c,v 1.71 2012/11/30 10:08:26 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -308,13 +308,17 @@ dlg_count_wchars(const char *string)
 	    size_t code;
 	    wchar_t *temp = dlg_calloc(wchar_t, len + 1);
 
-	    cache.string[part] = '\0';
-	    memset(&state, 0, sizeof(state));
-	    code = mbsrtowcs(temp, &src, (size_t) part, &state);
-	    cache.i_len = ((int) code >= 0) ? wcslen(temp) : 0;
-	    cache.string[part] = save;
-	    free(temp);
-	    save_cache(&cache, string);
+	    if (temp != 0) {
+		cache.string[part] = '\0';
+		memset(&state, 0, sizeof(state));
+		code = mbsrtowcs(temp, &src, (size_t) part, &state);
+		cache.i_len = ((int) code >= 0) ? wcslen(temp) : 0;
+		cache.string[part] = save;
+		free(temp);
+		save_cache(&cache, string);
+	    } else {
+		cache.i_len = 0;
+	    }
 	}
 	result = (int) cache.i_len;
     } else
