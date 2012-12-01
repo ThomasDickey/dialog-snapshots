@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.243 2012/06/30 12:58:04 tom Exp $
+ *  $Id: util.c,v 1.250 2012/12/01 01:46:27 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -193,7 +193,7 @@ dlg_put_backtitle(void)
 	chtype attr = A_NORMAL;
 	int backwidth = dlg_count_columns(dialog_vars.backtitle);
 
-	wattrset(stdscr, screen_attr);
+	(void) wattrset(stdscr, screen_attr);
 	(void) wmove(stdscr, 0, 1);
 	dlg_print_text(stdscr, dialog_vars.backtitle, COLS - 2, &attr);
 	for (i = 0; i < COLS - backwidth; i++)
@@ -215,7 +215,7 @@ dlg_attr_clear(WINDOW *win, int height, int width, chtype attr)
 {
     int i, j;
 
-    wattrset(win, attr);
+    (void) wattrset(win, attr);
     for (i = 0; i < height; i++) {
 	(void) wmove(win, i, 0);
 	for (j = 0; j < width; j++)
@@ -315,22 +315,26 @@ init_dialog(FILE *input, FILE *output)
      */
     dialog_state.pipe_input = stdin;
     if (fileno(input) != fileno(stdin)) {
-	if (dup(fileno(input)) >= 0
+	if ((fd1 = dup(fileno(input))) >= 0
 	    && (fd2 = dup(fileno(stdin))) >= 0) {
 	    (void) dup2(fileno(input), fileno(stdin));
 	    dialog_state.pipe_input = fdopen(fd2, "r");
 	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
 		(void) dup2(fileno(stdin), 0);
-	} else
+	} else {
 	    dlg_exiterr("cannot open tty-input");
+	}
+	close(fd1);
     } else if (!isatty(fileno(stdin))) {
-	if (open_terminal(&device, O_RDONLY) >= 0
-	    && (fd2 = dup(fileno(stdin))) >= 0) {
-	    dialog_state.pipe_input = fdopen(fd2, "r");
-	    if (freopen(device, "r", stdin) == 0)
-		dlg_exiterr("cannot open tty-input");
-	    if (fileno(stdin) != 0)	/* some functions may read fd #0 */
-		(void) dup2(fileno(stdin), 0);
+	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0) {
+	    if ((fd2 = dup(fileno(stdin))) >= 0) {
+		dialog_state.pipe_input = fdopen(fd2, "r");
+		if (freopen(device, "r", stdin) == 0)
+		    dlg_exiterr("cannot open tty-input");
+		if (fileno(stdin) != 0)		/* some functions may read fd #0 */
+		    (void) dup2(fileno(stdin), 0);
+	    }
+	    close(fd1);
 	}
 	free(device);
     }
@@ -751,8 +755,8 @@ dlg_print_line(WINDOW *win,
 	       const char *prompt,
 	       int lm, int rm, int *x)
 {
-    const char *wrap_ptr = prompt;
-    const char *test_ptr = prompt;
+    const char *wrap_ptr;
+    const char *test_ptr;
     const char *hide_ptr = 0;
     const int *cols = dlg_index_columns(prompt);
     const int *indx = dlg_index_wchars(prompt);
@@ -977,12 +981,12 @@ dlg_print_scrolled(WINDOW *win,
 #endif
 	dummy = newwin(high, width, 0, 0);
 	if (dummy == 0) {
-	    wattrset(win, dialog_attr);
+	    (void) wattrset(win, dialog_attr);
 	    dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
 	    last = 0;
 	} else {
 	    wbkgdset(dummy, dialog_attr | ' ');
-	    wattrset(dummy, dialog_attr);
+	    (void) wattrset(dummy, dialog_attr);
 	    werase(dummy);
 	    dlg_print_autowrap(dummy, prompt, high, width);
 	    getyx(dummy, y, x);
@@ -1013,7 +1017,7 @@ dlg_print_scrolled(WINDOW *win,
 		    (void) sprintf(buffer, "%d%%", percent);
 		    (void) waddstr(win, buffer);
 		    if ((len = (int) strlen(buffer)) < 4) {
-			wattrset(win, border_attr);
+			(void) wattrset(win, border_attr);
 			whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
 		    }
 		}
@@ -1024,7 +1028,7 @@ dlg_print_scrolled(WINDOW *win,
 #endif
     {
 	(void) offset;
-	wattrset(win, dialog_attr);
+	(void) wattrset(win, dialog_attr);
 	dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
 	last = 0;
     }
@@ -1355,7 +1359,7 @@ dlg_draw_box2(WINDOW *win, int y, int x, int height, int width,
     int i, j;
     chtype save = dlg_get_attrs(win);
 
-    wattrset(win, 0);
+    (void) wattrset(win, 0);
     for (i = 0; i < height; i++) {
 	(void) wmove(win, y + i, x);
 	for (j = 0; j < width; j++)
@@ -1378,7 +1382,7 @@ dlg_draw_box2(WINDOW *win, int y, int x, int height, int width,
 	    else
 		(void) waddch(win, boxchar | ' ');
     }
-    wattrset(win, save);
+    (void) wattrset(win, save);
 }
 
 void
@@ -1541,7 +1545,7 @@ repaint_shadow(DIALOG_WINDOWS * dw, bool draw, int y, int x, int height, int wid
     if (UseShadow(dw)) {
 #if !USE_WCHGAT
 	chtype save = dlg_get_attrs(dw->shadow);
-	wattrset(dw->shadow, draw ? shadow_attr : screen_attr);
+	(void) wattrset(dw->shadow, draw ? shadow_attr : screen_attr);
 #endif
 	for (i = 0; i < SHADOW_ROWS; ++i) {
 	    for (j = 0; j < width; ++j) {
@@ -1555,7 +1559,7 @@ repaint_shadow(DIALOG_WINDOWS * dw, bool draw, int y, int x, int height, int wid
 	}
 	(void) wnoutrefresh(dw->shadow);
 #if !USE_WCHGAT
-	wattrset(dw->shadow, save);
+	(void) wattrset(dw->shadow, save);
 #endif
     }
 }
@@ -1901,10 +1905,10 @@ dlg_draw_title(WINDOW *win, const char *title)
 	chtype save = dlg_get_attrs(win);
 	int x = centered(getmaxx(win), title);
 
-	wattrset(win, title_attr);
+	(void) wattrset(win, title_attr);
 	wmove(win, 0, x);
 	dlg_print_text(win, title, getmaxx(win) - x, &attr);
-	wattrset(win, save);
+	(void) wattrset(win, save);
     }
 }
 
@@ -1915,14 +1919,14 @@ dlg_draw_bottom_box2(WINDOW *win, chtype on_left, chtype on_right, chtype on_ins
     int height = getmaxy(win);
     int i;
 
-    wattrset(win, on_left);
+    (void) wattrset(win, on_left);
     (void) wmove(win, height - 3, 0);
     (void) waddch(win, dlg_boxchar(ACS_LTEE));
     for (i = 0; i < width - 2; i++)
 	(void) waddch(win, dlg_boxchar(ACS_HLINE));
-    wattrset(win, on_right);
+    (void) wattrset(win, on_right);
     (void) waddch(win, dlg_boxchar(ACS_RTEE));
-    wattrset(win, on_inside);
+    (void) wattrset(win, on_inside);
     (void) wmove(win, height - 2, 1);
     for (i = 0; i < width - 2; i++)
 	(void) waddch(win, ' ');
@@ -1980,8 +1984,8 @@ dlg_del_window(WINDOW *win)
 	if (dialog_state.all_windows != 0)
 	    erase_childs_shadow(q);
 	del_subwindows(q->normal);
-	delwin(q->normal);
 	dlg_unregister_window(q->normal);
+	delwin(q->normal);
 	free(q);
     }
     doupdate();
@@ -2007,7 +2011,8 @@ dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
     DIALOG_WINDOWS *p = dlg_calloc(DIALOG_WINDOWS, 1);
 
     (void) parent;
-    if ((win = newwin(height, width, y, x)) == 0) {
+    if (p == 0
+	|| (win = newwin(height, width, y, x)) == 0) {
 	dlg_exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
 		    y, x, height, width);
     }
@@ -2123,7 +2128,7 @@ dlg_item_help(const char *txt)
 	chtype attr = A_NORMAL;
 	int y, x;
 
-	wattrset(stdscr, itemhelp_attr);
+	(void) wattrset(stdscr, itemhelp_attr);
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
 	(void) addch(' ');

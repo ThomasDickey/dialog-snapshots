@@ -1,5 +1,6 @@
-cdialog (20121006) unstable; urgency=low
+cdialog (20121130) unstable; urgency=low
 
+  * coverity fixes
   * configure-script updates
 
  -- Thomas E. Dickey <dickey@invisible-island.net>  Sat, 06 Oct 2012 09:19:29 -0400

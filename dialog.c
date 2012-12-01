@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.202 2012/07/01 20:20:39 tom Exp $
+ * $Id: dialog.c,v 1.205 2012/12/01 01:30:07 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1773,7 +1773,13 @@ main(int argc, char *argv[])
 		break;
 	    default:
 		if (argv[j] != 0) {
-		    dlg_trim_string(argv[j]);
+		    char *argv_j = strdup(argv[j]);
+		    if (argv_j != 0) {
+			dlg_trim_string(argv_j);
+			argv[j] = argv_j;
+		    } else {
+			argv[j] = strdup("?");
+		    }
 		}
 		break;
 	    }

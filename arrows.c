@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.41 2011/10/20 23:37:17 tom Exp $
+ *  $Id: arrows.c,v 1.42 2012/11/30 21:26:56 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -136,7 +136,7 @@ dlg_draw_arrows2(WINDOW *win,
 
     (void) wmove(win, bottom, x);
     if (bottom_arrow) {
-	(void) wattrset(win, merge_colors(darrow_attr, attr));
+	(void) wattrset(win, merge_colors(darrow_attr, borderattr));
 	(void) add_acs(win, ACS_DARROW);
 	(void) waddstr(win, "(+)");
     } else {

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.132 2012/07/01 16:30:04 Zoltan.Kelemen Exp $
+ *  $Id: menubox.c,v 1.135 2012/12/01 01:47:45 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -92,11 +92,11 @@ print_tag(WINDOW *win,
 
     /* highlight first char of the tag to be special */
     (void) wmove(win, my_y, tag_x);
-    wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
+    (void) wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
     if (strlen(item->name) != 0)
 	(void) waddnstr(win, item->name, prefix);
     /* print rest of the string */
-    wattrset(win, selected ? tag_selected_attr : tag_attr);
+    (void) wattrset(win, selected ? tag_selected_attr : tag_attr);
     if ((int) strlen(item->name) > prefix) {
 	limit = dlg_limit_columns(item->name, tag_width, 1);
 	if (limit > 0)
@@ -141,13 +141,13 @@ print_item(WINDOW *win,
 
     /* Clear 'residue' of last item and mark current current item */
     if (is_inputmenu) {
-	wattrset(win, (selected != Unselected) ? item_selected_attr : item_attr);
+	(void) wattrset(win, (selected != Unselected) ? item_selected_attr : item_attr);
 	for (n = my_y - 1; n < my_y + INPUT_ROWS - 1; n++) {
 	    wmove(win, n, 0);
 	    wprintw(win, "%*s", my_width, " ");
 	}
     } else {
-	wattrset(win, menubox_attr);
+	(void) wattrset(win, menubox_attr);
 	wmove(win, my_y, 0);
 	wprintw(win, "%*s", my_width, " ");
     }
@@ -167,13 +167,13 @@ print_item(WINDOW *win,
 
     /* print actual item */
     wmove(win, my_y, my_x);
-    wattrset(win, textchar);
+    (void) wattrset(win, textchar);
     dlg_print_text(win, items->text, my_width - my_x, &attr);
 
     if (selected) {
 	dlg_item_help(items->help);
     }
-    wattrset(win, save);
+    (void) wattrset(win, save);
 }
 
 /*
@@ -222,7 +222,7 @@ input_menu_edit(WINDOW *win,
 	}
     }
     print_item(win, items, choice, Selected, TRUE);
-    wattrset(win, save);
+    (void) wattrset(win, save);
 
     *resultp = result;
     return code;
@@ -369,7 +369,7 @@ dlg_menu(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    wattrset(dialog, dialog_attr);
+    (void) wattrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     menu_width = width - 6;
@@ -421,7 +421,10 @@ dlg_menu(const char *title,
      * FIXME: the gutter width and name/list ratio should be configurable.
      */
     use_width = (menu_width - GUTTER);
-    if (text_width + name_width > use_width) {
+    if (text_width >= 0
+	&& name_width >= 0
+	&& use_width > 0
+	&& text_width + name_width > use_width) {
 	int need = (int) (0.30 * use_width);
 	if (name_width > need) {
 	    int want = (int) (use_width
@@ -636,7 +639,7 @@ dlg_menu(const char *title,
 		    if (is_inputmenu) {
 			int spare_lines, x_count;
 			spare_lines = use_height % INPUT_ROWS;
-			wattrset(menu, menubox_attr);
+			(void) wattrset(menu, menubox_attr);
 			for (; spare_lines; spare_lines--) {
 			    wmove(menu, use_height - spare_lines, 0);
 			    for (x_count = 0; x_count < menu_width;

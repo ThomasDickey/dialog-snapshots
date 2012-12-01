@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.90 2012/07/01 20:42:05 tom Exp $
+ *  $Id: buttons.c,v 1.91 2012/11/30 10:37:40 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -669,10 +669,14 @@ dlg_yes_buttoncode(int button)
 int
 dlg_next_button(const char **labels, int button)
 {
-    if (labels[button + 1] != 0)
+    if (button < -1)
+	button = -1;
+
+    if (labels[button + 1] != 0) {
 	++button;
-    else
+    } else {
 	button = MIN_BUTTON;
+    }
     return button;
 }
 
@@ -682,9 +686,12 @@ dlg_next_button(const char **labels, int button)
 int
 dlg_prev_button(const char **labels, int button)
 {
-    if (button > MIN_BUTTON)
+    if (button > MIN_BUTTON) {
 	--button;
-    else {
+    } else {
+	if (button < -1)
+	    button = -1;
+
 	while (labels[button + 1] != 0)
 	    ++button;
     }

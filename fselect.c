@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.87 2012/07/01 18:14:09 Zoltan.Kelemen Exp $
+ *  $Id: fselect.c,v 1.92 2012/11/30 10:26:56 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -457,13 +457,18 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
     }
 
     if (rescan) {
+	size_t have = strlen(input);
 
-	strcpy(current, input);
+	if (have > MAX_LEN)
+	    have = MAX_LEN;
+	memcpy(current, input, have);
+	current[have] = '\0';
 
 	/* refill the lists */
 	free_list(d_list, TRUE);
 	free_list(f_list, TRUE);
-	strcpy(path, current);
+	memcpy(path, current, have);
+	path[have] = '\0';
 	if ((leaf = strrchr(path, '/')) != 0) {
 	    *++leaf = 0;
 	} else {
@@ -573,7 +578,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int fkey = FALSE;
     int code;
     int result = DLG_EXIT_UNKNOWN;
-    int state = dialog_vars.default_button >=0 ? dlg_default_button() : sTEXT;
+    int state = dialog_vars.default_button >= 0 ? dlg_default_button() : sTEXT;
     int button;
     int first = (state == sTEXT);
     int first_trace = TRUE;
@@ -586,7 +591,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     const char **buttons = dlg_ok_labels();
     const char *d_label = _("Directories");
     const char *f_label = _("Files");
-    char *partial;
+    char *partial = 0;
     int min_wide = MIN_WIDE;
     int min_items = height ? 0 : 4;
     LIST d_list, f_list;
@@ -631,8 +636,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     tbox_x = (width - tbox_width) / 2;
 
     w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
-    if (w_text == 0)
-	return DLG_EXIT_ERROR;
+    if (w_text == 0) {
+	result = DLG_EXIT_ERROR;
+	goto finish;
+    }
 
     (void) keypad(w_text, TRUE);
     dlg_draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
@@ -656,8 +663,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dbox_x = tbox_x;
 
     w_work = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
-    if (w_work == 0)
-	return DLG_EXIT_ERROR;
+    if (w_work == 0) {
+	result = DLG_EXIT_ERROR;
+	goto finish;
+    }
 
     (void) keypad(w_work, TRUE);
     (void) mvwaddstr(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
@@ -675,8 +684,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	fbox_x = tbox_x + dbox_width + (2 * MARGIN);
 
 	w_work = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
-	if (w_work == 0)
-	    return DLG_EXIT_ERROR;
+	if (w_work == 0) {
+	    result = DLG_EXIT_ERROR;
+	    goto finish;
+	}
 
 	(void) keypad(w_work, TRUE);
 	(void) mvwaddstr(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
@@ -791,7 +802,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		continue;
 	    case DLGK_SELECT:
 		completed = 0;
-		partial = 0;
+		if (partial != 0) {
+		    free(partial);
+		    partial = 0;
+		}
 		if (state == sFILES && !dselect) {
 		    completed = data_of(&f_list);
 		} else if (state == sDIRS) {
@@ -808,8 +822,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		    offset = (int) strlen(input);
 		    dlg_show_string(w_text, input, offset, inputbox_attr,
 				    0, 0, tbox_width, 0, first);
-		    if (partial != NULL)
+		    if (partial != NULL) {
 			free(partial);
+			partial = 0;
+		    }
 		    continue;
 		} else {	/* if (state < sTEXT) */
 		    (void) beep();
@@ -882,6 +898,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dlg_mouse_free_regions();
     free_list(&d_list, FALSE);
     free_list(&f_list, FALSE);
+
+  finish:
+    if (partial != 0)
+	free(partial);
     return result;
 }
 
