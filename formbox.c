@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.81 2012/07/01 18:13:51 Zoltan.Kelemen Exp $
+ *  $Id: formbox.c,v 1.82 2012/12/04 01:25:57 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -287,6 +287,7 @@ tab_next(WINDOW *win,
 static bool
 scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int *scrollamt)
 {
+    bool result = TRUE;
     int old_choice = *choice;
     int old_scroll = *scrollamt;
     int old_row = MIN(item[old_choice].text_y, item[old_choice].name_y);
@@ -298,34 +299,44 @@ scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int 
 	    target = old_scroll;
 	else
 	    target = old_scroll + stepsize;
-	if (target < 0)
-	    target = 0;
+	if (target < 0) {
+	    result = FALSE;
+	}
     } else {
-	int limit = form_limit(item);
-	if (target > limit)
-	    target = limit;
-    }
-
-    for (n = 0; item[n].name != 0; ++n) {
-	if (item[n].text_flen > 0) {
-	    int new_row = MIN(item[n].text_y, item[n].name_y);
-	    if (abs(new_row - target) < abs(old_row - target)) {
-		old_row = new_row;
-		*choice = n;
-	    }
+	if (target > form_limit(item)) {
+	    result = FALSE;
 	}
     }
 
-    if (old_choice != *choice)
-	print_item(win, item + old_choice, *scrollamt, FALSE);
+    if (result) {
+	result = FALSE;
+	for (n = 0; item[n].name != 0; ++n) {
+	    if (item[n].text_flen > 0) {
+		int new_row = MIN(item[n].text_y, item[n].name_y);
+		if (abs(new_row - target) < abs(old_row - target)) {
+		    if (old_row != new_row) {
+			old_row = new_row;
+			result = TRUE;
+		    }
+		    *choice = n;
+		}
+	    }
+	}
 
-    *scrollamt = *choice;
-    if (*scrollamt != old_scroll) {
-	scrollok(win, TRUE);
-	wscrl(win, *scrollamt - old_scroll);
-	scrollok(win, FALSE);
+	if (old_choice != *choice)
+	    print_item(win, item + old_choice, *scrollamt, FALSE);
+
+	*scrollamt = *choice;
+	if (*scrollamt != old_scroll) {
+	    scrollok(win, TRUE);
+	    wscrl(win, *scrollamt - old_scroll);
+	    scrollok(win, FALSE);
+	}
+	result = (old_choice != *choice) || (old_scroll != *scrollamt);
     }
-    return (old_choice != *choice) || (old_scroll != *scrollamt);
+    if (!result)
+	beep();
+    return result;
 }
 
 /*
@@ -484,7 +495,7 @@ dlg_form(const char *title,
     int first = TRUE;
     int first_trace = TRUE;
     int chr_offset = 0;
-    int state = dialog_vars.default_button >=0 ? dlg_default_button() : sTEXT;
+    int state = dialog_vars.default_button >= 0 ? dlg_default_button() : sTEXT;
     int x, y, cur_x, cur_y, box_x, box_y;
     int code;
     int key = 0;
@@ -626,6 +637,8 @@ dlg_form(const char *title,
 			    current->text_x,
 			    current->text_len,
 			    is_hidden(current), first);
+	    wsyncup(form);
+	    wcursyncup(form);
 	    field_changed = FALSE;
 	}
 

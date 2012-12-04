@@ -1,7 +1,7 @@
-dnl $Id: configure.in,v 1.69 2012/10/06 12:30:28 tom Exp $
+dnl $Id: configure.in,v 1.71 2012/12/02 20:02:27 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2010,2011 -- Thomas E. Dickey
+dnl Copyright 1999-2011,2012 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ dnl holders shall not be used in advertising or otherwise to promote the
 dnl sale, use or other dealings in this Software without prior written
 dnl authorization.
 dnl ---------------------------------------------------------------------------
-AC_PREREQ(2.13.20020210)
+AC_PREREQ(2.52.20011201)
 AC_INIT(dialog.h)
 AC_CONFIG_HEADER(dlg_config.h:config.hin)
 
@@ -39,9 +39,8 @@ AC_SUBST(DESTDIR)
 dnl
 dnl Checks for programs.
 dnl
-AC_PROG_CC
+CF_PROG_CC
 AC_PROG_CPP
-AC_PROG_GCC_TRADITIONAL
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PROG_INSTALL
@@ -49,9 +48,6 @@ CF_PROG_LINT
 
 dnl needed for CF_WITH_LIBTOOL
 AC_CHECK_TOOL(AR, ar, ar)
-
-AC_ISC_POSIX
-AC_C_CONST
 
 CF_MAKEFLAGS
 CF_MAKE_TAGS
@@ -243,4 +239,4 @@ AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOC
 
 CF_DISABLE_RPATH_HACK
 
-AC_OUTPUT(dialog-config makefile $EXTRA_OUTPUT $SUB_MAKEFILE samples/install/makefile,,,sort -u)
+AC_OUTPUT(dialog-config makefile $EXTRA_OUTPUT $SUB_MAKEFILE,,,sort -u)

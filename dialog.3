@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.76 2012/07/03 08:22:10 tom Exp $
+.\" $Id: dialog.3,v 1.77 2012/12/02 22:03:44 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/07/03 08:22:10 $"
+.TH \*D 3 "" "$Date: 2012/12/02 22:03:44 $"
 .SH NAME
 \*l \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1387,17 +1387,13 @@ this calls \fBbeep\fP once and sets
 .B dlg_boxchar
 returns its \fBchtype\fP parameter transformed as follows:
 .RS
-.TP 3
-.B -
+.bP
 if neither \fBdialog_vars.ascii_lines\fP nor \fBdialog_vars.no_lines\fP is set.
-.TP 3
-.B -
+.bP
 if \fBdialog_vars.ascii_lines\fP is set, returns the corresponding "+" or "-", etc. for the line-drawing characters used in \fB\*p\fP.
-.TP 3
-.B -
+.bP
 otherwise, if \fBdialog_vars.no_lines\fP is set, returns a space for the line-drawing characters.
-.TP 3
-.B -
+.bP
 if the parameter is not a line-drawing or other special character such as ACS_DARROW, it returns the parameter unchanged.
 .RE
 .\" ---------------------------------------------------------------------------
@@ -1498,6 +1494,16 @@ abbreviation.
 If the label is empty, return -1.
 If no uppercase character is found, return 0.
 Otherwise return the uppercase character.
+.IP
+Normally
+.B dlg_draw_buttons
+and
+.B dlg_char_to_button
+use the first uppercase character.
+However, they keep track of all of the labels and
+if the first has already been used in another label,
+they will continue looking for another uppercase character.
+This function does not have enough information to make that check.
 .RS
 .TP 5
 .B const char * \fIlabel

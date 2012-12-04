@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.205 2012/12/01 01:30:07 tom Exp $
+ * $Id: dialog.c,v 1.206 2012/12/02 19:48:38 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1239,14 +1239,17 @@ process_trace_option(char **argv, int *offset)
 {
     int j;
 
-    if (dialog_state.trace_output == 0)
+    if (dialog_state.trace_output == 0) {
 	dlg_trace(optionString(argv, offset));
+    } else {
+	dlg_trace_msg("# ignore extra --trace option\n");
+	*offset += 1;
+    }
 
     dlg_trace_msg("# Parameters:\n");
     for (j = 0; argv[j] != 0; ++j) {
 	dlg_trace_msg("# argv[%d] = %s\n", j, argv[j]);
     }
-    *offset += 1;
 }
 #endif
 
