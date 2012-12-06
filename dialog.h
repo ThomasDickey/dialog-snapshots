@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.245 2012/07/01 18:44:03 tom Exp $
+ *  $Id: dialog.h,v 1.247 2012/12/04 10:36:58 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -513,6 +513,7 @@ typedef struct {
 #define FORMBOX_TAGS            (dialog_vars.item_help ? 9 : 8)
 #define MIXEDFORM_TAGS          (FORMBOX_TAGS + 1)
 #define MIXEDGAUGE_TAGS         2
+#define TREEVIEW_TAGS           (dialog_vars.item_help ? 5 : 4)
 
 extern DIALOG_VARS dialog_vars;
 
@@ -552,6 +553,7 @@ extern DIALOG_COLORS dlg_color_table[];
 extern const char *dialog_version(void);
 
 /* widgets, each in separate files */
+extern int dialog_buildlist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_calendar(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*day*/, int /*month*/, int /*year*/);
 extern int dialog_checklist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/, int /*flag*/);
 extern int dialog_dselect(const char * /*title*/, const char * /*path*/, int /*height*/, int /*width*/);
@@ -568,9 +570,11 @@ extern int dialog_msgbox(const char * /*title*/, const char * /*cprompt*/, int /
 extern int dialog_pause(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*seconds*/);
 extern int dialog_prgbox(const char * /*title*/, const char * /*cprompt*/, const char * /*command*/, int /*height*/, int /*width*/, int /*pauseopt*/);
 extern int dialog_progressbox(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/);
+extern int dialog_rangebox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/, int /*min_value*/, int /*max_value*/, int /*default_value*/);
 extern int dialog_tailbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/, int /*bg_task*/);
 extern int dialog_textbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/);
 extern int dialog_timebox(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*hour*/, int /*minute*/, int /*second*/);
+extern int dialog_treeview(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/);
 extern int dialog_yesno(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/);
 
 /* some widgets have alternate entrypoints, to allow list manipulation */
@@ -598,6 +602,14 @@ typedef struct {
     char *help;			/* help-message, if any */
     bool help_free;		/* ...true if .help can be freed */
 } DIALOG_FORMITEM;
+
+typedef struct {
+    char *name;
+    char *text;
+    char *help;
+    int state;
+    int depth;
+} DIALOG_TREEITEM;
 
 typedef	int (DIALOG_INPUTMENU) (DIALOG_LISTITEM * /*items*/, int /*current*/, char * /*newtext*/);
 

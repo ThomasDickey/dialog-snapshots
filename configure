@@ -12397,7 +12397,7 @@ fi;
 echo "$as_me:12397: result: $enableval" >&5
 echo "${ECHO_T}$enableval" >&6
 if test "$enableval" != no ; then
-EXTRAOBJS="$EXTRAOBJS calendar\$o fselect\$o timebox\$o"
+EXTRAOBJS="$EXTRAOBJS buildlist\$o calendar\$o fselect\$o rangebox\$o timebox\$o treeview\$o"
 
 cat >>confdefs.h <<\EOF
 #define HAVE_XDIALOG 1
