@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.82 2012/12/04 01:25:57 tom Exp $
+ *  $Id: formbox.c,v 1.83 2012/12/04 09:49:14 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -458,7 +458,7 @@ prev_valid_buttonindex(int state, int extra, bool non_editable)
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ), \
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE )
 /*
- * Display a form for fulfill a number of fields
+ * Display a form for entering a number of fields
  */
 int
 dlg_form(const char *title,

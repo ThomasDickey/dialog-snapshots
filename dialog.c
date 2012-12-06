@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.206 2012/12/02 19:48:38 tom Exp $
+ * $Id: dialog.c,v 1.211 2012/12/06 00:42:02 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -48,7 +48,6 @@ typedef enum {
     ,o_beep
     ,o_beep_after
     ,o_begin
-    ,o_calendar
     ,o_cancel_label
     ,o_checklist
     ,o_clear
@@ -60,14 +59,11 @@ typedef enum {
     ,o_default_button
     ,o_default_item
     ,o_defaultno
-    ,o_dselect
-    ,o_editbox
     ,o_exit_label
     ,o_extra_button
     ,o_extra_label
     ,o_fixed_font
     ,o_form
-    ,o_fselect
     ,o_fullbutton
     ,o_gauge
     ,o_help
@@ -136,7 +132,6 @@ typedef enum {
     ,o_tailboxbg
     ,o_textbox
     ,o_time_format
-    ,o_timebox
     ,o_timeout
     ,o_title
     ,o_trim
@@ -146,6 +141,16 @@ typedef enum {
     ,o_wmclass
     ,o_yes_label
     ,o_yesno
+#ifdef HAVE_XDIALOG
+    ,o_buildlist
+    ,o_calendar
+    ,o_dselect
+    ,o_editbox
+    ,o_fselect
+    ,o_rangebox
+    ,o_timebox
+    ,o_treeview
+#endif
 #ifdef HAVE_DLG_TRACE
     ,o_trace
 #endif
@@ -193,7 +198,6 @@ static const Options options[] = {
     { "beep",		o_beep,			1, NULL },
     { "beep-after",	o_beep_after,		1, NULL },
     { "begin",		o_begin,		1, "<y> <x>" },
-    { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
     { "cancel-label",	o_cancel_label,		1, "<str>" },
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		o_clear,		1, "" },
@@ -205,15 +209,12 @@ static const Options options[] = {
     { "default-button",	o_default_button,	1, "<str>" },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
-    { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
-    { "editbox",	o_editbox,		2, "<file> <height> <width>" },
     { "exit-label",	o_exit_label,		1, "<str>" },
     { "extra-button",	o_extra_button,		1, "" },
     { "extra-label",	o_extra_label,		1, "<str>" },
     { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
     { "form",		o_form,			2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
-    { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
     { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
@@ -285,7 +286,6 @@ static const Options options[] = {
     { "tailboxbg",	o_tailboxbg,		2, "<file> <height> <width>" },
     { "textbox",	o_textbox,		2, "<file> <height> <width>" },
     { "time-format",	o_time_format,		1, "<str>" },
-    { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "timeout",	o_timeout,		1, "<secs>" },
     { "title",		o_title,		1, "<title>" },
     { "trim",		o_trim,			1, "" },
@@ -295,6 +295,16 @@ static const Options options[] = {
     { "wmclass",	o_wmclass,		1, NULL },
     { "yes-label",	o_yes_label,		1, "<str>" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
+#ifdef HAVE_XDIALOG
+    { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
+    { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
+    { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
+    { "editbox",	o_editbox,		2, "<file> <height> <width>" },
+    { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
+    { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
+    { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
+    { "treeview",	o_treeview,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1> <depth1>..." },
+#endif
 #ifdef HAVE_DLG_TRACE
     { "trace",		o_trace,		1, "<file>" },
 #endif
@@ -747,6 +757,19 @@ call_passwordbox(CALLARGS)
 
 #ifdef HAVE_XDIALOG
 static int
+call_buildlist(CALLARGS)
+{
+    int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
+    *offset_add = 5 + tags * CHECKBOX_TAGS;
+    return dialog_buildlist(t,
+			    av[1],
+			    numeric_arg(av, 2),
+			    numeric_arg(av, 3),
+			    numeric_arg(av, 4),
+			    tags, av + 5);
+}
+
+static int
 call_calendar(CALLARGS)
 {
     *offset_add = arg_rest(av);
@@ -790,6 +813,22 @@ call_fselect(CALLARGS)
 }
 
 static int
+call_rangebox(CALLARGS)
+{
+    int min_value;
+
+    *offset_add = arg_rest(av);
+    min_value = numeric_arg(av, 4);
+    return dialog_rangebox(t,
+			   av[1],
+			   numeric_arg(av, 2),
+			   numeric_arg(av, 3),
+			   min_value,
+			   numeric_arg(av, 5),
+			   (*offset_add > 6) ? numeric_arg(av, 6) : min_value);
+}
+
+static int
 call_timebox(CALLARGS)
 {
     *offset_add = arg_rest(av);
@@ -800,6 +839,20 @@ call_timebox(CALLARGS)
 			  optional_num(av, 4, -1),
 			  optional_num(av, 5, -1),
 			  optional_num(av, 6, -1));
+}
+
+static int
+call_treeview(CALLARGS)
+{
+    int tags = howmany_tags(av + 5, TREEVIEW_TAGS);
+
+    *offset_add = arg_rest(av);
+    return dialog_treeview(t,
+			   av[1],
+			   numeric_arg(av, 2),
+			   numeric_arg(av, 3),
+			   numeric_arg(av, 4),
+			   tags, av + 5);
 }
 #endif /* HAVE_XDIALOG */
 
@@ -1017,11 +1070,14 @@ static const Mode modes[] =
     {o_tailboxbg,       4, 4, call_tailboxbg},
 #endif
 #ifdef HAVE_XDIALOG
+    {o_buildlist,       4, 0, call_buildlist},
     {o_calendar,        4, 7, call_calendar},
     {o_dselect,         4, 5, call_dselect},
     {o_editbox,         4, 4, call_editbox},
     {o_fselect,         4, 5, call_fselect},
+    {o_rangebox,        5, 7, call_rangebox},
     {o_timebox,         4, 7, call_timebox},
+    {o_treeview,        4, 0, call_treeview},
 #endif
 };
 /* *INDENT-ON* */

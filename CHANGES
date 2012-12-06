@@ -1,10 +1,11 @@
--- $Id: CHANGES,v 1.435 2012/12/04 02:02:41 tom Exp $
+-- $Id: CHANGES,v 1.436 2012/12/04 10:30:38 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2012/12/03
+2012/12/04
+	+ add buildlist, rangebox and treeview dialogs, like Xdialog.
 	+ improve dialog_helpfile() by preventing it from showing extra buttons
 	  (suggested by xDog Walker).
 	+ correct logic in formbox's scroll_next() function (report by xDog
