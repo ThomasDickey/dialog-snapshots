@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.12 2012/12/06 00:33:49 tom Exp $
+ *  $Id: rangebox.c,v 1.13 2012/12/12 23:05:31 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -28,8 +28,6 @@
 
 #define MIN_HIGH (ONE_HIGH + 1 + (4 * MARGIN))
 #define MIN_WIDE (10 + 2 + (2 * MARGIN))
-
-#define sTEXT -1
 
 struct _box;
 
@@ -310,8 +308,10 @@ dialog_rangebox(const char *title,
 	draw_value(&data, cur_value);
 	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	if (state == sTEXT)
+	if (state < 0) {
+	    data.value_col = data.value_len + state;
 	    wmove(dialog, data.slide_y, data.value_x + data.value_col);
+	}
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
 	if (dlg_result_key(key, fkey, &result))
@@ -327,19 +327,17 @@ dialog_rangebox(const char *title,
 		    result = dlg_ok_buttoncode(button);
 		    break;
 		case DLGK_FIELD_PREV:
-		    if (state == sTEXT) {
-			if (data.value_col)
-			    data.value_col--;
+		    if (state < 0 && state > -data.value_len) {
+			--state;
 		    } else {
-			state = dlg_prev_ok_buttonindex(state, sTEXT);
+			state = dlg_prev_ok_buttonindex(state, -data.value_len);
 		    }
 		    break;
 		case DLGK_FIELD_NEXT:
-		    if (state == sTEXT) {
-			if (data.value_col < data.value_len - 1)
-			    data.value_col++;
+		    if (state < 0) {
+			++state;
 		    } else {
-			state = dlg_next_ok_buttonindex(state, sTEXT);
+			state = dlg_next_ok_buttonindex(state, -data.value_len);
 		    }
 		    break;
 		case DLGK_ITEM_FIRST:
@@ -349,7 +347,7 @@ dialog_rangebox(const char *title,
 		    cur_value = max_value;
 		    break;
 		case DLGK_ITEM_PREV:
-		    if (state == sTEXT) {
+		    if (state < 0) {
 			cur_value -= digit_of(&data);
 		    } else {
 			cur_value -= 1;
@@ -358,7 +356,7 @@ dialog_rangebox(const char *title,
 			cur_value = min_value;
 		    break;
 		case DLGK_ITEM_NEXT:
-		    if (state == sTEXT) {
+		    if (state < 0) {
 			cur_value += digit_of(&data);
 		    } else {
 			cur_value += 1;
@@ -389,7 +387,7 @@ dialog_rangebox(const char *title,
 		    goto retry;
 #endif
 		case DLGK_MOUSE('i'):
-		    state = sTEXT;
+		    state = -data.value_len;
 		    break;
 		default:
 		    if (is_DLGK_MOUSE(key)) {
@@ -399,12 +397,10 @@ dialog_rangebox(const char *title,
 		    }
 		    break;
 		}
-	    } else if (isdigit(key) && state == sTEXT) {
+	    } else if (isdigit(key) && state < 0) {
 		if (set_digit(&data, key)) {
 		    cur_value = data.current;
 		    data.current--;
-		    if (data.value_col < data.value_len - 1)
-			data.value_col++;
 		}
 	    } else {
 		beep();

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.135 2012/12/01 01:47:45 tom Exp $
+ *  $Id: menubox.c,v 1.136 2012/12/06 11:58:00 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -581,59 +581,19 @@ dlg_menu(const char *title,
 	    if (i != choice) {
 		getyx(dialog, cur_y, cur_x);
 		if (i < 0 || i >= max_choice) {
-#if defined(NCURSES_VERSION_MAJOR) && NCURSES_VERSION_MAJOR < 5
-		    /*
-		     * Using wscrl to assist ncurses scrolling is not needed
-		     * in version 5.x
-		     */
-		    if (i == -1) {
-			if (use_height > 1) {
-			    /* De-highlight current first item */
-			    print_item(menu,
-				       &items[scrollamt],
-				       0, Unselected, is_inputmenu);
-			    scrollok(menu, TRUE);
-			    wscrl(menu, -RowHeight(1));
-			    scrollok(menu, FALSE);
-			}
-			scrollamt--;
+		    if (i < 0) {
+			scrollamt += i;
+			choice = 0;
+		    } else {
+			choice = max_choice - 1;
+			scrollamt += (i - max_choice + 1);
+		    }
+		    for (i = 0; i < max_choice; i++) {
 			print_item(menu,
-				   &items[scrollamt],
-				   0, Selected, is_inputmenu);
-		    } else if (i == max_choice) {
-			if (use_height > 1) {
-			    /* De-highlight current last item before scrolling up */
-			    print_item(menu,
-				       &items[scrollamt + max_choice - 1],
-				       max_choice - 1,
-				       Unselected,
-				       is_inputmenu);
-			    scrollok(menu, TRUE);
-			    wscrl(menu, RowHeight(1));
-			    scrollok(menu, FALSE);
-			}
-			scrollamt++;
-			print_item(menu,
-				   &items[scrollamt + max_choice - 1],
-				   max_choice - 1, TRUE,
+				   &items[scrollamt + i],
+				   i,
+				   (i == choice) ? Selected : Unselected,
 				   is_inputmenu);
-		    } else
-#endif
-		    {
-			if (i < 0) {
-			    scrollamt += i;
-			    choice = 0;
-			} else {
-			    choice = max_choice - 1;
-			    scrollamt += (i - max_choice + 1);
-			}
-			for (i = 0; i < max_choice; i++) {
-			    print_item(menu,
-				       &items[scrollamt + i],
-				       i,
-				       (i == choice) ? Selected : Unselected,
-				       is_inputmenu);
-			}
 		    }
 		    /* Clean bottom lines */
 		    if (is_inputmenu) {

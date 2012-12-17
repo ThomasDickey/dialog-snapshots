@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.247 2012/12/04 10:36:58 tom Exp $
+ *  $Id: dialog.h,v 1.248 2012/12/17 00:00:46 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -320,6 +320,7 @@ extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 #define mouse_mkregion(y,x,h,w,n)         dlg_mouse_mkregion(y,x,h,w,n)
 #define mouse_region(y,x)                 dlg_mouse_region(y,x)
 #define mouse_setbase(x,y)                dlg_mouse_setbase(x,y)
+#define mouse_setcode(c)                  dlg_mouse_setcode(c)
 #define mouse_wgetch(w,c)                 dlg_mouse_wgetch(w,c)
 #define new_window(h,w,y,x)               dlg_new_window(h,w,y,x)
 #define parse_rc()                        dlg_parse_rc()
@@ -811,6 +812,7 @@ extern mseRegion * dlg_mouse_mkregion (int /*y*/, int /*x*/, int /*height*/, int
 extern void dlg_mouse_free_regions (void);
 extern void dlg_mouse_mkbigregion (int /*y*/, int /*x*/, int /*height*/, int /*width*/, int /*code*/, int /*step_x*/, int /*step_y*/, int /*mode*/);
 extern void dlg_mouse_setbase (int /*x*/, int /*y*/);
+extern void dlg_mouse_setcode (int /*code*/);
 
 #define USE_MOUSE 1
 
@@ -822,6 +824,7 @@ extern void dlg_mouse_setbase (int /*x*/, int /*y*/);
 #define	dlg_mouse_mkregion(y, x, height, width, code) /*nothing*/
 #define	dlg_mouse_mkbigregion(y, x, height, width, code, step_x, step_y, mode) /*nothing*/
 #define	dlg_mouse_setbase(x, y) /*nothing*/
+#define	dlg_mouse_setcode(c) /*nothing*/
 
 #define USE_MOUSE 0
 

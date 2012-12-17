@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.137 2012/11/30 10:05:09 tom Exp $
+ *  $Id: checklist.c,v 1.138 2012/12/06 11:58:00 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -510,59 +510,18 @@ dlg_checklist(const char *title,
 	    if (i != choice) {
 		getyx(dialog, cur_y, cur_x);
 		if (i < 0 || i >= max_choice) {
-#if defined(NCURSES_VERSION_MAJOR) && NCURSES_VERSION_MAJOR < 5
-		    /*
-		     * Using wscrl to assist ncurses scrolling is not needed
-		     * in version 5.x
-		     */
-		    if (i == -1) {
-			if (use_height > 1) {
-			    /* De-highlight current first item */
-			    print_item(list,
-				       &items[scrollamt],
-				       states,
-				       0, FALSE);
-			    scrollok(list, TRUE);
-			    wscrl(list, -1);
-			    scrollok(list, FALSE);
-			}
-			scrollamt--;
+		    if (i < 0) {
+			scrollamt += i;
+			choice = 0;
+		    } else {
+			choice = max_choice - 1;
+			scrollamt += (i - max_choice + 1);
+		    }
+		    for (i = 0; i < max_choice; i++) {
 			print_item(list,
-				   &items[scrollamt],
+				   &items[scrollamt + i],
 				   states,
-				   0, TRUE);
-		    } else if (i == max_choice) {
-			if (use_height > 1) {
-			    /* De-highlight current last item before scrolling up */
-			    print_item(list,
-				       &items[scrollamt + max_choice - 1],
-				       states,
-				       max_choice - 1, FALSE);
-			    scrollok(list, TRUE);
-			    wscrl(list, 1);
-			    scrollok(list, FALSE);
-			}
-			scrollamt++;
-			print_item(list,
-				   &items[scrollamt + max_choice - 1],
-				   states,
-				   max_choice - 1, TRUE);
-		    } else
-#endif
-		    {
-			if (i < 0) {
-			    scrollamt += i;
-			    choice = 0;
-			} else {
-			    choice = max_choice - 1;
-			    scrollamt += (i - max_choice + 1);
-			}
-			for (i = 0; i < max_choice; i++) {
-			    print_item(list,
-				       &items[scrollamt + i],
-				       states,
-				       i, i == choice);
-			}
+				   i, i == choice);
 		    }
 		    (void) wnoutrefresh(list);
 		    print_arrows(dialog,
