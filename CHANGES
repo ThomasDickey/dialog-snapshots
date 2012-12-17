@@ -1,10 +1,12 @@
--- $Id: CHANGES,v 1.436 2012/12/04 10:30:38 tom Exp $
+-- $Id: CHANGES,v 1.437 2012/12/06 11:56:39 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2012/12/04
+2012/12/06
+	+ remove obsolete workaround for ncurses 4.2 scrolling in checklist
+	  and menubox.
 	+ add buildlist, rangebox and treeview dialogs, like Xdialog.
 	+ improve dialog_helpfile() by preventing it from showing extra buttons
 	  (suggested by xDog Walker).

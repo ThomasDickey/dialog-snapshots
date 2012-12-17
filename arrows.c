@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.42 2012/11/30 21:26:56 tom Exp $
+ *  $Id: arrows.c,v 1.43 2012/12/16 17:30:44 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -196,7 +196,7 @@ dlg_draw_scrollbar(WINDOW *win,
 	    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
 	}
     }
-#define BARSIZE(num) (int) (((all_high * (num)) + all_high - 1) / total_data)
+#define BARSIZE(num) (int) ((double) ((all_high * (num)) + all_high - 1) / (double) total_data)
 
     if (dialog_state.use_scrollbar) {
 	int all_high = (bottom - top - 1);
@@ -210,20 +210,24 @@ dlg_draw_scrollbar(WINDOW *win,
 		bar_high = 1;
 
 	    if (bar_high < all_high) {
+		int bar_last = BARSIZE(next_data);
+
 		wmove(win, top + 1, right);
 
 		(void) wattrset(win, save);
 		wvline(win, ACS_VLINE | A_REVERSE, all_high);
 
 		bar_y = BARSIZE(this_data);
-		if (bar_y > all_high - bar_high)
-		    bar_y = all_high - bar_high;
+		if (bar_y == bar_last && bar_y > 0)
+		    --bar_y;
+		if (bar_last - bar_y > bar_high)
+		    ++bar_y;
 
 		wmove(win, top + 1 + bar_y, right);
 
 		(void) wattrset(win, position_indicator_attr);
 		wattron(win, A_REVERSE);
-		wvline(win, ACS_BLOCK, bar_high);
+		wvline(win, ACS_BLOCK, bar_last - bar_y);
 	    }
 	}
     }
