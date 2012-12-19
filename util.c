@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.250 2012/12/01 01:46:27 tom Exp $
+ *  $Id: util.c,v 1.251 2012/12/18 22:22:05 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -631,6 +631,55 @@ is_combining(const char *txt, int *combined)
     return result;
 }
 #endif
+
+/*
+ * Print the name (tag) or text from a DIALOG_LISTITEM, highlighting the
+ * first character if selected.
+ */
+void
+dlg_print_listitem(WINDOW *win,
+		   const char *text,
+		   int climit,
+		   bool first,
+		   int selected)
+{
+    chtype attr = A_NORMAL;
+    int limit;
+    const int *cols;
+    const int *indx = dlg_index_wchars(text);
+    chtype attrs[4];
+
+    if (first) {
+	attrs[3] = tag_key_selected_attr;
+	attrs[2] = tag_key_attr;
+	attrs[1] = tag_selected_attr;
+	attrs[0] = tag_attr;
+
+	(void) wattrset(win, selected ? attrs[3] : attrs[2]);
+	(void) waddnstr(win, text, indx[1]);
+
+	if ((int) strlen(text) > indx[1]) {
+	    limit = dlg_limit_columns(text, climit, 1);
+	    if (limit > 1) {
+		(void) wattrset(win, selected ? attrs[1] : attrs[0]);
+		(void) waddnstr(win,
+				text + indx[1],
+				indx[limit] - indx[1]);
+	    }
+	}
+    } else {
+	attrs[1] = item_selected_attr;
+	attrs[0] = item_attr;
+
+	cols = dlg_index_columns(text);
+	limit = dlg_limit_columns(text, climit, 0);
+
+	if (limit > 0) {
+	    (void) wattrset(win, selected ? attrs[1] : attrs[0]);
+	    dlg_print_text(win, text, cols[limit], &attr);
+	}
+    }
+}
 
 /*
  * Print up to 'cols' columns from 'text', optionally rendering our escape

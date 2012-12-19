@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.72 2012/12/04 10:20:33 tom Exp $
+dnl $Id: configure.in,v 1.73 2012/12/18 09:39:22 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2011,2012 -- Thomas E. Dickey
@@ -136,9 +136,15 @@ CF_ARG_MSG_ENABLE([if you want config-file support],
 
 CF_ARG_MSG_ENABLE([if you want Xdialog-style dialogs],
 	Xdialog,
-	[  --disable-Xdialog       do not include Xdialog-style dialogs],
-	[EXTRAOBJS="$EXTRAOBJS buildlist\$o calendar\$o fselect\$o rangebox\$o timebox\$o treeview\$o"
+	[  --disable-Xdialog       do not include Xdialog-style dialogs (1.1)],
+	[EXTRAOBJS="$EXTRAOBJS calendar\$o fselect\$o timebox\$o"
 	 AC_DEFINE(HAVE_XDIALOG,1,[Define to 1 to include Xdialog-style dialogs])],,$cf_all_widgets)
+
+CF_ARG_MSG_ENABLE([if you want extra Xdialog-style dialogs (1.2)],
+	Xdialog2,
+	[  --disable-Xdialog2      do not include extra Xdialog-style dialogs (1.2)],
+	[EXTRAOBJS="$EXTRAOBJS buildlist\$o rangebox\$o treeview\$o"
+	 AC_DEFINE(HAVE_XDIALOG2,1,[Define to 1 to include extra Xdialog-style dialogs])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the form dialog],
 	form,

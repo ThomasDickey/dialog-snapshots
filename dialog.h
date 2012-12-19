@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.248 2012/12/17 00:00:46 tom Exp $
+ *  $Id: dialog.h,v 1.253 2012/12/18 22:14:14 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -506,6 +506,8 @@ typedef struct {
     bool no_nl_expand;		/* option "--no-nl-expand" */
     /* 1.1-20120701 */
     int default_button;		/* option "--default-button" (exit code) */
+    /* 1.1-20121218 */
+    bool no_tags;		/* option "--no-tags" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -575,7 +577,7 @@ extern int dialog_rangebox(const char * /*title*/, const char * /*file*/, int /*
 extern int dialog_tailbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/, int /*bg_task*/);
 extern int dialog_textbox(const char * /*title*/, const char * /*file*/, int /*height*/, int /*width*/);
 extern int dialog_timebox(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*hour*/, int /*minute*/, int /*second*/);
-extern int dialog_treeview(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/);
+extern int dialog_treeview(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/, int /*flag*/);
 extern int dialog_yesno(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/);
 
 /* some widgets have alternate entrypoints, to allow list manipulation */
@@ -603,14 +605,6 @@ typedef struct {
     char *help;			/* help-message, if any */
     bool help_free;		/* ...true if .help can be freed */
 } DIALOG_FORMITEM;
-
-typedef struct {
-    char *name;
-    char *text;
-    char *help;
-    int state;
-    int depth;
-} DIALOG_TREEITEM;
 
 typedef	int (DIALOG_INPUTMENU) (DIALOG_LISTITEM * /*items*/, int /*current*/, char * /*newtext*/);
 
@@ -689,6 +683,9 @@ extern int dlg_parse_rc(void);
 extern void dlg_create_rc(const char * /*filename*/);
 #endif
 
+/* treeview.c */
+extern int dlg_treeview(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, DIALOG_LISTITEM * /*items*/, const char * /*states*/, int * /*depths*/, int /*flag*/, int * /*current_item*/);
+
 /* ui_getc.c */
 extern int dlg_getc(WINDOW * /*win*/, int * /*fkey*/);
 extern int dlg_getc_callbacks(int /*ch*/, int /*fkey*/, int * /*result*/);
@@ -745,6 +742,7 @@ extern void dlg_draw_title(WINDOW *win, const char *title);
 extern void dlg_exit(int /*code*/) GCC_NORETURN;
 extern void dlg_item_help(const char * /*txt*/);
 extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*height*/, int /*width*/);
+extern void dlg_print_listitem(WINDOW * /*win*/, const char * /*text*/, int /*climit*/, bool /*first*/, int /*selected*/);
 extern void dlg_print_size(int /*height*/, int /*width*/);
 extern void dlg_print_text(WINDOW * /*win*/, const char * /*txt*/, int /*len*/, chtype * /*attr*/);
 extern void dlg_put_backtitle(void);
