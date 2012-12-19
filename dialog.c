@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.211 2012/12/06 00:42:02 tom Exp $
+ * $Id: dialog.c,v 1.215 2012/12/18 10:44:29 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -142,13 +142,16 @@ typedef enum {
     ,o_yes_label
     ,o_yesno
 #ifdef HAVE_XDIALOG
-    ,o_buildlist
     ,o_calendar
     ,o_dselect
     ,o_editbox
     ,o_fselect
-    ,o_rangebox
     ,o_timebox
+#endif
+#ifdef HAVE_XDIALOG2
+    ,o_buildlist
+    ,o_no_tags
+    ,o_rangebox
     ,o_treeview
 #endif
 #ifdef HAVE_DLG_TRACE
@@ -296,13 +299,16 @@ static const Options options[] = {
     { "yes-label",	o_yes_label,		1, "<str>" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
 #ifdef HAVE_XDIALOG
-    { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
     { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
     { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
     { "editbox",	o_editbox,		2, "<file> <height> <width>" },
     { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
-    { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
+#endif
+#ifdef HAVE_XDIALOG2
+    { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
+    { "no-tags", 	o_no_tags,		1, "" },
+    { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
     { "treeview",	o_treeview,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1> <depth1>..." },
 #endif
 #ifdef HAVE_DLG_TRACE
@@ -757,19 +763,6 @@ call_passwordbox(CALLARGS)
 
 #ifdef HAVE_XDIALOG
 static int
-call_buildlist(CALLARGS)
-{
-    int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
-    *offset_add = 5 + tags * CHECKBOX_TAGS;
-    return dialog_buildlist(t,
-			    av[1],
-			    numeric_arg(av, 2),
-			    numeric_arg(av, 3),
-			    numeric_arg(av, 4),
-			    tags, av + 5);
-}
-
-static int
 call_calendar(CALLARGS)
 {
     *offset_add = arg_rest(av);
@@ -813,6 +806,41 @@ call_fselect(CALLARGS)
 }
 
 static int
+call_timebox(CALLARGS)
+{
+    *offset_add = arg_rest(av);
+    return dialog_timebox(t,
+			  av[1],
+			  numeric_arg(av, 2),
+			  numeric_arg(av, 3),
+			  optional_num(av, 4, -1),
+			  optional_num(av, 5, -1),
+			  optional_num(av, 6, -1));
+}
+#endif /* HAVE_XDIALOG */
+
+/* dialog 1.2 widgets */
+#ifdef HAVE_XDIALOG2
+static int
+call_buildlist(CALLARGS)
+{
+    unsigned save = dialog_vars.no_tags;
+    int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
+    int result;
+
+    dialog_vars.no_tags = TRUE;
+    *offset_add = 5 + tags * CHECKBOX_TAGS;
+    result = dialog_buildlist(t,
+			      av[1],
+			      numeric_arg(av, 2),
+			      numeric_arg(av, 3),
+			      numeric_arg(av, 4),
+			      tags, av + 5);
+    dialog_vars.no_tags = save;
+    return result;
+}
+
+static int
 call_rangebox(CALLARGS)
 {
     int min_value;
@@ -829,30 +857,22 @@ call_rangebox(CALLARGS)
 }
 
 static int
-call_timebox(CALLARGS)
-{
-    *offset_add = arg_rest(av);
-    return dialog_timebox(t,
-			  av[1],
-			  numeric_arg(av, 2),
-			  numeric_arg(av, 3),
-			  optional_num(av, 4, -1),
-			  optional_num(av, 5, -1),
-			  optional_num(av, 6, -1));
-}
-
-static int
 call_treeview(CALLARGS)
 {
+    unsigned save = dialog_vars.no_tags;
     int tags = howmany_tags(av + 5, TREEVIEW_TAGS);
+    int result;
 
+    dialog_vars.no_tags = TRUE;
     *offset_add = arg_rest(av);
-    return dialog_treeview(t,
-			   av[1],
-			   numeric_arg(av, 2),
-			   numeric_arg(av, 3),
-			   numeric_arg(av, 4),
-			   tags, av + 5);
+    result = dialog_treeview(t,
+			     av[1],
+			     numeric_arg(av, 2),
+			     numeric_arg(av, 3),
+			     numeric_arg(av, 4),
+			     tags, av + 5, FLAG_RADIO);
+    dialog_vars.no_tags = save;
+    return result;
 }
 #endif /* HAVE_XDIALOG */
 
@@ -1552,6 +1572,11 @@ process_common_options(int argc, char **argv, int offset, bool output)
 #ifdef HAVE_DLG_TRACE
 	case o_trace:
 	    process_trace_option(argv, &offset);
+	    break;
+#endif
+#ifdef HAVE_XDIALOG2
+	case o_no_tags:
+	    dialog_vars.no_tags = TRUE;
 	    break;
 #endif
 	}

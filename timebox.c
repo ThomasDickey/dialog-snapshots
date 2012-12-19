@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.52 2012/07/02 09:34:04 tom Exp $
+ * $Id: timebox.c,v 1.53 2012/12/17 01:55:13 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -40,8 +40,6 @@ typedef enum {
 } STATES;
 
 struct _box;
-
-typedef int (*BOX_DRAW) (struct _box *, struct tm *);
 
 typedef struct _box {
     WINDOW *parent;

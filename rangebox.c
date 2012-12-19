@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.13 2012/12/12 23:05:31 tom Exp $
+ *  $Id: rangebox.c,v 1.15 2012/12/17 01:54:47 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -30,8 +30,6 @@
 #define MIN_WIDE (10 + 2 + (2 * MARGIN))
 
 struct _box;
-
-typedef int (*BOX_DRAW) (struct _box *, struct tm *);
 
 typedef struct _box {
     WINDOW *parent;
@@ -92,7 +90,7 @@ set_digit(VALUE * data, int chr)
     char *next = 0;
 
     sprintf(buffer, "%*d", data->value_len, data->current);
-    buffer[data->value_col] = chr;
+    buffer[data->value_col] = (char) chr;
     check = strtol(buffer, &next, 10);
     if (next == 0 || *next == '\0') {
 	if ((check <= (long) data->max_value) &&

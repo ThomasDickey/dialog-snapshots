@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.42 2012/12/17 01:37:30 tom Exp $
+ *  $Id: buildlist.c,v 1.44 2012/12/18 22:19:58 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -74,10 +74,8 @@ print_item(ALL_DATA * data,
 {
     chtype save = dlg_get_attrs(win);
     int i;
-    chtype attr = A_NORMAL;
-    const int *cols;
-    const int *indx;
-    int limit;
+    bool first = TRUE;
+    int climit = (data->item_x - data->check_x - 1);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -88,35 +86,15 @@ print_item(ALL_DATA * data,
     (void) wmove(win, choice, data->check_x);
     (void) wattrset(win, menubox_attr);
 
-    if (strlen(item->name) != 0) {
-
-	indx = dlg_index_wchars(item->name);
-
-	(void) wattrset(win, selected ? tag_key_selected_attr : tag_key_attr);
-	(void) waddnstr(win, item->name, indx[1]);
-
-	if ((int) strlen(item->name) > indx[1]) {
-	    limit = dlg_limit_columns(item->name,
-				      (data->item_x - data->check_x - 1), 1);
-	    if (limit > 1) {
-		(void) wattrset(win, selected ? tag_selected_attr : tag_attr);
-		(void) waddnstr(win,
-				item->name + indx[1],
-				indx[limit] - indx[1]);
-	    }
-	}
+    if (!dialog_vars.no_tags && strlen(item->name) != 0) {
+	dlg_print_listitem(win, item->name, climit, first, selected);
+	first = FALSE;
     }
 
     if (strlen(item->text) != 0) {
-	cols = dlg_index_columns(item->text);
-	limit = dlg_limit_columns(item->text,
-				  (getmaxx(win) - data->item_x + 1), 0);
-
-	if (limit > 0) {
-	    (void) wmove(win, choice, data->item_x);
-	    (void) wattrset(win, selected ? item_selected_attr : item_attr);
-	    dlg_print_text(win, item->text, cols[limit], &attr);
-	}
+	(void) wmove(win, choice, data->item_x);
+	climit = (getmaxx(win) - data->item_x + 1);
+	dlg_print_listitem(win, item->text, climit, first, selected);
     }
 
     if (selected) {
@@ -190,7 +168,10 @@ check_hotkey(DIALOG_LISTITEM * items, int choice, int selected)
     bool result = FALSE;
 
     if ((items[choice].state != 0) == selected) {
-	if (dlg_match_char(dlg_last_getc(), items[choice].name)) {
+	if (dlg_match_char(dlg_last_getc(),
+			   (dialog_vars.no_tags
+			    ? items[choice].text
+			    : items[choice].name))) {
 	    result = TRUE;
 	}
     }
@@ -479,7 +460,7 @@ dlg_buildlist(const char *title,
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int cur_item = dlg_default_listitem(items);
     int was_mouse;
-    int name_width, text_width, list_width;
+    int name_width, text_width, full_width, list_width;
     int result = DLG_EXIT_UNKNOWN;
     int num_states;
     bool first = TRUE;
@@ -581,21 +562,26 @@ dlg_buildlist(const char *title,
      * leave it intact.
      */
     all.use_width = (list_width - 6 * MARGIN);
-    if (text_width >= 0
-	&& name_width >= 0
-	&& all.use_width > 0
-	&& text_width + name_width > all.use_width) {
-	int need = (int) (0.25 * all.use_width);
-	if (name_width > need) {
-	    int want = (int) (all.use_width * ((double) name_width) /
-			      (text_width + name_width));
-	    name_width = (want > need) ? want : need;
+    if (dialog_vars.no_tags) {
+	full_width = text_width;
+    } else {
+	if (text_width >= 0
+	    && name_width >= 0
+	    && all.use_width > 0
+	    && text_width + name_width > all.use_width) {
+	    int need = (int) (0.25 * all.use_width);
+	    if (name_width > need) {
+		int want = (int) (all.use_width * ((double) name_width) /
+				  (text_width + name_width));
+		name_width = (want > need) ? want : need;
+	    }
+	    text_width = all.use_width - name_width;
 	}
-	text_width = all.use_width - name_width;
+	full_width = text_width + name_width;
     }
 
-    all.check_x = (all.use_width - (text_width + name_width)) / 2;
-    all.item_x = name_width + all.check_x + 2;
+    all.check_x = (all.use_width - full_width) / 2;
+    all.item_x = (dialog_vars.no_tags ? 0 : (name_width + 2)) + all.check_x;
 
     /* ensure we are scrolled to show the current choice */
     j = MIN(all.use_height, item_no);

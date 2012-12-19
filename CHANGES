@@ -1,13 +1,16 @@
--- $Id: CHANGES,v 1.437 2012/12/06 11:56:39 tom Exp $
+-- $Id: CHANGES,v 1.438 2012/12/18 09:45:47 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2012/12/06
+2012/12/18
+	+ add configure option --disable-Xdialog2 to allow suppressing the
+	  newer features, i.e., for cdialog 1.2
+	+ add --no-tags option, like Xdialog.
+	+ add buildlist, rangebox and treeview dialogs, like Xdialog.
 	+ remove obsolete workaround for ncurses 4.2 scrolling in checklist
 	  and menubox.
-	+ add buildlist, rangebox and treeview dialogs, like Xdialog.
 	+ improve dialog_helpfile() by preventing it from showing extra buttons
 	  (suggested by xDog Walker).
 	+ correct logic in formbox's scroll_next() function (report by xDog
