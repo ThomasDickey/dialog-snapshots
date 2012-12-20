@@ -1,5 +1,6 @@
-cdialog (20121203) unstable; urgency=low
+cdialog (20121219) unstable; urgency=low
 
+  * new widgets
   * coverity fixes
   * configure-script updates
 

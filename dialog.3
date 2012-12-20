@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.77 2012/12/02 22:03:44 tom Exp $
+.\" $Id: dialog.3,v 1.86 2012/12/20 01:49:30 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,9 +38,9 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/12/02 22:03:44 $"
+.TH \*D 3 "" "$Date: 2012/12/20 01:49:30 $"
 .SH NAME
-\*l \- widgets and utilities for the \*p program
+dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
 .B cc [ flag ... ] file ...  -l\*l [ library ... ]
 .br
@@ -475,6 +475,26 @@ This corresponds to the command-line option "\fB--no-nl-expand\fP".
 If false, \fBdlg_trim_string\fP converts literal "\\n" substrings
 in a message into newlines.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.no_tags
+This corresponds to the command-line option "\fB--no-tags\fP".
+Some widgets (checklist, inputmenu, radiolist, menu) display a list
+with two columns (a "tag" and "description").
+The tag is useful for scripting, but may not help the user.
+The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
+column of tags from the display.
+.IP
+Xdialog does not display the tag column for the analogous buildlist
+and treeview widgets.
+\fB\*L\fP does the same on the command-line.
+However the library interface defaults to displaying the tag column.
+Your application can enable or disable the tag column as needed for each widget.
+.IP
+Normally \fB\*p\fP allows you to quickly move to entries on the displayed list,
+by matching a single character to the first character of the tag.
+When the \fB--no-tags\fP option is given, \fB\*p\fP matches against
+the first character of the description.
+In either case, the matchable character is highlighted.
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.nocancel
 This corresponds to the command-line option "\fB--no-cancel\fP".
 If true,
@@ -560,7 +580,8 @@ trim literal newlines and repeated blanks from message text.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.visit_items
 This corresponds to the command-line option "\fB--visit-items\fP".
-Modify the tab-traversal of checklist, radiobox, menubox and inputmenu
+Modify the tab-traversal of the list-oriented widgets
+(buildlist, checklist, radiobox, menubox, inputmenu, and treeview)
 to include the list of items as one of the states.
 This is useful as a visual aid,
 i.e., the cursor position helps some users.
@@ -587,6 +608,49 @@ the height of the dialog box.
 the width of the dialog box.
 .PP
 Other parameters depend on the box type.
+.
+.\" ************************************************************************
+.IP \fBdialog_buildlist
+implements the "\fB--buildlist\fP" option.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title on the top of the widget.
+.TP 5
+.B const char * \fIcprompt
+is the prompt text shown within the widget.
+.TP 5
+.B int \fIheight
+is the desired height of the box.
+If zero, the height is adjusted to use the available screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the box.
+If zero, the height is adjusted to use the available screen size.
+.TP 5
+.B int \fIlist_height
+is the minimum height to reserve for displaying the list.
+If zero, it is computed based on the given \fIheight\fP and \fIwidth\fP.
+.TP 5
+.B int \fIitem_no
+is the number of rows in \fIitems\fP.
+.TP 5
+.B char ** \fIitems
+is an array of strings which is viewed either as a list of rows
+.RS
+\fItag item status \fR
+.RE
+.IP
+or
+.RS
+\fItag item status help\fR
+.RE
+.IP
+depending on whether \fBdialog_vars.item_help\fP is set.
+.TP 5
+.B int \fIorder_mode
+is reserved for future enhancements
+.RE
 .
 .\" ************************************************************************
 .IP \fBdialog_calendar
@@ -1068,6 +1132,35 @@ is the desired width of the box.
 If zero, the height is based on the screen size.
 .RE
 .\" ************************************************************************
+.IP \fBdialog_rangebox
+implements the "\fB--rangebox\fP" option.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title on the top of the widget.
+.TP 5
+.B const char * \fIcprompt
+is the prompt text shown within the widget.
+If empty or null, no prompt is shown.
+.TP 5
+.B int \fIheight
+is the desired height of the widget.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the widget.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fImin_value
+is the minimum value to allow.
+.TP 5
+.B int \fImax_value
+is the maximum value to allow.
+.TP 5
+.B int \fIdefault_value
+is the default value, if no change is made.
+.RE
+.\" ************************************************************************
 .IP \fBdialog_tailbox
 implements the "\fB--tailbox\fP" or "\fB--tailboxbg\fP" option
 depending on whether \fIbg_task\fP is set.
@@ -1146,6 +1239,42 @@ Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 60.
 is the initial second shown.
 If the value is negative, the current second is used.
 Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 60.
+.RE
+.\" ************************************************************************
+.IP \fBdialog_treeview
+implements the "\fB--treeview\fP" option.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title on the top of the widget.
+.TP 5
+.B const char * \fIcprompt
+is the prompt text shown within the widget.
+.TP 5
+.B int \fIheight
+is the desired height of the box.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the box.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIlist_height
+is the minimum height to reserve for displaying the list.
+If zero, it is computed based on the given \fIheight\fP and \fIwidth\fP.
+.TP 5
+.B int \fIitem_no
+is the number of rows in \fIitems\fP.
+.TP 5
+.B char ** \fIitems
+is the list of items, contain tag, name, and optionally help strings
+(if \fBdialog_vars.item_help\fP is set).
+The initial selection state for each item is also in this list.
+.TP 5
+.B int \fIflag
+.IP flag
+is either \fIFLAG_CHECK\fP, for checklists (multiple selections),
+or \fIFLAG_RADIO\fP for radiolists (a single selection).
 .RE
 .\" ************************************************************************
 .IP \fBdialog_yesno
@@ -1419,6 +1548,56 @@ otherwise center the widget on the screen (using the \fIheight\fP parameter).
 .TP 5
 .B int \fIheight
 is the height of the widget.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_buildlist
+This is an alternate interface to the \fBbuildlist\fP widget
+which allows the application to read the list item states back
+directly without putting them in the output buffer.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title string to display at the top of the widget.
+.TP 5
+.B const char * \fIcprompt
+is the prompt text shown within the widget.
+.TP 5
+.B int \fIheight
+is the desired height of the box.
+If zero, the height is adjusted to use the available screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the box.
+If zero, the height is adjusted to use the available screen size.
+.TP 5
+.B int \fIlist_height
+is the minimum height to reserve for displaying the list.
+If zero, it is computed based on the given \fIheight\fP and \fIwidth\fP.
+.TP 5
+.B int \fIitem_no
+is the number of rows in \fIitems\fP.
+.TP 5
+.B DIALOG_LISTITEM * \fIitems
+is the list of items, contain tag, name, and optionally help strings
+(if \fBdialog_vars.item_help\fP is set).
+The initial selection state for each item is also in this list.
+.TP 5
+.B const char * \fIstates
+This is a list of characters to display for the given states.
+Normally a buildlist provides true (1) and false (0) values,
+which the widget displays as "*" and space, respectively.
+An application may set this parameter to an arbitrary null-terminated string.
+The widget determines the number of states from the length of this string,
+and will cycle through the corresponding display characters as the user
+presses the space-bar.
+.TP 5
+.B int \fIorder_mode
+is reserved for future enhancements
+.TP 5
+.B int * \fIcurrent_item
+The widget sets the referenced location to the index of the current display
+item (cursor) when it returns.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -2685,6 +2864,21 @@ is the top-row for the base
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
+.B dlg_mouse_setcode
+Sets a value used internally by \fBdlg_mouse_mkregion\fP
+which is added to the \fIcode\fP parameter.
+By providing different values,
+e.g., multiples of \fBKEY_MAX\fP,
+it is possible to support multiple "big" regions in a widget.
+The \fIbuildlist\fP widget uses this feature to recognize mouse-clicks
+in the left/right panes.
+.RS
+.TP 5
+.B int \fIcode
+is the value to add to \fBdlg_mouse_mkregion\fP's \fIcode\fP parameter.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
 .B dlg_mouse_wgetch
 is a wrapper for \fBdlg_getc\fP which additionally maps mouse-clicks
 (if the curses library supports those) into extended function-keys
@@ -2837,6 +3031,35 @@ is a list of (pointers to) button labels terminated by a null pointer.
 .TP 5
 .B int \fIbutton
 is the current button index
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_print_listitem
+This is a helper function used for the various "list" widgets,
+e.g., checklist, menu, buildlist, treeview.
+Each list-widget has "tag" and "description" values for each item
+which can be displayed.
+If \fBdialog_vars.no_tags\fP is true,
+the "tag" value is not shown.
+The first character of the first value shown (tag or description)
+is highlighted to indicate that the widget will match it for quick navigation.
+.RS
+.TP 5
+.B WINDOW *\fIwin
+the window in which to display the text
+.TP 5
+.B const char *\fItext
+the value to display
+.TP 5
+.B int \fIclimit
+the number of columns available for printing the text
+.TP 5
+.B bool \fIfirst
+true if this is the first call (for "tag" and "description"),
+and the first character of the value should be highlighted.
+.TP 5
+.B int \fIselected
+nonzero if the text should be displayed using the "selected" colors
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -3103,7 +3326,7 @@ store the result of the mapping in the referenced location.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_save_vars
-Save \fB\*p\fP's variables into the given variable (see \fBdialog_restore_vars\fP).
+Save \fB\*p\fP's variables into the given variable (see \fBdlg_restore_vars\fP).
 .RS
 .TP 5
 .B DIALOG_VARS * \fIsave
@@ -3276,6 +3499,62 @@ DLG_TRACE(("this is dialog version %s\\n", dialog_version()));
 .B dlg_trace_win
 If \fBdialog_state.trace\fP is set, 
 log a printable picture of the given window.
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_treeview
+This is an alternate interface to 'treeview' which allows the application
+to read the list item states back directly without putting them in the
+output buffer.
+.RS
+.TP 5
+.B const char * \fItitle
+is the title on the top of the widget.
+.TP 5
+.B const char * \fIcprompt
+is the prompt text shown within the widget.
+.TP 5
+.B int \fIheight
+is the desired height of the box.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIwidth
+is the desired width of the box.
+If zero, the height is based on the screen size.
+.TP 5
+.B int \fIlist_height
+is the minimum height to reserve for displaying the list.
+If zero, it is computed based on the given \fIheight\fP and \fIwidth\fP.
+.TP 5
+.B int \fIitem_no
+is the number of rows in \fIitems\fP.
+.TP 5
+.B DIALOG_LISTITEM * \fIitems
+is the list of items, contain tag, name, and optionally help strings
+(if \fBdialog_vars.item_help\fP is set).
+The initial selection state for each item is also in this list.
+.TP 5
+.B const char * \fIstates
+This is a list of characters to display for the given states.
+Normally a buildlist provides true (1) and false (0) values,
+which the widget displays as "*" and space, respectively.
+An application may set this parameter to an arbitrary null-terminated string.
+The widget determines the number of states from the length of this string,
+and will cycle through the corresponding display characters as the user
+presses the space-bar.
+.TP 5
+.B int * \fIdepths
+This is a list of depths of each item in the tree.
+It is a separate parameter from \fIitems\fP to allow reuse of
+the existing functions.
+.TP 5
+.B int \fIflag
+is either \fIFLAG_CHECK\fP, for checklists (multiple selections),
+or \fIFLAG_RADIO\fP for radiolists (a single selection).
+.TP 5
+.B int * \fIcurrent_item
+The widget sets the referenced location to the index of the current display
+item (cursor) when it returns.
+.RE
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_trim_string
