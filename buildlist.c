@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.44 2012/12/18 22:19:58 tom Exp $
+ *  $Id: buildlist.c,v 1.45 2012/12/19 23:55:25 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -409,7 +409,7 @@ fix_top_item(ALL_DATA * data, int cur_item, int selected)
  * to read the list item states back directly without putting them in the
  * output buffer.
  */
-static int
+int
 dlg_buildlist(const char *title,
 	      const char *cprompt,
 	      int height,
@@ -418,6 +418,7 @@ dlg_buildlist(const char *title,
 	      int item_no,
 	      DIALOG_LISTITEM * items,
 	      const char *states,
+	      int order_mode,
 	      int *current_item)
 {
     /* *INDENT-OFF* */
@@ -468,6 +469,8 @@ dlg_buildlist(const char *title,
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
     const char *widget_name = "buildlist";
+
+    (void) order_mode;
 
     memset(&all, 0, sizeof(all));
     all.items = items;
@@ -959,7 +962,8 @@ dialog_buildlist(const char *title,
 		 int width,
 		 int list_height,
 		 int item_no,
-		 char **items)
+		 char **items,
+		 int order_mode)
 {
     int result;
     int i;
@@ -989,6 +993,7 @@ dialog_buildlist(const char *title,
 			   item_no,
 			   listitems,
 			   NULL,
+			   order_mode,
 			   &current);
 
     switch (result) {

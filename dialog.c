@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.215 2012/12/18 10:44:29 tom Exp $
+ * $Id: dialog.c,v 1.216 2012/12/19 23:55:25 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -835,7 +835,8 @@ call_buildlist(CALLARGS)
 			      numeric_arg(av, 2),
 			      numeric_arg(av, 3),
 			      numeric_arg(av, 4),
-			      tags, av + 5);
+			      tags, av + 5,
+			      TRUE);
     dialog_vars.no_tags = save;
     return result;
 }

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.253 2012/12/18 22:14:14 tom Exp $
+ *  $Id: dialog.h,v 1.254 2012/12/19 23:55:23 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -556,7 +556,7 @@ extern DIALOG_COLORS dlg_color_table[];
 extern const char *dialog_version(void);
 
 /* widgets, each in separate files */
-extern int dialog_buildlist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/);
+extern int dialog_buildlist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/, int /*order_mode*/);
 extern int dialog_calendar(const char * /*title*/, const char * /*subtitle*/, int /*height*/, int /*width*/, int /*day*/, int /*month*/, int /*year*/);
 extern int dialog_checklist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, char ** /*items*/, int /*flag*/);
 extern int dialog_dselect(const char * /*title*/, const char * /*path*/, int /*height*/, int /*width*/);
@@ -623,6 +623,9 @@ extern void dlg_draw_arrows(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom
 extern void dlg_draw_arrows2(WINDOW * /*dialog*/, int /*top_arrow*/, int /*bottom_arrow*/, int /*x*/, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
 extern void dlg_draw_helpline(WINDOW * /*dialog*/, bool /*decorations*/);
 extern void dlg_draw_scrollbar(WINDOW * /*dialog*/, long /* first_data */, long /* this_data */, long /* next_data */, long /* total_data */, int /* left */, int /* right */, int /*top*/, int /*bottom*/, chtype /*attr*/, chtype /*borderattr*/);
+
+/* buildlist.c */
+extern int dlg_buildlist(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, DIALOG_LISTITEM * /*items*/, const char * /*states*/, int /*order_mode*/, int * /*current_item*/);
 
 /* buttons.c */
 extern const char ** dlg_exit_label(void);

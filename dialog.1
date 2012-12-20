@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.145 2012/07/03 08:32:33 tom Exp $
+.\" $Id: dialog.1,v 1.151 2012/12/20 01:30:34 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -37,9 +37,9 @@
 .RE
 ..
 .
-.TH \*D 1 "" "$Date: 2012/07/03 08:32:33 $"
+.TH \*D 1 "" "$Date: 2012/12/20 01:30:34 $"
 .SH NAME
-\*p \- display dialog boxes from shell scripts
+dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
 \fB\*p --clear\fP
 .br
@@ -60,6 +60,7 @@ These types of dialog boxes are implemented
 .LP
 .nh
 .na
+.BR buildlist ", "
 .BR calendar ", "
 .BR checklist ", "
 .BR dselect ", "
@@ -81,10 +82,12 @@ These types of dialog boxes are implemented
 .BR programbox ", "
 .BR progressbox ", "
 .BR radiolist ", "
+.BR rangebox ", "
 .BR tailbox ", "
 .BR tailboxbg ", "
 .BR textbox ", "
-.BR timebox ", and "
+.BR timebox ", "
+.BR treeview ", and "
 .BR yesno " (yes/no)."
 .ad
 .hy
@@ -423,9 +426,24 @@ literal newlines.
 Suppress the "OK" button in checklist, inputbox and menu box modes.
 A script can still test if the user pressed the "Enter" key to accept the data.
 .
-.
 .IP "\fB--no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.
+.
+.IP "\fB--no-tags"
+Some widgets (checklist, inputmenu, radiolist, menu) display a list
+with two columns (a "tag" and "description").
+The tag is useful for scripting, but may not help the user.
+The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
+column of tags from the display.
+.IP
+Xdialog does not display the tag column for the analogous buildlist
+and treeview widgets; \fB\*p\fP does the same.
+.IP
+Normally \fB\*p\fP allows you to quickly move to entries on the displayed list,
+by matching a single character to the first character of the tag.
+When the \fB--no-tags\fP option is given, \fB\*p\fP matches against
+the first character of the description.
+In either case, the matchable character is highlighted.
 .
 .IP "\fB--ok-label \fIstring"
 Override the label used for "OK" buttons.
@@ -563,7 +581,7 @@ Prints \fB\*p\fR's version to the standard output, and exits.
 See also "\fB--print-version\fP".
 .
 .IP "\fB--visit-items"
-Modify the tab-traversal of checklist, radiobox, menubox and inputmenu
+Modify the tab-traversal of checklist, radiolist, menubox and inputmenu
 to include the list of items as one of the states.
 This is useful as a visual aid,
 i.e., the cursor position helps some users.
@@ -589,6 +607,29 @@ the height of the dialog box.
 the width of the dialog box.
 .PP
 Other parameters depend on the box type.
+.
+.
+.IP "\fB--buildlist \fItext height width \fR[ \fItag item status \fR] \fI..."
+A \fBbuildlist\fP dialog displays two lists, side-by-side.
+The list on the left shows unselected items.
+The list on the right shows selected items.
+As items are selected or unselected, they move between the lists.
+.IP
+Use a carriage return or the "OK" button to accept the current value
+in the selected-window and exit.
+The results are written using the order displayed in the selected-window.
+.IP
+The initial on/off state of each entry is specified by
+.IR status "."
+.IP
+On exit, a list of the \fItag\fP
+strings of those entries that are turned on
+will be printed on \fB\*p\fP's output.
+.IP
+If the "\fB--separate-output\fP" option is not given,
+the strings will be quoted as needed to make it simple for scripts to separate them.
+By default, this uses double-quotes.
+See the "\fB--single-quoted\fP" option, which modifies the quoting behavior.
 .
 .
 .IP "\fB--calendar \fItext height width day month year"
@@ -976,7 +1017,7 @@ The only difference is
 that you can indicate which entry is currently selected, by setting its
 .IR status " to " on "."
 .IP
-On exit, the name of the selected item is written to \fB\*p\fP's output.
+On exit, the tag of the selected item is written to \fB\*p\fP's output.
 .
 .
 .IP "\fB--tailbox \fIfile height width"
@@ -987,6 +1028,36 @@ A '0' resets the scrolling.
 On exit, no text is written to \fB\*p\fP's output.
 Only an "OK" button is provided for input,
 but an ESC exit status may be returned.
+.
+.
+.nf
+.IP "\fB--rangebox \fItext height width list-height min-value max-value default-value"
+.fi
+Allow the user to select from a range of values, e.g., using a slider.
+The dialog shows the current value as a bar (like the gauge dialog).
+Tabs or arrow keys move the cursor between the buttons and the value.
+When the cursor is on the value,
+you can edit it by:
+.RS
+.TP 5
+left/right cursor movement to select a digit to modify
+.TP 5
++/-
+characters to increment/decrement the digit by one
+.TP 5
+0 through 9
+to set the digit to the given value
+.RE
+.IP
+Some keys are also recognized in all cursor positions:
+.RS
+.TP 5
+home/end
+set the value to its maximum or minimum
+.TP 5
+pageup/pagedown
+increment the value so that the slider moves by one column
+.RE
 .
 .
 .IP "\fB--tailboxbg \fIfile height width"
@@ -1052,6 +1123,19 @@ Use tab or backtab to move between windows.
 .IP
 On exit, the result is printed in the form hour:minute:second.
 The format can be overridden using the \fB--time-format\fP option.
+.
+.
+.IP "\fB--treeview \fItext height width list-height \fR[ \fItag item status depth \fR] \fI..."
+Display data organized as a tree.
+Each group of data contains a tag,
+the text to display for the item,
+its status ("on" or "off")
+and the depth of the item in the tree.
+.IP
+Only one item can be selected (like the \fBradiolist\fP).
+The tag is not displayed.
+.IP
+On exit, the tag of the selected item is written to \fB\*p\fP's output.
 .
 .
 .IP "\fB--yesno \fItext height width"
@@ -1390,6 +1474,20 @@ l l.
 .RE
 .PP
 \fBXdialog\fP's manpage has a section discussing its compatibility with \fB\*p\fP.
+There are some differences not shown in the manpage.
+For example, the html documentation states
+.RS
+.PP
+Note:  former  Xdialog  releases  used  the  "\n" (line feed) as a
+results  separator  for  the  checklist  widget; this has been
+changed  to  "/"  in  Xdialog v1.5.0 so to make it compatible with
+(c)dialog.  In  your  old scripts using the Xdialog checklist, you
+will  then  have  to  add  the --separate-output option before the
+--checklist one.
+.RE
+.PP
+\fB\*L\fP has not used a different separator;
+the difference was likely due to confusion regarding some script.
 .SS WHIPTAIL
 Then there is \fBwhiptail\fP.
 For practical purposes, it is maintained by Debian.
