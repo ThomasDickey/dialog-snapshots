@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.141 2012/12/19 01:53:25 tom Exp $
+ *  $Id: menubox.c,v 1.142 2012/12/22 17:44:35 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -78,9 +78,13 @@ print_item(ALL_DATA * data,
     int my_width = data->menu_width;
     int my_x = data->item_x;
     int my_y = ItemToRow(choice);
+    bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     chtype textchar;
     chtype bordchar;
+    const char *show = (dialog_vars.no_tags
+			? item->text
+			: item->name);
 
     switch (selected) {
     default:
@@ -112,7 +116,7 @@ print_item(ALL_DATA * data,
     }
 
     /* highlight first char of the tag to be special */
-    if (!dialog_vars.no_tags && strlen(item->name) != 0) {
+    if (both) {
 	(void) wmove(win, my_y, data->tag_x);
 	dlg_print_listitem(win, item->name, climit, first, selected);
 	first = FALSE;
@@ -131,9 +135,7 @@ print_item(ALL_DATA * data,
 
     /* print actual item */
     wmove(win, my_y, my_x);
-    if (strlen(item->text) != 0) {
-	dlg_print_listitem(win, item->text, my_width - my_x, first, selected);
-    }
+    dlg_print_listitem(win, show, my_width - my_x, first, selected);
 
     if (selected) {
 	dlg_item_help(item->help);
@@ -457,22 +459,24 @@ dlg_menu(const char *title,
      * FIXME: the gutter width and name/list ratio should be configurable.
      */
     use_width = (all.menu_width - GUTTER);
-    if (text_width >= 0
-	&& name_width >= 0
-	&& use_width > 0
-	&& text_width + name_width > use_width) {
-	int need = (int) (0.30 * use_width);
-	if (name_width > need) {
-	    int want = (int) (use_width
-			      * ((double) name_width)
-			      / (text_width + name_width));
-	    name_width = (want > need) ? want : need;
-	}
-	text_width = use_width - name_width;
-    }
     if (dialog_vars.no_tags) {
-	list_width = MAX(text_width, name_width);
+	list_width = MIN(use_width, text_width);
+    } else if (dialog_vars.no_items) {
+	list_width = MIN(use_width, name_width);
     } else {
+	if (text_width >= 0
+	    && name_width >= 0
+	    && use_width > 0
+	    && text_width + name_width > use_width) {
+	    int need = (int) (0.30 * use_width);
+	    if (name_width > need) {
+		int want = (int) (use_width
+				  * ((double) name_width)
+				  / (text_width + name_width));
+		name_width = (want > need) ? want : need;
+	    }
+	    text_width = use_width - name_width;
+	}
 	list_width = (text_width + name_width);
     }
 
@@ -481,7 +485,9 @@ dlg_menu(const char *title,
 		 : (use_width - list_width) / 2);
     all.item_x = ((dialog_vars.no_tags
 		   ? 0
-		   : (GUTTER + name_width))
+		   : (dialog_vars.no_items
+		      ? 0
+		      : (GUTTER + name_width)))
 		  + all.tag_x);
 
     if (choice - scrollamt >= max_choice) {

@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.217 2012/12/20 11:44:12 tom Exp $
+ * $Id: dialog.c,v 1.221 2012/12/22 00:40:41 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -98,7 +98,6 @@ typedef enum {
     ,o_no_nl_expand
     ,o_no_shadow
     ,o_nocancel
-    ,o_noitem
     ,o_nook
     ,o_ok_label
     ,o_output_fd
@@ -150,6 +149,7 @@ typedef enum {
 #endif
 #ifdef HAVE_XDIALOG2
     ,o_buildlist
+    ,o_no_items
     ,o_no_tags
     ,o_rangebox
     ,o_treeview
@@ -215,10 +215,8 @@ static const Options options[] = {
     { "exit-label",	o_exit_label,		1, "<str>" },
     { "extra-button",	o_extra_button,		1, "" },
     { "extra-label",	o_extra_label,		1, "<str>" },
-    { "fb",		o_fullbutton,		1, NULL },
     { "fixed-font",	o_fixed_font,		1, NULL },
     { "form",		o_form,			2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1>..." },
-    { "fullbutton",	o_fullbutton,		1, NULL },
     { "gauge",		o_gauge,		2, "<text> <height> <width> [<percent>]" },
     { "guage",		o_gauge,		2, NULL },
     { "help",		o_help,			4, "" },
@@ -255,7 +253,6 @@ static const Options options[] = {
     { "no-ok",		o_nook,			1, "" },
     { "no-shadow",	o_no_shadow,		1, "" },
     { "nocancel",	o_nocancel,		1, NULL }, /* see --no-cancel */
-    { "noitem",		o_noitem,		1, NULL },
     { "nook",		o_nook,			1, "" }, /* See no-ok */
     { "ok-label",	o_ok_label,		1, "<str>" },
     { "output-fd",	o_output_fd,		1, "<fd>" },
@@ -298,6 +295,15 @@ static const Options options[] = {
     { "wmclass",	o_wmclass,		1, NULL },
     { "yes-label",	o_yes_label,		1, "<str>" },
     { "yesno",		o_yesno,		2, "<text> <height> <width>" },
+#ifdef HAVE_WHIPTAIL
+    { "cancel-button",	o_cancel_label,		1, NULL },
+    { "fb",		o_fullbutton,		1, NULL },
+    { "fullbutton",	o_fullbutton,		1, NULL },
+    { "no-button",	o_no_label,		1, NULL },
+    { "ok-button",	o_ok_label,		1, NULL },
+    { "scrolltext",	o_scrollbar,		1, NULL },
+    { "yes-button",	o_yes_label,		1, NULL },
+#endif
 #ifdef HAVE_XDIALOG
     { "calendar",	o_calendar,		2, "<text> <height> <width> <day> <month> <year>" },
     { "dselect",	o_dselect,		2, "<directory> <height> <width>" },
@@ -307,9 +313,14 @@ static const Options options[] = {
 #endif
 #ifdef HAVE_XDIALOG2
     { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
+    { "no-items", 	o_no_items,		1, "" },
     { "no-tags", 	o_no_tags,		1, "" },
     { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
     { "treeview",	o_treeview,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1> <depth1>..." },
+#ifdef HAVE_WHIPTAIL
+    { "noitem", 	o_no_items,		1, "" },
+    { "notags", 	o_no_tags,		1, "" },
+#endif
 #endif
 #ifdef HAVE_DLG_TRACE
     { "trace",		o_trace,		1, "<file>" },
@@ -821,14 +832,25 @@ call_timebox(CALLARGS)
 
 /* dialog 1.2 widgets */
 #ifdef HAVE_XDIALOG2
+
+#define DisableNoTags() \
+	bool save_no_tags = dialog_vars.no_tags; \
+	bool save_no_items = dialog_vars.no_items; \
+	dialog_vars.no_tags = TRUE; \
+	dialog_vars.no_items = FALSE
+
+#define RestoreNoTags() \
+	dialog_vars.no_tags = save_no_tags; \
+	dialog_vars.no_items = save_no_items
+
 static int
 call_buildlist(CALLARGS)
 {
-    unsigned save = dialog_vars.no_tags;
     int tags = howmany_tags(av + 5, CHECKBOX_TAGS);
     int result;
 
-    dialog_vars.no_tags = TRUE;
+    DisableNoTags();
+
     *offset_add = 5 + tags * CHECKBOX_TAGS;
     result = dialog_buildlist(t,
 			      av[1],
@@ -837,7 +859,7 @@ call_buildlist(CALLARGS)
 			      numeric_arg(av, 4),
 			      tags, av + 5,
 			      TRUE);
-    dialog_vars.no_tags = save;
+    RestoreNoTags();
     return result;
 }
 
@@ -860,11 +882,11 @@ call_rangebox(CALLARGS)
 static int
 call_treeview(CALLARGS)
 {
-    unsigned save = dialog_vars.no_tags;
     int tags = howmany_tags(av + 5, TREEVIEW_TAGS);
     int result;
 
-    dialog_vars.no_tags = TRUE;
+    DisableNoTags();
+
     *offset_add = arg_rest(av);
     result = dialog_treeview(t,
 			     av[1],
@@ -872,7 +894,7 @@ call_treeview(CALLARGS)
 			     numeric_arg(av, 3),
 			     numeric_arg(av, 4),
 			     tags, av + 5, FLAG_RADIO);
-    dialog_vars.no_tags = save;
+    RestoreNoTags();
     return result;
 }
 #endif /* HAVE_XDIALOG */
@@ -1545,7 +1567,6 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    dialog_state.no_mouse = TRUE;
 	    mouse_close();
 	    break;
-	case o_noitem:
 	case o_fullbutton:
 	    /* ignore */
 	    break;
@@ -1577,6 +1598,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 #endif
 #ifdef HAVE_XDIALOG2
+	case o_no_items:
+	    dialog_vars.no_items = TRUE;
+	    break;
 	case o_no_tags:
 	    dialog_vars.no_tags = TRUE;
 	    break;

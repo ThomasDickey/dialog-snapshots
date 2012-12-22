@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.144 2012/12/19 00:27:10 tom Exp $
+ *  $Id: checklist.c,v 1.145 2012/12/22 14:53:39 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -69,8 +69,12 @@ print_item(ALL_DATA * data,
 {
     chtype save = dlg_get_attrs(win);
     int i;
+    bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (getmaxx(win) - data->check_x + 1);
+    const char *show = (dialog_vars.no_tags
+			? item->text
+			: item->name);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -86,16 +90,13 @@ print_item(ALL_DATA * data,
     (void) wattrset(win, menubox_attr);
     (void) waddch(win, ' ');
 
-    if (!dialog_vars.no_tags && strlen(item->name) != 0) {
-
+    if (both) {
 	dlg_print_listitem(win, item->name, climit, first, selected);
 	first = FALSE;
     }
 
-    if (strlen(item->text) != 0) {
-	(void) wmove(win, choice, data->item_x);
-	dlg_print_listitem(win, item->text, climit, first, selected);
-    }
+    (void) wmove(win, choice, data->item_x);
+    dlg_print_listitem(win, show, climit, first, selected);
 
     if (selected) {
 	dlg_item_help(item->help);
@@ -323,28 +324,32 @@ dlg_checklist(const char *title,
      * leave it intact.
      */
     use_width = (all.use_width - 6);
-    if (text_width >= 0
-	&& name_width >= 0
-	&& use_width > 0
-	&& text_width + name_width > use_width) {
-	int need = (int) (0.25 * use_width);
-	if (name_width > need) {
-	    int want = (int) (use_width * ((double) name_width) /
-			      (text_width + name_width));
-	    name_width = (want > need) ? want : need;
-	}
-	text_width = use_width - name_width;
-    }
     if (dialog_vars.no_tags) {
-	list_width = MAX(text_width, name_width);
+	list_width = MIN(all.use_width, text_width);
+    } else if (dialog_vars.no_items) {
+	list_width = MIN(all.use_width, name_width);
     } else {
+	if (text_width >= 0
+	    && name_width >= 0
+	    && use_width > 0
+	    && text_width + name_width > use_width) {
+	    int need = (int) (0.25 * use_width);
+	    if (name_width > need) {
+		int want = (int) (use_width * ((double) name_width) /
+				  (text_width + name_width));
+		name_width = (want > need) ? want : need;
+	    }
+	    text_width = use_width - name_width;
+	}
 	list_width = (text_width + name_width);
     }
 
     all.check_x = (use_width - list_width) / 2;
     all.item_x = ((dialog_vars.no_tags
 		   ? 0
-		   : (2 + name_width))
+		   : (dialog_vars.no_items
+		      ? 0
+		      : (2 + name_width)))
 		  + all.check_x + 4);
 
     /* ensure we are scrolled to show the current choice */

@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.16 2012/12/20 09:31:53 tom Exp $
+ *  $Id: treeview.c,v 1.17 2012/12/22 01:40:31 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -68,8 +68,12 @@ print_item(ALL_DATA * data,
     WINDOW *win = data->list;
     chtype save = dlg_get_attrs(win);
     int i;
+    bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (getmaxx(win) - data->check_x + 1);
+    const char *show = (dialog_vars.no_tags
+			? item->text
+			: item->name);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -84,7 +88,7 @@ print_item(ALL_DATA * data,
 		   states[item->state]);
     (void) wattrset(win, menubox_attr);
 
-    if (!dialog_vars.no_tags && strlen(item->name) != 0) {
+    if (both) {
 	(void) waddch(win, ' ');
 	dlg_print_listitem(win, item->name, climit, first, selected);
 	first = FALSE;
@@ -100,9 +104,7 @@ print_item(ALL_DATA * data,
     }
     (void) wmove(win, choice, data->item_x + INDENT * depths);
 
-    if (strlen(item->text) != 0) {
-	dlg_print_listitem(win, item->text, climit, first, selected);
-    }
+    dlg_print_listitem(win, show, climit, first, selected);
 
     if (selected) {
 	dlg_item_help(item->help);
@@ -328,7 +330,9 @@ dlg_treeview(const char *title,
 	name_width = MAX(name_width, dlg_count_columns(items[i].name));
     }
     if (dialog_vars.no_tags) {
-	tree_width += MAX(text_width, name_width);
+	tree_width += text_width;
+    } else if (dialog_vars.no_items) {
+	tree_width += name_width;
     } else {
 	tree_width += (text_width + name_width);
     }
@@ -339,7 +343,9 @@ dlg_treeview(const char *title,
     all.check_x = (use_width - tree_width) / 2;
     all.item_x = ((dialog_vars.no_tags
 		   ? 0
-		   : (2 + name_width))
+		   : (dialog_vars.no_items
+		      ? 0
+		      : (2 + name_width)))
 		  + all.check_x + 4);
 
     /* ensure we are scrolled to show the current choice */

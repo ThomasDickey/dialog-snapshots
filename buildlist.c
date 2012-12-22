@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.48 2012/12/21 22:05:23 tom Exp $
+ *  $Id: buildlist.c,v 1.49 2012/12/22 02:05:00 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -77,8 +77,12 @@ print_item(ALL_DATA * data,
 {
     chtype save = dlg_get_attrs(win);
     int i;
+    bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (data->item_x - data->check_x - 1);
+    const char *show = (dialog_vars.no_tags
+			? item->text
+			: item->name);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -89,16 +93,14 @@ print_item(ALL_DATA * data,
     (void) wmove(win, choice, data->check_x);
     (void) wattrset(win, menubox_attr);
 
-    if (!dialog_vars.no_tags && strlen(item->name) != 0) {
+    if (both) {
 	dlg_print_listitem(win, item->name, climit, first, selected);
 	first = FALSE;
     }
 
-    if (strlen(item->text) != 0) {
-	(void) wmove(win, choice, data->item_x);
-	climit = (getmaxx(win) - data->item_x + 1);
-	dlg_print_listitem(win, item->text, climit, first, selected);
-    }
+    (void) wmove(win, choice, data->item_x);
+    climit = (getmaxx(win) - data->item_x + 1);
+    dlg_print_listitem(win, show, climit, first, selected);
 
     if (selected) {
 	dlg_item_help(item->help);
@@ -583,7 +585,9 @@ dlg_buildlist(const char *title,
      */
     all.use_width = (list_width - 6 * MARGIN);
     if (dialog_vars.no_tags) {
-	full_width = text_width;
+	full_width = MIN(all.use_width, text_width);
+    } else if (dialog_vars.no_items) {
+	full_width = MIN(all.use_width, name_width);
     } else {
 	if (text_width >= 0
 	    && name_width >= 0
@@ -601,7 +605,12 @@ dlg_buildlist(const char *title,
     }
 
     all.check_x = (all.use_width - full_width) / 2;
-    all.item_x = (dialog_vars.no_tags ? 0 : (name_width + 2)) + all.check_x;
+    all.item_x = ((dialog_vars.no_tags
+		   ? 0
+		   : (dialog_vars.no_items
+		      ? 0
+		      : (name_width + 2)))
+		  + all.check_x);
 
     /* ensure we are scrolled to show the current choice */
     j = MIN(all.use_height, item_no);

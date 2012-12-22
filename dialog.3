@@ -1,4 +1,4 @@
-.\" $Id: dialog.3,v 1.86 2012/12/20 01:49:30 tom Exp $
+.\" $Id: dialog.3,v 1.87 2012/12/22 00:09:21 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/12/20 01:49:30 $"
+.TH \*D 3 "" "$Date: 2012/12/22 00:09:21 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -461,6 +461,12 @@ This corresponds to the command-line option "\fB--max-input\fP \fIsize\fP".
 Limit input strings to the given size.
 If not specified, the limit is 2048.
 .\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.no_items
+This corresponds to the command-line option "\fB--no-items\fP".
+Some widgets (checklist, inputmenu, radiolist, menu) display a list
+with two columns (a "tag" and "item", i.e., "description").
+This suppresses the "list".
+.\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.no_label
 This corresponds to the command-line option "\fB--no-label\fP \fIstring\fP".
 The given string overrides the label used for "No" buttons.
@@ -478,7 +484,7 @@ in a message into newlines.
 .IP \fIDIALOG_VARS.no_tags
 This corresponds to the command-line option "\fB--no-tags\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a "tag" and "description").
+with two columns (a "tag" and "item", i.e., "description").
 The tag is useful for scripting, but may not help the user.
 The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
 column of tags from the display.

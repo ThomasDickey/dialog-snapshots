@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.73 2012/12/18 09:39:22 tom Exp $
+dnl $Id: configure.in,v 1.74 2012/12/21 23:26:50 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2011,2012 -- Thomas E. Dickey
@@ -145,6 +145,11 @@ CF_ARG_MSG_ENABLE([if you want extra Xdialog-style dialogs (1.2)],
 	[  --disable-Xdialog2      do not include extra Xdialog-style dialogs (1.2)],
 	[EXTRAOBJS="$EXTRAOBJS buildlist\$o rangebox\$o treeview\$o"
 	 AC_DEFINE(HAVE_XDIALOG2,1,[Define to 1 to include extra Xdialog-style dialogs])],,$cf_all_widgets)
+
+CF_ARG_MSG_ENABLE([if you want compatibility with whiptail options],
+	whiptail,
+	[  --disable-whiptail      do not map extra whiptail options],
+	[AC_DEFINE(HAVE_WHIPTAIL,1,[Define to 1 to include extra whiptail options])],,$cf_all_widgets)
 
 CF_ARG_MSG_ENABLE([if you want the form dialog],
 	form,
