@@ -1,10 +1,10 @@
--- $Id: CHANGES,v 1.441 2012/12/19 09:34:56 tom Exp $
+-- $Id: CHANGES,v 1.442 2012/12/21 11:58:22 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2012/12/19 - release 1.2
+2012/12/21 - release 1.2
 	+ add configure option --disable-Xdialog2 to allow suppressing the
 	  newer features, i.e., for cdialog 1.2
 	+ add --no-tags option, like Xdialog.

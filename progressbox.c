@@ -1,10 +1,10 @@
 /*
- *  $Id: progressbox.c,v 1.22 2012/11/30 01:31:55 tom Exp $
+ *  $Id: progressbox.c,v 1.23 2012/12/21 10:00:05 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
  *  Copyright 2005	Valery Reznic
- *  Copyright 2006-2011	Thomas E. Dickey
+ *  Copyright 2006-2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as

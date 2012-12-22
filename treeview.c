@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.15 2012/12/18 22:14:02 tom Exp $
+ *  $Id: treeview.c,v 1.16 2012/12/20 09:31:53 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -672,6 +672,7 @@ dialog_treeview(const char *title,
     }
 
     dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
+    free(depths);
     free(listitems);
     return result;
 }

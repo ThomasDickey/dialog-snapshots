@@ -1,9 +1,9 @@
 /*
- * $Id: mouse.c,v 1.19 2012/12/17 00:30:31 tom Exp $
+ * $Id: mouse.c,v 1.20 2012/12/21 10:00:30 tom Exp $
  *
  * mouse.c -- mouse support for dialog
  *
- * Copyright 2002-2006,2007	Thomas E. Dickey
+ * Copyright 2002-2007,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1

@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.45 2012/12/19 23:55:25 tom Exp $
+ *  $Id: buildlist.c,v 1.48 2012/12/21 22:05:23 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -27,6 +27,9 @@
 /*
  * Visually like menubox, but two columns.
  */
+
+#define sLEFT         (-2)
+#define sRIGHT        (-1)
 
 #define KEY_TOGGLE    ' '
 #define KEY_LEFTCOL   '^'
@@ -458,8 +461,9 @@ dlg_buildlist(const char *title,
     MY_DATA *data = all.list;
     int i, j, k, key2, found, x, y, cur_x, cur_y;
     int key = 0, fkey;
+    bool save_visit = dialog_state.visit_items;
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
-    int cur_item = dlg_default_listitem(items);
+    int cur_item;
     int was_mouse;
     int name_width, text_width, full_width, list_width;
     int result = DLG_EXIT_UNKNOWN;
@@ -472,9 +476,22 @@ dlg_buildlist(const char *title,
 
     (void) order_mode;
 
+    /*
+     * Unlike other uses of --visit-items, we have two windows to visit.
+     */
+    if (dialog_state.visit_cols)
+	dialog_state.visit_cols = 2;
+
     memset(&all, 0, sizeof(all));
     all.items = items;
     all.item_no = item_no;
+
+    if (dialog_vars.default_item != 0) {
+	cur_item = dlg_default_listitem(items);
+    } else {
+	if ((cur_item = first_item(&all, 0)) < 0)
+	    cur_item = first_item(&all, 1);
+    }
 
     dlg_does_output();
     dlg_tab_correct_str(prompt);
@@ -635,8 +652,9 @@ dlg_buildlist(const char *title,
 	    int cur_row = index2row(&all, cur_item, which);
 	    cur_y = (data[which].box_y
 		     + cur_row
-		     + 1
-		     - at_top);
+		     + 1);
+	    if (at_top > 0)
+		cur_y -= at_top;
 	    cur_x = (data[which].box_x
 		     + all.check_x + 1);
 	    dlg_trace_msg("\t...visit row %d (%d,%d)\n", cur_row, cur_y, cur_x);
@@ -771,64 +789,97 @@ dlg_buildlist(const char *title,
 	    i = key - '1';
 	}
 
-	if (!found) {
-	    if (fkey) {
-		i = cur_item;
-		found = TRUE;
-		switch (key) {
-		case DLGK_GRID_LEFT:
-		    i = closest_item(&all, cur_item, 0);
-		    break;
-		case DLGK_GRID_RIGHT:
-		    i = closest_item(&all, cur_item, 1);
-		    break;
-		case DLGK_PAGE_PREV:
-		    if (cur_item > moi->top_index) {
-			i = moi->top_index;
-		    } else if (moi->top_index != 0) {
-			int temp = at_top;
-			if ((temp -= all.use_height) < 0)
-			    temp = 0;
-			i = row2index(&all, temp, which);
-		    }
-		    break;
-		case DLGK_PAGE_NEXT:
-		    if ((at_end - at_bot) < all.use_height) {
-			i = next_item(&all,
-				      row2index(&all, at_end, which),
-				      which);
+	if (!found && fkey) {
+	    switch (key) {
+	    case DLGK_FIELD_PREV:
+		if ((button == sRIGHT) && dialog_state.visit_items) {
+		    key = DLGK_GRID_LEFT;
+		    button = sLEFT;
+		} else {
+		    button = dlg_prev_button(buttons, button);
+		    dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				     FALSE, width);
+		    if (button == sRIGHT) {
+			key = DLGK_GRID_RIGHT;
 		    } else {
-			i = next_item(&all,
-				      row2index(&all, at_bot, which),
-				      which);
-			at_top = at_bot;
-			set_top_item(&all,
-				     next_item(&all,
-					       row2index(&all, at_top, which),
-					       which),
-				     which);
-			at_bot = skip_rows(&all, at_top, all.use_height, which);
-			at_bot = MIN(at_bot, at_end);
-		    }
-		    break;
-		case DLGK_ITEM_FIRST:
-		    i = first_item(&all, which);
-		    break;
-		case DLGK_ITEM_LAST:
-		    i = last_item(&all, which);
-		    break;
-		case DLGK_ITEM_PREV:
-		    i = prev_item(&all, cur_item, which);
-		    if (stop_prev(&all, cur_item, which))
 			continue;
-		    break;
-		case DLGK_ITEM_NEXT:
-		    i = next_item(&all, cur_item, which);
-		    break;
-		default:
-		    found = FALSE;
-		    break;
+		    }
 		}
+		break;
+	    case DLGK_FIELD_NEXT:
+		if ((button == sLEFT) && dialog_state.visit_items) {
+		    key = DLGK_GRID_RIGHT;
+		    button = sRIGHT;
+		} else {
+		    button = dlg_next_button(buttons, button);
+		    dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
+				     FALSE, width);
+		    if (button == sLEFT) {
+			key = DLGK_GRID_LEFT;
+		    } else {
+			continue;
+		    }
+		}
+		break;
+	    }
+	}
+
+	if (!found && fkey) {
+	    i = cur_item;
+	    found = TRUE;
+	    switch (key) {
+	    case DLGK_GRID_LEFT:
+		i = closest_item(&all, cur_item, 0);
+		break;
+	    case DLGK_GRID_RIGHT:
+		i = closest_item(&all, cur_item, 1);
+		break;
+	    case DLGK_PAGE_PREV:
+		if (cur_item > moi->top_index) {
+		    i = moi->top_index;
+		} else if (moi->top_index != 0) {
+		    int temp = at_top;
+		    if ((temp -= all.use_height) < 0)
+			temp = 0;
+		    i = row2index(&all, temp, which);
+		}
+		break;
+	    case DLGK_PAGE_NEXT:
+		if ((at_end - at_bot) < all.use_height) {
+		    i = next_item(&all,
+				  row2index(&all, at_end, which),
+				  which);
+		} else {
+		    i = next_item(&all,
+				  row2index(&all, at_bot, which),
+				  which);
+		    at_top = at_bot;
+		    set_top_item(&all,
+				 next_item(&all,
+					   row2index(&all, at_top, which),
+					   which),
+				 which);
+		    at_bot = skip_rows(&all, at_top, all.use_height, which);
+		    at_bot = MIN(at_bot, at_end);
+		}
+		break;
+	    case DLGK_ITEM_FIRST:
+		i = first_item(&all, which);
+		break;
+	    case DLGK_ITEM_LAST:
+		i = last_item(&all, which);
+		break;
+	    case DLGK_ITEM_PREV:
+		i = prev_item(&all, cur_item, which);
+		if (stop_prev(&all, cur_item, which))
+		    continue;
+		break;
+	    case DLGK_ITEM_NEXT:
+		i = next_item(&all, cur_item, which);
+		break;
+	    default:
+		found = FALSE;
+		break;
 	    }
 	}
 
@@ -909,16 +960,6 @@ dlg_buildlist(const char *title,
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
 		break;
-	    case DLGK_FIELD_PREV:
-		button = dlg_prev_button(buttons, button);
-		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
-				 FALSE, width);
-		break;
-	    case DLGK_FIELD_NEXT:
-		button = dlg_next_button(buttons, button);
-		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
-				 FALSE, width);
-		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		/* reset data */
@@ -945,6 +986,7 @@ dlg_buildlist(const char *title,
 	}
     }
 
+    dialog_state.visit_cols = save_visit;
     dlg_del_window(dialog);
     dlg_mouse_free_regions();
     free(prompt);
