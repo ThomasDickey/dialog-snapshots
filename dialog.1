@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.151 2012/12/20 01:30:34 tom Exp $
+.\" $Id: dialog.1,v 1.157 2012/12/22 17:28:43 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -36,8 +36,12 @@
 .fi
 .RE
 ..
+.\" Bulleted paragraph
+.de bP
+.IP \(bu 4
+..
 .
-.TH \*D 1 "" "$Date: 2012/12/20 01:30:34 $"
+.TH \*D 1 "" "$Date: 2012/12/22 17:28:43 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -94,12 +98,10 @@ These types of dialog boxes are implemented
 .RE
 .PP
 You can put more than one dialog box into a script:
-.TP 5
--
+.bP
 Use the "\fB--and-widget\fP" token to force \fB\*p\fP to proceed to the next
 dialog unless you have pressed ESC to cancel, or
-.TP 5
--
+.bP
 Simply add the tokens for the next dialog box, making a chain.
 \*L stops chaining when the return code from a dialog is nonzero,
 e.g., Cancel or No (see DIAGNOSTICS).
@@ -397,6 +399,13 @@ spaces to a single space for text which is displayed in a message boxes, etc.
 Use this option to disable that feature.
 Note that \fB\*p\fR will still wrap text,
 subject to the "\fB--cr-wrap\fR" and "\fB--trim\fR" options.
+.
+.IP "\fB--no-items"
+Some widgets (checklist, inputmenu, radiolist, menu) display a list
+with two columns (a "tag" and "item", i.e., "description").
+This option suppresses the "item" part of the list,
+which is occasionally useful.
+See also \fB--no-tags\fP.
 .
 .IP "\fB--no-kill"
 Tells
@@ -720,16 +729,13 @@ The former defines the length shown for a selected field,
 while the latter defines the permissible length of the data entered in the
 field.
 .RS
-.TP 3
--
+.bP
 If \fIflen\fR is zero, the corresponding field cannot be altered.
 and the contents of the field determine the displayed-length.
-.TP 3
--
+.bP
 If \fIflen\fR is negative, the corresponding field cannot be altered,
 and the negated value of \fIflen\fR is used as the displayed-length.
-.TP 3
--
+.bP
 If \fIilen\fR is zero, it is set to \fIflen\fR.
 .RE
 .IP
@@ -1414,14 +1420,12 @@ or \fB\*p\fP is exited by pressing the \fIESC\fP key (DIALOG_ESC).
 \fB\*L\fP works with X/Open curses.
 However, some implementations have deficiencies:
 .RS 3
-.TP 3
--
+.bP
 HPUX curses (and perhaps others) do not open the terminal properly for
 the \fInewterm\fP function.
 This interferes with \fB\*p\fP's \fB--input-fd\fP option,
 by preventing cursor-keys and similar escape sequences from being recognized.
-.TP 3
--
+.bP
 NetBSD 5.1 curses has incomplete support for wide-characters.
 \fB\*p\fP will build, but not all examples display properly.
 .RE
@@ -1543,12 +1547,37 @@ l l
 _ _
 l l.
 \fIOption\fR	\fITreatment\fR
+\fB--cancel-button\fP	mapped to \fB--cancel-label\fP
 \fB--fb\fP	ignored
 \fB--fullbutton\fP	ignored
+\fB--no-button\fP	mapped to \fB--no-label\fP
 \fB--nocancel\fP	mapped to \fB--no-cancel\fP
-\fB--noitem\fP	ignored
+\fB--noitem\fP	mapped to \fB--no-items\fP
+\fB--notags\fP	mapped to \fB--no-tags\fP
+\fB--ok-button\fP	mapped to \fB--ok-label\fP
+\fB--scrolltext\fP	mapped to \fB--scrollbar\fP
+\fB--yes-button\fP	mapped to \fB--yes-label\fP
 .TE
 .RE
+.LP
+There are visual differences which are not addressed by command-line options:
+.bP
+\fB\*p\fP centers lists within the window.
+\fBwhiptail\fP typically puts lists against the left margin.
+.bP
+\fBwhiptail\fP uses angle brackets ("<" and ">") for marking buttons.
+\fB\*p\fP uses square brackets.
+.bP
+\fBwhiptail\fP marks the limits of subtitles with vertical bars.
+\fB\*p\fP does not mark the limits.
+.bP
+\fBwhiptail\fP attempts to mark the top/bottom cells of a scrollbar
+with up/down arrows.
+When it cannot do this,
+it fills those cells with the background color
+of the scrollbar and confusing the user.
+\fB\*p\fP uses the entire scrollbar space,
+thereby getting better resolution.
 .\" ************************************************************************
 .SH BUGS
 Perhaps.
@@ -1567,13 +1596,11 @@ Yura Kalinichenko adapted the gauge widget as "pause".
 This is a rewrite (except as needed to provide compatibility)
 of the earlier version of \fB\*p 0.9a\fP,
 which lists as authors:
-.RS
-.LP
+.bP
 Savio Lam - version 0.3, "dialog"
-.LP
+.bP
 Stuart Herbert - patch for version 0.4
-.LP
+.bP
 Marc Ewing - the gauge widget.
-.LP
+.bP
 Pasquale De Marco "Pako" - version 0.9a, "cdialog"
-.RE

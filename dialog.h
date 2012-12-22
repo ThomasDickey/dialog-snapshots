@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.255 2012/12/20 11:43:52 tom Exp $
+ *  $Id: dialog.h,v 1.256 2012/12/22 00:02:21 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -509,6 +509,7 @@ typedef struct {
     int default_button;		/* option "--default-button" (exit code) */
     /* 1.1-20121218 */
     bool no_tags;		/* option "--no-tags" */
+    bool no_items;		/* option "--no-items" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
