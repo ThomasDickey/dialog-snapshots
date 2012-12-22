@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.43 2012/12/16 17:30:44 tom Exp $
+ *  $Id: arrows.c,v 1.46 2012/12/21 11:47:01 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- *  Copyright 2000-2010,2011	Thomas E. Dickey
+ *  Copyright 2000-2011,2012	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -196,16 +196,21 @@ dlg_draw_scrollbar(WINDOW *win,
 	    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
 	}
     }
-#define BARSIZE(num) (int) ((double) ((all_high * (num)) + all_high - 1) / (double) total_data)
+#define BARSIZE(num) (int) (0.5 + (double) ((all_high * (num)) / (double) total_data))
+#define ORDSIZE(num) (int) ((double) ((all_high * (num)) / (double) all_diff))
 
     if (dialog_state.use_scrollbar) {
 	int all_high = (bottom - top - 1);
 
+	this_data = MAX(0, this_data);
+
 	if (total_data > 0 && all_high > 0) {
+	    int all_diff = (total_data + 1);
+	    int bar_diff = (next_data + 1 - this_data);
 	    int bar_high;
 	    int bar_y;
 
-	    bar_high = BARSIZE(next_data - this_data);
+	    bar_high = ORDSIZE(bar_diff);
 	    if (bar_high <= 0)
 		bar_high = 1;
 
@@ -217,11 +222,12 @@ dlg_draw_scrollbar(WINDOW *win,
 		(void) wattrset(win, save);
 		wvline(win, ACS_VLINE | A_REVERSE, all_high);
 
-		bar_y = BARSIZE(this_data);
-		if (bar_y == bar_last && bar_y > 0)
-		    --bar_y;
-		if (bar_last - bar_y > bar_high)
+		bar_y = ORDSIZE(this_data);
+		if (bar_y >= bar_last && bar_y > 0)
+		    bar_y = bar_last - 1;
+		if (bar_last - bar_y > bar_high && bar_high > 1)
 		    ++bar_y;
+		bar_last = MIN(bar_last, all_high);
 
 		wmove(win, top + 1 + bar_y, right);
 

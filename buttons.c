@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.92 2012/12/02 21:47:51 tom Exp $
+ *  $Id: buttons.c,v 1.93 2012/12/20 23:52:04 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -28,7 +28,7 @@
 #include <wchar.h>
 #endif
 
-#define MIN_BUTTON (dialog_state.visit_items ? -1 : 0)
+#define MIN_BUTTON (-dialog_state.visit_cols)
 
 static void
 center_label(char *buffer, int longest, const char *label)

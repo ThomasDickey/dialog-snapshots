@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.216 2012/12/19 23:55:25 tom Exp $
+ * $Id: dialog.c,v 1.217 2012/12/20 11:44:12 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1490,6 +1490,7 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_visit_items:
 	    dialog_state.visit_items = TRUE;
+	    dialog_state.visit_cols = 1;
 	    break;
 	case o_aspect:
 	    dialog_state.aspect_ratio = optionValue(argv, &offset);
