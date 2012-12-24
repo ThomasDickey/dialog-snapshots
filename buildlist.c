@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.49 2012/12/22 02:05:00 tom Exp $
+ *  $Id: buildlist.c,v 1.53 2012/12/24 02:10:27 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -37,13 +37,6 @@
 
 #define MIN_HIGH  (1 + (5 * MARGIN))
 
-#define LLEN(n) ((n) * CHECKBOX_TAGS)
-#define ItemData(i)    &items[LLEN(i)]
-#define ItemName(i)    items[LLEN(i)]
-#define ItemText(i)    items[LLEN(i) + 1]
-#define ItemStatus(i)  items[LLEN(i) + 2]
-#define ItemHelp(i)    items[LLEN(i) + 3]
-
 typedef struct {
     WINDOW *win;
     int box_y;
@@ -80,9 +73,9 @@ print_item(ALL_DATA * data,
     bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (data->item_x - data->check_x - 1);
-    const char *show = (dialog_vars.no_tags
-			? item->text
-			: item->name);
+    const char *show = (dialog_vars.no_items
+			? item->name
+			: item->text);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -95,6 +88,7 @@ print_item(ALL_DATA * data,
 
     if (both) {
 	dlg_print_listitem(win, item->name, climit, first, selected);
+	(void) waddch(win, ' ');
 	first = FALSE;
     }
 
@@ -464,7 +458,7 @@ dlg_buildlist(const char *title,
     int i, j, k, key2, found, x, y, cur_x, cur_y;
     int key = 0, fkey;
     bool save_visit = dialog_state.visit_items;
-    int button = dialog_state.visit_items ? -1 : dlg_default_button();
+    int button;
     int cur_item;
     int was_mouse;
     int name_width, text_width, full_width, list_width;
@@ -494,6 +488,9 @@ dlg_buildlist(const char *title,
 	if ((cur_item = first_item(&all, 0)) < 0)
 	    cur_item = first_item(&all, 1);
     }
+    button = (dialog_state.visit_items
+	      ? (items[cur_item].state ? sRIGHT : sLEFT)
+	      : dlg_default_button());
 
     dlg_does_output();
     dlg_tab_correct_str(prompt);
@@ -584,7 +581,7 @@ dlg_buildlist(const char *title,
      * leave it intact.
      */
     all.use_width = (list_width - 6 * MARGIN);
-    if (dialog_vars.no_tags) {
+    if (dialog_vars.no_tags && !dialog_vars.no_items) {
 	full_width = MIN(all.use_width, text_width);
     } else if (dialog_vars.no_items) {
 	full_width = MIN(all.use_width, name_width);
@@ -906,9 +903,11 @@ dlg_buildlist(const char *title,
 
 		if (now_at >= at_bot) {
 		    while (now_at >= at_bot) {
-			set_top_item(&all,
-				     next_item(&all, moi->top_index, which),
-				     which);
+			if ((at_bot - at_top) >= all.use_height) {
+			    set_top_item(&all,
+					 next_item(&all, moi->top_index, which),
+					 which);
+			}
 			at_top = index2row(&all, moi->top_index, which);
 			at_bot = skip_rows(&all, at_top, all.use_height, which);
 
@@ -924,10 +923,11 @@ dlg_buildlist(const char *title,
 			     * down by one line so that we can display the
 			     * last item in the list.
 			     */
-			    if ((at_bot - at_top) <= all.use_height)
+			    if ((at_bot - at_top) > all.use_height) {
 				set_top_item(&all,
 					     next_item(&all, moi->top_index, which),
 					     which);
+			    }
 			    break;
 			}
 			if (--oops < 0) {
@@ -1017,7 +1017,7 @@ dialog_buildlist(const char *title,
 		 int order_mode)
 {
     int result;
-    int i;
+    int i, j;
     DIALOG_LISTITEM *listitems;
     bool separate_output = dialog_vars.separate_output;
     bool show_status = FALSE;
@@ -1026,13 +1026,15 @@ dialog_buildlist(const char *title,
     listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_buildlist");
 
-    for (i = 0; i < item_no; ++i) {
-	listitems[i].name = ItemName(i);
-	listitems[i].text = ItemText(i);
+    for (i = j = 0; i < item_no; ++i) {
+	listitems[i].name = items[j++];
+	listitems[i].text = (dialog_vars.no_items
+			     ? dlg_strempty()
+			     : items[j++]);
+	listitems[i].state = !dlg_strcmp(items[j++], "on");
 	listitems[i].help = ((dialog_vars.item_help)
-			     ? ItemHelp(i)
+			     ? items[j++]
 			     : dlg_strempty());
-	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
     }
     dlg_align_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
 

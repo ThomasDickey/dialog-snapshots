@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: buildlist2,v 1.4 2012/12/18 10:02:11 tom Exp $
+# $Id: buildlist2,v 1.6 2012/12/23 22:28:12 tom Exp $
 
 . ./setup-vars
 
@@ -21,7 +21,14 @@ do
 		continue
 		;;
 	esac
-	echo $count $filename $state >>$input
+	case "x$DIALOGOPTS" in
+	*--no-items*|*--noitem*)
+		echo $filename $state >>$input
+		;;
+	*)
+		echo $count $filename $state >>$input
+		;;
+	esac
 	count=`expr $count + 1`
 done
 

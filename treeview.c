@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.17 2012/12/22 01:40:31 tom Exp $
+ *  $Id: treeview.c,v 1.20 2012/12/24 02:10:05 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -26,14 +26,6 @@
 
 #define INDENT 3
 #define MIN_HIGH  (1 + (5 * MARGIN))
-
-#define LLEN(n) ((n) * TREEVIEW_TAGS)
-#define ItemData(i)    &items[LLEN(i)]
-#define ItemName(i)    items[LLEN(i)]
-#define ItemText(i)    items[LLEN(i) + 1]
-#define ItemStatus(i)  items[LLEN(i) + 2]
-#define ItemDepth(i)   items[LLEN(i) + 3]
-#define ItemHelp(i)    items[LLEN(i) + 4]
 
 typedef struct {
     /* the outer-window */
@@ -68,12 +60,11 @@ print_item(ALL_DATA * data,
     WINDOW *win = data->list;
     chtype save = dlg_get_attrs(win);
     int i;
-    bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (getmaxx(win) - data->check_x + 1);
-    const char *show = (dialog_vars.no_tags
-			? item->text
-			: item->name);
+    const char *show = (dialog_vars.no_items
+			? item->name
+			: item->text);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -87,12 +78,6 @@ print_item(ALL_DATA * data,
 		   data->is_check ? "[%c]" : "(%c)",
 		   states[item->state]);
     (void) wattrset(win, menubox_attr);
-
-    if (both) {
-	(void) waddch(win, ' ');
-	dlg_print_listitem(win, item->name, climit, first, selected);
-	first = FALSE;
-    }
 
     (void) wattrset(win, selected ? item_selected_attr : item_attr);
     for (i = 0; i < depths; ++i) {
@@ -329,7 +314,7 @@ dlg_treeview(const char *title,
 	text_width = MAX(text_width, dlg_count_columns(items[i].text));
 	name_width = MAX(name_width, dlg_count_columns(items[i].name));
     }
-    if (dialog_vars.no_tags) {
+    if (dialog_vars.no_tags && !dialog_vars.no_items) {
 	tree_width += text_width;
     } else if (dialog_vars.no_items) {
 	tree_width += name_width;
@@ -589,7 +574,7 @@ dialog_treeview(const char *title,
 		int flag)
 {
     int result;
-    int i;
+    int i, j;
     DIALOG_LISTITEM *listitems;
     int *depths;
     bool show_status = FALSE;
@@ -601,14 +586,16 @@ dialog_treeview(const char *title,
     depths = dlg_calloc(int, (size_t) item_no + 1);
     assert_ptr(depths, "dialog_treeview");
 
-    for (i = 0; i < item_no; ++i) {
-	listitems[i].name = ItemName(i);
-	listitems[i].text = ItemText(i);
+    for (i = j = 0; i < item_no; ++i) {
+	listitems[i].name = items[j++];
+	listitems[i].text = (dialog_vars.no_items
+			     ? dlg_strempty()
+			     : items[j++]);
+	listitems[i].state = !dlg_strcmp(items[j++], "on");
+	depths[i] = atoi(items[j++]);
 	listitems[i].help = ((dialog_vars.item_help)
-			     ? ItemHelp(i)
+			     ? items[j++]
 			     : dlg_strempty());
-	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
-	depths[i] = atoi(ItemDepth(i));
     }
     dlg_align_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
 

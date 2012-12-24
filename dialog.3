@@ -1,4 +1,5 @@
-.\" $Id: dialog.3,v 1.87 2012/12/22 00:09:21 tom Exp $
+'\" t
+.\" $Id: dialog.3,v 1.90 2012/12/23 22:16:50 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -38,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/12/22 00:09:21 $"
+.TH \*D 3 "" "$Date: 2012/12/23 22:16:50 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -432,7 +433,7 @@ by echoing asterisks for each character.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.in_helpfile
 This variable is used to prevent \fBdialog_helpfile\fP from showing
-anything, e.g., if F1 were pressed within a help-file display. 
+anything, e.g., if F1 were pressed within a help-file display.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.item_help
 This corresponds to the command-line option "\fB--item-help\fP".
@@ -465,7 +466,8 @@ If not specified, the limit is 2048.
 This corresponds to the command-line option "\fB--no-items\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
 with two columns (a "tag" and "item", i.e., "description").
-This suppresses the "list".
+This tells \fB\*p\fP to read shorter rows from data,
+omitting the "list".
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.no_label
 This corresponds to the command-line option "\fB--no-label\fP \fIstring\fP".
@@ -484,22 +486,59 @@ in a message into newlines.
 .IP \fIDIALOG_VARS.no_tags
 This corresponds to the command-line option "\fB--no-tags\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a "tag" and "item", i.e., "description").
+with two columns (a "tag" and "item", also known as "description").
 The tag is useful for scripting, but may not help the user.
 The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
 column of tags from the display.
-.IP
-Xdialog does not display the tag column for the analogous buildlist
-and treeview widgets.
-\fB\*L\fP does the same on the command-line.
-However the library interface defaults to displaying the tag column.
-Your application can enable or disable the tag column as needed for each widget.
 .IP
 Normally \fB\*p\fP allows you to quickly move to entries on the displayed list,
 by matching a single character to the first character of the tag.
 When the \fB--no-tags\fP option is given, \fB\*p\fP matches against
 the first character of the description.
 In either case, the matchable character is highlighted.
+.IP
+Here is a table showing how the no_tags and no_items values interact:
+.TS
+tab(/);
+l l l l l
+_ _ _ _ _
+l l l c c.
+Widget/Fields Shown/Fields Read/.no_items/.no_tags
+buildlist/item/tag,item/0/0*
+buildlist/item/tag,item/0/1
+buildlist/tag/tag/1/0*
+buildlist/tag/tag/1/1
+checklist/tag,item/tag,item/0/0
+checklist/item/tag,item/0/1
+checklist/tag/tag/1/0
+checklist/tag/tag/1/1
+inputmenu/tag,item/tag,item/0/0
+inputmenu/item/tag,item/0/1
+inputmenu/tag/tag/1/0
+inputmenu/tag/tag/1/1
+menu/tag,item/tag,item/0/0
+menu/item/tag,item/0/1
+menu/tag/tag/1/0
+menu/tag/tag/1/1
+radiolist/tag,item/tag,item/0/0
+radiolist/item/tag,item/0/1
+radiolist/tag/tag/1/0
+radiolist/tag/tag/1/1
+treeview/item/tag,item/0/0*
+treeview/item/tag,item/0/1
+treeview/tag/tag/1/0*
+treeview/tag/tag/1/1
+_
+.TE
+.RS
+.TP 2
+*
+Xdialog does not display the tag column for the analogous buildlist
+and treeview widgets.
+\fB\*L\fP does the same on the command-line.
+However the library interface defaults to displaying the tag column.
+Your application can enable or disable the tag column as needed for each widget.
+.RE
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.nocancel
 This corresponds to the command-line option "\fB--no-cancel\fP".
@@ -834,7 +873,7 @@ If zero, the height is based on the screen size.
 .\" ************************************************************************
 .IP \fBdialog_gauge
 implements the "\fB--gauge\fP" option.
-Alternatively, a simpler or customized gauge widget can be 
+Alternatively, a simpler or customized gauge widget can be
 setup using
 \fBdlg_allocate_gauge\fP,
 \fBdlg_update_gauge\fP and
@@ -1368,7 +1407,7 @@ is the string to add.
 .B dlg_add_separator
 Add an output-separator to the result buffer \fBdialog_vars.input_result\fP.
 If \fBdialog_vars.output_separator\fP is set, use that.
-Otherwise, if \fBdialog_vars.separate_output\fP is set, use newline. 
+Otherwise, if \fBdialog_vars.separate_output\fP is set, use newline.
 If neither is set, use a space.
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -1697,8 +1736,8 @@ is the label to test.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_calc_list_width
-Calculate the minimum width for the list, assuming none of the items
-are truncated.
+Calculate the minimum width for the list,
+assuming none of the items are truncated.
 .RS
 .TP 5
 .B int \fIitem_no
@@ -1709,6 +1748,9 @@ contains a \fIname\fP and \fItext\fP field,
 e.g., for checklists or radiobox lists.
 The function returns the sum of the widest columns
 needed for of each of these fields.
+.IP
+If \fBdialog_vars.no_items\fP is set,
+the \fItext\fP fields in the list are ignored.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
@@ -3305,7 +3347,7 @@ Restore \fB\*p\fP's variables from the given variable (see \fBdialog_save_vars\f
 is the variable from which to restore.
 .RE
 .IP
-The 
+The
 \fIDIALOG_VARS.input_length\fP and
 \fIDIALOG_VARS.input_result\fP members are treated specially,
 since these are used by a widget to pass data to the caller.
@@ -3354,7 +3396,7 @@ is the window on which to place focus (usually a subwindow of a widget)
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_set_result
-Setup a fixed-buffer for the result in \fBdialog_vars.input_result\fP 
+Setup a fixed-buffer for the result in \fBdialog_vars.input_result\fP
 .RS
 .TP 5
 .B const char * \fIstring
@@ -3466,7 +3508,7 @@ name and stores the file pointer in \fBdialog_state.trace\fP.
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_trace_chr
-If \fBdialog_state.trace\fP is set, 
+If \fBdialog_state.trace\fP is set,
 translate the parameters into a printable representation,
 log it on a "chr" line.
 .RS
@@ -3503,7 +3545,7 @@ DLG_TRACE(("this is dialog version %s\\n", dialog_version()));
 .\" ---------------------------------------------------------------------------
 .TP 5
 .B dlg_trace_win
-If \fBdialog_state.trace\fP is set, 
+If \fBdialog_state.trace\fP is set,
 log a printable picture of the given window.
 .\" ---------------------------------------------------------------------------
 .TP 5

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.256 2012/12/22 00:02:21 tom Exp $
+ *  $Id: dialog.h,v 1.258 2012/12/23 18:08:24 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -513,12 +513,23 @@ typedef struct {
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
-#define CHECKBOX_TAGS           (dialog_vars.item_help ? 4 : 3)
-#define MENUBOX_TAGS            (dialog_vars.item_help ? 3 : 2)
-#define FORMBOX_TAGS            (dialog_vars.item_help ? 9 : 8)
-#define MIXEDFORM_TAGS          (FORMBOX_TAGS + 1)
+
+/*
+ * Some settings change the number of data items per row which dialog reads
+ * from a script.
+ */
+#define DLG__NO_ITEMS		(dialog_vars.no_items ? 0 : 1)
+#define DLG__ITEM_HELP          (dialog_vars.item_help ? 1 : 0)
+
+/*
+ * These are the total number of data items per row used for each widget type.
+ */
+#define CHECKBOX_TAGS           (2 + DLG__ITEM_HELP + DLG__NO_ITEMS)
+#define MENUBOX_TAGS            (1 + DLG__ITEM_HELP + DLG__NO_ITEMS)
+#define FORMBOX_TAGS            (8 + DLG__ITEM_HELP)
+#define MIXEDFORM_TAGS          (1 + FORMBOX_TAGS)
 #define MIXEDGAUGE_TAGS         2
-#define TREEVIEW_TAGS           (dialog_vars.item_help ? 5 : 4)
+#define TREEVIEW_TAGS           (3 + DLG__ITEM_HELP + DLG__NO_ITEMS)
 
 extern DIALOG_VARS dialog_vars;
 
