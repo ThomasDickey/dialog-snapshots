@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.157 2012/12/22 17:28:43 tom Exp $
+.\" $Id: dialog.1,v 1.160 2012/12/23 22:12:58 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2012/12/22 17:28:43 $"
+.TH \*D 1 "" "$Date: 2012/12/23 22:12:58 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -403,9 +403,12 @@ subject to the "\fB--cr-wrap\fR" and "\fB--trim\fR" options.
 .IP "\fB--no-items"
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
 with two columns (a "tag" and "item", i.e., "description").
-This option suppresses the "item" part of the list,
-which is occasionally useful.
+This option tells \fB\*p\fP to read shorter rows,
+omitting the "item" part of the list.
+This is occasionally useful, e.g., if the tags provide enough information.
+.IP
 See also \fB--no-tags\fP.
+If both options are given, this one is ignored.
 .
 .IP "\fB--no-kill"
 Tells
@@ -444,6 +447,8 @@ with two columns (a "tag" and "description").
 The tag is useful for scripting, but may not help the user.
 The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
 column of tags from the display.
+Unlike the \fB--no-items\fP option,
+this does not affect the data which is read from the script.
 .IP
 Xdialog does not display the tag column for the analogous buildlist
 and treeview widgets; \fB\*p\fP does the same.
@@ -1556,6 +1561,7 @@ l l.
 \fB--notags\fP	mapped to \fB--no-tags\fP
 \fB--ok-button\fP	mapped to \fB--ok-label\fP
 \fB--scrolltext\fP	mapped to \fB--scrollbar\fP
+\fB--topleft\fP	ignored
 \fB--yes-button\fP	mapped to \fB--yes-label\fP
 .TE
 .RE

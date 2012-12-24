@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.46 2012/12/21 11:47:01 tom Exp $
+ *  $Id: arrows.c,v 1.48 2012/12/24 01:59:34 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -196,8 +196,8 @@ dlg_draw_scrollbar(WINDOW *win,
 	    whline(win, dlg_boxchar(ACS_HLINE), 4 - len);
 	}
     }
-#define BARSIZE(num) (int) (0.5 + (double) ((all_high * (num)) / (double) total_data))
-#define ORDSIZE(num) (int) ((double) ((all_high * (num)) / (double) all_diff))
+#define BARSIZE(num) (int) (0.5 + (double) ((all_high * (int) (num)) / (double) total_data))
+#define ORDSIZE(num) (int) ((double) ((all_high * (int) (num)) / (double) all_diff))
 
     if (dialog_state.use_scrollbar) {
 	int all_high = (bottom - top - 1);
@@ -205,8 +205,8 @@ dlg_draw_scrollbar(WINDOW *win,
 	this_data = MAX(0, this_data);
 
 	if (total_data > 0 && all_high > 0) {
-	    int all_diff = (total_data + 1);
-	    int bar_diff = (next_data + 1 - this_data);
+	    int all_diff = (int) (total_data + 1);
+	    int bar_diff = (int) (next_data + 1 - this_data);
 	    int bar_high;
 	    int bar_y;
 
@@ -233,7 +233,11 @@ dlg_draw_scrollbar(WINDOW *win,
 
 		(void) wattrset(win, position_indicator_attr);
 		wattron(win, A_REVERSE);
+#ifdef WACS_BLOCK
+		wvline_set(win, WACS_BLOCK, bar_last - bar_y);
+#else
 		wvline(win, ACS_BLOCK, bar_last - bar_y);
+#endif
 	    }
 	}
     }

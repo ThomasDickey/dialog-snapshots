@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.221 2012/12/22 00:40:41 tom Exp $
+ * $Id: dialog.c,v 1.223 2012/12/24 02:02:04 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -64,7 +64,6 @@ typedef enum {
     ,o_extra_label
     ,o_fixed_font
     ,o_form
-    ,o_fullbutton
     ,o_gauge
     ,o_help
     ,o_help_button
@@ -140,6 +139,10 @@ typedef enum {
     ,o_wmclass
     ,o_yes_label
     ,o_yesno
+#ifdef HAVE_WHIPTAIL
+    ,o_fullbutton
+    ,o_topleft
+#endif
 #ifdef HAVE_XDIALOG
     ,o_calendar
     ,o_dselect
@@ -302,6 +305,7 @@ static const Options options[] = {
     { "no-button",	o_no_label,		1, NULL },
     { "ok-button",	o_ok_label,		1, NULL },
     { "scrolltext",	o_scrollbar,		1, NULL },
+    { "topleft",	o_topleft,		1, NULL },
     { "yes-button",	o_yes_label,		1, NULL },
 #endif
 #ifdef HAVE_XDIALOG
@@ -1567,9 +1571,12 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    dialog_state.no_mouse = TRUE;
 	    mouse_close();
 	    break;
+#ifdef HAVE_WHIPTAIL
 	case o_fullbutton:
+	case o_topleft:
 	    /* ignore */
 	    break;
+#endif
 	    /* options of Xdialog which we ignore */
 	case o_icon:
 	case o_wmclass:

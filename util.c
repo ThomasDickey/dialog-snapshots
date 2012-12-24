@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.252 2012/12/22 01:58:14 tom Exp $
+ *  $Id: util.c,v 1.253 2012/12/23 19:52:54 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1850,18 +1850,25 @@ int
 dlg_calc_list_width(int item_no, DIALOG_LISTITEM * items)
 {
     int n, i, len1 = 0, len2 = 0;
+    int bits = ((dialog_vars.no_tags ? 1 : 0)
+		+ (dialog_vars.no_items ? 2 : 0));
+
     for (i = 0; i < item_no; ++i) {
-	if (dialog_vars.no_tags) {
-	    if ((n = dlg_count_columns(items[i].text)) > len2)
-		len2 = n;
-	} else if (dialog_vars.no_items) {
-	    if ((n = dlg_count_columns(items[i].name)) > len1)
-		len1 = n;
-	} else {
+	switch (bits) {
+	case 0:
+	    /* FALLTHRU */
+	case 1:
 	    if ((n = dlg_count_columns(items[i].name)) > len1)
 		len1 = n;
 	    if ((n = dlg_count_columns(items[i].text)) > len2)
 		len2 = n;
+	    break;
+	case 2:
+	    /* FALLTHRU */
+	case 3:
+	    if ((n = dlg_count_columns(items[i].name)) > len1)
+		len1 = n;
+	    break;
 	}
     }
     return len1 + len2;

@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.145 2012/12/22 14:53:39 tom Exp $
+ *  $Id: checklist.c,v 1.148 2012/12/24 02:08:58 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -30,13 +30,6 @@
 #include <dlg_keys.h>
 
 #define MIN_HIGH  (1 + (5 * MARGIN))
-
-#define LLEN(n) ((n) * CHECKBOX_TAGS)
-#define ItemData(i)    &items[LLEN(i)]
-#define ItemName(i)    items[LLEN(i)]
-#define ItemText(i)    items[LLEN(i) + 1]
-#define ItemStatus(i)  items[LLEN(i) + 2]
-#define ItemHelp(i)    items[LLEN(i) + 3]
 
 typedef struct {
     /* the outer-window */
@@ -72,9 +65,9 @@ print_item(ALL_DATA * data,
     bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
     int climit = (getmaxx(win) - data->check_x + 1);
-    const char *show = (dialog_vars.no_tags
-			? item->text
-			: item->name);
+    const char *show = (dialog_vars.no_items
+			? item->name
+			: item->text);
 
     /* Clear 'residue' of last item */
     (void) wattrset(win, menubox_attr);
@@ -606,7 +599,7 @@ dialog_checklist(const char *title,
 		 int flag)
 {
     int result;
-    int i;
+    int i, j;
     DIALOG_LISTITEM *listitems;
     bool separate_output = ((flag == FLAG_CHECK)
 			    && (dialog_vars.separate_output));
@@ -616,13 +609,15 @@ dialog_checklist(const char *title,
     listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_checklist");
 
-    for (i = 0; i < item_no; ++i) {
-	listitems[i].name = ItemName(i);
-	listitems[i].text = ItemText(i);
+    for (i = j = 0; i < item_no; ++i) {
+	listitems[i].name = items[j++];
+	listitems[i].text = (dialog_vars.no_items
+			     ? dlg_strempty()
+			     : items[j++]);
+	listitems[i].state = !dlg_strcmp(items[j++], "on");
 	listitems[i].help = ((dialog_vars.item_help)
-			     ? ItemHelp(i)
+			     ? items[j++]
 			     : dlg_strempty());
-	listitems[i].state = !dlg_strcmp(ItemStatus(i), "on");
     }
     dlg_align_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.142 2012/12/22 17:44:35 tom Exp $
+ *  $Id: menubox.c,v 1.144 2012/12/24 02:09:39 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -52,11 +52,6 @@ typedef struct {
 
 #define INPUT_ROWS     3	/* rows per inputmenu entry */
 
-#define LLEN(n) ((n) * MENUBOX_TAGS)
-#define ItemName(i)    items[LLEN(i)]
-#define ItemText(i)    items[LLEN(i) + 1]
-#define ItemHelp(i)    items[LLEN(i) + 2]
-
 #define RowHeight(i) (is_inputmenu ? ((i) * INPUT_ROWS) : ((i) * 1))
 #define ItemToRow(i) (is_inputmenu ? ((i) * INPUT_ROWS + 1) : (i))
 #define RowToItem(i) (is_inputmenu ? ((i) / INPUT_ROWS + 0) : (i))
@@ -82,9 +77,9 @@ print_item(ALL_DATA * data,
     bool first = TRUE;
     chtype textchar;
     chtype bordchar;
-    const char *show = (dialog_vars.no_tags
-			? item->text
-			: item->name);
+    const char *show = (dialog_vars.no_items
+			? item->name
+			: item->text);
 
     switch (selected) {
     default:
@@ -755,17 +750,19 @@ dialog_menu(const char *title,
 {
     int result;
     int choice;
-    int i;
+    int i, j;
     DIALOG_LISTITEM *listitems;
 
     listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_menu");
 
-    for (i = 0; i < item_no; ++i) {
-	listitems[i].name = ItemName(i);
-	listitems[i].text = ItemText(i);
+    for (i = j = 0; i < item_no; ++i) {
+	listitems[i].name = items[j++];
+	listitems[i].text = (dialog_vars.no_items
+			     ? dlg_strempty()
+			     : items[j++]);
 	listitems[i].help = ((dialog_vars.item_help)
-			     ? ItemHelp(i)
+			     ? items[j++]
 			     : dlg_strempty());
     }
     dlg_align_columns(&listitems[0].text, sizeof(DIALOG_LISTITEM), item_no);
