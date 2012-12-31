@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.74 2012/12/21 23:26:50 tom Exp $
+dnl $Id: configure.in,v 1.75 2012/12/30 22:38:00 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2011,2012 -- Thomas E. Dickey
@@ -234,7 +234,9 @@ getpary \
 getparyx \
 use_default_colors \
 wchgat \
+wcursyncup \
 wget_wch \
+wsyncup \
 )
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR,1,[Define to 1 if (n)curses has start_color function])])

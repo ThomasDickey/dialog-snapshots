@@ -1,5 +1,5 @@
 /*
- *  $Id: arrows.c,v 1.48 2012/12/24 01:59:34 tom Exp $
+ *  $Id: arrows.c,v 1.49 2012/12/30 22:33:28 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
@@ -233,7 +233,7 @@ dlg_draw_scrollbar(WINDOW *win,
 
 		(void) wattrset(win, position_indicator_attr);
 		wattron(win, A_REVERSE);
-#ifdef WACS_BLOCK
+#if defined(WACS_BLOCK) && defined(NCURSES_VERSION)
 		wvline_set(win, WACS_BLOCK, bar_last - bar_y);
 #else
 		wvline(win, ACS_BLOCK, bar_last - bar_y);

@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.160 2012/12/23 22:12:58 tom Exp $
+.\" $Id: dialog.1,v 1.164 2012/12/30 23:32:18 tom Exp $
 .\" Copyright 2005-2011,2012  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2012/12/23 22:12:58 $"
+.TH \*D 1 "" "$Date: 2012/12/30 23:32:18 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -635,6 +635,21 @@ The results are written using the order displayed in the selected-window.
 .IP
 The initial on/off state of each entry is specified by
 .IR status "."
+.IP
+The dialog behaves like a \fBmenu\fP, using the \fB--visit-items\fP
+to control whether the cursor is allowed to visit the lists directly.
+.RS
+.bP
+If \fB--visit-items\fP is not given,
+tab-traversal uses two states (OK/Cancel).
+.bP
+If \fB--visit-items\fP is given,
+tab-traversal uses four states (Left/Right/OK/Cancel).
+.RE
+.IP
+Whether or not \fB--visit--items\fP is given,
+it is possible to move the highlight between the two lists using
+the default "^" (left-column) and "$" (right-column) keys.
 .IP
 On exit, a list of the \fItag\fP
 strings of those entries that are turned on
@@ -1499,8 +1514,9 @@ will  then  have  to  add  the --separate-output option before the
 the difference was likely due to confusion regarding some script.
 .SS WHIPTAIL
 Then there is \fBwhiptail\fP.
-For practical purposes, it is maintained by Debian.
-Its documentation claims
+For practical purposes, it is maintained by Debian
+(very little work is done by its upstream developers).
+Its documentation (README.whiptail) claims
 .RS
 .sp
 .nf
@@ -1523,18 +1539,24 @@ The comparable number for \fB\*p\fP (counting ncurses) is 520kb.
 Disregard the first paragraph.
 .PP
 The second paragraph is misleading, since \fBwhiptail\fP
-also does not work for common options of \*p, such as the gauge box.
-\fBwhiptail\fP is less compatible with \fB\*p\fP than the decade-old
-original dialog 0.4 program.
+also does not work for common options of \fB\*p\fP,
+such as the gauge box.
+\fBwhiptail\fP is less compatible with \fB\*p\fP than the
+original mid-1990s dialog 0.4 program.
 .PP
 \fBwhiptail\fP's manpage borrows features from \fB\*p\fP, e.g.,
-\fB--default-item\fP (2000),
-\fB--output-fd\fP (2002),
-but oddly cites only \fB\*p\fP versions up to 0.4 (1996) as a source.
+but oddly cites only \fB\*p\fP versions up to 0.4 (1994) as a source.
 That is, its manpage refers to features which
 were borrowed from more recent versions of \fB\*p\fP, e.g.,
-the \fB--gauge\fP and \fB--password\fP boxes,
-as well as options such as \fB--separate-output\fP (2008).
+.bP
+\fB--gauge\fP (from 0.5)
+.bP
+\fB--passwordbox\fP (from Debian changes in 1999),
+.bP
+\fB--default-item\fP (from \fB\*p\fP 2000/02/22),
+.bP
+\fB--output-fd\fP (from \fB\*p\fP 2002/08/14).
+.PP
 Somewhat humorously, one may note that the \fBpopt\fP feature
 (undocumented in its manpage)
 of using a "--" as an escape was documented in \fB\*p\fP's manpage about
@@ -1561,7 +1583,7 @@ l l.
 \fB--notags\fP	mapped to \fB--no-tags\fP
 \fB--ok-button\fP	mapped to \fB--ok-label\fP
 \fB--scrolltext\fP	mapped to \fB--scrollbar\fP
-\fB--topleft\fP	ignored
+\fB--topleft\fP	mapped to \fB--begin 0 0\fP
 \fB--yes-button\fP	mapped to \fB--yes-label\fP
 .TE
 .RE

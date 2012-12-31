@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.223 2012/12/24 02:02:04 tom Exp $
+ * $Id: dialog.c,v 1.228 2012/12/30 21:59:39 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -152,10 +152,12 @@ typedef enum {
 #endif
 #ifdef HAVE_XDIALOG2
     ,o_buildlist
-    ,o_no_items
-    ,o_no_tags
     ,o_rangebox
     ,o_treeview
+#endif
+#if defined(HAVE_XDIALOG2) || defined(HAVE_WHIPTAIL)
+    ,o_no_items
+    ,o_no_tags
 #endif
 #ifdef HAVE_DLG_TRACE
     ,o_trace
@@ -201,8 +203,8 @@ static const Options options[] = {
     { "aspect",		o_aspect,		1, "<ratio>" },
     { "auto-placement", o_auto_placement,	1, NULL },
     { "backtitle",	o_backtitle,		1, "<backtitle>" },
-    { "beep",		o_beep,			1, NULL },
-    { "beep-after",	o_beep_after,		1, NULL },
+    { "beep",		o_beep,			1, "" },
+    { "beep-after",	o_beep_after,		1, "" },
     { "begin",		o_begin,		1, "<y> <x>" },
     { "cancel-label",	o_cancel_label,		1, "<str>" },
     { "checklist",	o_checklist,		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
@@ -247,7 +249,7 @@ static const Options options[] = {
     { "no-cancel",	o_nocancel,		1, "" },
     { "no-close",	o_no_close,		1, NULL },
     { "no-collapse",	o_no_collapse,		1, "" },
-    { "no-cr-wrap",	o_no_cr_wrap,		1, NULL },
+    { "no-cr-wrap",	o_no_cr_wrap,		1, "" },
     { "no-kill",	o_no_kill,		1, "" },
     { "no-label",	o_no_label,		1, "<str>" },
     { "no-lines",	o_no_lines, 		1, "" },
@@ -321,10 +323,10 @@ static const Options options[] = {
     { "no-tags", 	o_no_tags,		1, "" },
     { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
     { "treeview",	o_treeview,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1> <depth1>..." },
-#ifdef HAVE_WHIPTAIL
-    { "noitem", 	o_no_items,		1, "" },
-    { "notags", 	o_no_tags,		1, "" },
 #endif
+#if defined(HAVE_XDIALOG2) || defined(HAVE_WHIPTAIL)
+    { "noitem", 	o_no_items,		1, NULL },
+    { "notags", 	o_no_tags,		1, NULL },
 #endif
 #ifdef HAVE_DLG_TRACE
     { "trace",		o_trace,		1, "<file>" },
@@ -568,13 +570,17 @@ howmany_tags(char *argv[], int group)
 static int
 numeric_arg(char **av, int n)
 {
-    char *last = 0;
-    int result = (int) strtol(av[n], &last, 10);
-    char msg[80];
+    int result = 0;
 
-    if (last == 0 || *last != 0) {
-	sprintf(msg, "Expected a number for token %d of %.20s", n, av[0]);
-	Usage(msg);
+    if (n < dlg_count_argv(av)) {
+	char msg[80];
+	char *last = 0;
+	result = (int) strtol(av[n], &last, 10);
+
+	if (last == 0 || *last != 0) {
+	    sprintf(msg, "Expected a number for token %d of %.20s", n, av[0]);
+	    Usage(msg);
+	}
     }
     return result;
 }
@@ -1572,8 +1578,12 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    mouse_close();
 	    break;
 #ifdef HAVE_WHIPTAIL
-	case o_fullbutton:
 	case o_topleft:
+	    dialog_vars.begin_set = TRUE;
+	    dialog_vars.begin_y = 0;
+	    dialog_vars.begin_x = 0;
+	    break;
+	case o_fullbutton:
 	    /* ignore */
 	    break;
 #endif
@@ -1604,7 +1614,7 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    process_trace_option(argv, &offset);
 	    break;
 #endif
-#ifdef HAVE_XDIALOG2
+#if defined(HAVE_XDIALOG2) || defined(HAVE_WHIPTAIL)
 	case o_no_items:
 	    dialog_vars.no_items = TRUE;
 	    break;
