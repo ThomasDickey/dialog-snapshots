@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.53 2012/12/24 02:10:27 tom Exp $
+ *  $Id: buildlist.c,v 1.56 2012/12/31 00:38:57 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -742,8 +742,6 @@ dlg_buildlist(const char *title,
 	    if (new_choice >= 0) {
 		fix_top_item(&all, cur_item, !which);
 		cur_item = new_choice;
-	    } else {
-		which = !which;
 	    }
 	    print_both(&all, cur_item);
 	    dlg_trace_win(dialog);
@@ -836,9 +834,11 @@ dlg_buildlist(const char *title,
 	    switch (key) {
 	    case DLGK_GRID_LEFT:
 		i = closest_item(&all, cur_item, 0);
+		fix_top_item(&all, i, 0);
 		break;
 	    case DLGK_GRID_RIGHT:
 		i = closest_item(&all, cur_item, 1);
+		fix_top_item(&all, i, 1);
 		break;
 	    case DLGK_PAGE_PREV:
 		if (cur_item > moi->top_index) {
@@ -924,6 +924,11 @@ dlg_buildlist(const char *title,
 			     * last item in the list.
 			     */
 			    if ((at_bot - at_top) > all.use_height) {
+				set_top_item(&all,
+					     next_item(&all, moi->top_index, which),
+					     which);
+			    } else if (at_top > 0 &&
+				       (at_bot - at_top) >= all.use_height) {
 				set_top_item(&all,
 					     next_item(&all, moi->top_index, which),
 					     which);

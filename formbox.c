@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.83 2012/12/04 09:49:14 tom Exp $
+ *  $Id: formbox.c,v 1.84 2012/12/30 20:31:53 tom Exp $
  *
  *  formbox.c -- implements the form (i.e, some pairs label/editbox)
  *
@@ -309,15 +309,11 @@ scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int 
     }
 
     if (result) {
-	result = FALSE;
 	for (n = 0; item[n].name != 0; ++n) {
 	    if (item[n].text_flen > 0) {
 		int new_row = MIN(item[n].text_y, item[n].name_y);
 		if (abs(new_row - target) < abs(old_row - target)) {
-		    if (old_row != new_row) {
-			old_row = new_row;
-			result = TRUE;
-		    }
+		    old_row = new_row;
 		    *choice = n;
 		}
 	    }

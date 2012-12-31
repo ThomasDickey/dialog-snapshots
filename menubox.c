@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.144 2012/12/24 02:09:39 tom Exp $
+ *  $Id: menubox.c,v 1.145 2012/12/30 21:11:02 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -75,7 +75,6 @@ print_item(ALL_DATA * data,
     int my_y = ItemToRow(choice);
     bool both = (!dialog_vars.no_tags && !dialog_vars.no_items);
     bool first = TRUE;
-    chtype textchar;
     chtype bordchar;
     const char *show = (dialog_vars.no_items
 			? item->name
@@ -84,15 +83,12 @@ print_item(ALL_DATA * data,
     switch (selected) {
     default:
     case Unselected:
-	textchar = item_attr;
 	bordchar = item_attr;
 	break;
     case Selected:
-	textchar = item_selected_attr;
 	bordchar = item_selected_attr;
 	break;
     case Editing:
-	textchar = inputbox_attr;
 	bordchar = dialog_attr;
 	break;
     }

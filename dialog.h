@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.258 2012/12/23 18:08:24 tom Exp $
+ *  $Id: dialog.h,v 1.259 2012/12/30 22:37:17 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -238,6 +238,16 @@
 #if !defined(HAVE_WGETPARENT) && defined(HAVE_WINDOW__PARENT)
 #undef  wgetparent
 #define wgetparent(win)		((win) ? (win)->_parent : 0)
+#endif
+
+#if !defined(HAVE_WSYNCUP)
+#undef wsyncup
+#define wsyncup(win) /* nothing */
+#endif
+
+#if !defined(HAVE_WCURSYNCUP)
+#undef wcursyncup
+#define wcursyncup(win) /* nothing */
 #endif
 
 #ifdef __cplusplus

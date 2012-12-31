@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.92 2012/11/30 10:26:56 tom Exp $
+ *  $Id: fselect.c,v 1.93 2012/12/30 20:52:25 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -367,7 +367,7 @@ match(char *name, LIST * d_list, LIST * f_list, MATCH * match_list)
 	    matches[data_len++] = f_list->data[i];
 	}
     }
-    matches = dlg_realloc(char *, data_len, matches);
+    matches = dlg_realloc(char *, data_len + 1, matches);
     match_list->data = matches;
     match_list->length = (int) data_len;
 }
@@ -488,14 +488,18 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
 	    }
 	    (void) closedir(dp);
 	    /* sort the lists */
-	    qsort(d_list->data,
-		  (size_t) d_list->length,
-		  sizeof(d_list->data[0]),
-		  compar);
-	    qsort(f_list->data,
-		  (size_t) f_list->length,
-		  sizeof(f_list->data[0]),
-		  compar);
+	    if (d_list->data != 0 && d_list->length > 1) {
+		qsort(d_list->data,
+		      (size_t) d_list->length,
+		      sizeof(d_list->data[0]),
+		      compar);
+	    }
+	    if (f_list->data != 0 && f_list->length > 1) {
+		qsort(f_list->data,
+		      (size_t) f_list->length,
+		      sizeof(f_list->data[0]),
+		      compar);
+	    }
 	}
 
 	(void) show_both_lists(input, d_list, f_list, FALSE);

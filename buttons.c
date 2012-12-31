@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.93 2012/12/20 23:52:04 tom Exp $
+ *  $Id: buttons.c,v 1.94 2012/12/30 20:51:01 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -133,7 +133,7 @@ get_hotkeys(const char **labels)
     size_t count = count_labels(labels);
     size_t n;
 
-    if ((result = dlg_calloc(int, count)) != 0) {
+    if ((result = dlg_calloc(int, count + 1)) != 0) {
 	for (n = 0; n < count; ++n) {
 	    const char *label = labels[n];
 	    const int *indx = dlg_index_wchars(label);
@@ -274,22 +274,27 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
     int length;
     int unused;
     int used;
+    int result;
 
-    if (count == 0)
-	return 0;
-    dlg_button_sizes(labels, FALSE, &longest, &length);
-    used = (length + (count * 2));
-    unused = limit - used;
+    *margin = 0;
+    if (count != 0) {
+	dlg_button_sizes(labels, FALSE, &longest, &length);
+	used = (length + (count * 2));
+	unused = limit - used;
 
-    if ((*gap = unused / (count + 3)) <= 0) {
-	if ((*gap = unused / (count + 1)) <= 0)
-	    *gap = 1;
-	*margin = *gap;
+	if ((*gap = unused / (count + 3)) <= 0) {
+	    if ((*gap = unused / (count + 1)) <= 0)
+		*gap = 1;
+	    *margin = *gap;
+	} else {
+	    *margin = *gap * 2;
+	}
+	*step = *gap + (used + count - 1) / count;
+	result = (*gap > 0) && (unused >= 0);
     } else {
-	*margin = *gap * 2;
+	result = 0;
     }
-    *step = *gap + (used + count - 1) / count;
-    return (*gap > 0) && (unused >= 0);
+    return result;
 }
 
 /*
