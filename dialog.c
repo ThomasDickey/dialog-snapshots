@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.229 2013/03/15 08:45:49 tom Exp $
+ * $Id: dialog.c,v 1.230 2013/03/15 09:07:30 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -82,6 +82,7 @@ typedef enum {
     ,o_keep_colors
     ,o_keep_tite
     ,o_keep_window
+    ,o_last_key
     ,o_max_input
     ,o_menu
     ,o_mixedform
@@ -241,6 +242,7 @@ static const Options options[] = {
     { "keep-colors",	o_keep_colors,		1, NULL },
     { "keep-tite",	o_keep_tite,		1, "" },
     { "keep-window",	o_keep_window,		1, "" },
+    { "last-key",	o_last_key,		1, "" },
     { "max-input",	o_max_input,		1, "<n>" },
     { "menu",		o_menu,			2, "<text> <height> <width> <menu height> <tag1> <item1>..." },
     { "mixedform",	o_mixedform,		2, "<text> <height> <width> <form height> <label1> <l_y1> <l_x1> <item1> <i_y1> <i_x1> <flen1> <ilen1> <itype>..." },
@@ -1468,6 +1470,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_keep_window:
 	    dialog_vars.keep_window = TRUE;
+	    break;
+	case o_last_key:
+	    dialog_vars.last_key = TRUE;
 	    break;
 	case o_no_shadow:
 	    dialog_state.use_shadow = FALSE;

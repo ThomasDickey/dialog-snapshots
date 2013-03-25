@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.259 2012/12/30 22:37:17 tom Exp $
+ *  $Id: dialog.h,v 1.260 2013/03/17 15:03:41 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2013	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -520,6 +520,8 @@ typedef struct {
     /* 1.1-20121218 */
     bool no_tags;		/* option "--no-tags" */
     bool no_items;		/* option "--no-items" */
+    /* 1.2-20130315 */
+    bool last_key;		/* option "--last-key" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -716,6 +718,7 @@ extern int dlg_treeview(const char * /*title*/, const char * /*cprompt*/, int /*
 extern int dlg_getc(WINDOW * /*win*/, int * /*fkey*/);
 extern int dlg_getc_callbacks(int /*ch*/, int /*fkey*/, int * /*result*/);
 extern int dlg_last_getc(void);
+extern void dlg_add_last_key(int /*mode*/);
 extern void dlg_add_callback(DIALOG_CALLBACK * /*p*/);
 extern void dlg_add_callback_ref(DIALOG_CALLBACK ** /*p*/, DIALOG_FREEBACK /* cleanup */);
 extern void dlg_flush_getc(void);
