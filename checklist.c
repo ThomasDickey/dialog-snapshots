@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.148 2012/12/24 02:08:58 tom Exp $
+ *  $Id: checklist.c,v 1.149 2013/03/17 15:05:16 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2013	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -683,6 +683,7 @@ dialog_checklist(const char *title,
 		}
 	    }
 	}
+	dlg_add_last_key(separate_output);
     }
 
     dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);

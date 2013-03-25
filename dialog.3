@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.90 2012/12/23 22:16:50 tom Exp $
-.\" Copyright 2005-2011,2012  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.91 2013/03/15 09:07:30 tom Exp $
+.\" Copyright 2005-2012,2013  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2012/12/23 22:16:50 $"
+.TH \*D 3 "" "$Date: 2013/03/15 09:07:30 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -456,6 +456,9 @@ If true, do not remove/repaint the window on exit.
 This is useful for keeping the window contents visible when several
 widgets are run in the same process.
 Note that curses will clear the screen when starting a new process.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.last_key
+This corresponds to the command-line option "\fB--last-key\fP".
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.max_input
 This corresponds to the command-line option "\fB--max-input\fP \fIsize\fP".
@@ -1380,6 +1383,31 @@ zeroed when input ends.
 .TP 5
 .B DIALOG_FREEBACK \fIfunc\fP
 function to call when input ends, e.g., to free caller's additional data.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_add_last_key
+Report the last key entered by the user.
+This implements the \fB\-\-last\-key\fP command-line option,
+using \fBdialog_vars.last_key\fP.
+.RS
+.TP 5
+.B int \fImode
+controls the way the last key report is separated from other results:
+.RS
+.TP 5
+-2
+(no separator)
+.TP 5
+-1
+(separator after the key name)
+.TP 5
+0
+(separator is optionally before the key name)
+.TP 5
+1
+(same as -1)
+.RE
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5

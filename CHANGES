@@ -1,10 +1,12 @@
--- $Id: CHANGES,v 1.452 2013/03/15 08:43:47 tom Exp $
+-- $Id: CHANGES,v 1.453 2013/03/15 09:07:30 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
 2013/03/15
+	+ add --last-key option (adapted from patch by Jordi Pujol, Debian
+	  #697607).
 	+ update zh_TW.po, add an.po from
 		http://translationproject.org/latest/dialog/
 

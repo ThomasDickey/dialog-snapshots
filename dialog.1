@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.164 2012/12/30 23:32:18 tom Exp $
-.\" Copyright 2005-2011,2012  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.165 2013/03/15 09:07:30 tom Exp $
+.\" Copyright 2005-2012,2013  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -41,7 +41,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2012/12/30 23:32:18 $"
+.TH \*D 1 "" "$Date: 2013/03/15 09:07:30 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -383,6 +383,12 @@ At exit, \fB\*p\fR repaints all of the widgets which have been
 marked with "\fB--keep-window\fR", even if they are not \fBtailboxbg\fR widgets.
 That causes them to be repainted in reverse order.
 See the discussion of the "\fB--clear\fR" option for examples.
+.
+.IP "\fB--last-key"
+At exit, report the last key which the user entered.
+This is the curses key code rather than a symbol or literal character.
+It can be used by scripts to distinguish between two keys which are
+bound to the same action.
 .
 .IP "\fB--max-input \fIsize"
 Limit input strings to the given size.

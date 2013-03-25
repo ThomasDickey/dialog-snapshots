@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.56 2012/12/31 00:38:57 tom Exp $
+ *  $Id: buildlist.c,v 1.57 2013/03/17 13:46:30 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012	Thomas E. Dickey
+ *  Copyright 2012,2013	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1102,6 +1102,7 @@ dialog_buildlist(const char *title,
 		}
 	    }
 	}
+	dlg_add_last_key(-1);
     }
 
     dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);
