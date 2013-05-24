@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.253 2012/12/23 19:52:54 tom Exp $
+ *  $Id: util.c,v 1.255 2013/05/23 22:58:28 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2013	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -271,6 +271,18 @@ open_terminal(char **result, int mode)
     return open(device, mode);
 }
 
+#ifdef NCURSES_VERSION
+static int
+my_putc(int ch)
+{
+    char buffer[2];
+    int fd = fileno(dialog_state.screen_output);
+
+    buffer[0] = (char) ch;
+    return (int) write(fd, buffer, (size_t) 1);
+}
+#endif
+
 /*
  * Do some initialization for dialog.
  *
@@ -377,19 +389,20 @@ init_dialog(FILE *input, FILE *output)
      * Cancel xterm's alternate-screen mode.
      */
     if (!dialog_vars.keep_tite
-	&& (dialog_state.screen_output != stdout
+	&& (fileno(dialog_state.screen_output) != fileno(stdout)
 	    || isatty(fileno(dialog_state.screen_output)))
 	&& key_mouse != 0	/* xterm and kindred */
 	&& isprivate(enter_ca_mode)
 	&& isprivate(exit_ca_mode)) {
 	/*
-	 * initscr() or newterm() already did putp(enter_ca_mode) as a side
+	 * initscr() or newterm() already wrote enter_ca_mode as a side
 	 * effect of initializing the screen.  It would be nice to not even
 	 * do that, but we do not really have access to the correct copy of
 	 * the terminfo description until those functions have been invoked.
 	 */
-	(void) putp(exit_ca_mode);
-	(void) putp(clear_screen);
+	(void) refresh();
+	(void) tputs(exit_ca_mode, 0, my_putc);
+	(void) tputs(clear_screen, 0, my_putc);
 	/*
 	 * Prevent ncurses from switching "back" to the normal screen when
 	 * exiting from dialog.  That would move the cursor to the original
@@ -646,10 +659,13 @@ dlg_print_listitem(WINDOW *win,
     chtype attr = A_NORMAL;
     int limit;
     const int *cols;
-    const int *indx = dlg_index_wchars(text);
     chtype attrs[4];
 
+    if (text == 0)
+	text = "";
+
     if (first) {
+	const int *indx = dlg_index_wchars(text);
 	attrs[3] = tag_key_selected_attr;
 	attrs[2] = tag_key_attr;
 	attrs[1] = tag_selected_attr;

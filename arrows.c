@@ -1,9 +1,9 @@
 /*
- *  $Id: arrows.c,v 1.49 2012/12/30 22:33:28 tom Exp $
+ *  $Id: arrows.c,v 1.50 2013/05/24 00:05:21 tom Exp $
  *
  *  arrows.c -- draw arrows to indicate end-of-range for lists
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2013	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -233,7 +233,7 @@ dlg_draw_scrollbar(WINDOW *win,
 
 		(void) wattrset(win, position_indicator_attr);
 		wattron(win, A_REVERSE);
-#if defined(WACS_BLOCK) && defined(NCURSES_VERSION)
+#if defined(WACS_BLOCK) && defined(NCURSES_VERSION) && defined(USE_WIDE_CURSES)
 		wvline_set(win, WACS_BLOCK, bar_last - bar_y);
 #else
 		wvline(win, ACS_BLOCK, bar_last - bar_y);
