@@ -1,12 +1,22 @@
--- $Id: CHANGES,v 1.453 2013/03/15 09:07:30 tom Exp $
+-- $Id: CHANGES,v 1.458 2013/05/24 00:23:22 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2013/03/15
+2013/05/23
+	+ modify ifdef in arrows.c to work around packages which use the
+	  wide-character ncursesw headers with the ncurses library (report
+	  by Aleksey Cheusov).
+	+ correct workaround for xterm alternate-screen to work with/without
+	  the fix made in ncurses that makes putp() always write to the
+	  standard output (Debian #708829).
+	+ improve limit-checks for checklist, in case the dialog is resized
+	  (report by Ilya A Arkhipov).
 	+ add --last-key option (adapted from patch by Jordi Pujol, Debian
 	  #697607).
+
+2013/03/15
 	+ update zh_TW.po, add an.po from
 		http://translationproject.org/latest/dialog/
 

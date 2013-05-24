@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.149 2013/03/17 15:05:16 tom Exp $
+ *  $Id: checklist.c,v 1.151 2013/03/23 10:51:48 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -293,6 +293,7 @@ dlg_checklist(const char *title,
 	all.use_height = 1;
 
     max_choice = MIN(all.use_height, item_no);
+    max_choice = MAX(max_choice, 1);
 
     /* create new window for the list */
     all.list = dlg_sub_window(dialog, all.use_height, all.use_width,
@@ -346,8 +347,9 @@ dlg_checklist(const char *title,
 		  + all.check_x + 4);
 
     /* ensure we are scrolled to show the current choice */
-    if (choice >= (max_choice + scrollamt)) {
-	scrollamt = choice - max_choice + 1;
+    scrollamt = MIN(scrollamt, max_choice + item_no - 1);
+    if (choice >= (max_choice + scrollamt - 1)) {
+	scrollamt = MAX(0, choice - max_choice + 1);
 	choice = max_choice - 1;
     }
     print_list(&all, choice, scrollamt, max_choice);

@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.21 2013/03/17 16:03:38 tom Exp $
+ *  $Id: treeview.c,v 1.22 2013/05/23 23:35:46 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -194,7 +194,7 @@ dlg_treeview(const char *title,
     int old_width = width;
 #endif
     ALL_DATA all;
-    int i, j, key2, found, x, y, cur_x, cur_y, box_x, box_y;
+    int i, j, key2, found, x, y, cur_y, box_x, box_y;
     int key = 0, fkey;
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
@@ -280,7 +280,7 @@ dlg_treeview(const char *title,
     dlg_print_autowrap(dialog, prompt, height, width);
 
     all.use_width = width - 4;
-    getyx(dialog, cur_y, cur_x);
+    cur_y = getcury(dialog);
     box_y = cur_y + 1;
     box_x = (width - all.use_width) / 2 - 1;
 
