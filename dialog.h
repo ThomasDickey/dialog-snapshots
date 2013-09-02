@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.260 2013/03/17 15:03:41 tom Exp $
+ *  $Id: dialog.h,v 1.264 2013/09/02 17:19:01 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -522,6 +522,8 @@ typedef struct {
     bool no_items;		/* option "--no-items" */
     /* 1.2-20130315 */
     bool last_key;		/* option "--last-key" */
+    /* 1.2-20130902 */
+    bool help_tags;		/* option "--help-tags" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -749,6 +751,8 @@ extern int dlg_defaultno_button(void);
 extern int dlg_default_button(void);
 extern int dlg_max_input(int /*max_len*/);
 extern int dlg_print_scrolled(WINDOW * /* win */, const char * /* prompt */, int /* offset */, int /* height */, int /* width */, int /* pauseopt */);
+extern void dlg_add_help_formitem(int * /* result */, char ** /* tag */, DIALOG_FORMITEM * /* item */);
+extern void dlg_add_help_listitem(int * /* result */, char ** /* tag */, DIALOG_LISTITEM * /* item */);
 extern void dlg_add_quoted(char * /*string*/);
 extern void dlg_add_result(const char * /*string*/);
 extern void dlg_add_separator(void);

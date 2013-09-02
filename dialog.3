@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.91 2013/03/15 09:07:30 tom Exp $
+.\" $Id: dialog.3,v 1.92 2013/09/02 17:49:12 tom Exp $
 .\" Copyright 2005-2012,2013  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2013/03/15 09:07:30 $"
+.TH \*D 3 "" "$Date: 2013/09/02 17:49:12 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -395,6 +395,14 @@ writes the checklist or radiolist information
 after the item-help "HELP" information.
 This can be used to reconstruct the state of a checklist after processing
 the help request.
+.\" ---------------------------------------------------------------------------
+.IP \fIDIALOG_VARS.help_tags
+This corresponds to the command-line option "\fB--help-tags\fP".
+If true,
+\fBdlg_add_help_formitem\fP and
+\fBdlg_add_help_listitem\fP use the item's tag value consistently
+rather than using the tag's help-text value
+when \fIDIALOG_VARS.item_help\fP is set.
 .\" ---------------------------------------------------------------------------
 .IP \fIDIALOG_VARS.input_length
 This is nonzero if \fIDIALOG_VARS.input_result\fP is allocated,
@@ -1383,6 +1391,38 @@ zeroed when input ends.
 .TP 5
 .B DIALOG_FREEBACK \fIfunc\fP
 function to call when input ends, e.g., to free caller's additional data.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_add_help_formitem
+This is a utility function used enforce consistent behavior for
+the \fIDIALOG_VARS.help_tags\fP and \fIDIALOG_VARS.item_help\fP variables.
+.RS
+.TP 5
+.B int *\fIresult\fP
+this is updated to DLG_EXIT_ITEM_HELP if \fIDIALOG_VARS.item_help\fP is set.
+.TP 5
+.B char **\fItag\fP
+the tag- or help-text is stored here.
+.TP 5
+.B DIALOG_FORMITEM *\fIitem\fP
+contains the list item to use for tag- or help-text.
+.RE
+.\" ---------------------------------------------------------------------------
+.TP 5
+.B dlg_add_help_listitem
+This is a utility function used enforce consistent behavior for
+the \fIDIALOG_VARS.help_tags\fP and \fIDIALOG_VARS.item_help\fP variables.
+.RS
+.TP 5
+.B int *\fIresult\fP
+this is updated to DLG_EXIT_ITEM_HELP if \fIDIALOG_VARS.item_help\fP is set.
+.TP 5
+.B char **\fItag\fP
+the tag- or help-text is stored here.
+.TP 5
+.B DIALOG_LISTITEM *\fIitem\fP
+contains the list item to use for tag- or help-text.
 .RE
 .\" ---------------------------------------------------------------------------
 .TP 5
