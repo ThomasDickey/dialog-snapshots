@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.255 2013/05/23 22:58:28 tom Exp $
+ *  $Id: util.c,v 1.257 2013/09/02 17:21:24 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2550,6 +2550,32 @@ dlg_add_separator(void)
 	separator = dialog_vars.output_separator;
 
     dlg_add_result(separator);
+}
+
+#define HELP_PREFIX		"HELP "
+
+void
+dlg_add_help_listitem(int *result, char **tag, DIALOG_LISTITEM * item)
+{
+    dlg_add_result(HELP_PREFIX);
+    if (USE_ITEM_HELP(item->help)) {
+	*tag = dialog_vars.help_tags ? item->name : item->help;
+	*result = DLG_EXIT_ITEM_HELP;
+    } else {
+	*tag = item->name;
+    }
+}
+
+void
+dlg_add_help_formitem(int *result, char **tag, DIALOG_FORMITEM * item)
+{
+    dlg_add_result(HELP_PREFIX);
+    if (USE_ITEM_HELP(item->help)) {
+	*tag = dialog_vars.help_tags ? item->name : item->help;
+	*result = DLG_EXIT_ITEM_HELP;
+    } else {
+	*tag = item->name;
+    }
 }
 
 /*
