@@ -1,8 +1,13 @@
--- $Id: CHANGES,v 1.470 2013/09/02 19:54:23 tom Exp $
+-- $Id: CHANGES,v 1.473 2013/09/22 00:51:06 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2013/09/21
+	+ improve memory caching for wide-character manipulation in gauge
+	  widget (report by Devin Teske).
+	+ add dlg_reallocate_gauge (discussion with Devin Teske).
 
 2013/09/02
 	+ modify makefile rule to make the ".png" filenames created by groff

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.257 2013/09/02 17:21:24 tom Exp $
+ *  $Id: util.c,v 1.258 2013/09/22 00:41:40 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -589,18 +589,21 @@ end_dialog(void)
 int
 dlg_count_real_columns(const char *text)
 {
-    int result = dlg_count_columns(text);
-    if (result && dialog_vars.colors) {
-	int hidden = 0;
-	while (*text) {
-	    if (dialog_vars.colors && isOurEscape(text)) {
-		hidden += ESCAPE_LEN;
-		text += ESCAPE_LEN;
-	    } else {
-		++text;
+    int result = 0;
+    if (*text) {
+	result = dlg_count_columns(text);
+	if (result && dialog_vars.colors) {
+	    int hidden = 0;
+	    while (*text) {
+		if (dialog_vars.colors && isOurEscape(text)) {
+		    hidden += ESCAPE_LEN;
+		    text += ESCAPE_LEN;
+		} else {
+		    ++text;
+		}
 	    }
+	    result -= hidden;
 	}
-	result -= hidden;
     }
     return result;
 }
@@ -924,6 +927,7 @@ dlg_print_line(WINDOW *win,
 	test_ptr++;
     if (*test_ptr == '\n')
 	test_ptr++;
+    dlg_finish_string(prompt);
     return (test_ptr);
 }
 
@@ -1989,6 +1993,7 @@ dlg_draw_title(WINDOW *win, const char *title)
 	wmove(win, 0, x);
 	dlg_print_text(win, title, getmaxx(win) - x, &attr);
 	(void) wattrset(win, save);
+	dlg_finish_string(title);
     }
 }
 

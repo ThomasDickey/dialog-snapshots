@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.264 2013/09/02 17:19:01 tom Exp $
+ *  $Id: dialog.h,v 1.266 2013/09/21 14:00:06 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -689,6 +689,7 @@ extern void dlg_free_formitems(DIALOG_FORMITEM * /*items*/);
 
 /* guage.c */
 extern void * dlg_allocate_gauge(const char * /* title */, const char * /* cprompt */, int /* height */, int /* width */, int /* percent */);
+extern void * dlg_reallocate_gauge(void * /* objptr */, const char * /* title */, const char * /* cprompt */, int /* height */, int /* width */, int /* percent */);
 extern void dlg_free_gauge(void * /* objptr */);
 extern void dlg_update_gauge(void * /* objptr */, int /* percent */);
 
@@ -701,6 +702,7 @@ extern int dlg_count_wchars(const char * /*string*/);
 extern int dlg_edit_offset(char * /*string*/, int /*offset*/, int /*x_last*/);
 extern int dlg_find_index(const int * /*list*/, int  /*limit*/, int /*to_find*/);
 extern int dlg_limit_columns(const char * /*string*/, int /*limit*/, int /*offset*/);
+extern void dlg_finish_string(const char * /* string */);
 extern void dlg_show_string(WINDOW * /*win*/, const char * /*string*/, int /*offset*/, chtype /*attr*/, int /*y_base*/, int /*x_base*/, int /*x_last*/, bool /*hidden*/, bool /*force*/);
 
 /* menubox.c */
