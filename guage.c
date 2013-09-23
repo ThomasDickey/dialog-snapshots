@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.67 2013/09/22 00:31:09 tom Exp $
+ *  $Id: guage.c,v 1.68 2013/09/22 19:10:22 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -273,10 +273,13 @@ void
 dlg_update_gauge(void *objptr, int percent)
 {
     MY_OBJ *obj = (MY_OBJ *) objptr;
+    bool save_finish_string = dialog_state.finish_string;
 
+    dialog_state.finish_string = TRUE;
     curs_set(0);
     obj->percent = percent;
     repaint_text(obj);
+    dialog_state.finish_string = save_finish_string;
 }
 
 /*
@@ -292,7 +295,9 @@ dlg_reallocate_gauge(void *objptr,
 {
     char *prompt = dlg_strclone(cprompt);
     MY_OBJ *obj = objptr;
+    bool save_finish_string = dialog_state.finish_string;
 
+    dialog_state.finish_string = TRUE;
     dlg_tab_correct_str(prompt);
 
     if (objptr == 0) {
@@ -345,6 +350,7 @@ dlg_reallocate_gauge(void *objptr,
 	all_objects = obj;
     }
 
+    dialog_state.finish_string = save_finish_string;
     return (void *) obj;
 }
 
