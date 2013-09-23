@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.266 2013/09/21 14:00:06 tom Exp $
+ *  $Id: dialog.h,v 1.267 2013/09/22 19:06:36 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -445,6 +445,8 @@ typedef struct {
     /* 1.1-20110106 */
     bool no_mouse;		/* option "--no-mouse" */
     int visit_cols;		/* option "--visit-items" */
+    /* 1.2-20130922 */
+    bool finish_string;		/* caching optimization for gauge */
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;

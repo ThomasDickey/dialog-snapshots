@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.93 2013/09/02 13:19:26 tom Exp $
+dnl $Id: aclocal.m4,v 1.94 2013/09/22 14:26:24 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2012,2013 -- Thomas E. Dickey
 dnl
@@ -2494,7 +2494,7 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_SUFFIX version: 21 updated: 2013/07/06 17:44:26
+dnl CF_LIB_SUFFIX version: 22 updated: 2013/09/07 13:54:05
 dnl -------------
 dnl Compute the library file-suffix from the given model name
 dnl $1 = model name
@@ -2522,7 +2522,7 @@ AC_DEFUN([CF_LIB_SUFFIX],
 			$2='.a'
 			$3=[$]$2
 			;;
-		cygwin*|mingw*) #(vi
+		cygwin*|msys*|mingw*) #(vi
 			$2='.dll'
 			$3='.dll.a'
 			;;
@@ -2694,7 +2694,7 @@ if test "$cf_cv_mbstate_t" != unknown ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MIXEDCASE_FILENAMES version: 4 updated: 2012/10/02 20:55:03
+dnl CF_MIXEDCASE_FILENAMES version: 5 updated: 2013/09/07 13:54:05
 dnl ----------------------
 dnl Check if the file-system supports mixed-case filenames.  If we're able to
 dnl create a lowercase name and see it as uppercase, it doesn't support that.
@@ -2703,7 +2703,7 @@ AC_DEFUN([CF_MIXEDCASE_FILENAMES],
 AC_CACHE_CHECK(if filesystem supports mixed-case filenames,cf_cv_mixedcase,[
 if test "$cross_compiling" = yes ; then
 	case $target_alias in #(vi
-	*-os2-emx*|*-msdosdjgpp*|*-cygwin*|*-mingw32*|*-uwin*) #(vi
+	*-os2-emx*|*-msdosdjgpp*|*-cygwin*|*-msys*|*-mingw32*|*-uwin*) #(vi
 		cf_cv_mixedcase=no
 		;;
 	*)
@@ -3502,7 +3502,7 @@ CF_VERBOSE(...checked $1 [$]$1)
 AC_SUBST(EXTRA_LDFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 81 updated: 2013/08/03 18:18:08
+dnl CF_SHARED_OPTS version: 83 updated: 2013/09/21 17:34:53
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -3603,6 +3603,26 @@ AC_DEFUN([CF_SHARED_OPTS],
 		#!/bin/sh
 		SHARED_LIB=\[$]1
 		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/cyg/lib/' -e 's/[[0-9]]*\.dll[$]/.dll.a/'\`
+		shift
+		cat <<-EOF
+		Linking shared library
+		** SHARED_LIB \[$]SHARED_LIB
+		** IMPORT_LIB \[$]IMPORT_LIB
+EOF
+		exec \[$]* -shared -Wl,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
+CF_EOF
+		chmod +x mk_shared_lib.sh
+		;;
+	msys*) #(vi
+		CC_SHARED_OPTS=
+		MK_SHARED_LIB='sh '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
+		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.a"
+		cf_cv_shlib_version=msysdll
+		cf_cv_shlib_version_infix=msysdll
+		cat >mk_shared_lib.sh <<-CF_EOF
+		#!/bin/sh
+		SHARED_LIB=\[$]1
+		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/msys-/lib/' -e 's/[[0-9]]*\.dll[$]/.dll.a/'\`
 		shift
 		cat <<-EOF
 		Linking shared library
@@ -3733,7 +3753,7 @@ CF_EOF
 			EXTRA_LDFLAGS="${cf_ld_rpath_opt}\${RPATH_LIST} $EXTRA_LDFLAGS"
 		fi
 		CF_SHARED_SONAME
-		MK_SHARED_LIB='${CC} -Wl,-shared -Wl,-Bshareable -soname=`basename $[@]` -o $[@]'
+		MK_SHARED_LIB='${LD} -shared -Bshareable -soname=`basename $[@]` -o $[@]'
 		;;
 	netbsd*) #(vi
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
@@ -4301,7 +4321,7 @@ if test "$with_dmalloc" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 29 updated: 2013/04/06 18:03:09
+dnl CF_WITH_LIBTOOL version: 30 updated: 2013/09/07 13:54:05
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -4399,7 +4419,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	# special hack to add -no-undefined (which libtool should do for itself)
 	LT_UNDEF=
 	case "$cf_cv_system_name" in #(vi
-	cygwin*|mingw32*|uwin*|aix[[4-7]]) #(vi
+	cygwin*|msys*|mingw32*|uwin*|aix[[4-7]]) #(vi
 		LT_UNDEF=-no-undefined
 		;;
 	esac
@@ -4670,7 +4690,7 @@ AC_TRY_LINK([
 test $cf_cv_need_xopen_extension = yes && CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE_EXTENDED"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 43 updated: 2013/02/10 10:41:05
+dnl CF_XOPEN_SOURCE version: 45 updated: 2013/09/07 14:06:25
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -4690,7 +4710,7 @@ case $host_os in #(vi
 aix[[4-7]]*) #(vi
 	cf_xopen_source="-D_ALL_SOURCE"
 	;;
-cygwin) #(vi
+cygwin|msys) #(vi
 	cf_XOPEN_SOURCE=600
 	;;
 darwin[[0-8]].*) #(vi
