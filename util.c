@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.258 2013/09/22 00:41:40 tom Exp $
+ *  $Id: util.c,v 1.259 2013/09/29 01:20:33 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1904,9 +1904,12 @@ dlg_strempty(void)
 char *
 dlg_strclone(const char *cprompt)
 {
-    char *prompt = dlg_malloc(char, strlen(cprompt) + 1);
-    assert_ptr(prompt, "dlg_strclone");
-    strcpy(prompt, cprompt);
+    char *prompt = 0;
+    if (cprompt != 0) {
+	prompt = dlg_malloc(char, strlen(cprompt) + 1);
+	assert_ptr(prompt, "dlg_strclone");
+	strcpy(prompt, cprompt);
+    }
     return prompt;
 }
 
