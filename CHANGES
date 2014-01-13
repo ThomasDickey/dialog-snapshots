@@ -1,8 +1,25 @@
--- $Id: CHANGES,v 1.478 2013/09/29 01:38:57 tom Exp $
+-- $Id: CHANGES,v 1.488 2014/01/12 21:00:37 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2014/01/12
+	+ improve calculation for amount to scroll in programbox when an "Ok"
+	  button might obscure part of the data (report by Florent Rougon).
+	+ modify program to permit --separate-output to be used with buildlist
+	  and treeview widgets (report by Florent Rougon).
+	+ add list-height parameter to manpage description of --buildlist
+	  (report by Florent Rougon).
+	+ minor fixes to dialog.1 manpage; the reported problem was actually
+	  fixed in 20120703 (Debian #726233, patch by Bjarni Ingi Gislason).
+	+ add a "Hello World" example to dialog.3 manpage (prompted by
+	  discussions with Dustin Oprea, Kevin Ingwersen).
+	+ correct comparison in dlg_lookup_key() so that using "bindkey" with
+	  a "*" wildcard parameter works as documented (report by Stewart
+	  Benedict).
+	+ updated configure macros, fixes for clang and mingw.
+	+ update config.guess, config.sub
 
 2013/09/28
 	+ fix a regression in gauge widget from 2013/09/28 changes; 

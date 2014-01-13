@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.231 2013/09/02 17:20:09 tom Exp $
+ * $Id: dialog.c,v 1.234 2014/01/12 21:19:07 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1276,7 +1276,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright 2000-2012,2013 Thomas E. Dickey",
+	"Copyright 2000-2013,2014 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
@@ -1854,10 +1854,20 @@ main(int argc, char *argv[])
 	    Usage("Expected a box option");
 	}
 
-	if (lookupOption(argv[offset], 2) != o_checklist
-	    && dialog_vars.separate_output) {
-	    sprintf(temp, "Expected --checklist, not %.20s", argv[offset]);
-	    Usage(temp);
+	if (dialog_vars.separate_output) {
+	    switch (lookupOption(argv[offset], 2)) {
+#ifdef HAVE_XDIALOG2
+	    case o_buildlist:
+	    case o_treeview:
+#endif
+	    case o_checklist:
+		break;
+	    default:
+		sprintf(temp,
+			"Unexpected widget with --separate-output %.20s",
+			argv[offset]);
+		Usage(temp);
+	    }
 	}
 
 	if (dialog_state.aspect_ratio == 0)

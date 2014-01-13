@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.93 2013/09/22 23:58:11 tom Exp $
-.\" Copyright 2005-2012,2013  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.95 2014/01/12 19:22:13 tom Exp $
+.\" Copyright 2005-2013,2014  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2013/09/22 23:58:11 $"
+.TH \*D 3 "" "$Date: 2014/01/12 19:22:13 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -63,6 +63,23 @@ or the main program.
 This manpage documents the features from \fI<\*l.h>\fP which
 are likely to be important to developers using the widgets directly.
 Some hints are also given for developing new widgets.
+.PP
+Here is a \fB\*l\fP version of \fIHello World\fP:
+.RS
+.nf
+int main(void)
+{
+	int status;
+	init_dialog(stdin, stdout);
+	status = dialog_yesno(
+			"Hello, in dialog-format",
+			"Hello World!",
+			0, 0);
+	end_dialog();
+	return status;
+}
+.fi
+.RE
 .
 .\" ************************************************************************
 .SH DEFINITIONS

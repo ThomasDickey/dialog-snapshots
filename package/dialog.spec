@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.2
-%define AppRelease 20130928
+%define AppRelease 20140112
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.55 2013/09/29 01:27:37 tom Exp $
+# $XTermId: dialog.spec,v 1.58 2014/01/12 21:00:57 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -14,16 +14,16 @@ Source0: %{AppProgram}-%{AppVersion}-%{AppRelease}.tgz
 Packager: Thomas Dickey <dickey@invisible-island.net>
 
 %description
-Dialog is a program that will let you to present a variety of questions
-or display messages using dialog boxes  from  a  shell  script.   These
-types  of  dialog boxes are implemented (though not all are necessarily
+Dialog is a program that will let you present a variety of questions or
+display messages using dialog boxes from a shell script.   These  types
+of  dialog  boxes  are  implemented  (though  not  all  are necessarily
 compiled into dialog):
 
-      calendar, checklist, dselect, editbox, form, fselect, gauge,
-      infobox, inputbox, inputmenu, menu, mixedform, mixedgauge,
-      msgbox (message), passwordbox, passwordform, pause, progressbox,
-      radiolist, tailbox, tailboxbg, textbox, timebox, and yesno
-      (yes/no).
+     buildlist, calendar, checklist, dselect, editbox, form, fselect,
+     gauge, infobox, inputbox, inputmenu, menu, mixedform,
+     mixedgauge, msgbox (message), passwordbox, passwordform, pause,
+     prgbox, programbox, progressbox, radiolist, rangebox, tailbox,
+     tailboxbg, textbox, timebox, treeview, and yesno (yes/no).
 
 This package installs as "cdialog" to avoid conflict with other packages.
 %prep
