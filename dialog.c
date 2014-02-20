@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.234 2014/01/12 21:19:07 tom Exp $
+ * $Id: dialog.c,v 1.237 2014/02/19 19:49:04 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -375,6 +375,7 @@ unescape_argv(int *argcp, char ***argvp)
 		fprintf(stderr, " arg%d:%s\n", k, (*argvp)[k]);
 	    }
 	    changed = dlg_eat_argv(argcp, argvp, j, 1);
+	    --j;
 	} else if (!strcmp((*argvp)[j], "--file")) {
 	    if (++count_includes > limit_includes)
 		dlg_exiterr("Too many --file options");
@@ -431,9 +432,16 @@ unescape_argv(int *argcp, char ***argvp)
 			    dialog_opts = dlg_realloc(bool, need, dialog_opts);
 			    assert_ptr(dialog_opts, "unescape_argv");
 			}
-			for (n = *argcp; n >= j + 2; --n) {
-			    (*argvp)[n + added - 2] = (*argvp)[n];
-			    dialog_opts[n + added - 2] = dialog_opts[n];
+			if (added > 2) {
+			    for (n = *argcp; n >= j + 2; --n) {
+				(*argvp)[n + added - 2] = (*argvp)[n];
+				dialog_opts[n + added - 2] = dialog_opts[n];
+			    }
+			} else if (added == 1) {
+			    for (n = j; n < *argcp; ++n) {
+				(*argvp)[n] = (*argvp)[n + 1];
+				dialog_opts[n] = dialog_opts[n + 1];
+			    }
 			}
 			for (n = 0; n < added; ++n) {
 			    (*argvp)[n + j] = list[n];
@@ -441,6 +449,7 @@ unescape_argv(int *argcp, char ***argvp)
 			}
 			*argcp += added - 2;
 			free(list);
+			--j;	/* force rescan */
 		    }
 		} else {
 		    dlg_exiterr("Cannot open --file %s", filename);
@@ -494,7 +503,7 @@ isOption(const char *arg)
 		}
 	    }
 	} else if (!strncmp(arg, "--", (size_t) 2) && isalpha(UCH(arg[2]))) {
-	    if (strlen(arg) == strspn(arg, OptionChars)) {
+	    if (strlen(arg) == (strspn) (arg, OptionChars)) {
 		result = TRUE;
 	    } else {
 		dlg_exiterr("Invalid option \"%s\"", arg);

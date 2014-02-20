@@ -1,8 +1,31 @@
--- $Id: CHANGES,v 1.488 2014/01/12 21:00:37 tom Exp $
+-- $Id: CHANGES,v 1.492 2014/02/20 00:31:32 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2014/02/19
+	+ cleanup of manpages prompted by Gislason's comments.
+	+ several changes to manpages to improve presentation (patches by
+	  Bjarni I. Gislason, Debian #739180, Debian #739181)
+	  + use "\/" when transitioning from italic to normal font
+	  + correct an instance of "e.g,."
+	  + use "\e" rather than "\\" to present a literal "\"
+	  + improve formatting of table header
+	  + remove some excess space-characters
+	  + change a reference 0-9 to use "through" as the connector
+	  + use "\&" to separate "." from a space to make the space shorter
+	  + change a list's TP macro parameters to make the hanging text align
+	    better with the adjacent paragraph
+	  + add comma in a few places before "and" in a list
+	  + separate units from numbers with a nonfillable space
+	  + replace "-" with en-dash in a few places
+	+ corrected argument indices after "--args" and "--file" to rescan the
+	  argument list after removing/substituting those options.
+	+ fix loops for "--file" option to handle cases with zero or no tokens at
+	  all substituted (Redhat #1066168).
+	+ add gd.po from
+		http://translationproject.org/latest/dialog/
 
 2014/01/12
 	+ improve calculation for amount to scroll in programbox when an "Ok"

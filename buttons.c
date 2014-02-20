@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.94 2012/12/30 20:51:01 tom Exp $
+ *  $Id: buttons.c,v 1.95 2014/02/19 19:49:04 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -213,7 +213,7 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 		    ? button_active_attr
 		    : button_inactive_attr);
     (void) waddstr(win, ">");
-    (void) wmove(win, y, x + ((int) strspn(label, " ")) + 1);
+    (void) wmove(win, y, x + ((int) (strspn) (label, " ")) + 1);
 }
 
 /*
