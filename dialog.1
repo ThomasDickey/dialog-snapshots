@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.174 2014/01/12 20:57:16 tom Exp $
+.\" $Id: dialog.1,v 1.184 2014/02/20 00:32:58 tom Exp $
 .\" Copyright 2005-2013,2014  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -31,9 +31,11 @@
 .RS +7
 .PP
 .nf
+.ft CW
 ..
 .de Ee
 .fi
+.ft R
 .RE
 ..
 .\" Bulleted paragraph
@@ -41,7 +43,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2014/01/12 20:57:16 $"
+.TH \*D 1 "" "$Date: 2014/02/20 00:32:58 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -179,36 +181,36 @@ To compare the effects, use these:
 .ES
 All three widgets visible, staircase effect, ordered 1,2,3:
 .Ex
-\*p \\
-                               --begin 2 2 --yesno "" 0 0 \\
-    --and-widget               --begin 4 4 --yesno "" 0 0 \\
+\*p \e
+                               --begin 2 2 --yesno "" 0 0 \e
+    --and-widget               --begin 4 4 --yesno "" 0 0 \e
     --and-widget               --begin 6 6 --yesno "" 0 0
 .Ee
 .
 .ES
 Only the last widget is left visible:
 .Ex
-\*p \\
-                 --clear       --begin 2 2 --yesno "" 0 0 \\
-    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
+\*p \e
+                 --clear       --begin 2 2 --yesno "" 0 0 \e
+    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \e
     --and-widget               --begin 6 6 --yesno "" 0 0
 .Ee
 .
 .ES
 All three widgets visible, staircase effect, ordered 3,2,1:
 .Ex
-\*p \\
-                 --keep-window --begin 2 2 --yesno "" 0 0 \\
-    --and-widget --keep-window --begin 4 4 --yesno "" 0 0 \\
+\*p \e
+                 --keep-window --begin 2 2 --yesno "" 0 0 \e
+    --and-widget --keep-window --begin 4 4 --yesno "" 0 0 \e
     --and-widget               --begin 6 6 --yesno "" 0 0
 .Ee
 .
 .ES
 First and third widget visible, staircase effect, ordered 3,1:
 .Ex
-\*p \\
-                 --keep-window --begin 2 2 --yesno "" 0 0 \\
-    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \\
+\*p \e
+                 --keep-window --begin 2 2 --yesno "" 0 0 \e
+    --and-widget --clear       --begin 4 4 --yesno "" 0 0 \e
     --and-widget               --begin 6 6 --yesno "" 0 0
 .Ee
 .IP
@@ -217,7 +219,7 @@ cursor home after the dialog program has exited, use the \fBclear\fR\ (1)
 command.
 .
 .IP "\fB--colors"
-Interpret embedded "\\Z" sequences in the dialog text
+Interpret embedded "\eZ" sequences in the dialog text
 by the following character,
 which tells \fB\*p\fP to set colors or video attributes:
 .RS
@@ -238,10 +240,10 @@ Reverse is set by 'r', reset by 'R'.
 .bP
 Underline is set by 'u', reset by 'U'.
 .bP
-The settings are cumulative, e.g., "\\Zb\\Z1" makes the following text
+The settings are cumulative, e.g., "\eZb\eZ1" makes the following text
 bold (perhaps bright) red.
 .bP
-Restore normal settings with "\\Zn".
+Restore normal settings with "\eZn".
 .RE
 .
 .IP "\fB--column-separator \fIstring"
@@ -457,7 +459,7 @@ See also "\fB--ascii-lines\fR".
 Do not enable the mouse.
 .
 .IP "\fB--no-nl-expand
-Do not convert "\\n" substrings of the message/prompt text into
+Do not convert "\en" substrings of the message/prompt text into
 literal newlines.
 .
 .IP "\fB--no-ok"
@@ -638,13 +640,13 @@ Override the label used for "Yes" buttons.
 .\" ************************************************************************
 .SS Box Options
 All dialog boxes have at least three parameters:
-.TP 5
+.TP 7
 \fItext\fP
 the caption or contents of the box.
-.TP 5
+.TP 7
 \fIheight\fP
 the height of the dialog box.
-.TP 5
+.TP 7
 \fIwidth\fP
 the width of the dialog box.
 .PP
@@ -675,7 +677,7 @@ If \fB--visit-items\fP is given,
 tab-traversal uses four states (Left/Right/OK/Cancel).
 .RE
 .IP
-Whether or not \fB--visit--items\fP is given,
+Whether or not \fB--visit-items\fP is given,
 it is possible to move the highlight between the two lists using
 the default "^" (left-column) and "$" (right-column) keys.
 .IP
@@ -695,7 +697,7 @@ month, day and year in separately adjustable windows.
 If the values for day, month or year are missing or negative,
 the current date's corresponding values are used.
 You can increment or decrement any of those using the
-left-, up-, right- and down-arrows.
+left-, up-, right-, and down-arrows.
 Use vi-style h, j, k and l for moving around the array of days in a month.
 Use tab or backtab to move between windows.
 If the year is given as zero, the current date is used as an initial value.
@@ -890,7 +892,7 @@ There are only a few differences between them:
 The entries are not automatically centered but left adjusted.
 .TP
 2.
-An extra button (called \fIRename\fP) is implied to rename
+An extra button (called \fIRename\/\fP) is implied to rename
 the current item when it is pressed.
 .TP
 3.
@@ -948,7 +950,7 @@ A
 box displays a meter along the bottom of the box.
 The meter indicates the percentage.
 .IP
-It also displays a list of the \fItag\fP- and \fIitem\fP-values at the
+It also displays a list of the \fItag\/\fP- and \fIitem\/\fP-values at the
 top of the box.
 See \*l(3) for the tag values.
 .IP
@@ -1153,7 +1155,7 @@ and \fIHOME/END\fR keys available on most keyboards.
 If the lines are too long to be displayed in the box,
 the \fILEFT/RIGHT\fP
 keys can be used to scroll the text region horizontally.
-You may also use vi-style keys h, j, k, l in place of the cursor keys,
+You may also use vi-style keys h, j, k, and l in place of the cursor keys,
 and B or N in place of the page-up and page-down keys.
 Scroll up/down using vi-style 'k' and 'j', or arrow-keys.
 Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
@@ -1203,10 +1205,9 @@ appropriate places.
 The
 \fItext\fP
 string can also contain the sub-string
-.I
-"\en"
+.RI """" \en """"
 or newline characters
-\fI`\en'\fP
+.RI ` \en '
 to control line breaking explicitly.
 This dialog box is useful for
 asking questions that require the user to answer either yes or no.
@@ -1241,8 +1242,9 @@ Beep after a user has completed a widget by pressing one of the buttons.
 1.
 Create a sample configuration file by typing:
 .LP
-.in +1i
-"\*p --create-rc <file>"
+.Ex
+\*p --create-rc \fIfile\fP
+.Ee
 .TP 4
 2.
 At start,
@@ -1304,9 +1306,10 @@ may have separate keybindings from the main widget
 because the subwindows are registered using a different name.
 .TS
 center tab(/) ;
-l l l
+lI lI lI
+_ _ _
 l l l .
-\fIWidget\fR/\fIWindow name\fR/\fISubwindow Name\fR
+Widget/Window name/Subwindow Name
 calendar/calendar
 checklist/checklist
 editbox/editbox/editbox2
@@ -1322,6 +1325,7 @@ tailbox/tailbox
 textbox/textbox/searchbox
 timebox/timebox
 yesno/yesno
+_
 .TE
 .PP
 Some widgets are actually other widgets,
@@ -1329,9 +1333,10 @@ using internal settings to modify the behavior.
 Those use the same widget name as the actual widget:
 .TS
 center tab(/) ;
-l l
+lI lI
+_ _
 l l .
-\fIWidget\fR/\fIActual Widget\fR
+Widget/Actual Widget
 dselect/fselect
 infobox/msgbox
 inputmenu/menu
@@ -1341,6 +1346,7 @@ passwordform/form
 prgbox/progressbox
 programbox/progressbox
 tailboxbg/tailbox
+_
 .TE
 .SS Built-in Bindings
 This manual page does not list the key bindings for each widget,
@@ -1360,7 +1366,7 @@ widgets, e.g., when using multiple tailboxbg widgets.
 Some users may wish to use the same key for traversing within the
 editing part as for traversing between buttons.
 The form widget is written to support this sort of redefinition of
-the keys, by adding a special group in <code>dlgk_keys.h</code>
+the keys, by adding a special group in \fBdlgk_keys.h\fP
 for "form" (left/right/next/prev).
 Here is an example binding demonstrating how to do this:
 .Ex
@@ -1406,7 +1412,7 @@ to use.
 \fBDIALOG_OK\fP
 Define any of these variables to change the exit code on
 Cancel (1),
-error (-1),
+error (\-1),
 ESC (255),
 Extra (3),
 Help (2),
@@ -1495,12 +1501,14 @@ The \fB\*p\fP program maps those deprecated options to the preferred ones.
 They include:
 .RS
 .TS
-l l
+tab(/) ;
+lI lI
 _ _
 l l.
-\fIOption\fR	\fITreatment\fR
-\fB--beep-after\fP	ignored
-\fB--guage\fP	mapped to \fB--gauge\fP
+Option/Treatment
+\fB--beep-after\fP/ignored
+\fB--guage\fP/mapped to \fB--gauge\fP
+_
 .TE
 .RE
 .SS XDIALOG
@@ -1513,22 +1521,24 @@ The \fB\*p\fP program ignores these options which are recognized
 by \fBXdialog\fP:
 .RS
 .TS
-l l
+tab(/) ;
+lI lI
 _ _
 l l.
-\fIOption\fR	\fITreatment\fR
-\fB--allow-close\fP	ignored
-\fB--auto-placement\fP	ignored
-\fB--fixed-font\fP	ignored
-\fB--icon\fP	ignored
-\fB--keep-colors\fP	ignored
-\fB--no-close\fP	ignored
-\fB--no-cr-wrap\fP	ignored
-\fB--screen-center\fP	ignored
-\fB--separator\fP	mapped to \fB--separate-output\fP
-\fB--smooth\fP	ignored
-\fB--under-mouse\fP	ignored
-\fB--wmclass\fP	ignored
+Option/Treatment
+\fB--allow-close\fP/ignored
+\fB--auto-placement\fP/ignored
+\fB--fixed-font\fP/ignored
+\fB--icon\fP/ignored
+\fB--keep-colors\fP/ignored
+\fB--no-close\fP/ignored
+\fB--no-cr-wrap\fP/ignored
+\fB--screen-center\fP/ignored
+\fB--separator\fP/mapped to \fB--separate-output\fP
+\fB--smooth\fP/ignored
+\fB--under-mouse\fP/ignored
+\fB--wmclass\fP/ignored
+_
 .TE
 .RE
 .PP
@@ -1537,12 +1547,13 @@ There are some differences not shown in the manpage.
 For example, the html documentation states
 .RS
 .PP
-Note:  former  Xdialog  releases  used  the  "\n" (line feed) as a
-results  separator  for  the  checklist  widget; this has been
-changed  to  "/"  in  Xdialog v1.5.0 so to make it compatible with
-(c)dialog.  In  your  old scripts using the Xdialog checklist, you
-will  then  have  to  add  the \fB--separate-output\fP option before the
---checklist one.
+Note: former Xdialog releases used the "\en" (line feed) as a
+results separator for the checklist widget;
+this has been changed to "/" in Xdialog v1.5.0
+to make it compatible with (c)dialog.
+In your old scripts using the Xdialog checklist, you
+will then have to add the \fB--separate-output\fP option before the
+\fB--checklist\fP one.
 .RE
 .PP
 \fB\*L\fP has not used a different separator;
@@ -1552,25 +1563,23 @@ Then there is \fBwhiptail\fP.
 For practical purposes, it is maintained by Debian
 (very little work is done by its upstream developers).
 Its documentation (README.whiptail) claims
-.RS
-.sp
-.nf
+.Ex
 whiptail(1) is a lightweight replacement for \*p(1),
 to provide dialog boxes for shell scripts.
 It is built on the
 newt windowing library rather than the ncurses library, allowing
 it to be smaller in embedded environments such as installers,
 rescue disks, etc.
-.sp
+
 whiptail is designed to be drop-in compatible with \*p, but
 has less features: some dialog boxes are not implemented, such
 as tailbox, timebox, calendarbox, etc.
-.fi
-.RE
+.Ee
 .PP
 Comparing actual sizes (Debian testing, 2007/1/10):
-The total of sizes for \fBwhiptail\fP, the newt, popt and slang libraries is 757kb.
-The comparable number for \fB\*p\fP (counting ncurses) is 520kb.
+The total of sizes for \fBwhiptail\fP,
+the newt, popt and slang libraries is 757\ KB.
+The comparable number for \fB\*p\fP (counting ncurses) is 520\ KB.
 Disregard the first paragraph.
 .PP
 The second paragraph is misleading, since \fBwhiptail\fP
@@ -1605,21 +1614,23 @@ The \fB\*p\fP program ignores or maps these options which are recognized
 by \fBwhiptail\fP:
 .RS
 .TS
-l l
+tab(/) ;
+lI lI
 _ _
 l l.
-\fIOption\fR	\fITreatment\fR
-\fB--cancel-button\fP	mapped to \fB--cancel-label\fP
-\fB--fb\fP	ignored
-\fB--fullbutton\fP	ignored
-\fB--no-button\fP	mapped to \fB--no-label\fP
-\fB--nocancel\fP	mapped to \fB--no-cancel\fP
-\fB--noitem\fP	mapped to \fB--no-items\fP
-\fB--notags\fP	mapped to \fB--no-tags\fP
-\fB--ok-button\fP	mapped to \fB--ok-label\fP
-\fB--scrolltext\fP	mapped to \fB--scrollbar\fP
-\fB--topleft\fP	mapped to \fB--begin 0 0\fP
-\fB--yes-button\fP	mapped to \fB--yes-label\fP
+Option/Treatment
+\fB--cancel-button\fP/mapped to \fB--cancel-label\fP
+\fB--fb\fP/ignored
+\fB--fullbutton\fP/ignored
+\fB--no-button\fP/mapped to \fB--no-label\fP
+\fB--nocancel\fP/mapped to \fB--no-cancel\fP
+\fB--noitem\fP/mapped to \fB--no-items\fP
+\fB--notags\fP/mapped to \fB--no-tags\fP
+\fB--ok-button\fP/mapped to \fB--ok-label\fP
+\fB--scrolltext\fP/mapped to \fB--scrollbar\fP
+\fB--topleft\fP/mapped to \fB--begin 0 0\fP
+\fB--yes-button\fP/mapped to \fB--yes-label\fP
+_
 .TE
 .RE
 .LP
@@ -1648,11 +1659,11 @@ Perhaps.
 .LP
 Thomas E.\& Dickey (updates for 0.9b and beyond)
 .SH CONTRIBUTORS
-Kiran Cherupally - the mixed form and mixed gauge widgets.
+Kiran Cherupally \(en the mixed form and mixed gauge widgets.
 .LP
 Tobias C.\& Rittweiler
 .LP
-Valery Reznic - the form and progressbox widgets.
+Valery Reznic \(en the form and progressbox widgets.
 .LP
 Yura Kalinichenko adapted the gauge widget as "pause".
 .PP
@@ -1660,10 +1671,10 @@ This is a rewrite (except as needed to provide compatibility)
 of the earlier version of \fB\*p 0.9a\fP,
 which lists as authors:
 .bP
-Savio Lam - version 0.3, "dialog"
+Savio Lam \(en version 0.3, "dialog"
 .bP
-Stuart Herbert - patch for version 0.4
+Stuart Herbert \(en patch for version 0.4
 .bP
-Marc Ewing - the gauge widget.
+Marc Ewing \(en the gauge widget.
 .bP
-Pasquale De Marco "Pako" - version 0.9a, "cdialog"
+Pasquale De Marco "Pako" \(en version 0.9a, "cdialog"
