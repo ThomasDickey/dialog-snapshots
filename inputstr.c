@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.83 2013/09/23 23:19:26 tom Exp $
+ *  $Id: inputstr.c,v 1.84 2014/09/01 16:11:08 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -120,14 +120,16 @@ trace_cache(const char *fn, int ln)
 #define trace_cache(fn, ln)	/* nothing */
 #endif
 
+#define CMP(a,b) (((a) > (b)) ? 1 : (((a) < (b)) ? -1 : 0))
+
 static int
 compare_cache(const void *a, const void *b)
 {
     const CACHE *p = (const CACHE *) a;
     const CACHE *q = (const CACHE *) b;
-    int result = (p->cache_num - q->cache_num);
+    int result = CMP(p->cache_num, q->cache_num);
     if (result == 0)
-	result = (int) (p->string_at - q->string_at);
+	result = CMP(p->string_at, q->string_at);
     return result;
 }
 #endif

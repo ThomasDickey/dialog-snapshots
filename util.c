@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.259 2013/09/29 01:20:33 tom Exp $
+ *  $Id: util.c,v 1.260 2014/09/01 17:01:01 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -2513,7 +2513,7 @@ dlg_add_quoted(char *string)
 	dlg_add_result(my_quote);
 	while (*string != '\0') {
 	    temp[0] = *string++;
-	    if (strchr(my_quote, *temp) || strchr(must_fix, *temp))
+	    if ((strchr) (my_quote, *temp) || (strchr) (must_fix, *temp))
 		dlg_add_result("\\");
 	    dlg_add_result(temp);
 	}
