@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.59 2013/09/02 17:01:02 tom Exp $
+ *  $Id: buildlist.c,v 1.60 2014/09/08 09:11:19 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012,2013	Thomas E. Dickey
+ *  Copyright 2012-2013,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -118,7 +118,9 @@ print_1_list(ALL_DATA * data,
 
     for (i = j = 0; j < max_rows; i++) {
 	int ii = i + moi->top_index;
-	if (ii >= data->item_no) {
+	if (ii < 0) {
+	    continue;
+	} else if (ii >= data->item_no) {
 	    break;
 	} else if (!(selected ^ (data->items[ii].state != 0))) {
 	    print_item(data,
