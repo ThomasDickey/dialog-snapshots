@@ -1,9 +1,9 @@
 /*
- * $Id: argv.c,v 1.2 2012/11/30 20:28:23 tom Exp $
+ * $Id: argv.c,v 1.3 2014/09/10 08:58:27 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
- *  Copyright 2011,2012	Thomas E. Dickey
+ *  Copyright 2011-2012,2014	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -37,6 +37,7 @@ dlg_string_to_argv(char *blob)
     size_t length = strlen(blob);
     char **result = 0;
 
+    DLG_TRACE(("# dlg_string_to_argv:\n#\t%s\n", blob));
     for (pass = 0; pass < 2; ++pass) {
 	bool inparm = FALSE;
 	bool quoted = FALSE;
@@ -91,6 +92,13 @@ dlg_string_to_argv(char *blob)
 	    *param = '\0';
 	}
     }
+#ifdef HAVE_DLG_TRACE
+    if (result != 0) {
+	for (n = 0; result[n] != 0; ++n) {
+	    DLG_TRACE(("#\targv[%d] = %s\n", (int) n, result[n]));
+	}
+    }
+#endif
     return result;
 }
 
