@@ -1,5 +1,5 @@
 /*
- *  $Id: prgbox.c,v 1.10 2014/09/10 09:10:59 tom Exp $
+ *  $Id: prgbox.c,v 1.11 2014/09/11 07:56:41 tom Exp $
  *
  *  prgbox.c -- implements the prg box
  *
@@ -67,7 +67,7 @@ dlg_popen(const char *command, const char *type)
 	     * given command.  Also, it needs the command to be parsed into
 	     * tokens.
 	     */
-	    if ((blob = malloc(8 + strlen(command))) != 0) {
+	    if ((blob = malloc(10 + strlen(command))) != 0) {
 		sprintf(blob, "sh -c \"%s\"", command);
 		argv = dlg_string_to_argv(blob);
 		execvp("sh", argv);
