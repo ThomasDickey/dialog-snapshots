@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.148 2013/09/02 17:15:13 tom Exp $
+ *  $Id: menubox.c,v 1.149 2015/01/25 23:53:43 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -349,6 +349,8 @@ dlg_menu(const char *title,
     const char **buttons = dlg_ok_labels();
     bool is_inputmenu = ((rename_menutext != 0)
 			 && (rename_menutext != dlg_dummy_menutext));
+
+    dialog_state.plain_buttons = TRUE;
 
     all.items = items;
     all.item_no = item_no;

@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.62 2013/03/17 15:03:41 tom Exp $
+ *  $Id: editbox.c,v 1.63 2015/01/25 22:57:49 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2012,2013 Thomas E. Dickey
+ *  Copyright 2007-2013,2015 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -637,10 +637,14 @@ dlg_editbox(const char *title,
 	/* handle functionkeys */
 	if (fkey) {
 	    switch (key) {
+	    case DLGK_GRID_UP:
+	    case DLGK_GRID_LEFT:
 	    case DLGK_FIELD_PREV:
 		show_buttons = TRUE;
 		state = dlg_prev_ok_buttonindex(state, sTEXT);
 		break;
+	    case DLGK_GRID_RIGHT:
+	    case DLGK_GRID_DOWN:
 	    case DLGK_FIELD_NEXT:
 		show_buttons = TRUE;
 		state = dlg_next_ok_buttonindex(state, sTEXT);

@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.153 2013/09/02 17:01:02 tom Exp $
+ *  $Id: checklist.c,v 1.154 2015/01/25 23:53:06 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -204,6 +204,8 @@ dlg_checklist(const char *title,
     char *prompt = dlg_strclone(cprompt);
     const char **buttons = dlg_ok_labels();
     const char *widget_name;
+
+    dialog_state.plain_buttons = TRUE;
 
     memset(&all, 0, sizeof(all));
     all.items = items;
