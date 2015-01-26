@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.60 2014/09/08 09:11:19 tom Exp $
+ *  $Id: buildlist.c,v 1.61 2015/01/25 23:52:45 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2013,2014	Thomas E. Dickey
+ *  Copyright 2012-2014,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -473,6 +473,8 @@ dlg_buildlist(const char *title,
     const char *widget_name = "buildlist";
 
     (void) order_mode;
+
+    dialog_state.plain_buttons = TRUE;
 
     /*
      * Unlike other uses of --visit-items, we have two windows to visit.

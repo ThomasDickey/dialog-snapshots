@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.24 2013/09/02 17:13:33 tom Exp $
+ *  $Id: treeview.c,v 1.25 2015/01/25 23:54:02 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012,2013	Thomas E. Dickey
+ *  Copyright 2012-2013,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -214,6 +214,8 @@ dlg_treeview(const char *title,
     if (states == 0 || strlen(states) < 2)
 	states = " *";
     num_states = (int) strlen(states);
+
+    dialog_state.plain_buttons = TRUE;
 
     memset(&all, 0, sizeof(all));
     all.items = items;

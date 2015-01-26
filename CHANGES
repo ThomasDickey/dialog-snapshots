@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.501 2014/09/11 07:57:09 tom Exp $
+-- $Id: CHANGES,v 1.504 2015/01/25 23:40:08 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2015/01/25
+	+ suppress highlighting of character which denotes an abbreviation or
+	  shortcut for the OK/Cancel and other buttons for these widgets, which
+	  use abbreviations for the list shown on the screen:  buildlist,
+	  checklist/radiobox, menubox, treeview (Debian #775295).
+	+ add grid up/left and down/right bindings in editbox.c as synonyms for
+	  field prev and next, respectively when handling the OK/Cancel buttons
+	  (Debian #775294).
 
 2014/09/11
 	+ correct malloc-size for change to prgbox.
@@ -10,7 +19,7 @@ to it:
 2014/09/10
 	+ fixes to make "-c" option work when passing command to shell for the
 	  prgbox widget, for example in samples/prgbox2 (report by Korantin
-	  Auguste). 
+	  Auguste).
 
 2014/09/08
 	+ fix an out-of-bounds array index in buildlist widget (report by
@@ -79,7 +88,7 @@ to it:
 	+ update config.guess, config.sub
 
 2013/09/28
-	+ fix a regression in gauge widget from 2013/09/28 changes; 
+	+ fix a regression in gauge widget from 2013/09/28 changes;
 	  dlg_reallocate_gauge() failed when no --title option was given
 	  (report by Tritonas Insomnia).
 

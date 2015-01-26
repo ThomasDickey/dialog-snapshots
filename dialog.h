@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.267 2013/09/22 19:06:36 tom Exp $
+ *  $Id: dialog.h,v 1.268 2015/01/25 23:53:19 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -447,6 +447,8 @@ typedef struct {
     int visit_cols;		/* option "--visit-items" */
     /* 1.2-20130922 */
     bool finish_string;		/* caching optimization for gauge */
+    /* 1.2-20150125 */
+    bool plain_buttons;		/* true to suppress button-label highlight */
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;
