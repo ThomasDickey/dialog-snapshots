@@ -13,6 +13,8 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 CFLAGS =
 
+ACTUAL_PROG	= cdialog
+
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
         CFLAGS += -O0
 else
@@ -27,6 +29,8 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
+	cp -v package/dialog.map package/${ACTUAL_PROG}.map
+
 	CFLAGS="$(CFLAGS)" ./configure \
 		--host=$(DEB_HOST_GNU_TYPE) \
 		--build=$(DEB_BUILD_GNU_TYPE) \
@@ -35,9 +39,10 @@ configure-stamp:
 		--enable-nls \
 		--enable-header-subdir \
 		--enable-widec \
-		--with-libtool \
+		--with-shared \
 		--with-ncursesw \
-		--with-package=cdialog \
+		--with-package=${ACTUAL_PROG} \
+		--with-versioned-syms \
 		--disable-rpath-hack
 
 	touch configure-stamp
@@ -67,7 +72,7 @@ install-stamp: build-stamp
 	dh_clean -k
 	dh_installdirs
 
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/cdialog
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/${ACTUAL_PROG}
 
 	touch install-stamp
 
