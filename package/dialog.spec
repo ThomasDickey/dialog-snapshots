@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.2
-%define AppRelease 20150125
+%define AppRelease 20150224
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.64 2015/01/25 21:30:54 tom Exp $
+# $XTermId: dialog.spec,v 1.68 2015/02/24 14:05:14 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -34,6 +34,8 @@ This package installs as "cdialog" to avoid conflict with other packages.
 
 %build
 
+cp -v package/dialog.map package/%{ActualProg}.map
+
 INSTALL_PROGRAM='${INSTALL}' \
 	./configure \
 		--target %{_target_platform} \
@@ -45,8 +47,9 @@ INSTALL_PROGRAM='${INSTALL}' \
 		--enable-header-subdir \
 		--enable-nls \
 		--enable-widec \
-		--with-libtool \
+		--with-shared \
 		--with-ncursesw \
+		--with-versioned-syms \
 		--disable-rpath-hack
 
 make

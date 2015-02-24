@@ -1,7 +1,7 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.97 2014/09/01 16:43:52 tom Exp $
+dnl $Id: aclocal.m4,v 1.98 2015/02/24 12:18:27 tom Exp $
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2013,2014 -- Thomas E. Dickey
+dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -1710,7 +1710,7 @@ AC_SUBST(SHOW_CC)
 AC_SUBST(ECHO_CC)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_DISABLE_LIBTOOL_VERSION version: 1 updated: 2010/05/15 15:45:59
+dnl CF_DISABLE_LIBTOOL_VERSION version: 2 updated: 2014/11/15 19:05:29
 dnl --------------------------
 dnl Check if we should use the libtool 1.5 feature "-version-number" instead of
 dnl the older "-version-info" feature.  The newer feature allows us to use
@@ -1729,8 +1729,25 @@ if test "$cf_libtool_version" = yes ; then
 	LIBTOOL_VERSION="-version-number"
 else
 	LIBTOOL_VERSION="-version-info"
+	case "x$VERSION" in #(vi
+	x) #(vi
+		AC_MSG_WARN(VERSION was not set)
+		;;
+	x*.*.*)
+		ABI_VERSION="$VERSION"
+		CF_VERBOSE(ABI_VERSION: $ABI_VERSION)
+		;;
+	x*:*:*)
+		ABI_VERSION=`echo "$VERSION" | sed -e 's/:/./g'`
+		CF_VERBOSE(ABI_VERSION: $ABI_VERSION)
+		;;
+	*)
+		AC_MSG_WARN(unexpected VERSION value: $VERSION)
+		;;
+	esac
 fi
 
+AC_SUBST(ABI_VERSION)
 AC_SUBST(LIBTOOL_VERSION)
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -3216,7 +3233,7 @@ case ".[$]$1" in #(vi
 esac
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PKG_CONFIG version: 7 updated: 2011/04/29 04:53:22
+dnl CF_PKG_CONFIG version: 8 updated: 2014/12/13 18:48:46
 dnl -------------
 dnl Check for the package-config program, unless disabled by command-line.
 AC_DEFUN([CF_PKG_CONFIG],
@@ -3245,6 +3262,8 @@ esac
 test -z "$PKG_CONFIG" && PKG_CONFIG=none
 if test "$PKG_CONFIG" != none ; then
 	CF_PATH_SYNTAX(PKG_CONFIG)
+else
+	AC_MSG_WARN(pkg-config is not installed)
 fi
 
 AC_SUBST(PKG_CONFIG)
@@ -3544,7 +3563,7 @@ CF_VERBOSE(...checked $1 [$]$1)
 AC_SUBST(EXTRA_LDFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 84 updated: 2013/11/03 06:26:10
+dnl CF_SHARED_OPTS version: 86 updated: 2015/01/21 20:10:54
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -3701,7 +3720,7 @@ CF_EOF
 		fi
 		;;
 	hpux[[7-8]]*) #(vi
-		# HP-UX 8.07 ld lacks "+b" option used for libdir search-list 
+		# HP-UX 8.07 ld lacks "+b" option used for libdir search-list
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='+Z'
 		fi
@@ -3807,7 +3826,7 @@ CF_EOF
 			EXTRA_LDFLAGS="${cf_ld_rpath_opt}\${RPATH_LIST} $EXTRA_LDFLAGS"
 		fi
 		CF_SHARED_SONAME
-		MK_SHARED_LIB='${LD} -shared -Bshareable -soname=`basename $[@]` -o $[@]'
+		MK_SHARED_LIB='${CC} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
 	netbsd*) #(vi
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
@@ -3990,7 +4009,7 @@ define([CF_SHARED_SONAME],
 	fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_SUBDIR_PATH version: 6 updated: 2010/04/21 06:20:50
+dnl CF_SUBDIR_PATH version: 7 updated: 2014/12/04 04:33:06
 dnl --------------
 dnl Construct a search-list for a nonstandard header/lib-file
 dnl	$1 = the variable to return as result
@@ -4000,11 +4019,18 @@ AC_DEFUN([CF_SUBDIR_PATH],
 [
 $1=
 
-CF_ADD_SUBDIR_PATH($1,$2,$3,/usr,$prefix)
 CF_ADD_SUBDIR_PATH($1,$2,$3,$prefix,NONE)
-CF_ADD_SUBDIR_PATH($1,$2,$3,/usr/local,$prefix)
-CF_ADD_SUBDIR_PATH($1,$2,$3,/opt,$prefix)
-CF_ADD_SUBDIR_PATH($1,$2,$3,[$]HOME,$prefix)
+
+for cf_subdir_prefix in \
+	/usr \
+	/usr/local \
+	/usr/pkg \
+	/opt \
+	/opt/local \
+	[$]HOME
+do
+	CF_ADD_SUBDIR_PATH($1,$2,$3,$cf_subdir_prefix,$prefix)
+done
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_TERM_HEADER version: 3 updated: 2012/10/06 08:57:51
@@ -4375,7 +4401,33 @@ if test "$with_dmalloc" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 30 updated: 2013/09/07 13:54:05
+dnl CF_WITH_EXPORT_SYMS version: 3 updated: 2014/12/20 19:16:08
+dnl -------------------
+dnl Use this with libtool to specify the list of symbols that may be exported.
+dnl The input file contains one symbol per line; comments work with "#".
+dnl
+dnl $1 = basename of the ".sym" file (default $PACKAGE)
+AC_DEFUN([CF_WITH_EXPORT_SYMS],
+[
+AC_MSG_CHECKING(if exported-symbols file should be used)
+AC_ARG_WITH(export-syms,
+	[  --with-export-syms=XXX  limit exported symbols using libtool],
+	[with_export_syms=$withval],
+	[with_export_syms=no])
+if test "x$with_export_syms" = xyes
+then
+	with_export_syms='${top_srcdir}/package/ifelse($1,,${PACKAGE},[$1]).sym'
+	AC_SUBST(PACKAGE)
+fi
+AC_MSG_RESULT($with_export_syms)
+if test "x$with_export_syms" != xno
+then
+	EXPORT_SYMS="-export-symbols $with_export_syms"
+	AC_SUBST(EXPORT_SYMS)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_LIBTOOL version: 31 updated: 2014/11/15 19:05:29
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -4458,7 +4510,7 @@ ifdef([AC_PROG_LIBTOOL],[
 		AC_MSG_ERROR(Cannot find libtool)
 	fi
 ])dnl
-	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
+	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${DESTDIR}${libdir} ${LIBTOOL_VERSION} `cut -f1 ${top_srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
 	LIB_OBJECT='${OBJECTS:.o=.lo}'
 	LIB_SUFFIX=.la
 	LIB_CLEAN='${LIBTOOL} --mode=clean'
@@ -4513,7 +4565,7 @@ AC_SUBST(LIB_UNINSTALL)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL_OPTS version: 2 updated: 2007/04/08 18:14:54
+dnl CF_WITH_LIBTOOL_OPTS version: 3 updated: 2014/11/02 16:11:49
 dnl --------------------
 dnl Allow user to pass additional libtool options into the library creation
 dnl and link steps.  The main use for this is to do something like
@@ -4532,11 +4584,146 @@ case .$with_libtool_opts in
 .yes|.no|.)
 	;;
 *)
-	LIBTOOL_OPTS=$with_libtool_opts
+	LIBTOOL_OPTS="$LIBTOOL_OPTS $with_libtool_opts"
 	;;
 esac
 
 AC_SUBST(LIBTOOL_OPTS)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_MAN2HTML version: 2 updated: 2015/02/15 12:45:44
+dnl ----------------
+dnl Check for man2html and groff.  Optionally prefer man2html over groff.
+dnl Generate a shell script which hides the differences between the two.
+dnl
+dnl We name that "man2html.tmp".
+dnl
+dnl The shell script can be removed later, e.g., using "make distclean".
+AC_DEFUN([CF_WITH_MAN2HTML],[
+AC_REQUIRE([CF_PROG_GROFF])
+
+AC_MSG_CHECKING(for program to convert manpage to html)
+AC_ARG_WITH(man2html,
+	[  --with-man2html=XXX     use XXX rather than groff],
+	[cf_man2html=$withval],
+	[cf_man2html=$GROFF_PATH])
+
+cf_with_groff=no
+
+case $cf_man2html in #(vi
+yes) #(vi
+	AC_MSG_RESULT(man2html)
+	AC_PATH_PROG(cf_man2html,man2html,no)
+	;;
+no|groff|*/groff*) #(vi
+	cf_with_groff=yes
+	cf_man2html=$GROFF_PATH
+	AC_MSG_RESULT($cf_man2html)
+	;;
+*)
+	AC_MSG_RESULT($cf_man2html)
+	;;
+esac
+
+MAN2HTML_TEMP="man2html.tmp"
+	cat >$MAN2HTML_TEMP <<CF_EOF
+#!/bin/sh
+# Temporary script generated by CF_WITH_MAN2HTML
+# Convert inputs to html, sending result to standard output.
+#
+# Parameters:
+# $1 = rootname of file to convert
+# $2 = suffix of file to convert, e.g., "1"
+# $3 = macros to use, e.g., "man"
+#
+ROOT=\[$]1
+TYPE=\[$]2
+MACS=\[$]3
+
+unset LANG
+unset LC_ALL
+unset LC_CTYPE
+unset LANGUAGE
+GROFF_NO_SGR=stupid
+export GROFF_NO_SGR
+
+CF_EOF
+
+if test "x$cf_with_groff" = xyes
+then
+	MAN2HTML_NOTE="$GROFF_NOTE"
+	MAN2HTML_PATH="$GROFF_PATH"
+	cat >>$MAN2HTML_TEMP <<CF_EOF
+/bin/sh -c "tbl \${ROOT}.\${TYPE} | $GROFF_PATH -P -o0 -I\${ROOT}_ -Thtml -\${MACS}"
+CF_EOF
+else
+	MAN2HTML_NOTE=""
+	CF_PATH_SYNTAX(cf_man2html)
+	MAN2HTML_PATH="$cf_man2html"
+	AC_MSG_CHECKING(for $cf_man2html top/bottom margins)
+
+	# for this example, expect 3 lines of content, the remainder is head/foot
+	cat >conftest.in <<CF_EOF
+.TH HEAD1 HEAD2 HEAD3 HEAD4 HEAD5
+.SH SECTION
+MARKER
+CF_EOF
+
+	LC_ALL=C LC_CTYPE=C LANG=C LANGUAGE=C nroff -man conftest.in >conftest.out
+
+	cf_man2html_1st=`fgrep -n MARKER conftest.out |sed -e 's/^[[^0-9]]*://' -e 's/:.*//'`
+	cf_man2html_top=`expr $cf_man2html_1st - 2`
+	cf_man2html_bot=`wc -l conftest.out |sed -e 's/[[^0-9]]//g'`
+	cf_man2html_bot=`expr $cf_man2html_bot - 2 - $cf_man2html_top`
+	cf_man2html_top_bot="-topm=$cf_man2html_top -botm=$cf_man2html_bot"
+
+	AC_MSG_RESULT($cf_man2html_top_bot)
+
+	AC_MSG_CHECKING(for pagesize to use)
+	for cf_block in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+	do
+	cat >>conftest.in <<CF_EOF
+.nf
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+CF_EOF
+	done
+
+	LC_ALL=C LC_CTYPE=C LANG=C LANGUAGE=C nroff -man conftest.in >conftest.out
+	cf_man2html_page=`fgrep -n HEAD1 conftest.out |tail -n 1 |sed -e 's/^[[^0-9]]*://' -e 's/:.*//'`
+	test -z "$cf_man2html_page" && cf_man2html_page=99999
+	test "$cf_man2html_page" -gt 100 && cf_man2html_page=99999
+
+	rm -rf conftest*
+	AC_MSG_RESULT($cf_man2html_page)
+
+	cat >>$MAN2HTML_TEMP <<CF_EOF
+: \${MAN2HTML_PATH=$MAN2HTML_PATH}
+MAN2HTML_OPTS="\$MAN2HTML_OPTS -index -title="\$ROOT\(\$TYPE\)" -compress -pgsize $cf_man2html_page"
+case \${TYPE} in #(vi
+ms) #(vi
+	tbl \${ROOT}.\${TYPE} | nroff -\${MACS} | \$MAN2HTML_PATH -topm=0 -botm=0 \$MAN2HTML_OPTS
+	;;
+*)
+	tbl \${ROOT}.\${TYPE} | nroff -\${MACS} | \$MAN2HTML_PATH $cf_man2html_top_bot \$MAN2HTML_OPTS
+	;;
+esac
+CF_EOF
+fi
+
+chmod 700 $MAN2HTML_TEMP
+
+AC_SUBST(MAN2HTML_NOTE)
+AC_SUBST(MAN2HTML_PATH)
+AC_SUBST(MAN2HTML_TEMP)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_NO_LEAKS version: 2 updated: 2012/10/06 08:57:51
@@ -4597,7 +4784,7 @@ ifelse($1,,[
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_SHARED_OR_LIBTOOL version: 6 updated: 2013/11/03 06:36:40
+dnl CF_WITH_SHARED_OR_LIBTOOL version: 7 updated: 2014/11/02 16:11:49
 dnl -------------------------
 dnl Provide shared libraries using either autoconf macros (--with-shared) or
 dnl using the external libtool script (--with-libtool).
@@ -4639,6 +4826,7 @@ if test "$with_libtool" = "yes" ; then
 	DFT_LWR_MODEL=$LIB_MODEL
 	LIBTOOL_MAKE=
 	CF_WITH_LIBTOOL_OPTS
+	CF_WITH_EXPORT_SYMS
 	MAKE_NORMAL="#"
 	MAKE_STATIC="#"
 	MAKE_SHARED=
@@ -4653,6 +4841,7 @@ else
 		LIB_MODEL=shared
 		DFT_LWR_MODEL=$LIB_MODEL
 		CF_SHARED_OPTS
+		CF_WITH_VERSIONED_SYMS
 		LIB_PREP=:
 		LIB_CREATE="[$]MK_SHARED_LIB"
 		CFLAGS="$CFLAGS $CC_SHARED_OPTS"
@@ -4685,6 +4874,133 @@ AC_DEFUN([CF_WITH_VALGRIND],[
 CF_NO_LEAKS_OPTION(valgrind,
 	[  --with-valgrind         test: use valgrind],
 	[USE_VALGRIND])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_VERSIONED_SYMS version: 4 updated: 2015/01/21 20:10:54
+dnl ----------------------
+dnl Use this when building shared library with ELF, to markup symbols with the
+dnl version identifier from the given input file.  Generally that identifier is
+dnl the same as the SONAME at which the symbol was first introduced.
+dnl
+dnl $1 = basename of the ".map" file (default $PACKAGE)
+AC_DEFUN([CF_WITH_VERSIONED_SYMS],
+[
+AC_MSG_CHECKING(if versioned-symbols file should be used)
+AC_ARG_WITH(versioned-syms,
+	[  --with-versioned-syms=X markup versioned symbols using ld],
+	[with_versioned_syms=$withval],
+	[with_versioned_syms=no])
+if test "x$with_versioned_syms" = xyes
+then
+	with_versioned_syms='${top_srcdir}/package/ifelse($1,,${PACKAGE},[$1]).map'
+	AC_SUBST(PACKAGE)
+fi
+AC_MSG_RESULT($with_versioned_syms)
+
+RESULTING_SYMS=
+VERSIONED_SYMS=
+WILDCARD_SYMS=
+
+if test "x$with_versioned_syms" != xno
+then
+	RESULTING_SYMS=$with_versioned_syms
+	case "x$MK_SHARED_LIB" in
+	*-Wl,*) #(vi
+		VERSIONED_SYMS="-Wl,--version-script,\${RESULTING_SYMS}"
+		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-Wl,%\\[$]{VERSIONED_SYMS} -Wl,%"`
+		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		;;
+	*-dy\ *) #(vi
+		VERSIONED_SYMS="-Wl,-M,\${RESULTING_SYMS}"
+		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-dy%\\[$]{VERSIONED_SYMS} -dy%"`
+		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		;;
+	*)
+		AC_MSG_WARN(this system does not support versioned-symbols)
+		;;
+	esac
+
+	# Linux ld can selectively override scope, e.g., of symbols beginning with
+	# "_" by first declaring some as global, and then using a wildcard to
+	# declare the others as local.  Some other loaders cannot do this.  Check
+	# by constructing a (very) simple shared library and inspecting its
+	# symbols.
+	if test "x$VERSIONED_SYMS" != "x"
+	then
+		AC_MSG_CHECKING(if wildcards can be used to selectively omit symbols)
+		WILDCARD_SYMS=no
+
+		# make sources
+		rm -f conftest.*
+
+		cat >conftest.ver <<EOF
+module_1.0 {
+global:
+	globalf1;
+local:
+	localf1;
+};
+module_2.0 {
+global:
+	globalf2;
+local:
+	localf2;
+	_*;
+} module_1.0;
+submodule_1.0 {
+global:
+	subglobalf1;
+	_ismissing;
+local:
+	sublocalf1;
+};
+submodule_2.0 {
+global:
+	subglobalf2;
+local:
+	sublocalf2;
+	_*;
+} submodule_1.0;
+EOF
+		cat >conftest.$ac_ext <<EOF
+#line __oline__ "configure"
+int	_ismissing(void) { return 1; }
+int	_localf1(void) { return 1; }
+int	_localf2(void) { return 2; }
+int	globalf1(void) { return 1; }
+int	globalf2(void) { return 2; }
+int	_sublocalf1(void) { return 1; }
+int	_sublocalf2(void) { return 2; }
+int	subglobalf1(void) { return 1; }
+int	subglobalf2(void) { return 2; }
+EOF
+		cat >conftest.mk <<EOF
+CC=${CC}
+CFLAGS=${CFLAGS}
+CPPFLAGS=${CPPFLAGS}
+LDFLAGS=${LDFLAGS}
+LIBS=${LIBS}
+VERSIONED_SYMS=${VERSIONED_SYMS}
+RESULTING_SYMS=conftest.ver
+MK_SHARED_LIB=${MK_SHARED_LIB}
+conftest.so: conftest.$ac_cv_objext
+		\$(MK_SHARED_LIB) conftest.$ac_cv_objext
+EOF
+
+		# compile source, make library
+		if make -f conftest.mk 2>&AC_FD_CC >/dev/null
+		then
+			# test for missing symbol
+			cf_missing=`nm -P conftest.so 2>&AC_FD_CC |fgrep _ismissing | egrep '[[ 	]]T[[ 	]]'`
+			test -n "$cf_missing" && WILDCARD_SYMS=yes
+		fi
+		AC_MSG_RESULT($WILDCARD_SYMS)
+		rm -f conftest.*
+	fi
+fi
+AC_SUBST(RESULTING_SYMS)
+AC_SUBST(VERSIONED_SYMS)
+AC_SUBST(WILDCARD_SYMS)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_WARNINGS version: 5 updated: 2004/07/23 14:40:34
@@ -5017,26 +5333,6 @@ char * XCursesProgramName = "test";
 #endif
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF__CURSES_HEAD version: 2 updated: 2010/10/23 15:54:49
-dnl ---------------
-dnl Define a reusable chunk which includes <curses.h> and <term.h> when they
-dnl are both available.
-define([CF__CURSES_HEAD],[
-#ifdef HAVE_XCURSES
-#include <xcurses.h>
-char * XCursesProgramName = "test";
-#else
-#include <${cf_cv_ncurses_header:-curses.h}>
-#if defined(NCURSES_VERSION) && defined(HAVE_NCURSESW_TERM_H)
-#include <ncursesw/term.h>
-#elif defined(NCURSES_VERSION) && defined(HAVE_NCURSES_TERM_H)
-#include <ncurses/term.h>
-#elif defined(HAVE_TERM_H)
-#include <term.h>
-#endif
-#endif
-])
-dnl ---------------------------------------------------------------------------
 dnl CF__DEFINE_LIB_TARGET version: 1 updated: 2013/07/22 18:27:50
 dnl ---------------------
 define([CF__DEFINE_LIB_TARGET],[
@@ -5060,12 +5356,12 @@ fi
 LIB_TARGET=$cf_libname
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF__DEFINE_SHLIB_VARS version: 2 updated: 2013/07/27 17:38:32
+dnl CF__DEFINE_SHLIB_VARS version: 3 updated: 2015/01/02 17:09:39
 dnl ---------------------
 dnl Substitute makefile variables useful for CF__ADD_SHLIB_RULES.
 dnl
 dnl The substitution requires these variables:
-dnl		LIB_PREFI - "lib"
+dnl		LIB_PREFIX - "lib"
 dnl		LIB_ROOTNAME - "foo"
 dnl		LIB_SUFFIX - ".so"
 dnl		REL_VERSION - "5.0"
