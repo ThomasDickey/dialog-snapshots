@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.68 2013/09/22 19:10:22 tom Exp $
+ *  $Id: guage.c,v 1.69 2015/02/26 02:07:12 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2012,2013	Thomas E. Dickey
+ *  Copyright 2000-2013,2015	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -121,7 +121,7 @@ repaint_text(MY_OBJ * obj)
     WINDOW *dialog = obj->obj.win;
     int i, x;
 
-    if (dialog != 0 && obj->obj.input != 0) {
+    if (dialog != 0) {
 	(void) werase(dialog);
 	dlg_draw_box2(dialog, 0, 0, obj->height, obj->width, dialog_attr,
 		      border_attr, border2_attr);
@@ -187,6 +187,8 @@ handle_input(DIALOG_CALLBACK * cb)
 
     if (dialog_state.pipe_input == 0) {
 	status = -1;
+	delink(obj);
+	dlg_remove_callback(cb);
     } else if ((status = read_data(buf, dialog_state.pipe_input)) > 0) {
 
 	if (isMarker(buf)) {
@@ -231,6 +233,7 @@ handle_input(DIALOG_CALLBACK * cb)
 	result = TRUE;
 	repaint_text(obj);
     } else {
+	repaint_text(obj);
 	result = FALSE;
     }
 
