@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.238 2015/01/25 22:57:06 tom Exp $
+ * $Id: dialog.c,v 1.239 2015/05/11 09:16:22 Florent.Rougon Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -414,49 +414,58 @@ unescape_argv(int *argcp, char ***argvp)
 		    blob[length] = '\0';
 
 		    list = dlg_string_to_argv(blob);
-		    if ((added = dlg_count_argv(list)) != 0) {
-			if (added > 2) {
-			    size_t need = (size_t) (*argcp + added + 1);
-			    if (doalloc) {
-				*argvp = dlg_realloc(char *, need, *argvp);
-				assert_ptr(*argvp, "unescape_argv");
-			    } else {
-				char **newp = dlg_malloc(char *, need);
-				assert_ptr(newp, "unescape_argv");
-				for (n = 0; n < *argcp; ++n) {
-				    newp[n] = (*argvp)[n];
-				}
-				*argvp = newp;
-				doalloc = TRUE;
+		    added = dlg_count_argv(list);
+		    if (added > 2) {
+			/* *argcp arguments before the expansion of --file
+			   - 2 for the removal of '--file <filepath>'
+			   + added for the arguments contained in <filepath>
+			   + 1 for the terminating NULL pointer */
+			size_t need = (size_t) (*argcp + added - 1);
+			if (doalloc) {
+			    *argvp = dlg_realloc(char *, need, *argvp);
+			    assert_ptr(*argvp, "unescape_argv");
+			} else {
+			    char **newp = dlg_malloc(char *, need);
+			    assert_ptr(newp, "unescape_argv");
+			    for (n = 0; n < *argcp; ++n) {
+				newp[n] = (*argvp)[n];
 			    }
-			    dialog_opts = dlg_realloc(bool, need, dialog_opts);
-			    assert_ptr(dialog_opts, "unescape_argv");
+			    /* The new array is not NULL-terminated yet. */
+			    *argvp = newp;
+			    doalloc = TRUE;
 			}
-			if (added > 2) {
-			    for (n = *argcp; n >= j + 2; --n) {
-				(*argvp)[n + added - 2] = (*argvp)[n];
-				dialog_opts[n + added - 2] = dialog_opts[n];
-			    }
-			} else if (added == 1) {
-			    for (n = j; n < *argcp; ++n) {
-				(*argvp)[n] = (*argvp)[n + 1];
-				dialog_opts[n] = dialog_opts[n + 1];
-			    }
+			dialog_opts = dlg_realloc(bool, need, dialog_opts);
+			assert_ptr(dialog_opts, "unescape_argv");
+
+			/* Shift the arguments after '--file <filepath>'
+			   right by (added - 2) positions */
+			for (n = *argcp - 1; n >= j + 2; --n) {
+			    (*argvp)[n + added - 2] = (*argvp)[n];
+			    dialog_opts[n + added - 2] = dialog_opts[n];
 			}
-			for (n = 0; n < added; ++n) {
-			    (*argvp)[n + j] = list[n];
-			    dialog_opts[n + j] = FALSE;
+		    } else if (added < 2) {
+			/* 0 or 1 argument read from the included file
+			   -> shift the arguments after '--file <filepath>'
+			   left by (2 - added) positions */
+			for (n = j + added; n + 2 - added < *argcp; ++n) {
+			    (*argvp)[n] = (*argvp)[n + 2 - added];
+			    dialog_opts[n] = dialog_opts[n + 2 - added];
 			}
-			*argcp += added - 2;
-			free(list);
-			--j;	/* force rescan */
 		    }
+		    /* Copy the inserted arguments to *argvp */
+		    for (n = 0; n < added; ++n) {
+			(*argvp)[n + j] = list[n];
+			dialog_opts[n + j] = FALSE;
+		    }
+		    *argcp += added - 2;
+		    (*argvp)[*argcp] = 0;	/* Write the NULL terminator */
+		    free(list);	/* No-op if 'list' is NULL */
+		    /* Force rescan starting from the first inserted argument */
+		    --j;
+		    continue;
 		} else {
 		    dlg_exiterr("Cannot open --file %s", filename);
 		}
-		(*argvp)[*argcp] = 0;
-		++j;
-		continue;
 	    } else {
 		dlg_exiterr("No value given for --file");
 	    }

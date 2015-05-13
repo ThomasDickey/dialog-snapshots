@@ -1,8 +1,23 @@
--- $Id: CHANGES,v 1.511 2015/05/10 23:46:44 tom Exp $
+-- $Id: CHANGES,v 1.512 2015/05/13 00:27:06 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2015/05/12
+	> patches by Florent Rougon:
+	+ fix two bugs in the "--file" option.
+	  + When the number of arguments read from the included file is 0, the
+	    code used to just skip over '--file' and its argument instead of
+	    removing them from the argument list, causing "Error:  Unknown
+	    option --file" later on.
+	  + In the alternative case (at least one argument read from the file),
+	    the previous code used to do '--j;' in order to "force rescan" of
+	    the inserted arguments.  However, control then flowed to outer
+	    blocks where a '++j;' counteracted this measure, causing "Error: 
+	    Unknown option --msgbox" (for instance) later on.
+	+ modify escaping in argv.c to be more uniform, whether or not the
+	  backslash is found within a parameter.
 
 2015/05/10
 	+ update configure macros for improved coding style from lynx changes.
