@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.100 2015/05/10 23:52:47 tom Exp $
+dnl $Id: aclocal.m4,v 1.102 2015/05/13 15:57:50 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
 dnl
@@ -832,6 +832,19 @@ done
 ifelse($2,,LIBS,[$2])="$cf_add_libs"
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_ADD_LIB_AFTER version: 3 updated: 2013/07/09 21:27:22
+dnl ----------------
+dnl Add a given library after another, e.g., following the one it satisfies a
+dnl dependency for.
+dnl
+dnl $1 = the first library
+dnl $2 = its dependency
+AC_DEFUN([CF_ADD_LIB_AFTER],[
+CF_VERBOSE(...before $LIBS)
+LIBS=`echo "$LIBS" | sed -e "s/[[ 	]][[ 	]]*/ /g" -e "s%$1 %$1 $2 %" -e 's%  % %g'`
+CF_VERBOSE(...after  $LIBS)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_ADD_OPTIONAL_PATH version: 3 updated: 2015/05/10 19:52:14
 dnl --------------------
 dnl Add an optional search-path to the compile/link variables.
@@ -1142,6 +1155,28 @@ test -n "$cf_cv_system_name" && AC_MSG_RESULT(Configuring for $cf_cv_system_name
 if test ".$system_name" != ".$cf_cv_system_name" ; then
 	AC_MSG_RESULT(Cached system name ($system_name) does not agree with actual ($cf_cv_system_name))
 	AC_MSG_ERROR("Please remove config.cache and try again.")
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_CFLAGS version: 3 updated: 2014/07/22 05:32:57
+dnl ---------------
+dnl Conditionally add to $CFLAGS and $CPPFLAGS values which are derived from
+dnl a build-configuration such as imake.  These have the pitfall that they
+dnl often contain compiler-specific options which we cannot use, mixed with
+dnl preprocessor options that we usually can.
+AC_DEFUN([CF_CHECK_CFLAGS],
+[
+CF_VERBOSE(checking additions to CFLAGS)
+cf_check_cflags="$CFLAGS"
+cf_check_cppflags="$CPPFLAGS"
+CF_ADD_CFLAGS($1,yes)
+if test "x$cf_check_cflags" != "x$CFLAGS" ; then
+AC_TRY_LINK([#include <stdio.h>],[printf("Hello world");],,
+	[CF_VERBOSE(test-compile failed.  Undoing change to \$CFLAGS)
+	 if test "x$cf_check_cppflags" != "x$CPPFLAGS" ; then
+		 CF_VERBOSE(but keeping change to \$CPPFLAGS)
+	 fi
+	 CFLAGS="$cf_check_flags"])
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -3284,6 +3319,51 @@ case ".[$]$1" in
 esac
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_PDCURSES_X11 version: 13 updated: 2012/10/06 16:39:58
+dnl ---------------
+dnl Configure for PDCurses' X11 library
+AC_DEFUN([CF_PDCURSES_X11],[
+AC_REQUIRE([CF_X_ATHENA])
+
+CF_ACVERSION_CHECK(2.52,
+	[AC_CHECK_TOOLS(XCURSES_CONFIG, xcurses-config, none)],
+	[AC_PATH_PROGS(XCURSES_CONFIG, xcurses-config, none)])
+
+if test "$XCURSES_CONFIG" != none ; then
+
+CPPFLAGS="$CPPFLAGS `$XCURSES_CONFIG --cflags`"
+CF_ADD_LIBS(`$XCURSES_CONFIG --libs`)
+
+cf_cv_lib_XCurses=yes
+
+else
+
+LDFLAGS="$LDFLAGS $X_LIBS"
+CF_CHECK_CFLAGS($X_CFLAGS)
+AC_CHECK_LIB(X11,XOpenDisplay,
+	[CF_ADD_LIBS(-lX11)],,
+	[$X_PRE_LIBS $LIBS $X_EXTRA_LIBS])
+AC_CACHE_CHECK(for XCurses library,cf_cv_lib_XCurses,[
+CF_ADD_LIBS(-lXCurses)
+AC_TRY_LINK([
+#include <xcurses.h>
+char *XCursesProgramName = "test";
+],[XCursesExit();],
+[cf_cv_lib_XCurses=yes],
+[cf_cv_lib_XCurses=no])
+])
+
+fi
+
+if test $cf_cv_lib_XCurses = yes ; then
+	AC_DEFINE(UNIX,1,[Define to 1 if using PDCurses on Unix])
+	AC_DEFINE(XCURSES,1,[Define to 1 if using PDCurses on Unix])
+	AC_CHECK_HEADER(xcurses.h, AC_DEFINE(HAVE_XCURSES,1,[Define to 1 if using PDCurses on Unix]))
+else
+	AC_MSG_ERROR(Cannot link with XCurses)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_PKG_CONFIG version: 10 updated: 2015/04/26 18:06:58
 dnl -------------
 dnl Check for the package-config program, unless disabled by command-line.
@@ -4131,6 +4211,92 @@ case $cf_cv_term_header in
 esac
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_TRIM_X_LIBS version: 3 updated: 2015/04/12 15:39:00
+dnl --------------
+dnl Trim extra base X libraries added as a workaround for inconsistent library
+dnl dependencies returned by "new" pkg-config files.
+AC_DEFUN([CF_TRIM_X_LIBS],[
+	for cf_trim_lib in Xmu Xt X11
+	do
+		case "$LIBS" in
+		(*-l$cf_trim_lib\ *-l$cf_trim_lib*)
+			LIBS=`echo "$LIBS " | sed -e 's/  / /g' -e 's%-l'"$cf_trim_lib"' %%' -e 's/ $//'`
+			CF_VERBOSE(..trimmed $LIBS)
+			;;
+		esac
+	done
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_TRIM_X_LIBS version: 3 updated: 2015/04/12 15:39:00
+dnl --------------
+dnl Trim extra base X libraries added as a workaround for inconsistent library
+dnl dependencies returned by "new" pkg-config files.
+AC_DEFUN([CF_TRIM_X_LIBS],[
+	for cf_trim_lib in Xmu Xt X11
+	do
+		case "$LIBS" in
+		(*-l$cf_trim_lib\ *-l$cf_trim_lib*)
+			LIBS=`echo "$LIBS " | sed -e 's/  / /g' -e 's%-l'"$cf_trim_lib"' %%' -e 's/ $//'`
+			CF_VERBOSE(..trimmed $LIBS)
+			;;
+		esac
+	done
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_TRY_PKG_CONFIG version: 5 updated: 2013/07/06 21:27:06
+dnl -----------------
+dnl This is a simple wrapper to use for pkg-config, for libraries which may be
+dnl available in that form.
+dnl
+dnl $1 = package name
+dnl $2 = extra logic to use, if any, after updating CFLAGS and LIBS
+dnl $3 = logic to use if pkg-config does not have the package
+AC_DEFUN([CF_TRY_PKG_CONFIG],[
+AC_REQUIRE([CF_PKG_CONFIG])
+
+if test "$PKG_CONFIG" != none && "$PKG_CONFIG" --exists $1; then
+	CF_VERBOSE(found package $1)
+	cf_pkgconfig_incs="`$PKG_CONFIG --cflags $1 2>/dev/null`"
+	cf_pkgconfig_libs="`$PKG_CONFIG --libs   $1 2>/dev/null`"
+	CF_VERBOSE(package $1 CFLAGS: $cf_pkgconfig_incs)
+	CF_VERBOSE(package $1 LIBS: $cf_pkgconfig_libs)
+	CF_ADD_CFLAGS($cf_pkgconfig_incs)
+	CF_ADD_LIBS($cf_pkgconfig_libs)
+	ifelse([$2],,:,[$2])
+else
+	cf_pkgconfig_incs=
+	cf_pkgconfig_libs=
+	ifelse([$3],,:,[$3])
+fi
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_TRY_PKG_CONFIG version: 5 updated: 2013/07/06 21:27:06
+dnl -----------------
+dnl This is a simple wrapper to use for pkg-config, for libraries which may be
+dnl available in that form.
+dnl
+dnl $1 = package name
+dnl $2 = extra logic to use, if any, after updating CFLAGS and LIBS
+dnl $3 = logic to use if pkg-config does not have the package
+AC_DEFUN([CF_TRY_PKG_CONFIG],[
+AC_REQUIRE([CF_PKG_CONFIG])
+
+if test "$PKG_CONFIG" != none && "$PKG_CONFIG" --exists $1; then
+	CF_VERBOSE(found package $1)
+	cf_pkgconfig_incs="`$PKG_CONFIG --cflags $1 2>/dev/null`"
+	cf_pkgconfig_libs="`$PKG_CONFIG --libs   $1 2>/dev/null`"
+	CF_VERBOSE(package $1 CFLAGS: $cf_pkgconfig_incs)
+	CF_VERBOSE(package $1 LIBS: $cf_pkgconfig_libs)
+	CF_ADD_CFLAGS($cf_pkgconfig_incs)
+	CF_ADD_LIBS($cf_pkgconfig_libs)
+	ifelse([$2],,:,[$2])
+else
+	cf_pkgconfig_incs=
+	cf_pkgconfig_libs=
+	ifelse([$3],,:,[$3])
+fi
+])
+dnl ---------------------------------------------------------------------------
 dnl CF_TRY_XOPEN_SOURCE version: 1 updated: 2011/10/30 17:09:50
 dnl -------------------
 dnl If _XOPEN_SOURCE is not defined in the compile environment, check if we
@@ -4225,6 +4391,15 @@ AC_DEFUN([CF_UPPER],
 $1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_UPPER version: 5 updated: 2001/01/29 23:40:59
+dnl --------
+dnl Make an uppercase version of a variable
+dnl $1=uppercase($2)
+AC_DEFUN([CF_UPPER],
+[
+$1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_UTF8_LIB version: 8 updated: 2012/10/06 08:57:51
 dnl -----------
 dnl Check for multibyte support, and if not found, utf8 compatibility library
@@ -4249,6 +4424,14 @@ if test "$cf_cv_utf8_lib" = "add-on" ; then
 	CF_ADD_LIBDIR($cf_cv_library_path_utf8)
 	CF_ADD_LIBS($cf_cv_library_file_utf8)
 fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_VERBOSE version: 3 updated: 2007/07/29 09:55:12
+dnl ----------
+dnl Use AC_VERBOSE w/o the warnings
+AC_DEFUN([CF_VERBOSE],
+[test -n "$verbose" && echo "	$1" 1>&AC_FD_MSG
+CF_MSG_LOG([$1])
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_VERBOSE version: 3 updated: 2007/07/29 09:55:12
@@ -4375,6 +4558,53 @@ cf_wait_headers="$cf_wait_headers
 #include <waitstatus.h>
 "
 fi
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WIDEC_CURSES version: 5 updated: 2012/11/08 20:57:52
+dnl ---------------
+dnl Check for curses implementations that can handle wide-characters
+AC_DEFUN([CF_WIDEC_CURSES],
+[
+AC_CACHE_CHECK(if curses supports wide characters,cf_cv_widec_curses,[
+AC_TRY_LINK([
+#include <stdlib.h>
+#include <${cf_cv_ncurses_header:-curses.h}>],[
+    wchar_t temp[2];
+    wchar_t wch = 'A';
+    temp[0] = wch;
+    waddnwstr(stdscr, temp, 1);
+],
+[cf_cv_widec_curses=yes],
+[cf_cv_widec_curses=no])
+])
+
+if test "$cf_cv_widec_curses" = yes ; then
+	AC_DEFINE(WIDEC_CURSES,1,[Define to 1 if curses supports wide characters])
+
+	# This is needed on Tru64 5.0 to declare mbstate_t
+	AC_CACHE_CHECK(if we must include wchar.h to declare mbstate_t,cf_cv_widec_mbstate,[
+	AC_TRY_COMPILE([
+#include <stdlib.h>
+#include <${cf_cv_ncurses_header:-curses.h}>],
+[mbstate_t state],
+[cf_cv_widec_mbstate=no],
+[AC_TRY_COMPILE([
+#include <stdlib.h>
+#include <wchar.h>
+#include <${cf_cv_ncurses_header:-curses.h}>],
+[mbstate_t state],
+[cf_cv_widec_mbstate=yes],
+[cf_cv_widec_mbstate=unknown])])])
+
+if test "$cf_cv_widec_mbstate" = yes ; then
+	AC_DEFINE(NEED_WCHAR_H,1,[Define to 1 if we must include wchar.h])
+fi
+
+if test "$cf_cv_widec_mbstate" != unknown ; then
+	AC_DEFINE(HAVE_MBSTATE_T,1,[Define to 1 if we have mbstate_t type])
+fi
+
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -4775,6 +5005,67 @@ chmod 700 $MAN2HTML_TEMP
 AC_SUBST(MAN2HTML_NOTE)
 AC_SUBST(MAN2HTML_PATH)
 AC_SUBST(MAN2HTML_TEMP)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_NCURSES_ETC version: 4 updated: 2015/04/25 20:53:11
+dnl -------------------
+dnl Use this macro for programs which use any variant of "curses", e.g.,
+dnl "ncurses", and "PDCurses".  Programs that can use curses and some unrelated
+dnl library (such as slang) should use a "--with-screen=XXX" option.
+dnl
+dnl This does not use AC_DEFUN, because that would tell autoconf to run each
+dnl of the macros inside this one - before this macro.
+define([CF_WITH_NCURSES_ETC],[
+CF_WITH_CURSES_DIR
+
+cf_cv_screen=curses
+
+AC_MSG_CHECKING(for specified curses library type)
+AC_ARG_WITH(screen,
+	[  --with-screen=XXX       use specified curses-libraries],
+	[cf_cv_screen=$withval],[
+
+AC_ARG_WITH(ncursesw,
+	[  --with-ncursesw         use wide ncurses-libraries],
+	[cf_cv_screen=ncursesw],[
+
+AC_ARG_WITH(ncurses,
+	[  --with-ncurses          use ncurses-libraries],
+	[cf_cv_screen=ncurses],[
+
+AC_ARG_WITH(pdcurses,
+	[  --with-pdcurses         compile/link with pdcurses X11 library],
+	[cf_cv_screen=pdcurses],[
+
+AC_ARG_WITH(curses-colr,
+	[  --with-curses-colr      compile/link with HPUX 10.x color-curses],
+	[cf_cv_screen=curses_colr],[
+
+AC_ARG_WITH(curses-5lib,
+	[  --with-curses-5lib      compile/link with SunOS 5lib curses],
+	[cf_cv_screen=curses_5lib])])])])])])
+
+AC_MSG_RESULT($cf_cv_screen)
+
+case $cf_cv_screen in
+(curses|curses_*)
+	CF_CURSES_CONFIG
+	;;
+(ncursesw*)
+	CF_UTF8_LIB
+	CF_NCURSES_CONFIG($cf_cv_screen)
+	;;
+(ncurses*)
+	CF_NCURSES_CONFIG($cf_cv_screen)
+	;;
+(pdcurses)
+	CF_PDCURSES_X11
+	;;
+(*)
+	AC_MSG_ERROR(unexpected screen-value: $cf_cv_screen)
+	;;
+esac
+
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_NO_LEAKS version: 3 updated: 2015/05/10 19:52:14
@@ -5243,6 +5534,337 @@ make an error
 fi
 ])
 dnl ---------------------------------------------------------------------------
+dnl CF_X_ATHENA version: 23 updated: 2015/04/12 15:39:00
+dnl -----------
+dnl Check for Xaw (Athena) libraries
+dnl
+dnl Sets $cf_x_athena according to the flavor of Xaw which is used.
+AC_DEFUN([CF_X_ATHENA],
+[
+cf_x_athena=${cf_x_athena:-Xaw}
+
+AC_MSG_CHECKING(if you want to link with Xaw 3d library)
+withval=
+AC_ARG_WITH(Xaw3d,
+	[  --with-Xaw3d            link with Xaw 3d library])
+if test "$withval" = yes ; then
+	cf_x_athena=Xaw3d
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(if you want to link with Xaw 3d xft library)
+withval=
+AC_ARG_WITH(Xaw3dxft,
+	[  --with-Xaw3dxft         link with Xaw 3d xft library])
+if test "$withval" = yes ; then
+	cf_x_athena=Xaw3dxft
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(if you want to link with neXT Athena library)
+withval=
+AC_ARG_WITH(neXtaw,
+	[  --with-neXtaw           link with neXT Athena library])
+if test "$withval" = yes ; then
+	cf_x_athena=neXtaw
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING(if you want to link with Athena-Plus library)
+withval=
+AC_ARG_WITH(XawPlus,
+	[  --with-XawPlus          link with Athena-Plus library])
+if test "$withval" = yes ; then
+	cf_x_athena=XawPlus
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+cf_x_athena_lib=""
+
+if test "$PKG_CONFIG" != none ; then
+	cf_athena_list=
+	test "$cf_x_athena" = Xaw && cf_athena_list="xaw8 xaw7 xaw6"
+	for cf_athena_pkg in \
+		$cf_athena_list \
+		${cf_x_athena} \
+		${cf_x_athena}-devel \
+		lib${cf_x_athena} \
+		lib${cf_x_athena}-devel
+	do
+		CF_TRY_PKG_CONFIG($cf_athena_pkg,[
+			cf_x_athena_lib="$cf_pkgconfig_libs"
+			CF_UPPER(cf_x_athena_LIBS,HAVE_LIB_$cf_x_athena)
+			AC_DEFINE_UNQUOTED($cf_x_athena_LIBS)
+
+			CF_TRIM_X_LIBS
+
+AC_CACHE_CHECK(for usable $cf_x_athena/Xmu package,cf_cv_xaw_compat,[
+AC_TRY_LINK([
+#include <X11/Xmu/CharSet.h>
+],[
+int check = XmuCompareISOLatin1("big", "small")
+],[cf_cv_xaw_compat=yes],[cf_cv_xaw_compat=no])])
+
+			if test "$cf_cv_xaw_compat" = no
+			then
+				# workaround for broken ".pc" files...
+				case "$cf_x_athena_lib" in
+				(*-lXmu*)
+					;;
+				(*)
+					CF_VERBOSE(work around broken package)
+					cf_save_xmu="$LIBS"
+					cf_first_lib=`echo "$cf_save_xmu" | sed -e 's/^[ ][ ]*//' -e 's/ .*//'`
+					CF_TRY_PKG_CONFIG(xmu,[
+							LIBS="$cf_save_xmu"
+							CF_ADD_LIB_AFTER($cf_first_lib,$cf_pkgconfig_libs)
+						],[
+							CF_ADD_LIB_AFTER($cf_first_lib,-lXmu)
+						])
+					CF_TRIM_X_LIBS
+					;;
+				esac
+			fi
+
+			break])
+	done
+fi
+
+if test -z "$cf_x_athena_lib" ; then
+	CF_X_EXT
+	CF_X_TOOLKIT
+	CF_X_ATHENA_CPPFLAGS($cf_x_athena)
+	CF_X_ATHENA_LIBS($cf_x_athena)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_X_ATHENA_CPPFLAGS version: 5 updated: 2010/05/26 17:35:30
+dnl --------------------
+dnl Normally invoked by CF_X_ATHENA, with $1 set to the appropriate flavor of
+dnl the Athena widgets, e.g., Xaw, Xaw3d, neXtaw.
+AC_DEFUN([CF_X_ATHENA_CPPFLAGS],
+[
+cf_x_athena_root=ifelse([$1],,Xaw,[$1])
+cf_x_athena_inc=""
+
+for cf_path in default \
+	/usr/contrib/X11R6 \
+	/usr/contrib/X11R5 \
+	/usr/lib/X11R5 \
+	/usr/local
+do
+	if test -z "$cf_x_athena_inc" ; then
+		cf_save="$CPPFLAGS"
+		cf_test=X11/$cf_x_athena_root/SimpleMenu.h
+		if test $cf_path != default ; then
+			CPPFLAGS="$cf_save -I$cf_path/include"
+			AC_MSG_CHECKING(for $cf_test in $cf_path)
+		else
+			AC_MSG_CHECKING(for $cf_test)
+		fi
+		AC_TRY_COMPILE([
+#include <X11/Intrinsic.h>
+#include <$cf_test>],[],
+			[cf_result=yes],
+			[cf_result=no])
+		AC_MSG_RESULT($cf_result)
+		if test "$cf_result" = yes ; then
+			cf_x_athena_inc=$cf_path
+			break
+		else
+			CPPFLAGS="$cf_save"
+		fi
+	fi
+done
+
+if test -z "$cf_x_athena_inc" ; then
+	AC_MSG_WARN(
+[Unable to successfully find Athena header files with test program])
+elif test "$cf_x_athena_inc" != default ; then
+	CPPFLAGS="$CPPFLAGS -I$cf_x_athena_inc"
+fi
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_X_ATHENA_LIBS version: 12 updated: 2011/07/17 19:55:02
+dnl ----------------
+dnl Normally invoked by CF_X_ATHENA, with $1 set to the appropriate flavor of
+dnl the Athena widgets, e.g., Xaw, Xaw3d, neXtaw.
+AC_DEFUN([CF_X_ATHENA_LIBS],
+[AC_REQUIRE([CF_X_TOOLKIT])
+cf_x_athena_root=ifelse([$1],,Xaw,[$1])
+cf_x_athena_lib=""
+
+for cf_path in default \
+	/usr/contrib/X11R6 \
+	/usr/contrib/X11R5 \
+	/usr/lib/X11R5 \
+	/usr/local
+do
+	for cf_lib in \
+		${cf_x_athena_root} \
+		${cf_x_athena_root}7 \
+		${cf_x_athena_root}6
+	do
+	for cf_libs in \
+		"-l$cf_lib -lXmu" \
+		"-l$cf_lib -lXpm -lXmu" \
+		"-l${cf_lib}_s -lXmu_s"
+	do
+		if test -z "$cf_x_athena_lib" ; then
+			cf_save="$LIBS"
+			cf_test=XawSimpleMenuAddGlobalActions
+			if test $cf_path != default ; then
+				CF_ADD_LIBS(-L$cf_path/lib $cf_libs)
+				AC_MSG_CHECKING(for $cf_libs in $cf_path)
+			else
+				CF_ADD_LIBS($cf_libs)
+				AC_MSG_CHECKING(for $cf_test in $cf_libs)
+			fi
+			AC_TRY_LINK([
+#include <X11/Intrinsic.h>
+#include <X11/$cf_x_athena_root/SimpleMenu.h>
+],[
+$cf_test((XtAppContext) 0)],
+				[cf_result=yes],
+				[cf_result=no])
+			AC_MSG_RESULT($cf_result)
+			if test "$cf_result" = yes ; then
+				cf_x_athena_lib="$cf_libs"
+				break
+			fi
+			LIBS="$cf_save"
+		fi
+	done # cf_libs
+		test -n "$cf_x_athena_lib" && break
+	done # cf_lib
+done
+
+if test -z "$cf_x_athena_lib" ; then
+	AC_MSG_ERROR(
+[Unable to successfully link Athena library (-l$cf_x_athena_root) with test program])
+fi
+
+CF_UPPER(cf_x_athena_LIBS,HAVE_LIB_$cf_x_athena)
+AC_DEFINE_UNQUOTED($cf_x_athena_LIBS)
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_X_EXT version: 3 updated: 2010/06/02 05:03:05
+dnl --------
+AC_DEFUN([CF_X_EXT],[
+CF_TRY_PKG_CONFIG(Xext,,[
+	AC_CHECK_LIB(Xext,XextCreateExtension,
+		[CF_ADD_LIB(Xext)])])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_X_TOOLKIT version: 23 updated: 2015/04/12 15:39:00
+dnl ------------
+dnl Check for X Toolkit libraries
+AC_DEFUN([CF_X_TOOLKIT],
+[
+AC_REQUIRE([AC_PATH_XTRA])
+AC_REQUIRE([CF_CHECK_CACHE])
+
+# OSX is schizoid about who owns /usr/X11 (old) versus /opt/X11 (new), and (and
+# in some cases has installed dummy files in the former, other cases replaced
+# it with a link to the new location).  This complicates the configure script.
+# Check for that pitfall, and recover using pkg-config
+#
+# If none of these are set, the configuration is almost certainly broken.
+if test -z "${X_CFLAGS}${X_PRE_LIBS}${X_LIBS}${X_EXTRA_LIBS}"
+then
+	CF_TRY_PKG_CONFIG(x11,,[AC_MSG_WARN(unable to find X11 library)])
+	CF_TRY_PKG_CONFIG(ice,,[AC_MSG_WARN(unable to find ICE library)])
+	CF_TRY_PKG_CONFIG(sm,,[AC_MSG_WARN(unable to find SM library)])
+	CF_TRY_PKG_CONFIG(xt,,[AC_MSG_WARN(unable to find Xt library)])
+fi
+
+cf_have_X_LIBS=no
+
+CF_TRY_PKG_CONFIG(xt,[
+
+	case "x$LIBS" in
+	(*-lX11*)
+		;;
+	(*)
+# we have an "xt" package, but it may omit Xt's dependency on X11
+AC_CACHE_CHECK(for usable X dependency,cf_cv_xt_x11_compat,[
+AC_TRY_LINK([
+#include <X11/Xlib.h>
+],[
+	int rc1 = XDrawLine((Display*) 0, (Drawable) 0, (GC) 0, 0, 0, 0, 0);
+	int rc2 = XClearWindow((Display*) 0, (Window) 0);
+	int rc3 = XMoveWindow((Display*) 0, (Window) 0, 0, 0);
+	int rc4 = XMoveResizeWindow((Display*)0, (Window)0, 0, 0, 0, 0);
+],[cf_cv_xt_x11_compat=yes],[cf_cv_xt_x11_compat=no])])
+		if test "$cf_cv_xt_x11_compat" = no
+		then
+			CF_VERBOSE(work around broken X11 dependency)
+			# 2010/11/19 - good enough until a working Xt on Xcb is delivered.
+			CF_TRY_PKG_CONFIG(x11,,[CF_ADD_LIB_AFTER(-lXt,-lX11)])
+		fi
+		;;
+	esac
+
+AC_CACHE_CHECK(for usable X Toolkit package,cf_cv_xt_ice_compat,[
+AC_TRY_LINK([
+#include <X11/Shell.h>
+],[int num = IceConnectionNumber(0)
+],[cf_cv_xt_ice_compat=yes],[cf_cv_xt_ice_compat=no])])
+
+	if test "$cf_cv_xt_ice_compat" = no
+	then
+		# workaround for broken ".pc" files used for X Toolkit.
+		case "x$X_PRE_LIBS" in
+		(*-lICE*)
+			case "x$LIBS" in
+			(*-lICE*)
+				;;
+			(*)
+				CF_VERBOSE(work around broken ICE dependency)
+				CF_TRY_PKG_CONFIG(ice,
+					[CF_TRY_PKG_CONFIG(sm)],
+					[CF_ADD_LIB_AFTER(-lXt,$X_PRE_LIBS)])
+				;;
+			esac
+			;;
+		esac
+	fi
+
+	cf_have_X_LIBS=yes
+],[
+
+	LDFLAGS="$X_LIBS $LDFLAGS"
+	CF_CHECK_CFLAGS($X_CFLAGS)
+
+	AC_CHECK_FUNC(XOpenDisplay,,[
+	AC_CHECK_LIB(X11,XOpenDisplay,
+		[CF_ADD_LIB(X11)],,
+		[$X_PRE_LIBS $LIBS $X_EXTRA_LIBS])])
+
+	AC_CHECK_FUNC(XtAppInitialize,,[
+	AC_CHECK_LIB(Xt, XtAppInitialize,
+		[AC_DEFINE(HAVE_LIBXT,1,[Define to 1 if we can compile with the Xt library])
+		 cf_have_X_LIBS=Xt
+		 LIBS="-lXt $X_PRE_LIBS $LIBS $X_EXTRA_LIBS"],,
+		[$X_PRE_LIBS $LIBS $X_EXTRA_LIBS])])
+])
+
+if test $cf_have_X_LIBS = no ; then
+	AC_MSG_WARN(
+[Unable to successfully link X Toolkit library (-lXt) with
+test program.  You will have to check and add the proper libraries by hand
+to makefile.])
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF__ADD_SHLIB_RULES version: 5 updated: 2015/05/10 19:52:14
 dnl -------------------
 dnl Append rules for creating, installing, uninstalling and cleaning library.
@@ -5510,3 +6132,22 @@ AC_CACHE_CHECK(whether we are using the GNU C Library 2.1 or newer,
 	AC_SUBST(GLIBC21)
 	GLIBC21="$ac_cv_gnu_library_2_1"
 ])
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_INSTALL_PREFIX version: 4 updated: 2010/10/23 15:52:32
+dnl ----------------------
+dnl Configure-script option to give a default value for the poorly-chosen name
+dnl $(DESTDIR).
+AC_DEFUN([CF_WITH_INSTALL_PREFIX],
+[
+AC_MSG_CHECKING(for install-prefix)
+AC_ARG_WITH(install-prefix,
+	[  --with-install-prefix=XXX sets DESTDIR, useful for packaging],
+	[cf_opt_with_install_prefix=$withval],
+	[cf_opt_with_install_prefix=${DESTDIR:-no}])
+AC_MSG_RESULT($cf_opt_with_install_prefix)
+if test "$cf_opt_with_install_prefix" != no ; then
+	CF_PATH_SYNTAX(cf_opt_with_install_prefix)
+	DESTDIR=$cf_opt_with_install_prefix
+fi
+AC_SUBST(DESTDIR)
+])dnl

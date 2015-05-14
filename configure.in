@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.83 2015/02/24 12:20:14 tom Exp $
+dnl $Id: configure.in,v 1.86 2015/05/13 16:01:18 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
@@ -62,9 +62,9 @@ CF_LIB_PREFIX
 CF_XOPEN_SOURCE
 CF_LARGEFILE
 
+CF_WITH_INSTALL_PREFIX
 CF_WITH_WARNINGS
 CF_PKG_CONFIG
-
 
 dnl
 dnl Allow dialog program and library to be renamed.
@@ -120,23 +120,8 @@ CF_WITH_CURSES_DIR
 
 CF_ENABLE_RPATH
 
-use_ncurses=no
-AC_ARG_WITH(ncurses,
-	[  --with-ncurses          compile/link with ncurses library],
-	[use_ncurses=ncurses])
-AC_ARG_WITH(ncursesw,
-	[  --with-ncursesw         compile/link with wide-char ncurses library],
-	[use_ncurses=ncursesw])
-if test $use_ncurses != no ; then
-	cf_wide_curses=yes
-	if test $use_ncurses = ncursesw ; then
-		CF_UTF8_LIB
-	fi
-	CF_NCURSES_CONFIG($use_ncurses)
-else
-	cf_wide_curses=no
-	CF_CURSES_CONFIG
-fi
+CF_WITH_NCURSES_ETC
+CF_WIDEC_CURSES
 
 cf_all_widgets=yes
 CF_ARG_MSG_ENABLE([if you want extra dialogs],
@@ -200,7 +185,7 @@ CF_ARG_MSG_ENABLE([if you want the mixedgauge dialog],
 CF_ARG_MSG_ENABLE([if you want the wide-curses features],
 	widec,
 	[  --enable-widec          enable wide-curses features],
-	[AC_DEFINE(USE_WIDE_CURSES,1,[Define to 1 to enable wide-curses features])],,$cf_wide_curses)
+	[AC_DEFINE(USE_WIDE_CURSES,1,[Define to 1 to enable wide-curses features])],,$cf_cv_widec_curses)
 
 AC_SUBST(EXTRAOBJS)
 
@@ -210,7 +195,7 @@ dnl
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
-AC_CHECK_HEADERS(search.h unctrl.h unistd.h)
+AC_CHECK_HEADERS(search.h unistd.h)
 CF_CURSES_TERM_H
 
 dnl
