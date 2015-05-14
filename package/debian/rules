@@ -40,7 +40,7 @@ configure-stamp:
 		--enable-header-subdir \
 		--enable-widec \
 		--with-shared \
-		--with-ncursesw \
+		--with-screen=ncursesw6 \
 		--with-package=${ACTUAL_PROG} \
 		--with-versioned-syms \
 		--disable-rpath-hack
@@ -91,6 +91,7 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_installdeb
+	dh_makeshlibs
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums

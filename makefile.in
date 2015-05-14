@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.92 2015/02/25 23:37:38 tom Exp $
+# $Id: makefile.in,v 1.93 2015/05/13 16:06:35 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2014,2015 Thomas E. Dickey                              #
@@ -43,7 +43,7 @@ top_builddir	= .
 x		= @EXEEXT@
 o		= .@OBJEXT@
 
-DESTDIR		=
+DESTDIR		= @DESTDIR@
 
 THIS		= dialog
 
