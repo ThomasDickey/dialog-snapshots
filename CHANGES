@@ -1,8 +1,13 @@
--- $Id: CHANGES,v 1.515 2015/05/13 16:02:12 tom Exp $
+-- $Id: CHANGES,v 1.518 2015/05/29 00:22:43 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2015/05/28
+	+ fixes for two autoconf macros, CF_ADD_INCDIR and CF_NCURSES_CONFIG
+	  from work on ncurses.
+	+ build-fix for NetBSD curses (patch by Matthias Scheler).
 
 2015/05/13
 	+ add configure option --with-install-prefix, like ncurses.
