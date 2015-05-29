@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.102 2015/05/13 15:57:50 tom Exp $
+dnl $Id: aclocal.m4,v 1.104 2015/05/29 00:57:03 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
 dnl
@@ -705,7 +705,7 @@ AC_SUBST(EXTRA_CPPFLAGS)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_INCDIR version: 13 updated: 2010/05/26 16:44:57
+dnl CF_ADD_INCDIR version: 14 updated: 2015/05/25 20:53:04
 dnl -------------
 dnl Add an include-directory to $CPPFLAGS.  Don't add /usr/include, since it's
 dnl redundant.  We don't normally need to add -I/usr/local/include for gcc,
@@ -756,6 +756,8 @@ if test -n "$1" ; then
 		else
 		  break
 		fi
+	  else
+		break
 	  fi
 	done
   done
@@ -2842,7 +2844,7 @@ printf("old\n");
 	,[$1=no])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_CONFIG version: 13 updated: 2015/04/26 18:06:58
+dnl CF_NCURSES_CONFIG version: 15 updated: 2015/05/28 20:56:07
 dnl -----------------
 dnl Tie together the configure-script macros for ncurses, preferring these in
 dnl order:
@@ -2876,7 +2878,8 @@ if test "x$PKG_CONFIG" != xnone; then
 				int main(void)
 				{ char *xx = curses_version(); return (xx == 0); }],
 				[cf_have_ncuconfig=yes],
-				[cf_have_ncuconfig=no])],
+				[cf_have_ncuconfig=no],
+				[cf_have_ncuconfig=unknown])],
 			[cf_have_ncuconfig=no])
 
 		AC_MSG_RESULT($cf_have_ncuconfig)
