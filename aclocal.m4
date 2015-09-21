@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.104 2015/05/29 00:57:03 tom Exp $
+dnl $Id: aclocal.m4,v 1.105 2015/09/20 22:31:10 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
 dnl
@@ -2636,7 +2636,7 @@ AC_DEFUN([CF_LIB_SUFFIX],
 	fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 16 updated: 2015/04/15 19:08:48
+dnl CF_MAKEFLAGS version: 17 updated: 2015/08/05 20:44:28
 dnl ------------
 dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
 dnl options to lower-levels.  It's very useful for "make -n" -- if we have it.
@@ -2649,7 +2649,7 @@ AC_CACHE_CHECK(for makeflags variable, cf_cv_makeflags,[
 	for cf_option in '-${MAKEFLAGS}' '${MFLAGS}'
 	do
 		cat >cf_makeflags.tmp <<CF_EOF
-SHELL = /bin/sh
+SHELL = $SHELL
 all :
 	@ echo '.$cf_option'
 CF_EOF
@@ -2844,7 +2844,7 @@ printf("old\n");
 	,[$1=no])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_CONFIG version: 15 updated: 2015/05/28 20:56:07
+dnl CF_NCURSES_CONFIG version: 17 updated: 2015/07/07 04:22:07
 dnl -----------------
 dnl Tie together the configure-script macros for ncurses, preferring these in
 dnl order:
@@ -2858,7 +2858,7 @@ AC_REQUIRE([CF_PKG_CONFIG])
 cf_ncuconfig_root=ifelse($1,,ncurses,$1)
 cf_have_ncuconfig=no
 
-if test "x$PKG_CONFIG" != xnone; then
+if test "x${PKG_CONFIG:=none}" != xnone; then
 	AC_MSG_CHECKING(pkg-config for $cf_ncuconfig_root)
 	if "$PKG_CONFIG" --exists $cf_ncuconfig_root ; then
 		AC_MSG_RESULT(yes)
@@ -2879,10 +2879,10 @@ if test "x$PKG_CONFIG" != xnone; then
 				{ char *xx = curses_version(); return (xx == 0); }],
 				[cf_have_ncuconfig=yes],
 				[cf_have_ncuconfig=no],
-				[cf_have_ncuconfig=unknown])],
+				[cf_have_ncuconfig=maybe])],
 			[cf_have_ncuconfig=no])
-
 		AC_MSG_RESULT($cf_have_ncuconfig)
+		test "$cf_have_ncuconfig" = maybe && cf_have_ncuconfig=yes
 		if test "$cf_have_ncuconfig" != "yes"
 		then
 			CPPFLAGS="$cf_save_CPPFLAGS"
@@ -3514,12 +3514,13 @@ AC_SUBST(PROG_EXT)
 test -n "$PROG_EXT" && AC_DEFINE_UNQUOTED(PROG_EXT,"$PROG_EXT",[Define to the program extension (normally blank)])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_GROFF version: 1 updated: 2013/01/02 20:37:18
+dnl CF_PROG_GROFF version: 2 updated: 2015/07/04 11:16:27
 dnl -------------
 dnl Check if groff is available, for cases (such as html output) where nroff
 dnl is not enough.
 AC_DEFUN([CF_PROG_GROFF],[
 AC_PATH_PROG(GROFF_PATH,groff,no)
+AC_PATH_PROG(NROFF_PATH,nroff,no)
 if test "x$GROFF_PATH" = xno
 then
 	NROFF_NOTE=
@@ -3528,7 +3529,6 @@ else
 	NROFF_NOTE="#"
 	GROFF_NOTE=
 fi
-AC_SUBST(GROFF_PATH)
 AC_SUBST(GROFF_NOTE)
 AC_SUBST(NROFF_NOTE)
 ])dnl
@@ -3697,7 +3697,7 @@ CF_VERBOSE(...checked $1 [$]$1)
 AC_SUBST(EXTRA_LDFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 87 updated: 2015/04/17 21:13:04
+dnl CF_SHARED_OPTS version: 89 updated: 2015/08/15 18:38:59
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -3750,11 +3750,12 @@ AC_DEFUN([CF_SHARED_OPTS],
 	(yes)
 		cf_cv_shlib_version=auto
 		;;
-	(rel|abi|auto|no)
+	(rel|abi|auto)
 		cf_cv_shlib_version=$withval
 		;;
 	(*)
-		AC_MSG_ERROR([option value must be one of: rel, abi, auto or no])
+		AC_MSG_RESULT($withval)
+		AC_MSG_ERROR([option value must be one of: rel, abi, or auto])
 		;;
 	esac
 	],[cf_cv_shlib_version=auto])
@@ -3796,14 +3797,14 @@ AC_DEFUN([CF_SHARED_OPTS],
 		;;
 	(cygwin*)
 		CC_SHARED_OPTS=
-		MK_SHARED_LIB='sh '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
+		MK_SHARED_LIB=$SHELL' '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
 		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.a"
 		cf_cv_shlib_version=cygdll
 		cf_cv_shlib_version_infix=cygdll
 		shlibdir=$bindir
 		MAKE_DLLS=
 		cat >mk_shared_lib.sh <<-CF_EOF
-		#!/bin/sh
+		#!$SHELL
 		SHARED_LIB=\[$]1
 		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/cyg/lib/' -e 's/[[0-9]]*\.dll[$]/.dll.a/'\`
 		shift
@@ -3818,14 +3819,14 @@ CF_EOF
 		;;
 	(msys*)
 		CC_SHARED_OPTS=
-		MK_SHARED_LIB='sh '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
+		MK_SHARED_LIB=$SHELL' '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
 		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.a"
 		cf_cv_shlib_version=msysdll
 		cf_cv_shlib_version_infix=msysdll
 		shlibdir=$bindir
 		MAKE_DLLS=
 		cat >mk_shared_lib.sh <<-CF_EOF
-		#!/bin/sh
+		#!$SHELL
 		SHARED_LIB=\[$]1
 		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/msys-/lib/' -e 's/[[0-9]]*\.dll[$]/.dll.a/'\`
 		shift
@@ -3919,10 +3920,10 @@ CF_EOF
 			EXTRA_LDFLAGS="-Wl,--enable-auto-import $EXTRA_LDFLAGS"
 		fi
 		CC_SHARED_OPTS=
-		MK_SHARED_LIB='sh '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
+		MK_SHARED_LIB=$SHELL' '$rel_builddir'/mk_shared_lib.sh [$]@ [$]{CC} [$]{CFLAGS}'
 		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.a"
 		cat >mk_shared_lib.sh <<-CF_EOF
-		#!/bin/sh
+		#!$SHELL
 		SHARED_LIB=\[$]1
 		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/[[0-9]]*\.dll[$]/.dll.a/'\`
 		shift
@@ -4611,7 +4612,7 @@ fi
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_ABI_VERSION version: 1 updated: 2003/09/20 18:12:49
+dnl CF_WITH_ABI_VERSION version: 3 updated: 2015/06/06 16:10:11
 dnl -------------------
 dnl Allow library's ABI to be overridden.  Generally this happens when a
 dnl packager has incremented the ABI past that used in the original package,
@@ -4622,10 +4623,21 @@ dnl symbol.
 AC_DEFUN([CF_WITH_ABI_VERSION],[
 test -z "$cf_cv_abi_version" && cf_cv_abi_version=0
 AC_ARG_WITH(abi-version,
-[  --with-abi-version=XXX  override derived ABI version],
-[AC_MSG_WARN(overriding ABI version $cf_cv_abi_version to $withval)
- cf_cv_abi_version=$withval])
- CF_NUMBER_SYNTAX($cf_cv_abi_version,ABI version)
+[  --with-abi-version=XXX  override derived ABI version],[
+	if test "x$cf_cv_abi_version" != "x$withval"
+	then
+		AC_MSG_WARN(overriding ABI version $cf_cv_abi_version to $withval)
+		case $cf_cv_rel_version in
+		(5.*)
+			cf_cv_rel_version=$withval.0
+			;;
+		(6.*)
+			cf_cv_rel_version=$withval.9	# FIXME: should be 10 as of 6.0 release
+			;;
+		esac
+	fi
+	cf_cv_abi_version=$withval])
+	CF_NUMBER_SYNTAX($cf_cv_abi_version,ABI version)
 ifelse($1,,,[
 $1_ABI=$cf_cv_abi_version
 ])
@@ -4875,7 +4887,7 @@ esac
 AC_SUBST(LIBTOOL_OPTS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_MAN2HTML version: 4 updated: 2015/05/03 19:10:48
+dnl CF_WITH_MAN2HTML version: 5 updated: 2015/08/20 04:51:36
 dnl ----------------
 dnl Check for man2html and groff.  Optionally prefer man2html over groff.
 dnl Generate a shell script which hides the differences between the two.
@@ -4911,7 +4923,7 @@ esac
 
 MAN2HTML_TEMP="man2html.tmp"
 	cat >$MAN2HTML_TEMP <<CF_EOF
-#!/bin/sh
+#!$SHELL
 # Temporary script generated by CF_WITH_MAN2HTML
 # Convert inputs to html, sending result to standard output.
 #
@@ -4938,7 +4950,7 @@ then
 	MAN2HTML_NOTE="$GROFF_NOTE"
 	MAN2HTML_PATH="$GROFF_PATH"
 	cat >>$MAN2HTML_TEMP <<CF_EOF
-/bin/sh -c "tbl \${ROOT}.\${TYPE} | $GROFF_PATH -P -o0 -I\${ROOT}_ -Thtml -\${MACS}"
+$SHELL -c "tbl \${ROOT}.\${TYPE} | $GROFF_PATH -P -o0 -I\${ROOT}_ -Thtml -\${MACS}"
 CF_EOF
 else
 	MAN2HTML_NOTE=""
