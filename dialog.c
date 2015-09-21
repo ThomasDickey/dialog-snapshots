@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.239 2015/05/11 09:16:22 Florent.Rougon Exp $
+ * $Id: dialog.c,v 1.240 2015/09/20 23:48:54 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1117,10 +1117,10 @@ static const Mode modes[] =
     {o_msgbox,          4, 4, call_msgbox},
     {o_infobox,         4, 4, call_infobox},
     {o_textbox,         4, 4, call_textbox},
-    {o_menu,            7, 0, call_menu},
-    {o_inputmenu,       7, 0, call_inputmenu},
-    {o_checklist,       8, 0, call_checklist},
-    {o_radiolist,       8, 0, call_radiolist},
+    {o_menu,            6, 0, call_menu},
+    {o_inputmenu,       6, 0, call_inputmenu},
+    {o_checklist,       7, 0, call_checklist},
+    {o_radiolist,       7, 0, call_radiolist},
     {o_inputbox,        4, 5, call_inputbox},
     {o_passwordbox,     4, 5, call_passwordbox},
 #ifdef HAVE_DLG_GAUGE
