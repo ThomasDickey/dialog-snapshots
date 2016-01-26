@@ -1,7 +1,7 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.105 2015/09/20 22:31:10 tom Exp $
+dnl $Id: aclocal.m4,v 1.106 2016/01/25 18:20:48 tom Exp $
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
+dnl Copyright 1999-2015,2016 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -2553,7 +2553,7 @@ fi
 test -z "$cf_cv_libtool_version" && unset cf_cv_libtool_version
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 11 updated: 2015/04/18 08:56:57
+dnl CF_LIB_PREFIX version: 12 updated: 2015/10/17 19:03:33
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -2561,7 +2561,11 @@ define([CF_LIB_PREFIX],
 [
 	case $cf_cv_system_name in
 	(OS/2*|os2*)
-		LIB_PREFIX=''
+		if test "$DFT_LWR_MODEL" = libtool; then
+			LIB_PREFIX='lib'
+		else
+			LIB_PREFIX=''
+		fi
 		;;
 	(*)	LIB_PREFIX='lib'
 		;;
@@ -4723,7 +4727,7 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 32 updated: 2015/04/17 21:13:04
+dnl CF_WITH_LIBTOOL version: 33 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -4821,7 +4825,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	# special hack to add -no-undefined (which libtool should do for itself)
 	LT_UNDEF=
 	case "$cf_cv_system_name" in
-	(cygwin*|msys*|mingw32*|uwin*|aix[[4-7]])
+	(cygwin*|msys*|mingw32*|os2*|uwin*|aix[[4-7]])
 		LT_UNDEF=-no-undefined
 		;;
 	esac
@@ -5233,7 +5237,7 @@ CF_NO_LEAKS_OPTION(valgrind,
 	[USE_VALGRIND])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_VERSIONED_SYMS version: 5 updated: 2015/04/17 21:13:04
+dnl CF_WITH_VERSIONED_SYMS version: 7 updated: 2015/10/24 20:50:26
 dnl ----------------------
 dnl Use this when building shared library with ELF, to markup symbols with the
 dnl version identifier from the given input file.  Generally that identifier is
@@ -5347,8 +5351,8 @@ EOF
 		# compile source, make library
 		if make -f conftest.mk 2>&AC_FD_CC >/dev/null
 		then
-			# test for missing symbol
-			cf_missing=`nm -P conftest.so 2>&AC_FD_CC |fgrep _ismissing | egrep '[[ 	]]T[[ 	]]'`
+			# test for missing symbol in either Data or Text section
+			cf_missing=`nm -P conftest.so 2>&AC_FD_CC |fgrep _ismissing | egrep '[[ 	]][[DT]][[ 	]]'`
 			test -n "$cf_missing" && WILDCARD_SYMS=yes
 		fi
 		AC_MSG_RESULT($WILDCARD_SYMS)
@@ -5383,7 +5387,7 @@ fi
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_CURSES version: 11 updated: 2011/01/18 18:15:30
+dnl CF_XOPEN_CURSES version: 13 updated: 2015/12/12 20:59:52
 dnl ---------------
 dnl Test if we should define X/Open source for curses, needed on Digital Unix
 dnl 4.x, to see the extended functions, but breaks on IRIX 6.x.
@@ -5393,7 +5397,8 @@ dnl as getbegy().  The latter is better design, but the former is standard.
 AC_DEFUN([CF_XOPEN_CURSES],
 [
 AC_REQUIRE([CF_CURSES_CPPFLAGS])dnl
-AC_CACHE_CHECK(if we must define _XOPEN_SOURCE_EXTENDED,cf_cv_need_xopen_extension,[
+AC_CACHE_CHECK(definition to turn on extended curses functions,cf_cv_need_xopen_extension,[
+cf_cv_need_xopen_extension=unknown
 AC_TRY_LINK([
 #include <stdlib.h>
 #include <${cf_cv_ncurses_header:-curses.h}>],[
@@ -5402,14 +5407,6 @@ AC_TRY_LINK([
 	make an error
 #endif
 #endif
-	long x = winnstr(stdscr, "", 0);
-	int x1, y1;
-	getbegyx(stdscr, y1, x1)],
-	[cf_cv_need_xopen_extension=no],
-	[AC_TRY_LINK([
-#define _XOPEN_SOURCE_EXTENDED
-#include <stdlib.h>
-#include <${cf_cv_ncurses_header:-curses.h}>],[
 #ifdef NCURSES_VERSION
 	cchar_t check;
 	int check2 = curs_set((int)sizeof(check));
@@ -5417,12 +5414,35 @@ AC_TRY_LINK([
 	long x = winnstr(stdscr, "", 0);
 	int x1, y1;
 	getbegyx(stdscr, y1, x1)],
-	[cf_cv_need_xopen_extension=yes],
-	[cf_cv_need_xopen_extension=unknown])])])
-test $cf_cv_need_xopen_extension = yes && CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE_EXTENDED"
+	[cf_cv_need_xopen_extension=none],
+	[
+	for cf_try_xopen_extension in _XOPEN_SOURCE_EXTENDED NCURSES_WIDECHAR
+	do
+		AC_TRY_LINK([
+#define $cf_try_xopen_extension 1
+#include <stdlib.h>
+#include <${cf_cv_ncurses_header:-curses.h}>],[
+#ifdef NCURSES_VERSION
+		cchar_t check;
+		int check2 = curs_set((int)sizeof(check));
+#endif
+		long x = winnstr(stdscr, "", 0);
+		int x1, y1;
+		getbegyx(stdscr, y1, x1)],
+		[cf_cv_need_xopen_extension=$cf_try_xopen_extension; break])
+	done
+	])
+])
+
+case $cf_cv_need_xopen_extension in
+(*_*)
+	CPPFLAGS="$CPPFLAGS -D$cf_cv_need_xopen_extension"
+	;;
+esac
+
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 49 updated: 2015/04/12 15:39:00
+dnl CF_XOPEN_SOURCE version: 50 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -5491,6 +5511,9 @@ case $host_os in
 	;;
 (openbsd*)
 	# setting _XOPEN_SOURCE breaks xterm on OpenBSD 2.8, is not needed for ncursesw
+	;;
+(os2*)
+	cf_XOPEN_SOURCE=
 	;;
 (osf[[45]]*)
 	cf_xopen_source="-D_OSF_SOURCE"
@@ -6044,7 +6067,7 @@ fi
 LIB_TARGET=$cf_libname
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF__DEFINE_SHLIB_VARS version: 3 updated: 2015/01/02 17:09:39
+dnl CF__DEFINE_SHLIB_VARS version: 4 updated: 2015/09/28 17:49:10
 dnl ---------------------
 dnl Substitute makefile variables useful for CF__ADD_SHLIB_RULES.
 dnl
@@ -6057,7 +6080,7 @@ dnl		ABI_VERSION - "4.2.4"
 define([CF__DEFINE_SHLIB_VARS],[
 CF__DEFINE_LIB_TARGET
 SET_SHLIB_VARS="# begin CF__DEFINE_SHLIB_VARS\\
-LIB_BASENAME	= ${LIB_PREFIX}\${LIB_ROOTNAME}\${LIB_SUFFIX}\\
+LIB_BASENAME	= \${LIB_PREFIX}\${LIB_ROOTNAME}\${LIB_SUFFIX}\\
 LIB_REL_NAME	= \${LIB_BASENAME}.\${REL_VERSION}\\
 LIB_ABI_NAME	= \${LIB_BASENAME}.\${ABI_VERSION}\\
 LIB_TARGET	= $LIB_TARGET\\

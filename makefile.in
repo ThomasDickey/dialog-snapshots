@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.93 2015/05/13 16:06:35 tom Exp $
+# $Id: makefile.in,v 1.94 2016/01/25 18:52:53 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2014,2015 Thomas E. Dickey                              #
+# Copyright (c) 1999-2015,2016 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -50,6 +50,7 @@ THIS		= dialog
 CFG_ROOTNAME	= @CFG_ROOTNAME@
 HDR_ROOTNAME	= @HDR_ROOTNAME@
 LIB_ROOTNAME	= @LIB_ROOTNAME@
+LIB_PREFIX	= @LIB_PREFIX@
 LIB_SUFFIX	= @LIB_SUFFIX@
 
 VERSION_MAJOR	= @VERSION_MAJOR@
