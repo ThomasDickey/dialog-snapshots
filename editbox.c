@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.63 2015/01/25 22:57:49 tom Exp $
+ *  $Id: editbox.c,v 1.64 2016/01/26 00:02:03 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2013,2015 Thomas E. Dickey
+ *  Copyright 2007-2015,2016 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -517,13 +517,18 @@ dlg_editbox(const char *title,
 	    && (key >= KEY_MAX)) {
 	    int wide = getmaxx(editing);
 	    int cell = key - KEY_MAX;
-	    thisrow = (cell / wide) + base_row;
-	    col_offset = (cell % wide);
-	    chr_offset = col_to_chr_offset(THIS_ROW, col_offset);
-	    show_one = TRUE;
-	    if (state != sTEXT) {
-		state = sTEXT;
-		show_buttons = TRUE;
+	    int check = (cell / wide) + base_row;
+	    if (check < listsize) {
+		thisrow = check;
+		col_offset = (cell % wide);
+		chr_offset = col_to_chr_offset(THIS_ROW, col_offset);
+		show_one = TRUE;
+		if (state != sTEXT) {
+		    state = sTEXT;
+		    show_buttons = TRUE;
+		}
+	    } else {
+		beep();
 	    }
 	    continue;
 	} else if (was_mouse && key >= KEY_MIN) {
