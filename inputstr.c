@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.84 2014/09/01 16:11:08 tom Exp $
+ *  $Id: inputstr.c,v 1.85 2016/01/27 01:05:58 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2013,2014	Thomas E. Dickey
+ *  Copyright 2000-2014,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -458,7 +458,7 @@ dlg_index_columns(const char *string)
 		if (ch == TAB)
 		    cache->list[inx + 1] =
 			((cache->list[inx] | 7) + 1) - cache->list[inx];
-		else if (isprint(ch))
+		else if (isprint(UCH(ch)))
 		    cache->list[inx + 1] = 1;
 		else {
 		    const char *printable;

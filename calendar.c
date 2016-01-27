@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.67 2013/03/17 15:03:41 tom Exp $
+ * $Id: calendar.c,v 1.72 2016/01/26 15:26:55 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2012,2013	Thomas E. Dickey
+ *  Copyright 2001-2013,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -56,14 +56,14 @@ typedef struct _box {
     int width;
     int height;
     BOX_DRAW box_draw;
+    int week_start;
 } BOX;
 
 static const char *
 nameOfDayOfWeek(int n)
 {
-    static const char *table[7]
-#ifndef ENABLE_NLS
-    =
+    static const char *table[7];
+    static const char *posix_days[7] =
     {
 	"Sunday",
 	"Monday",
@@ -72,35 +72,45 @@ nameOfDayOfWeek(int n)
 	"Thursday",
 	"Friday",
 	"Saturday"
-    }
-#endif
-     ;
-    const char *result = 0;
+    };
 
-    if (n >= 0 && n < 7) {
+    while (n < 0) {
+	n += 7;
+    }
+    n %= 7;
 #ifdef ENABLE_NLS
-	if (table[n] == 0) {
-	    nl_item items[7] =
-	    {
-		ABDAY_1, ABDAY_2, ABDAY_3, ABDAY_4, ABDAY_5, ABDAY_6, ABDAY_7
-	    };
-	    table[n] = nl_langinfo(items[n]);
-	}
+    if (table[n] == 0) {
+	const nl_item items[7] =
+	{
+	    ABDAY_1, ABDAY_2, ABDAY_3, ABDAY_4, ABDAY_5, ABDAY_6, ABDAY_7
+	};
+	table[n] = dlg_strclone(nl_langinfo(items[n]));
+    }
 #endif
-	result = table[n];
+    if (table[n] == 0) {
+	size_t len, limit = MON_WIDE - 1;
+	char *value = dlg_strclone(posix_days[n]);
+
+	/*
+	 * POSIX does not actually say what the length of an abbreviated name
+	 * is.  Typically it is 2, which will fit into our layout.  That also
+	 * happens to work with CJK entries as seen in glibc, which are a
+	 * double-width cell.  For now (2016/01/26), handle too-long names only
+	 * for POSIX values.
+	 */
+	if ((len = strlen(value)) > limit)
+	    value[limit] = '\0';
+	table[n] = value;
     }
-    if (result == 0) {
-	result = "?";
-    }
-    return result;
+    dlg_trace_msg("DAY(%d) = '%s'\n", n, table[n]);
+    return table[n];
 }
 
 static const char *
 nameOfMonth(int n)
 {
-    static const char *table[12]
-#ifndef ENABLE_NLS
-    =
+    static const char *table[12];
+    static const char *posix_mons[12] =
     {
 	"January",
 	"February",
@@ -114,28 +124,27 @@ nameOfMonth(int n)
 	"October",
 	"November",
 	"December"
-    }
-#endif
-     ;
-    const char *result = 0;
+    };
 
-    if (n >= 0 && n < 12) {
+    while (n < 0) {
+	n += 12;
+    }
+    n %= 12;
 #ifdef ENABLE_NLS
-	if (table[n] == 0) {
-	    nl_item items[12] =
-	    {
-		MON_1, MON_2, MON_3, MON_4, MON_5, MON_6,
-		MON_7, MON_8, MON_9, MON_10, MON_11, MON_12
-	    };
-	    table[n] = nl_langinfo(items[n]);
-	}
+    if (table[n] == 0) {
+	const nl_item items[12] =
+	{
+	    MON_1, MON_2, MON_3, MON_4, MON_5, MON_6,
+	    MON_7, MON_8, MON_9, MON_10, MON_11, MON_12
+	};
+	table[n] = dlg_strclone(nl_langinfo(items[n]));
+    }
 #endif
-	result = table[n];
+    if (table[n] == 0) {
+	table[n] = dlg_strclone(posix_mons[n]);
     }
-    if (result == 0) {
-	result = "?";
-    }
-    return result;
+    dlg_trace_msg("MON(%d) = '%s'\n", n, table[n]);
+    return table[n];
 }
 
 static int
@@ -238,10 +247,12 @@ draw_day(BOX * data, struct tm *current)
 		  0, (x + 1) * cell_wide, "%*.*s ",
 		  cell_wide - 1,
 		  cell_wide - 1,
-		  nameOfDayOfWeek(x));
+		  nameOfDayOfWeek(x + data->week_start));
     }
 
-    mday = ((6 + current->tm_mday - current->tm_wday) % 7) - 7;
+    mday = ((6 + current->tm_mday -
+	     current->tm_wday +
+	     data->week_start) % 7) - 7;
     if (mday <= -7)
 	mday += 7;
     /* mday is now in the range -6 to 0. */
@@ -363,6 +374,74 @@ init_object(BOX * data,
     }
 
     return 0;
+}
+
+static int
+WeekStart(void)
+{
+    int result = 0;
+    char *option = dialog_vars.week_start;
+    if (option != 0) {
+	if (option[0]) {
+	    char *next = 0;
+	    long check = strtol(option, &next, 0);
+	    if (next == 0 ||
+		next == option ||
+		*next != '\0') {
+		/*
+		 * Linux-specific, but harmless otherwise.  When available,
+		 * the locale program will return a single integer on one
+		 * line.
+		 */
+#ifdef HAVE_DLG_GAUGE
+		if (!strcmp(option, "locale")) {
+		    FILE *fp = dlg_popen("locale first_weekday", "r");
+		    if (fp != 0) {
+			bool failed = FALSE;
+			int count = 0;
+			char buf[80];
+
+			while (fgets(buf, (int) sizeof(buf) - 1, fp) != 0) {
+			    if (count != 0) {
+				failed = TRUE;
+				break;
+			    }
+			    ++count;
+			}
+			pclose(fp);
+
+			if (count && !failed) {
+			    next = 0;
+			    check = strtol(buf, &next, 0);
+			    if (check >= 1 &&
+				check <= 7 &&
+				next != 0 &&
+				next != buf &&
+				*next == '\n') {
+				result = (int) check - 1;
+			    }
+			}
+		    }
+		}
+#endif
+		else {
+		    int day;
+		    size_t eql = strlen(option);
+		    for (day = 0; day < 7; ++day) {
+			if (!strncmp(nameOfDayOfWeek(day), option, eql)) {
+			    result = day;
+			    break;
+			}
+		    }
+		}
+	    } else if (check < 0) {
+		result = -1;
+	    } else {
+		result = (int) (check % 7);
+	    }
+	}
+    }
+    return result;
 }
 
 static int
@@ -517,6 +596,7 @@ dialog_calendar(const char *title,
 		    DAY_HIGH + 1,
 		    draw_day,
 		    'D') < 0
+	|| ((dy_box.week_start = WeekStart()) < 0)
 	|| DrawObject(&dy_box) < 0) {
 	return CleanupResult(DLG_EXIT_ERROR, dialog, prompt, &save_vars);
     }

@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.185 2015/05/13 20:11:04 tom Exp $
-.\" Copyright 2005-2014,2015  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.187 2016/01/26 22:36:16 tom Exp $
+.\" Copyright 2005-2015,2016  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -43,7 +43,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2015/05/13 20:11:04 $"
+.TH \*D 1 "" "$Date: 2016/01/26 22:36:16 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -608,6 +608,22 @@ keystrokes and other information to the given file.
 If \fBdialog\fP reads a configure file, it is logged as well.
 Piped input to the \fIgauge\fP widget is logged.
 Use control/T to log a picture of the current dialog window.
+.
+.IP "\fB--week-start \fIday"
+sets the starting day for the week, used in the "\fB--calendar\fP" option.
+The \fIday\fP parameter can be
+.RS
+.bP
+a number (0 to 6, Sunday through Saturday using POSIX) or
+.bP
+the special value "locale" (this works with systems using glibc,
+providing an extension to the \fBlocale\fP command,
+the \fBfirst_weekday\fP value).
+.bP
+a string matching one of the abbreviations for the day of the week
+shown in the \fBcalendar\fP widget, e.g., "Mo" for "Monday".
+.RE
+.\" ***************************************************************************
 .PP
 The \fB\*p\fR program handles some command-line parameters specially,
 and removes them from the parameter list as they are processed.
@@ -864,8 +880,7 @@ the user that some operations are carrying on that may require some
 time to finish.
 .IP
 On exit, no text is written to \fB\*p\fP's output.
-Only an "OK" button is provided for input,
-but an ESC exit status may be returned.
+An OK exit status is returned.
 .
 .
 .IP "\fB--inputbox \fItext height width [init]"

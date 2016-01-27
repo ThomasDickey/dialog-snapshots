@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.268 2015/01/25 23:53:19 tom Exp $
+ *  $Id: dialog.h,v 1.271 2016/01/26 15:42:32 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2013,2015	Thomas E. Dickey
+ *  Copyright 2000-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -528,6 +528,8 @@ typedef struct {
     bool last_key;		/* option "--last-key" */
     /* 1.2-20130902 */
     bool help_tags;		/* option "--help-tags" */
+    /* 1.3-20160126 */
+    char *week_start;		/* option "--week-start" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -712,6 +714,9 @@ extern void dlg_show_string(WINDOW * /*win*/, const char * /*string*/, int /*off
 /* menubox.c */
 extern int dlg_dummy_menutext(DIALOG_LISTITEM * /*items*/, int /*current*/, char * /*newtext*/);
 extern int dlg_renamed_menutext(DIALOG_LISTITEM * /*items*/, int /*current*/, char * /*newtext*/);
+
+/* prgbox.c */
+extern FILE * dlg_popen(const char * /*command */, const char * /*type */);
 
 /* rc.c */
 #ifdef HAVE_RC_FILE

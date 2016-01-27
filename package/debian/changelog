@@ -1,6 +1,6 @@
-cdialog (20160125) unstable; urgency=low
+cdialog (20160126) unstable; urgency=low
 
-  * maintenance updates
+  * maintenance updates, add --week-start option
 
  -- Thomas E. Dickey <dickey@invisible-island.net>  Mon, 25 Jan 2016 13:13:51 -0500
 
