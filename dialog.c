@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.241 2016/01/25 18:29:20 tom Exp $
+ * $Id: dialog.c,v 1.242 2016/01/26 11:29:43 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -151,6 +151,7 @@ typedef enum {
     ,o_editbox
     ,o_fselect
     ,o_timebox
+    ,o_week_start
 #endif
 #ifdef HAVE_XDIALOG2
     ,o_buildlist
@@ -320,6 +321,7 @@ static const Options options[] = {
     { "editbox",	o_editbox,		2, "<file> <height> <width>" },
     { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
+    { "week-start",	o_week_start,		1, "<str>" },
 #endif
 #ifdef HAVE_XDIALOG2
     { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
@@ -1648,6 +1650,11 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 	case o_no_tags:
 	    dialog_vars.no_tags = TRUE;
+	    break;
+#endif
+#ifdef HAVE_XDIALOG
+	case o_week_start:
+	    dialog_vars.week_start = optionString(argv, &offset);
 	    break;
 #endif
 	}

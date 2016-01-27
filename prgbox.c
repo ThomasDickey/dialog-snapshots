@@ -1,9 +1,9 @@
 /*
- *  $Id: prgbox.c,v 1.11 2014/09/11 07:56:41 tom Exp $
+ *  $Id: prgbox.c,v 1.13 2016/01/27 01:37:26 tom Exp $
  *
  *  prgbox.c -- implements the prg box
  *
- *  Copyright 2011-2012,2014	Thomas E. Dickey
+ *  Copyright 2011-2014,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -32,7 +32,7 @@ reapchild(int sig)
 /*
  * Open a pipe which ties stderr and stdout together.
  */
-static FILE *
+FILE *
 dlg_popen(const char *command, const char *type)
 {
     FILE *result = 0;
