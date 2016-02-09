@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.35 2014/01/12 18:21:52 tom Exp $
+ *  $Id: dlg_keys.c,v 1.36 2016/02/03 01:59:12 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2011,2014 Thomas E. Dickey
+ *  Copyright 2006-2014,2016 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -692,6 +692,12 @@ dump_curses_key(FILE *fp, int curses_key)
 	    }
 	}
 	if (!found) {
+#ifdef KEY_MOUSE
+	    if (is_DLGK_MOUSE(curses_key)) {
+		fprintf(fp, "MOUSE-");
+		dump_curses_key(fp, curses_key - M_EVENT);
+	    } else
+#endif
 	    if (curses_key >= KEY_F(0)) {
 		fprintf(fp, "F%d", curses_key - KEY_F(0));
 	    } else {
