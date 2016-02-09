@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.106 2016/01/26 22:31:03 tom Exp $
+.\" $Id: dialog.3,v 1.107 2016/02/07 01:56:43 tom Exp $
 .\" Copyright 2005-2014,2016  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2016/01/26 22:31:03 $"
+.TH \*D 3 "" "$Date: 2016/02/07 01:56:43 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -479,6 +479,18 @@ by echoing asterisks for each character.
 .SS .in_helpfile
 This variable is used to prevent \fBdialog_helpfile\fP from showing
 anything, e.g., if F1 were pressed within a help-file display.
+.\" ---------------------------------------------------------------------------
+.SS .iso_week
+This corresponds to the command-line option "\fB--iso-week\fP".
+It is used in the calendar widget to tell how
+to compute the starting week for the year:
+.bP
+by default, the calendar treats January 1 as the first week of the year.
+.bP
+If this variable is true, the calendar uses ISO 8601's convention.
+ISO 8601 numbers weeks starting with the first week in January with
+a Thursday in the current year.
+January 1 may be in the \fIprevious\fP year.
 .\" ---------------------------------------------------------------------------
 .SS .item_help
 This corresponds to the command-line option "\fB--item-help\fP".

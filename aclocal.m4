@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.106 2016/01/25 18:20:48 tom Exp $
+dnl $Id: aclocal.m4,v 1.107 2016/02/09 00:14:38 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2015,2016 -- Thomas E. Dickey
 dnl
@@ -3188,6 +3188,26 @@ EOF
 test "$cf_cv_ncurses_version" = no || AC_DEFINE(NCURSES,1,[Define to 1 if we are using ncurses headers/libraries])
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_NL_LANGINFO_1STDAY version: 1 updated: 2016/02/08 19:06:25
+dnl ---------------------
+dnl glibc locale support has runtime extensions which might be implemented in
+dnl other systems.
+AC_DEFUN([CF_NL_LANGINFO_1STDAY],[
+AC_CACHE_CHECK(if runtime has nl_langinfo support for first weekday,
+	cf_nl_langinfo_1stday,[
+	AC_TRY_COMPILE([
+#include <langinfo.h>
+#include <locale.h>
+],[
+	int first_weekday = nl_langinfo (_NL_TIME_FIRST_WEEKDAY)[0];
+	long week_1stday_l = (long) nl_langinfo (_NL_TIME_WEEK_1STDAY);
+],[cf_nl_langinfo_1stday=yes
+],[cf_nl_langinfo_1stday=no
+])
+])
+test "x$cf_nl_langinfo_1stday" = xyes && AC_DEFINE(HAVE_NL_LANGINFO_1STDAY)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_NO_LEAKS_OPTION version: 6 updated: 2015/04/12 15:39:00
 dnl ------------------
 dnl see CF_WITH_NO_LEAKS
@@ -4727,6 +4747,25 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_WITH_INSTALL_PREFIX version: 4 updated: 2010/10/23 15:52:32
+dnl ----------------------
+dnl Configure-script option to give a default value for the poorly-chosen name
+dnl $(DESTDIR).
+AC_DEFUN([CF_WITH_INSTALL_PREFIX],
+[
+AC_MSG_CHECKING(for install-prefix)
+AC_ARG_WITH(install-prefix,
+	[  --with-install-prefix=XXX sets DESTDIR, useful for packaging],
+	[cf_opt_with_install_prefix=$withval],
+	[cf_opt_with_install_prefix=${DESTDIR:-no}])
+AC_MSG_RESULT($cf_opt_with_install_prefix)
+if test "$cf_opt_with_install_prefix" != no ; then
+	CF_PATH_SYNTAX(cf_opt_with_install_prefix)
+	DESTDIR=$cf_opt_with_install_prefix
+fi
+AC_SUBST(DESTDIR)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_WITH_LIBTOOL version: 33 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
@@ -6170,22 +6209,3 @@ AC_CACHE_CHECK(whether we are using the GNU C Library 2.1 or newer,
 	AC_SUBST(GLIBC21)
 	GLIBC21="$ac_cv_gnu_library_2_1"
 ])
-dnl ---------------------------------------------------------------------------
-dnl CF_WITH_INSTALL_PREFIX version: 4 updated: 2010/10/23 15:52:32
-dnl ----------------------
-dnl Configure-script option to give a default value for the poorly-chosen name
-dnl $(DESTDIR).
-AC_DEFUN([CF_WITH_INSTALL_PREFIX],
-[
-AC_MSG_CHECKING(for install-prefix)
-AC_ARG_WITH(install-prefix,
-	[  --with-install-prefix=XXX sets DESTDIR, useful for packaging],
-	[cf_opt_with_install_prefix=$withval],
-	[cf_opt_with_install_prefix=${DESTDIR:-no}])
-AC_MSG_RESULT($cf_opt_with_install_prefix)
-if test "$cf_opt_with_install_prefix" != no ; then
-	CF_PATH_SYNTAX(cf_opt_with_install_prefix)
-	DESTDIR=$cf_opt_with_install_prefix
-fi
-AC_SUBST(DESTDIR)
-])dnl

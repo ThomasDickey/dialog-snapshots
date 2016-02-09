@@ -1,9 +1,9 @@
 /*
- * $Id: mouse.c,v 1.21 2015/05/13 20:56:28 tom Exp $
+ * $Id: mouse.c,v 1.23 2016/02/03 22:49:55 tom Exp $
  *
  * mouse.c -- mouse support for dialog
  *
- * Copyright 2002-2012,2015	Thomas E. Dickey
+ * Copyright 2002-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -55,6 +55,7 @@ void
 dlg_mouse_setcode(int code)
 {
     basecode = code;
+    dlg_trace_msg("# mouse_setcode %d\n", code);
 }
 
 void
@@ -86,10 +87,23 @@ dlg_mouse_mkregion(int y, int x, int height, int width, int code)
     mseRegion *butPtr;
 
     if ((butPtr = find_region_by_code(basecode + code)) == 0) {
-	butPtr = dlg_malloc(mseRegion, 1);
+	butPtr = dlg_calloc(mseRegion, 1);
 	assert_ptr(butPtr, "dlg_mouse_mkregion");
 	butPtr->next = regionList;
 	regionList = butPtr;
+    }
+
+    if ((butPtr->mode != -1) ||
+	(butPtr->step_x != 0) ||
+	(butPtr->step_y != 0) ||
+	(butPtr->y != (basey + y)) ||
+	(butPtr->Y != (basey + y + height)) ||
+	(butPtr->x != (basex + x)) ||
+	(butPtr->X != (basex + x + width)) ||
+	(butPtr->code != basecode + code)) {
+	dlg_trace_msg("# mouse_mkregion %d,%d %dx%d %d (%d)\n",
+		      y, x, height, width,
+		      butPtr->code, code);
     }
 
     butPtr->mode = -1;

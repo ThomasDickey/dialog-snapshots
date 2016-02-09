@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.271 2016/01/26 15:42:32 tom Exp $
+ *  $Id: dialog.h,v 1.273 2016/02/06 16:22:42 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -530,6 +530,8 @@ typedef struct {
     bool help_tags;		/* option "--help-tags" */
     /* 1.3-20160126 */
     char *week_start;		/* option "--week-start" */
+    /* 1.3-20160206 */
+    bool iso_week;		/* option "--iso-week" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -847,7 +849,7 @@ typedef struct mseRegion {
 
 #if defined(NCURSES_MOUSE_VERSION)
 
-#define	mouse_open() mousemask(BUTTON1_CLICKED, (mmask_t *) 0)
+#define	mouse_open() mousemask(BUTTON1_PRESSED, (mmask_t *) 0)
 #define	mouse_close() mousemask(0, (mmask_t *) 0)
 
 extern mseRegion * dlg_mouse_mkregion (int /*y*/, int /*x*/, int /*height*/, int /*width*/, int /*code*/);

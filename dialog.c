@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.242 2016/01/26 11:29:43 tom Exp $
+ * $Id: dialog.c,v 1.246 2016/02/09 00:05:39 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -165,6 +165,7 @@ typedef enum {
 #ifdef HAVE_DLG_TRACE
     ,o_trace
 #endif
+    ,o_iso_week
 } eOptions;
 
 /*
@@ -189,6 +190,9 @@ typedef struct {
 
 static bool *dialog_opts;
 static char **dialog_argv;
+
+static char **special_argv = 0;
+static int special_argc = 0;
 
 static bool ignore_unknown = FALSE;
 
@@ -322,6 +326,7 @@ static const Options options[] = {
     { "fselect",	o_fselect,		2, "<filepath> <height> <width>" },
     { "timebox",	o_timebox,		2, "<text> <height> <width> <hour> <minute> <second>" },
     { "week-start",	o_week_start,		1, "<str>" },
+    { "iso-week",	o_iso_week,		1, NULL },
 #endif
 #ifdef HAVE_XDIALOG2
     { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
@@ -1657,6 +1662,13 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    dialog_vars.week_start = optionString(argv, &offset);
 	    break;
 #endif
+	case o_iso_week:
+	    dialog_vars.iso_week = TRUE;
+	    if (dialog_vars.week_start == 0) {	/* Monday is implied */
+		static char default_1st[] = "1";
+		dialog_vars.week_start = default_1st;
+	    }
+	    break;
 	}
 	if (!done)
 	    offset++;
@@ -1672,8 +1684,6 @@ static void
 init_result(char *buffer)
 {
     static bool first = TRUE;
-    static char **special_argv = 0;
-    static int special_argc = 0;
 
     dlg_trace_msg("# init_result\n");
 
@@ -1700,19 +1710,8 @@ init_result(char *buffer)
 	first = FALSE;
     }
 
-    /*
-     * If we are not checking memory leaks, just do the parse of the
-     * environment once.
-     */
     if (special_argv != 0) {
 	process_common_options(special_argc, special_argv, 0, FALSE);
-#ifdef NO_LEAKS
-	free(special_argv[0]);
-	free(special_argv);
-	special_argv = 0;
-	special_argc = 0;
-	first = TRUE;
-#endif
     }
 }
 
@@ -2007,5 +2006,13 @@ main(int argc, char *argv[])
 	(void) refresh();
 	end_dialog();
     }
+#ifdef NO_LEAKS
+    if (special_argv != 0) {
+	free(special_argv[0]);
+	free(special_argv);
+	special_argv = 0;
+	special_argc = 0;
+    }
+#endif
     dlg_exit(retval);
 }

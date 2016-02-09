@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.187 2016/01/26 22:36:16 tom Exp $
+.\" $Id: dialog.1,v 1.188 2016/02/07 01:52:26 tom Exp $
 .\" Copyright 2005-2015,2016  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2016/01/26 22:36:16 $"
+.TH \*D 1 "" "$Date: 2016/02/07 01:52:26 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -381,6 +381,12 @@ if your script must work in that type of environment.
 .IP "\fB--insecure"
 Makes the password widget friendlier but less secure,
 by echoing asterisks for each character.
+.
+.IP "\fB--iso-week"
+Set the starting point for the week-number
+shown in the "\fB--calendar\fP" option
+according to ISO-8601, which starts numbering
+with the first week which includes a Thursday in January.
 .
 .IP "\fB--item-help"
 Interpret the tags data for checklist, radiolist and menu boxes

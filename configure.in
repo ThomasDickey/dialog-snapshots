@@ -1,7 +1,7 @@
-dnl $Id: configure.in,v 1.86 2015/05/13 16:01:18 tom Exp $
+dnl $Id: configure.in,v 1.89 2016/02/09 01:01:21 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2014,2015 -- Thomas E. Dickey
+dnl Copyright 1999-2015,2016 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -195,7 +195,7 @@ dnl
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
-AC_CHECK_HEADERS(search.h unistd.h)
+AC_CHECK_HEADERS(search.h stdint.h unistd.h)
 CF_CURSES_TERM_H
 
 dnl
@@ -217,6 +217,7 @@ wcsrtombs \
 wcstombs \
 wctob \
 wctomb \
+mktime \
 )
 
 CF_CURSES_FUNCS(\
@@ -250,6 +251,7 @@ CF_MBSTATE_T
 CF_HEADERS_SH(DLG,dlg_config.h)
 
 AC_TRY_LINK([#include <locale.h>],[setlocale(LC_ALL, "")],[AC_DEFINE(HAVE_SETLOCALE,1,[Define to 1 if locale feature can be enabled])])
+CF_NL_LANGINFO_1STDAY
 
 CF_DISABLE_RPATH_HACK
 
