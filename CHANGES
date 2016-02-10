@@ -1,12 +1,12 @@
--- $Id: CHANGES,v 1.536 2016/02/09 00:21:20 tom Exp $
+-- $Id: CHANGES,v 1.537 2016/02/09 22:53:35 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2016/02/08
-
-2016/02/06
+2016/02/09
+	+ modify editbox widget to add a trailing newline if the text has none
+	  to ensure the last line is not ignored (report by Florent Rougon).
 	+ change mouse initialization to look for button-presses rather than
 	  button-clicks, for better response.
 	+ modify dump_curses_key() to show mouse-coding in readable form.

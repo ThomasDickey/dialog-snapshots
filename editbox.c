@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.64 2016/01/26 00:02:03 tom Exp $
+ *  $Id: editbox.c,v 1.65 2016/02/09 22:52:37 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -69,7 +69,7 @@ load_list(const char *file, char ***list, int *rows)
 	dlg_exiterr("Not a file: %s", file);
 
     size = (size_t) sb.st_size;
-    if ((blob = dlg_malloc(char, size + 1)) == 0) {
+    if ((blob = dlg_malloc(char, size + 2)) == 0) {
 	fail_list();
     } else {
 	blob[size] = '\0';
@@ -78,6 +78,14 @@ load_list(const char *file, char ***list, int *rows)
 	    dlg_exiterr("Cannot open: %s", file);
 	size = fread(blob, sizeof(char), size, fp);
 	fclose(fp);
+
+	/*
+	 * If the file is not empty, ensure that it ends with a newline.
+	 */
+	if (size != 0 && blob[size - 1] != '\n') {
+	    blob[++size - 1] = '\n';
+	    blob[size] = '\0';
+	}
 
 	for (pass = 0; pass < 2; ++pass) {
 	    int first = TRUE;
