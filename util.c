@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.260 2014/09/01 17:01:01 tom Exp $
+ *  $Id: util.c,v 1.261 2016/04/24 22:39:46 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2013,2014	Thomas E. Dickey
+ *  Copyright 2000-2014,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1384,27 +1384,6 @@ dlg_auto_sizefile(const char *title,
     (void) fclose(fd);
 }
 
-static chtype
-dlg_get_cell_attrs(WINDOW *win)
-{
-    chtype result;
-#ifdef USE_WIDE_CURSES
-    cchar_t wch;
-    wchar_t cc;
-    attr_t attrs;
-    short pair;
-    if (win_wch(win, &wch) == OK
-	&& getcchar(&wch, &cc, &attrs, &pair, NULL) == OK) {
-	result = attrs;
-    } else {
-	result = 0;
-    }
-#else
-    result = winch(win) & (A_ATTRIBUTES & ~A_COLOR);
-#endif
-    return result;
-}
-
 /*
  * Draw a rectangular box with line drawing characters.
  *
@@ -1586,7 +1565,7 @@ repaint_cell(DIALOG_WINDOWS * dw, bool draw, int y, int x)
 	chtype the_cell = dlg_get_attrs(cellwin);
 	chtype the_attr = (draw ? shadow_attr : the_cell);
 
-	if (dlg_get_cell_attrs(cellwin) & A_ALTCHARSET) {
+	if (winch(cellwin) & A_ALTCHARSET) {
 	    the_attr |= A_ALTCHARSET;
 	}
 #if USE_WCHGAT

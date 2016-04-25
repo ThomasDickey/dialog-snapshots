@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.246 2016/02/09 00:05:39 tom Exp $
+ * $Id: dialog.c,v 1.247 2016/04/19 10:55:38 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -329,7 +329,7 @@ static const Options options[] = {
     { "iso-week",	o_iso_week,		1, NULL },
 #endif
 #ifdef HAVE_XDIALOG2
-    { "buildlist",	o_buildlist,		2, "<text> <height> <width> <tag1> <item1> <status1>..." },
+    { "buildlist",	o_buildlist,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1>..." },
     { "no-items", 	o_no_items,		1, "" },
     { "no-tags", 	o_no_tags,		1, "" },
     { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },

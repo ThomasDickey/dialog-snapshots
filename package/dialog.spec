@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20160209
+%define AppRelease 20160424
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.81 2016/02/09 22:53:35 tom Exp $
+# $XTermId: dialog.spec,v 1.85 2016/04/24 22:48:18 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -57,12 +57,11 @@ make
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
+make install			DESTDIR=$RPM_BUILD_ROOT
 make install-full               DESTDIR=$RPM_BUILD_ROOT
-libtool --finish %{_libdir} 
 
 strip $RPM_BUILD_ROOT%{_bindir}/%{ActualProg}
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*.*.*
-rm -f $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.la
+chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -82,6 +81,9 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.la
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Thu Apr 21 2016 Thomas Dickey
+- remove stray call to libtool
 
 * Tue Oct 18 2011 Thomas Dickey
 - add executable permissions for shared libraries, discard ".la" file.

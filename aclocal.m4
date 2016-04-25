@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.107 2016/02/09 00:14:38 tom Exp $
+dnl $Id: aclocal.m4,v 1.110 2016/04/22 09:21:43 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2015,2016 -- Thomas E. Dickey
 dnl
@@ -968,6 +968,63 @@ ifelse([$3],,[    :]dnl
 	$4
 ])dnl
 ])])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_AR_FLAGS version: 6 updated: 2015/10/10 15:25:05
+dnl -----------
+dnl Check for suitable "ar" (archiver) options for updating an archive.
+dnl
+dnl In particular, handle some obsolete cases where the "-" might be omitted,
+dnl as well as a workaround for breakage of make's archive rules by the GNU
+dnl binutils "ar" program.
+AC_DEFUN([CF_AR_FLAGS],[
+AC_REQUIRE([CF_PROG_AR])
+
+AC_CACHE_CHECK(for options to update archives, cf_cv_ar_flags,[
+	cf_cv_ar_flags=unknown
+	for cf_ar_flags in -curvU -curv curv -crv crv -cqv cqv -rv rv
+	do
+
+		# check if $ARFLAGS already contains this choice
+		if test "x$ARFLAGS" != "x" ; then
+			cf_check_ar_flags=`echo "x$ARFLAGS" | sed -e "s/$cf_ar_flags\$//" -e "s/$cf_ar_flags / /"`
+			if test "x$ARFLAGS" != "$cf_check_ar_flags" ; then
+				cf_cv_ar_flags=
+				break
+			fi
+		fi
+
+		rm -f conftest.$ac_cv_objext
+		rm -f conftest.a
+
+		cat >conftest.$ac_ext <<EOF
+#line __oline__ "configure"
+int	testdata[[3]] = { 123, 456, 789 };
+EOF
+		if AC_TRY_EVAL(ac_compile) ; then
+			echo "$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext" >&AC_FD_CC
+			$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext 2>&AC_FD_CC 1>/dev/null
+			if test -f conftest.a ; then
+				cf_cv_ar_flags=$cf_ar_flags
+				break
+			fi
+		else
+			CF_VERBOSE(cannot compile test-program)
+			break
+		fi
+	done
+	rm -f conftest.a conftest.$ac_ext conftest.$ac_cv_objext
+])
+
+if test -n "$ARFLAGS" ; then
+	if test -n "$cf_cv_ar_flags" ; then
+		ARFLAGS="$ARFLAGS $cf_cv_ar_flags"
+	fi
+else
+	ARFLAGS=$cf_cv_ar_flags
+fi
+
+AC_SUBST(ARFLAGS)
+])
 dnl ---------------------------------------------------------------------------
 dnl CF_BUNDLED_INTL version: 18 updated: 2015/05/10 19:52:14
 dnl ---------------
@@ -2458,7 +2515,7 @@ ifdef([AC_FUNC_FSEEKO],[
 ])
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_LD_RPATH_OPT version: 6 updated: 2015/04/12 15:39:00
+dnl CF_LD_RPATH_OPT version: 7 updated: 2016/02/20 18:01:19
 dnl ---------------
 dnl For the given system and compiler, find the compiler flags to pass to the
 dnl loader to use the "rpath" feature.
@@ -2476,13 +2533,13 @@ case $cf_cv_system_name in
 		LD_RPATH_OPT="-rpath "
 	fi
 	;;
-(linux*|gnu*|k*bsd*-gnu)
+(linux*|gnu*|k*bsd*-gnu|freebsd*)
 	LD_RPATH_OPT="-Wl,-rpath,"
 	;;
 (openbsd[[2-9]].*|mirbsd*)
 	LD_RPATH_OPT="-Wl,-rpath,"
 	;;
-(dragonfly*|freebsd*)
+(dragonfly*)
 	LD_RPATH_OPT="-rpath "
 	;;
 (netbsd*)
@@ -3126,6 +3183,21 @@ CF_UPPER(cf_nculib_ROOT,HAVE_LIB$cf_nculib_root)
 AC_DEFINE_UNQUOTED($cf_nculib_ROOT)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_NCURSES_PTHREADS version: 2 updated: 2016/04/22 05:07:41
+dnl -------------------
+dnl Use this followup check to ensure that we link with pthreads if ncurses
+dnl uses it.
+AC_DEFUN([CF_NCURSES_PTHREADS],[
+: ${cf_nculib_root:=ifelse($1,,ncurses,$1)}
+AC_CHECK_LIB($cf_nculib_root,_nc_init_pthreads,
+	cf_cv_ncurses_pthreads=yes,
+	cf_cv_ncurses_pthreads=no)
+if test "$cf_cv_ncurses_pthreads" = yes
+then
+	CF_ADD_LIBS(-lpthread)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_NCURSES_VERSION version: 14 updated: 2012/10/06 08:57:51
 dnl ------------------
 dnl Check for the version of ncurses, to aid in reporting bugs, etc.
@@ -3499,6 +3571,13 @@ if test "$cf_cv_posix_c_source" != no ; then
 fi
 
 ])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_PROG_AR version: 1 updated: 2009/01/01 20:15:22
+dnl ----------
+dnl Check for archiver "ar".
+AC_DEFUN([CF_PROG_AR],[
+AC_CHECK_TOOL(AR, ar, ar)
+])
 dnl ---------------------------------------------------------------------------
 dnl CF_PROG_CC version: 4 updated: 2014/07/12 18:57:58
 dnl ----------
@@ -4255,49 +4334,6 @@ AC_DEFUN([CF_TRIM_X_LIBS],[
 	done
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_TRIM_X_LIBS version: 3 updated: 2015/04/12 15:39:00
-dnl --------------
-dnl Trim extra base X libraries added as a workaround for inconsistent library
-dnl dependencies returned by "new" pkg-config files.
-AC_DEFUN([CF_TRIM_X_LIBS],[
-	for cf_trim_lib in Xmu Xt X11
-	do
-		case "$LIBS" in
-		(*-l$cf_trim_lib\ *-l$cf_trim_lib*)
-			LIBS=`echo "$LIBS " | sed -e 's/  / /g' -e 's%-l'"$cf_trim_lib"' %%' -e 's/ $//'`
-			CF_VERBOSE(..trimmed $LIBS)
-			;;
-		esac
-	done
-])
-dnl ---------------------------------------------------------------------------
-dnl CF_TRY_PKG_CONFIG version: 5 updated: 2013/07/06 21:27:06
-dnl -----------------
-dnl This is a simple wrapper to use for pkg-config, for libraries which may be
-dnl available in that form.
-dnl
-dnl $1 = package name
-dnl $2 = extra logic to use, if any, after updating CFLAGS and LIBS
-dnl $3 = logic to use if pkg-config does not have the package
-AC_DEFUN([CF_TRY_PKG_CONFIG],[
-AC_REQUIRE([CF_PKG_CONFIG])
-
-if test "$PKG_CONFIG" != none && "$PKG_CONFIG" --exists $1; then
-	CF_VERBOSE(found package $1)
-	cf_pkgconfig_incs="`$PKG_CONFIG --cflags $1 2>/dev/null`"
-	cf_pkgconfig_libs="`$PKG_CONFIG --libs   $1 2>/dev/null`"
-	CF_VERBOSE(package $1 CFLAGS: $cf_pkgconfig_incs)
-	CF_VERBOSE(package $1 LIBS: $cf_pkgconfig_libs)
-	CF_ADD_CFLAGS($cf_pkgconfig_incs)
-	CF_ADD_LIBS($cf_pkgconfig_libs)
-	ifelse([$2],,:,[$2])
-else
-	cf_pkgconfig_incs=
-	cf_pkgconfig_libs=
-	ifelse([$3],,:,[$3])
-fi
-])
-dnl ---------------------------------------------------------------------------
 dnl CF_TRY_PKG_CONFIG version: 5 updated: 2013/07/06 21:27:06
 dnl -----------------
 dnl This is a simple wrapper to use for pkg-config, for libraries which may be
@@ -4419,15 +4455,6 @@ AC_DEFUN([CF_UPPER],
 $1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_UPPER version: 5 updated: 2001/01/29 23:40:59
-dnl --------
-dnl Make an uppercase version of a variable
-dnl $1=uppercase($2)
-AC_DEFUN([CF_UPPER],
-[
-$1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
-])dnl
-dnl ---------------------------------------------------------------------------
 dnl CF_UTF8_LIB version: 8 updated: 2012/10/06 08:57:51
 dnl -----------
 dnl Check for multibyte support, and if not found, utf8 compatibility library
@@ -4452,14 +4479,6 @@ if test "$cf_cv_utf8_lib" = "add-on" ; then
 	CF_ADD_LIBDIR($cf_cv_library_path_utf8)
 	CF_ADD_LIBS($cf_cv_library_file_utf8)
 fi
-])dnl
-dnl ---------------------------------------------------------------------------
-dnl CF_VERBOSE version: 3 updated: 2007/07/29 09:55:12
-dnl ----------
-dnl Use AC_VERBOSE w/o the warnings
-AC_DEFUN([CF_VERBOSE],
-[test -n "$verbose" && echo "	$1" 1>&AC_FD_MSG
-CF_MSG_LOG([$1])
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_VERBOSE version: 3 updated: 2007/07/29 09:55:12
@@ -5065,7 +5084,7 @@ AC_SUBST(MAN2HTML_PATH)
 AC_SUBST(MAN2HTML_TEMP)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_NCURSES_ETC version: 4 updated: 2015/04/25 20:53:11
+dnl CF_WITH_NCURSES_ETC version: 5 updated: 2016/02/20 19:23:20
 dnl -------------------
 dnl Use this macro for programs which use any variant of "curses", e.g.,
 dnl "ncurses", and "PDCurses".  Programs that can use curses and some unrelated
@@ -5123,6 +5142,8 @@ case $cf_cv_screen in
 	AC_MSG_ERROR(unexpected screen-value: $cf_cv_screen)
 	;;
 esac
+
+CF_NCURSES_PTHREADS($cf_cv_screen)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -5942,7 +5963,7 @@ to makefile.])
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF__ADD_SHLIB_RULES version: 5 updated: 2015/05/10 19:52:14
+dnl CF__ADD_SHLIB_RULES version: 6 updated: 2016/04/21 21:07:50
 dnl -------------------
 dnl Append rules for creating, installing, uninstalling and cleaning library.
 dnl In particular, this is needed for shared libraries since there are symbolic
@@ -6020,7 +6041,7 @@ fi
 if test x$2 = xshared
 then
 cat >>$1 <<CF_EOF
-	- test -z "\$(DESTDIR)" && /sbin/ldconfig
+	- \$(SHELL) -c "if test -z "\$(DESTDIR)" ; then /sbin/ldconfig; fi"
 CF_EOF
 fi
 
