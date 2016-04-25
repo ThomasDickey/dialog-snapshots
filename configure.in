@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.89 2016/02/09 01:01:21 tom Exp $
+dnl $Id: configure.in,v 1.90 2016/04/22 00:53:30 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2015,2016 -- Thomas E. Dickey
@@ -51,7 +51,7 @@ CF_PROG_GROFF
 test -z "$GROFF_NOTE" && NROFF_NOTE=
 
 dnl needed for CF_WITH_LIBTOOL
-AC_CHECK_TOOL(AR, ar, ar)
+CF_AR_FLAGS
 
 CF_MAKEFLAGS
 CF_MAKE_TAGS

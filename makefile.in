@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.94 2016/01/25 18:52:53 tom Exp $
+# $Id: makefile.in,v 1.95 2016/04/22 01:04:12 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2015,2016 Thomas E. Dickey                              #
@@ -89,6 +89,7 @@ EXTRA_CFLAGS	= @EXTRA_CFLAGS@
 CC		= @CC@
 CPP		= @CPP@
 AR		= @AR@
+ARFLAGS		= @ARFLAGS@
 LDFLAGS		= @EXTRA_LDFLAGS@ @LDFLAGS@
 LIBS		= @LIBS@ @INTLLIBS@
 RANLIB		= @LIB_PREP@

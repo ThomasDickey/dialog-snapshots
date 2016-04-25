@@ -1,8 +1,26 @@
--- $Id: CHANGES,v 1.537 2016/02/09 22:53:35 tom Exp $
+-- $Id: CHANGES,v 1.546 2016/04/24 22:48:18 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2016/04/24
+	+ fix a special case in drawing shadow on a line-drawing cell where the
+	  alternate-character set flag was lost (report by Martin Kravec).
+	+ fix a regression from 2015/05/13 changes for escaping; it is
+	  necessary to retain backslashes within quotes to make "\Z" escapes
+	  work (report by Marcin Krol).
+	+ fix test package for RPMs; changes in 2015 omitted symbolic links
+	  for the library.
+	+ fix typo in help message for "--buildlist" (report by Rihards Olups).
+	+ modified autoconf macros
+	  + CF_PROG_AR, CF_AR_FLAGS added to improve check for archive tool.
+	  + CF_LD_RPATH_OPT, change FreeBSD to use -Wl,-rpath rather than
+	    -rpath option.  According to FreeBSD #178732, either works since
+	    FreeBSD 4.x; however scons does not accept anything except the
+	    -Wl,-rpath form.
+	  + CF_WITH_NCURSES_ETC, change from ncurses to check for pthreads
+	    dependency.
 
 2016/02/09
 	+ modify editbox widget to add a trailing newline if the text has none
