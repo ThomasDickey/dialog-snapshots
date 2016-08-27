@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.188 2016/02/07 01:52:26 tom Exp $
+.\" $Id: dialog.1,v 1.189 2016/08/26 23:38:56 tom Exp $
 .\" Copyright 2005-2015,2016  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2016/02/07 01:52:26 $"
+.TH \*D 1 "" "$Date: 2016/08/26 23:38:56 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -581,6 +581,7 @@ Depending on the platform and your environment, that may fail.
 Convert each tab character to one or more spaces
 (for the \fBtextbox\fP widget; otherwise to a single space).
 Otherwise, tabs are rendered according to the curses library's interpretation.
+The \fB--no-collapse\fP option disables tab expansion.
 .
 .IP "\fB--tab-len \fIn"
 Specify the number of spaces that a tab character occupies if the
