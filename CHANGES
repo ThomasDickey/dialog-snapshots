@@ -1,8 +1,25 @@
--- $Id: CHANGES,v 1.546 2016/04/24 22:48:18 tom Exp $
+-- $Id: CHANGES,v 1.549 2016/08/27 00:09:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2016/08/26
+	+ modified autoconf macros
+	  + CF_PROG_LINT add cpplint to programs to use; drop ad hoc tdlint and
+	    alint.
+	  + CF_CC_ENV_FLAGS don't limit the check to -I, -U and -D options,
+	    since the added options can include various compiler options before
+	    and after preprocessor options.
+	  + CF_GNU_SOURCE recent glibc (Debian 2.23-4 for example) has
+	    misordered ifdef/checks for new symbol _DEFAULT_SOURCE, producing
+	    warning messages when only _GNU_SOURCE is defined.  Add a followup
+	    check to define _DEFAULT_SOURCE.
+	  + CF_XOPEN_SOURCE use _GNU_SOURCE for cygwin headers, tested with
+	    cygwin 2.3, 2.5 (patch by Corinna Vinschen).
+	+ mention --no-collapse option in manual page description of
+	  --tab-correct option.
+	+ update config.guess, config.sub
 
 2016/04/24
 	+ fix a special case in drawing shadow on a line-drawing cell where the
