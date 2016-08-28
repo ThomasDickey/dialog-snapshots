@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.54 2013/03/17 15:03:41 tom Exp $
+ * $Id: timebox.c,v 1.55 2016/08/28 01:22:54 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2012,2013   Thomas E. Dickey
+ *  Copyright 2001-2013,2016   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -148,7 +148,7 @@ dialog_timebox(const char *title,
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	CHR_SPACE ),
 	DLG_KEYS_DATA( DLGK_FIELD_FIRST,KEY_HOME ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_END ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_LL ),

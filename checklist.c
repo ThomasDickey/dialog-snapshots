@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.154 2015/01/25 23:53:06 tom Exp $
+ *  $Id: checklist.c,v 1.157 2016/08/28 01:50:51 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2013,2015	Thomas E. Dickey
+ *  Copyright 2000-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -181,6 +181,7 @@ dlg_checklist(const char *title,
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	DLGK_MOUSE(KEY_NPAGE) ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	DLGK_MOUSE(KEY_PPAGE) ),
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -383,7 +384,7 @@ dlg_checklist(const char *title,
 		choice = (key - KEY_MAX);
 		print_list(&all, choice, scrollamt, max_choice);
 
-		key = ' ';	/* force the selected item to toggle */
+		key = DLGK_TOGGLE;	/* force the selected item to toggle */
 	    } else {
 		beep();
 		continue;
@@ -398,7 +399,7 @@ dlg_checklist(const char *title,
 	 * (any number of items can be selected) or radio list (zero or one
 	 * items can be selected).
 	 */
-	if (key == ' ') {
+	if (key == DLGK_TOGGLE) {
 	    int current = scrollamt + choice;
 	    int next = items[current].state + 1;
 

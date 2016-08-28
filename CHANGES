@@ -1,10 +1,17 @@
--- $Id: CHANGES,v 1.549 2016/08/27 00:09:23 tom Exp $
+-- $Id: CHANGES,v 1.552 2016/08/28 01:59:45 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2016/08/26
+2016/08/27
+	+ change explicit checks for space character used for select or toggle
+	  to make this rebindable to "TOGGLE" (prompted by discussion with
+	  Paul van Tilburg).
+	+ add default bindings for cursor left/right to formbox.  The cursor
+	  left/right cases were replaced with rebindable symbols in 2005/12/07
+	  without providing these keys as default values (report/patch by
+	  Miroslav Lichvar).
 	+ modified autoconf macros
 	  + CF_PROG_LINT add cpplint to programs to use; drop ad hoc tdlint and
 	    alint.

@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.273 2016/02/06 16:22:42 tom Exp $
+ *  $Id: dialog.h,v 1.274 2016/08/28 00:43:07 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -154,6 +154,7 @@
 #define CHR_NEXT	DLG_CTRL('N')
 #define CHR_PREVIOUS	DLG_CTRL('P')
 #define CHR_TRACE	DLG_CTRL('T')
+#define CHR_SPACE 	' '
 
 #define ESC		27
 #define TAB		DLG_CTRL('I')

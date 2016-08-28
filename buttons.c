@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.96 2015/01/25 23:52:54 tom Exp $
+ *  $Id: buttons.c,v 1.97 2016/08/28 00:09:35 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2014,2015	Thomas E. Dickey
+ *  Copyright 2000-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -161,6 +161,12 @@ get_hotkeys(const char **labels)
     return result;
 }
 
+typedef enum {
+    sFIND_KEY = 0
+    ,sHAVE_KEY = 1
+    ,sHAD_KEY = 2
+} HOTKEY;
+
 /*
  * Print a button
  */
@@ -168,7 +174,7 @@ static void
 print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 {
     int i;
-    int state = 0;
+    HOTKEY state = sFIND_KEY;
     const int *indx = dlg_index_wchars(label);
     int limit = dlg_count_wchars(label);
     chtype key_attr = (selected
@@ -190,7 +196,7 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 	int last = indx[i + 1];
 
 	switch (state) {
-	case 0:
+	case sFIND_KEY:
 	    check = UCH(label[first]);
 #ifdef USE_WIDE_CURSES
 	    if ((last - first) != 1) {
@@ -200,12 +206,14 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 #endif
 	    if (check == hotkey) {
 		(void) wattrset(win, key_attr);
-		state = 1;
+		state = sHAVE_KEY;
 	    }
 	    break;
-	case 1:
+	case sHAVE_KEY:
 	    wattrset(win, label_attr);
-	    state = 2;
+	    state = sHAD_KEY;
+	    break;
+	default:
 	    break;
 	}
 	waddnstr(win, label + first, last - first);
@@ -376,8 +384,8 @@ dlg_draw_buttons(WINDOW *win,
 	    center_label(buffer, longest, labels[n]);
 	    mouse_mkbutton(y, x, dlg_count_columns(buffer), n);
 	    print_button(win, buffer,
-	    		 CHR_BUTTON ? hotkeys[n] : -1,
-	    		 y, x,
+			 CHR_BUTTON ? hotkeys[n] : -1,
+			 y, x,
 			 (selected == n) || (n == 0 && selected < 0));
 	    if (selected == n)
 		getyx(win, final_y, final_x);

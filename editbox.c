@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.65 2016/02/09 22:52:37 tom Exp $
+ *  $Id: editbox.c,v 1.66 2016/08/28 01:15:45 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -703,7 +703,7 @@ dlg_editbox(const char *title,
 		break;
 	    }
 	} else {
-	    if ((key == ' ') && (state != sTEXT)) {
+	    if ((key == CHR_SPACE) && (state != sTEXT)) {
 		result = dlg_ok_buttoncode(state);
 	    } else {
 		beep();

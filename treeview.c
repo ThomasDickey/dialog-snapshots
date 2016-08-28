@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.25 2015/01/25 23:54:02 tom Exp $
+ *  $Id: treeview.c,v 1.28 2016/08/28 01:52:07 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2013,2015	Thomas E. Dickey
+ *  Copyright 2012-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -185,6 +185,7 @@ dlg_treeview(const char *title,
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,	DLGK_MOUSE(KEY_NPAGE) ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	KEY_PPAGE ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	DLGK_MOUSE(KEY_PPAGE) ),
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -374,7 +375,7 @@ dlg_treeview(const char *title,
 		choice = (key - KEY_MAX);
 		print_list(&all, choice, scrollamt, max_choice);
 
-		key = ' ';	/* force the selected item to toggle */
+		key = DLGK_TOGGLE;	/* force the selected item to toggle */
 	    } else {
 		beep();
 		continue;
@@ -387,7 +388,7 @@ dlg_treeview(const char *title,
 	/*
 	 * A space toggles the item status.
 	 */
-	if (key == ' ') {
+	if (key == DLGK_TOGGLE) {
 	    int current = scrollamt + choice;
 	    int next = items[current].state + 1;
 

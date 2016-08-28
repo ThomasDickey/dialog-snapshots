@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.17 2013/03/17 16:02:00 tom Exp $
+ *  $Id: rangebox.c,v 1.18 2016/08/28 01:19:01 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012,2013	Thomas E. Dickey
+ *  Copyright 2012-2013,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -181,7 +181,7 @@ dialog_rangebox(const char *title,
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	' ' ),
+	DLG_KEYS_DATA( DLGK_ENTER,	CHR_SPACE ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),

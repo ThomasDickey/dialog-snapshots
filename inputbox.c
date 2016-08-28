@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.76 2012/12/03 11:46:50 tom Exp $
+ *  $Id: inputbox.c,v 1.77 2016/08/28 00:46:57 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2011,2012 Thomas E. Dickey
+ *  Copyright 2000-2012,2016 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -221,7 +221,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		show_buttons = TRUE;
 		state = dlg_next_ok_buttonindex(state, sTEXT);
 		break;
-	    case ' ':		/* FIXME: conflict with inputstr.c */
+	    case CHR_SPACE:	/* FIXME: conflict with inputstr.c */
 	    case DLGK_ENTER:
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;
