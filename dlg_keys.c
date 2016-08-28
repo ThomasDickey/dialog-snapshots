@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.36 2016/02/03 01:59:12 tom Exp $
+ *  $Id: dlg_keys.c,v 1.37 2016/08/28 01:36:25 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -455,7 +455,8 @@ static const CODENAME dialog_names[] =
     DIALOG_NAME(FINAL),
     DIALOG_NAME(SELECT),
     DIALOG_NAME(HELPFILE),
-    DIALOG_NAME(TRACE)
+    DIALOG_NAME(TRACE),
+    DIALOG_NAME(TOGGLE)
 };
 
 static char *
@@ -712,6 +713,8 @@ dump_curses_key(FILE *fp, int curses_key)
 	fprintf(fp, "~%c", curses_key - 64);
     } else if (curses_key == 255) {
 	fprintf(fp, "~?");
+    } else if (curses_key == CHR_SPACE) {
+	fprintf(fp, "\\s");
     } else {
 	fprintf(fp, "\\%c", curses_key);
     }

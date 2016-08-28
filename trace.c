@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.21 2015/05/29 00:17:11 Matthias.Scheler Exp $
+ *  $Id: trace.c,v 1.22 2016/08/28 01:29:55 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2011,2015	Thomas E. Dickey
+ *  Copyright 2007-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -185,6 +185,7 @@ dlg_trace_chr(int ch, int fkey)
 		    CASE(DLGK_SELECT);
 		    CASE(DLGK_HELPFILE);
 		    CASE(DLGK_TRACE);
+		    CASE(DLGK_TOGGLE);
 		}
 	    }
 	} else if (ch == ERR) {

@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.107 2016/02/07 01:56:43 tom Exp $
+.\" $Id: dialog.3,v 1.108 2016/08/27 13:08:15 tom Exp $
 .\" Copyright 2005-2014,2016  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2016/02/07 01:56:43 $"
+.TH \*D 3 "" "$Date: 2016/08/27 13:08:15 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -721,7 +721,7 @@ the width of the dialog box.
 Other parameters depend on the box type.
 .
 .\" ************************************************************************
-.SS \fBdialog_buildlist
+.SS dialog_buildlist
 implements the "\fB--buildlist\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -762,7 +762,7 @@ depending on whether \fBdialog_vars.item_help\fP is set.
 is reserved for future enhancements
 .
 .\" ************************************************************************
-.SS \fBdialog_calendar
+.SS dialog_calendar
 implements the "\fB--calendar\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -792,7 +792,7 @@ If the value is negative, the current month of the year is used.
 is the initial year shown.
 If the value is negative, the current year is used.
 .\" ************************************************************************
-.SS \fBdialog_checklist
+.SS dialog_checklist
 implements the "\fB--checklist\fP" and "\fB--radiolist\fP" options
 depending on the \fIflag\fP parameter.
 .TP 5
@@ -833,7 +833,7 @@ depending on whether \fBdialog_vars.item_help\fP is set.
 is either \fIFLAG_CHECK\fP, for checklists,
 or \fIFLAG_RADIO\fP for radiolists.
 .\" ************************************************************************
-.SS \fBdialog_dselect
+.SS dialog_dselect
 implements the "\fB--dselect\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -851,7 +851,7 @@ If zero, the height is based on the screen size.
 is the desired width of the box.
 If zero, the height is based on the screen size.
 .\" ************************************************************************
-.SS \fBdialog_editbox
+.SS dialog_editbox
 implements the "\fB--editbox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -868,7 +868,7 @@ If zero, the height is adjusted to use the available screen size.
 is the desired width of the box.
 If zero, the height is adjusted to use the available screen size.
 .\" ************************************************************************
-.SS \fBdialog_form
+.SS dialog_form
 implements the "\fB--form\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -905,7 +905,7 @@ or
 .IP
 depending on whether \fBdialog_vars.item_help\fP is set.
 .\" ************************************************************************
-.SS \fBdialog_fselect
+.SS dialog_fselect
 implements the "\fB--fselect\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -923,7 +923,7 @@ If zero, the height is based on the screen size.
 is the desired width of the box.
 If zero, the height is based on the screen size.
 .\" ************************************************************************
-.SS \fBdialog_gauge
+.SS dialog_gauge
 implements the "\fB--gauge\fP" option.
 Alternatively, a simpler or customized gauge widget can be
 setup using
@@ -949,7 +949,7 @@ If zero, the height is based on the screen size.
 .B int \fIpercent
 is the percentage to show in the progress bar.
 .\" ************************************************************************
-.SS \fBdialog_inputbox
+.SS dialog_inputbox
 implements the "\fB--inputbox\fP" or
 "\fB--password\fP" option, depending on the value of \fIpassword\fP.
 .TP 5
@@ -974,7 +974,7 @@ when auto-sizing the width of the dialog box.
 .B int \fIpassword
 if true, causes typed input to be echoed as asterisks.
 .\" ************************************************************************
-.SS \fBdialog_helpfile
+.SS dialog_helpfile
 implements the "\fB--hfile\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -995,7 +995,7 @@ If zero, the height is based on the screen size.
 is the desired width of the box.
 If zero, the height is based on the screen size.
 .\" ************************************************************************
-.SS \fBdialog_menu
+.SS dialog_menu
 implements the "\fB--menu\fP" or "\fB--inputmenu\fP" option
 depending on whether \fBdialog_vars.input_menu\fP is set.
 .TP 5
@@ -1033,7 +1033,7 @@ or
 .IP
 depending on whether \fBdialog_vars.item_help\fP is set.
 .\" ************************************************************************
-.SS \fBdialog_mixedform
+.SS dialog_mixedform
 implements the "\fB--mixedform\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1070,7 +1070,7 @@ or
 .IP
 depending on whether \fBdialog_vars.item_help\fP is set.
 .\" ************************************************************************
-.SS \fBdialog_mixedgauge
+.SS dialog_mixedgauge
 implements the "\fB--mixedgauge\fP" option
 .TP 5
 .B const char * \fItitle
@@ -1126,7 +1126,7 @@ A string with a leading "-" character is centered, marked with "%".
 For example, "-75" is displayed as "75%".
 Other strings are displayed as is.
 .\" ************************************************************************
-.SS \fBdialog_msgbox
+.SS dialog_msgbox
 implements the "\fB--msgbox\fP" or "\fB--infobox\fP" option
 depending on whether \fIpauseopt\fP is set.
 .TP 5
@@ -1150,7 +1150,7 @@ and the dialog will wait for it to complete.
 With an "OK" button, it is denoted a "msgbox",
 without an "OK" button, it is denoted an "infobox".
 .\" ************************************************************************
-.SS \fBdialog_pause
+.SS dialog_pause
 implements the "\fB--pause\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1167,7 +1167,7 @@ If zero, the height is based on the screen size.
 .B int \fIseconds
 is the timeout to use for the progress bar.
 .\" ************************************************************************
-.SS \fBdialog_prgbox
+.SS dialog_prgbox
 implements the "\fB--prgbox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1192,7 +1192,7 @@ If zero, the height is based on the screen size.
 if true, an "OK" button will be shown,
 and the dialog will wait for it to complete.
 .\" ************************************************************************
-.SS \fBdialog_progressbox
+.SS dialog_progressbox
 implements the "\fB--progressbox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1210,7 +1210,7 @@ If zero, the height is based on the screen size.
 is the desired width of the box.
 If zero, the height is based on the screen size.
 .\" ************************************************************************
-.SS \fBdialog_rangebox
+.SS dialog_rangebox
 implements the "\fB--rangebox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1237,7 +1237,7 @@ is the maximum value to allow.
 .B int \fIdefault_value
 is the default value, if no change is made.
 .\" ************************************************************************
-.SS \fBdialog_tailbox
+.SS dialog_tailbox
 implements the "\fB--tailbox\fP" or "\fB--tailboxbg\fP" option
 depending on whether \fIbg_task\fP is set.
 .TP 5
@@ -1262,7 +1262,7 @@ and the application will poll for the window to be updated.
 Otherwise an "OK" button is added to the window,
 and it will be closed when the button is activated.
 .\" ************************************************************************
-.SS \fBdialog_textbox
+.SS dialog_textbox
 implements the "\fB--textbox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1279,7 +1279,7 @@ If zero, the height is based on the screen size.
 is the desired width of the box.
 If zero, the height is based on the screen size.
 .\" ************************************************************************
-.SS \fBdialog_timebox
+.SS dialog_timebox
 implements the "\fB--timebox\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1311,7 +1311,7 @@ is the initial second shown.
 If the value is negative, the current second is used.
 Returns DLG_EXIT_ERROR if the value specified is greater than or equal to 60.
 .\" ************************************************************************
-.SS \fBdialog_treeview
+.SS dialog_treeview
 implements the "\fB--treeview\fP" option.
 .TP 5
 .B const char * \fItitle
@@ -1345,7 +1345,7 @@ The initial selection state for each item is also in this list.
 is either \fIFLAG_CHECK\fP, for checklists (multiple selections),
 or \fIFLAG_RADIO\fP for radiolists (a single selection).
 .\" ************************************************************************
-.SS \fBdialog_yesno
+.SS dialog_yesno
 implements the "\fB--yesno\fP" option.
 .TP 5
 .B const char * \fItitle

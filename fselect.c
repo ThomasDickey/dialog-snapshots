@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.93 2012/12/30 20:52:25 tom Exp $
+ *  $Id: fselect.c,v 1.95 2016/08/28 01:57:02 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -557,6 +557,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
@@ -564,6 +565,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -755,7 +757,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		break;
 	}
 
-	if (!fkey && key == ' ') {
+	if (key == DLGK_TOGGLE) {
 	    key = DLGK_SELECT;
 	    fkey = TRUE;
 	}

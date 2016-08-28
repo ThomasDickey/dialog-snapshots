@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.149 2015/01/25 23:53:43 tom Exp $
+ *  $Id: menubox.c,v 1.150 2016/08/28 01:19:56 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2013,2015	Thomas E. Dickey
+ *  Copyright 2000-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -304,7 +304,7 @@ dlg_menu(const char *title,
     static DLG_KEYS_BINDING binding[] = {
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	' ' ),
+	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	CHR_SPACE ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT,	TAB ),
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ),

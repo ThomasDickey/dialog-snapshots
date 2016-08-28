@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.87 2013/09/02 17:02:05 tom Exp $
+ *  $Id: formbox.c,v 1.90 2016/08/28 01:15:45 tom Exp $
  *
- *  formbox.c -- implements the form (i.e, some pairs label/editbox)
+ *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2012,2013	Thomas E. Dickey
+ *  Copyright 2003-2013,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -447,9 +447,11 @@ prev_valid_buttonindex(int state, int extra, bool non_editable)
 	DLG_KEYS_DATA( DLGK_FIELD_PREV, KEY_BTAB ), \
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  CHR_NEXT ), \
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_DOWN ), \
+	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_RIGHT ), \
 	DLG_KEYS_DATA( DLGK_ITEM_NEXT,  KEY_NEXT ), \
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,  CHR_PREVIOUS ), \
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_PREVIOUS ), \
+	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_LEFT ), \
 	DLG_KEYS_DATA( DLGK_ITEM_PREV,  KEY_UP ), \
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ), \
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  KEY_PPAGE )
@@ -651,7 +653,7 @@ dlg_form(const char *title,
 		    result = dlg_ok_buttoncode(code);
 		    continue;
 		}
-		if (key == ' ') {
+		if (key == CHR_SPACE) {
 		    fkey = TRUE;
 		    key = DLGK_ENTER;
 		}

@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.110 2012/12/01 01:48:08 tom Exp $
+ *  $Id: textbox.c,v 1.111 2016/08/28 01:21:35 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2011,2012	Thomas E.  Dickey
+ *  Copyright 2000-2012,2016	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -679,7 +679,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 	DLG_KEYS_DATA( DLGK_PAGE_LAST,  'G' ),
 	DLG_KEYS_DATA( DLGK_PAGE_LAST,  KEY_END ),
 	DLG_KEYS_DATA( DLGK_PAGE_LAST,  KEY_LL ),
-	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  ' ' ),
+	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  CHR_SPACE ),
 	DLG_KEYS_DATA( DLGK_PAGE_NEXT,  KEY_NPAGE ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  'B' ),
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,  'b' ),

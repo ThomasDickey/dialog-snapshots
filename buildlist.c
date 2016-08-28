@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.61 2015/01/25 23:52:45 tom Exp $
+ *  $Id: buildlist.c,v 1.64 2016/08/28 01:50:40 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2014,2015	Thomas E. Dickey
+ *  Copyright 2012-2015,2016	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -31,7 +31,6 @@
 #define sLEFT         (-2)
 #define sRIGHT        (-1)
 
-#define KEY_TOGGLE    ' '
 #define KEY_LEFTCOL   '^'
 #define KEY_RIGHTCOL  '$'
 
@@ -447,6 +446,7 @@ dlg_buildlist(const char *title,
 	DLG_KEYS_DATA( DLGK_PAGE_PREV,	DLGK_MOUSE(KEY_PPAGE+KEY_MAX) ),
 	DLG_KEYS_DATA( DLGK_GRID_LEFT,	KEY_LEFTCOL ),
 	DLG_KEYS_DATA( DLGK_GRID_RIGHT,	KEY_RIGHTCOL ),
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -699,7 +699,7 @@ dlg_buildlist(const char *title,
 		at_bot = skip_rows(&all, at_top, all.use_height, which);
 		cur_item = k;
 		print_both(&all, cur_item);
-		key = KEY_TOGGLE;	/* force the selected item to toggle */
+		key = DLGK_TOGGLE;	/* force the selected item to toggle */
 	    } else {
 		beep();
 		continue;
@@ -727,7 +727,7 @@ dlg_buildlist(const char *title,
 	 * the next available item in the same column.  But if there are no
 	 * more items in the column, move the cursor to the other column.
 	 */
-	if (key == KEY_TOGGLE) {
+	if (key == DLGK_TOGGLE) {
 	    int new_choice;
 	    int new_state = items[cur_item].state + 1;
 
