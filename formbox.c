@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.90 2016/08/28 01:15:45 tom Exp $
+ *  $Id: formbox.c,v 1.91 2016/08/28 13:50:58 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -473,6 +473,7 @@ dlg_form(const char *title,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
@@ -480,6 +481,7 @@ dlg_form(const char *title,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	/* no TOGGLEKEY_BINDINGS, since that includes space... */
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -653,10 +655,6 @@ dlg_form(const char *title,
 		    result = dlg_ok_buttoncode(code);
 		    continue;
 		}
-		if (key == CHR_SPACE) {
-		    fkey = TRUE;
-		    key = DLGK_ENTER;
-		}
 	    }
 	}
 
@@ -679,6 +677,7 @@ dlg_form(const char *title,
 		move_by = form_height;
 		break;
 
+	    case DLGK_TOGGLE:
 	    case DLGK_ENTER:
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;
