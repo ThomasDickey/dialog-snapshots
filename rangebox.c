@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.18 2016/08/28 01:19:01 tom Exp $
+ *  $Id: rangebox.c,v 1.19 2016/08/28 14:07:10 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -181,7 +181,7 @@ dialog_rangebox(const char *title,
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	CHR_SPACE ),
+	TOGGLEKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, CHR_NEXT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, KEY_RIGHT ),
 	DLG_KEYS_DATA( DLGK_FIELD_NEXT, TAB ),
@@ -321,6 +321,7 @@ dialog_rangebox(const char *title,
 	    /* handle function-keys */
 	    if (fkey) {
 		switch (key) {
+		case DLGK_TOGGLE:
 		case DLGK_ENTER:
 		    result = dlg_ok_buttoncode(button);
 		    break;

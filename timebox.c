@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.55 2016/08/28 01:22:54 tom Exp $
+ * $Id: timebox.c,v 1.56 2016/08/28 14:16:33 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -148,7 +148,7 @@ dialog_timebox(const char *title,
 	DLG_KEYS_DATA( DLGK_DELETE_RIGHT,KEY_DC ),
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
-	DLG_KEYS_DATA( DLGK_ENTER,	CHR_SPACE ),
+	TOGGLEKEY_BINDINGS,
 	DLG_KEYS_DATA( DLGK_FIELD_FIRST,KEY_HOME ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_END ),
 	DLG_KEYS_DATA( DLGK_FIELD_LAST, KEY_LL ),
@@ -303,6 +303,7 @@ dialog_timebox(const char *title,
 		case DLGK_MOUSE('S'):
 		    state = sSC;
 		    break;
+		case DLGK_TOGGLE:
 		case DLGK_ENTER:
 		    result = dlg_ok_buttoncode(button);
 		    break;

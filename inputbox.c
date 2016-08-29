@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.77 2016/08/28 00:46:57 tom Exp $
+ *  $Id: inputbox.c,v 1.78 2016/08/28 13:55:10 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -49,6 +49,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
@@ -56,6 +57,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	/* no TOGGLEKEY_BINDINGS, since that includes space... */
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -221,7 +223,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		show_buttons = TRUE;
 		state = dlg_next_ok_buttonindex(state, sTEXT);
 		break;
-	    case CHR_SPACE:	/* FIXME: conflict with inputstr.c */
+	    case DLGK_TOGGLE:
 	    case DLGK_ENTER:
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;

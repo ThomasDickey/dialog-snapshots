@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.h,v 1.35 2016/08/28 01:50:21 tom Exp $
+ *  $Id: dlg_keys.h,v 1.36 2016/08/28 21:23:17 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
@@ -97,7 +97,7 @@ typedef enum {
     DLGK_SELECT,
     DLGK_HELPFILE,
     DLGK_TRACE,
-    DLGK_TOGGLE,
+    DLGK_TOGGLE
 } DLG_KEYS_ENUM;
 
 #define is_DLGK_MOUSE(code)	((code) >= M_EVENT)

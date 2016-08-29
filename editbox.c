@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.66 2016/08/28 01:15:45 tom Exp $
+ *  $Id: editbox.c,v 1.67 2016/08/28 13:35:37 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -326,6 +326,7 @@ dlg_editbox(const char *title,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	TOGGLEKEY_BINDINGS,
 	END_KEYS_BINDING
     };
     static DLG_KEYS_BINDING binding2[] = {
@@ -333,6 +334,7 @@ dlg_editbox(const char *title,
 	HELPKEY_BINDINGS,
 	ENTERKEY_BINDINGS,
 	NAVIGATE_BINDINGS,
+	/* no TOGGLEKEY_BINDINGS, since that includes space... */
 	END_KEYS_BINDING
     };
     /* *INDENT-ON* */
@@ -698,16 +700,19 @@ dlg_editbox(const char *title,
 		dlg_mouse_free_regions();
 		goto retry;
 #endif
+	    case DLGK_TOGGLE:
+		if (state != sTEXT) {
+		    result = dlg_ok_buttoncode(state);
+		} else {
+		    beep();
+		}
+		break;
 	    default:
 		beep();
 		break;
 	    }
 	} else {
-	    if ((key == CHR_SPACE) && (state != sTEXT)) {
-		result = dlg_ok_buttoncode(state);
-	    } else {
-		beep();
-	    }
+	    beep();
 	}
     }
 
