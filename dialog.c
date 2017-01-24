@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.247 2016/04/19 10:55:38 tom Exp $
+ * $Id: dialog.c,v 1.251 2017/01/24 01:17:56 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2015,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -188,7 +188,8 @@ typedef struct {
     callerFn *jumper;
 } Mode;
 
-static bool *dialog_opts;
+static int known_opts = 0;
+static const char **dialog_opts;
 static char **dialog_argv;
 
 static char **special_argv = 0;
@@ -197,6 +198,15 @@ static int special_argc = 0;
 static bool ignore_unknown = FALSE;
 
 static const char *program = "dialog";
+
+#ifdef NO_LEAKS
+typedef struct _all_blobs {
+    struct _all_blobs *next;
+    void *blob;
+} AllBlobs;
+
+static AllBlobs *all_blobs;
+#endif
 
 /*
  * The options[] table is organized this way to make it simple to maintain
@@ -345,6 +355,38 @@ static const Options options[] = {
 };
 /* *INDENT-ON* */
 
+#ifdef NO_LEAKS
+static void
+ignore_leak(void *value)
+{
+    AllBlobs *next = dlg_calloc(AllBlobs, (size_t) 1);
+    next->blob = value;
+    next->next = all_blobs;
+    all_blobs = next;
+}
+
+static void
+handle_leaks(void)
+{
+    while (all_blobs != 0) {
+	char *blob = all_blobs->blob;
+	AllBlobs *next = all_blobs->next;
+	free(blob);
+	free(all_blobs);
+	all_blobs = next;
+    }
+    if (special_argv != 0) {
+	free(special_argv[0]);
+	free(special_argv);
+	special_argv = 0;
+	special_argc = 0;
+    }
+}
+#else
+#define handle_leaks()		/* nothing */
+#define ignore_leak(n)		/* nothing */
+#endif
+
 /*
  * Make an array showing which argv[] entries are options.  Use "--" as a
  * special token to escape the next argument, allowing it to begin with "--".
@@ -368,7 +410,7 @@ unescape_argv(int *argcp, char ***argvp)
     bool doalloc = FALSE;
     char *filename;
 
-    dialog_opts = dlg_calloc(bool, (size_t) *argcp + 1);
+    dialog_opts = dlg_calloc(const char *, (size_t) *argcp + 1);
     assert_ptr(dialog_opts, "unescape_argv");
 
     for (j = 1; j < *argcp; j++) {
@@ -384,8 +426,10 @@ unescape_argv(int *argcp, char ***argvp)
 	    changed = dlg_eat_argv(argcp, argvp, j, 1);
 	    --j;
 	} else if (!strcmp((*argvp)[j], "--file")) {
-	    if (++count_includes > limit_includes)
+	    if (++count_includes > limit_includes) {
+		handle_leaks();
 		dlg_exiterr("Too many --file options");
+	    }
 
 	    if ((filename = (*argvp)[j + 1]) != 0) {
 		FILE *fp;
@@ -403,6 +447,7 @@ unescape_argv(int *argcp, char ***argvp)
 		}
 
 		if (fp) {
+		    dlg_trace_msg("# opened --file %s ..\n", filename);
 		    blob = NULL;
 		    length = 0;
 		    do {
@@ -413,12 +458,15 @@ unescape_argv(int *argcp, char ***argvp)
 					     (size_t) BUFSIZ,
 					   fp);
 			length += bytes_read;
-			if (ferror(fp))
+			if (ferror(fp)) {
+			    handle_leaks();
 			    dlg_exiterr("error on filehandle in unescape_argv");
+			}
 		    } while (bytes_read == BUFSIZ);
 		    fclose(fp);
 
 		    blob[length] = '\0';
+		    ignore_leak(blob);
 
 		    list = dlg_string_to_argv(blob);
 		    added = dlg_count_argv(list);
@@ -433,6 +481,7 @@ unescape_argv(int *argcp, char ***argvp)
 			    assert_ptr(*argvp, "unescape_argv");
 			} else {
 			    char **newp = dlg_malloc(char *, need);
+			    ignore_leak(newp);
 			    assert_ptr(newp, "unescape_argv");
 			    for (n = 0; n < *argcp; ++n) {
 				newp[n] = (*argvp)[n];
@@ -441,14 +490,13 @@ unescape_argv(int *argcp, char ***argvp)
 			    *argvp = newp;
 			    doalloc = TRUE;
 			}
-			dialog_opts = dlg_realloc(bool, need, dialog_opts);
+			dialog_opts = dlg_realloc(const char *, need, dialog_opts);
 			assert_ptr(dialog_opts, "unescape_argv");
 
 			/* Shift the arguments after '--file <filepath>'
 			   right by (added - 2) positions */
 			for (n = *argcp - 1; n >= j + 2; --n) {
 			    (*argvp)[n + added - 2] = (*argvp)[n];
-			    dialog_opts[n + added - 2] = dialog_opts[n];
 			}
 		    } else if (added < 2) {
 			/* 0 or 1 argument read from the included file
@@ -456,24 +504,25 @@ unescape_argv(int *argcp, char ***argvp)
 			   left by (2 - added) positions */
 			for (n = j + added; n + 2 - added < *argcp; ++n) {
 			    (*argvp)[n] = (*argvp)[n + 2 - added];
-			    dialog_opts[n] = dialog_opts[n + 2 - added];
 			}
 		    }
 		    /* Copy the inserted arguments to *argvp */
 		    for (n = 0; n < added; ++n) {
 			(*argvp)[n + j] = list[n];
-			dialog_opts[n + j] = FALSE;
 		    }
 		    *argcp += added - 2;
 		    (*argvp)[*argcp] = 0;	/* Write the NULL terminator */
 		    free(list);	/* No-op if 'list' is NULL */
 		    /* Force rescan starting from the first inserted argument */
 		    --j;
+		    dlg_trace_msg("# finished --file\n");
 		    continue;
 		} else {
+		    handle_leaks();
 		    dlg_exiterr("Cannot open --file %s", filename);
 		}
 	    } else {
+		handle_leaks();
 		dlg_exiterr("No value given for --file");
 	    }
 	}
@@ -481,7 +530,8 @@ unescape_argv(int *argcp, char ***argvp)
 	    && (*argvp)[j] != 0
 	    && !strncmp((*argvp)[j], "--", (size_t) 2)
 	    && isalpha(UCH((*argvp)[j][2]))) {
-	    dialog_opts[j] = TRUE;
+	    dialog_opts[known_opts++] = (*argvp)[j];
+	    dlg_trace_msg("# option argv[%d]=%s\n", j, (*argvp)[j]);
 	}
     }
 
@@ -512,9 +562,9 @@ isOption(const char *arg)
     if (arg != 0) {
 	if (dialog_opts != 0) {
 	    int n;
-	    for (n = 1; dialog_argv[n] != 0; ++n) {
-		if (dialog_argv[n] == arg) {
-		    result = dialog_opts[n];
+	    for (n = 0; dialog_opts[n] != 0; ++n) {
+		if (dialog_opts[n] == arg) {
+		    result = TRUE;
 		    break;
 		}
 	    }
@@ -522,6 +572,7 @@ isOption(const char *arg)
 	    if (strlen(arg) == (strspn) (arg, OptionChars)) {
 		result = TRUE;
 	    } else {
+		handle_leaks();
 		dlg_exiterr("Invalid option \"%s\"", arg);
 	    }
 	}
@@ -551,6 +602,7 @@ lookupOption(const char *name, int pass)
 static void
 Usage(const char *msg)
 {
+    handle_leaks();
     dlg_exiterr("Error: %s.\nUse --help to list options.\n\n", msg);
 }
 
@@ -1362,6 +1414,7 @@ Help(void)
     PrintList(tbl_3);
 
     free(opts);
+    handle_leaks();
     dlg_exit(DLG_EXIT_OK);
 }
 
@@ -1741,6 +1794,7 @@ main(int argc, char *argv[])
     (void) setlocale(LC_ALL, "");
 #endif
 
+    init_result(my_buffer);	/* honor $DIALOGOPTS */
     unescape_argv(&argc, &argv);
     program = argv[0];
     dialog_state.output = stderr;
@@ -1766,13 +1820,17 @@ main(int argc, char *argv[])
 	    break;
 	case o_input_fd:
 	    if ((j = optionValue(argv, &offset)) < 0
-		|| (dialog_state.input = fdopen(j, "r")) == 0)
+		|| (dialog_state.input = fdopen(j, "r")) == 0) {
+		handle_leaks();
 		dlg_exiterr("Cannot open input-fd\n");
+	    }
 	    break;
 	case o_output_fd:
 	    if ((j = optionValue(argv, &offset)) < 0
-		|| (dialog_state.output = fdopen(j, "w")) == 0)
+		|| (dialog_state.output = fdopen(j, "w")) == 0) {
+		handle_leaks();
 		dlg_exiterr("Cannot open output-fd\n");
+	    }
 	    break;
 	case o_keep_tite:
 	    keep_tite = TRUE;
@@ -1809,8 +1867,6 @@ main(int argc, char *argv[])
 		      argv[base]);
 	for (j = base; j < argc; ++j) {
 	    dialog_argv[j] = dialog_argv[j + 1 + (offset - base)];
-	    if (dialog_opts != 0)
-		dialog_opts[j] = dialog_opts[j + 1 + (offset - base)];
 	}
 	argc -= (1 + offset - base);
 	offset = base;
@@ -1856,8 +1912,10 @@ main(int argc, char *argv[])
 	    sprintf(temp, "Expected a filename for %.50s", argv[1]);
 	    Usage(temp);
 	}
-	if (dlg_parse_rc() == -1)	/* Read the configuration file */
+	if (dlg_parse_rc() == -1) {	/* Read the configuration file */
+	    handle_leaks();
 	    dlg_exiterr("dialog: dlg_parse_rc");
+	}
 	dlg_create_rc(argv[2]);
 	return DLG_EXIT_OK;
     }
@@ -1951,6 +2009,7 @@ main(int argc, char *argv[])
 		    } else {
 			argv[j] = strdup("?");
 		    }
+		    ignore_leak(argv[j]);
 		}
 		break;
 	    }
@@ -2006,13 +2065,6 @@ main(int argc, char *argv[])
 	(void) refresh();
 	end_dialog();
     }
-#ifdef NO_LEAKS
-    if (special_argv != 0) {
-	free(special_argv[0]);
-	free(special_argv);
-	special_argv = 0;
-	special_argc = 0;
-    }
-#endif
+    handle_leaks();
     dlg_exit(retval);
 }

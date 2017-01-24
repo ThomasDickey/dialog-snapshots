@@ -1,9 +1,9 @@
 /*
- * $Id: argv.c,v 1.6 2016/04/24 18:56:14 tom Exp $
+ * $Id: argv.c,v 1.7 2017/01/24 01:41:35 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
- *  Copyright 2011-2015,2016	Thomas E. Dickey
+ *  Copyright 2011-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -63,18 +63,20 @@ dlg_string_to_argv(char *blob)
 		    inparm = FALSE;
 		}
 	    } else {
-		if (!inparm) {
-		    if (pass)
-			result[count] = param;
-		    ++count;
-		    inparm = TRUE;
-		}
 		if (blob[n] == '\\') {
 		    if (n + 1 == length) {
 			break;	/* The string is terminated by a backslash */
 		    } else if (!quoted) {
 			++n;	/* Skip the backslash */
+			if (blob[n] == '\n')
+			    continue;
 		    }
+		}
+		if (!inparm) {
+		    if (pass)
+			result[count] = param;
+		    ++count;
+		    inparm = TRUE;
 		}
 		if (pass) {
 		    *param++ = blob[n];

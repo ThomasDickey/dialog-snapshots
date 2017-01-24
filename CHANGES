@@ -1,8 +1,28 @@
--- $Id: CHANGES,v 1.556 2016/11/20 11:51:14 tom Exp $
+-- $Id: CHANGES,v 1.561 2017/01/24 01:43:37 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2017/01/23
+	+ modify dlg_string_to_argv() to ignore escaped newlines except when
+	  quoted, fixing a problem with samples/checklist9.
+	+ interpret $DIALOGOPTS before expanding "--file", etc., to allow
+	  the environment variable to turn on tracing in that process.
+	+ improve performance when processing very long command lines, e.g.,
+	  using "--file" by changing dialog_opts[] to an array of pointers to
+	  the expanded argv[] (discussion with Lars Tauber).
+	+ modified autoconf macros
+	  + CF_CC_ENV_FLAGS amend the last change to move only the
+	    preprocessor, optimization and warning flags to CPPFLAGS and
+	    CFLAGS, leaving the residue in CC.  That happens to work for gcc's
+	    various "model" options, but may require tuning for other compilers
+	  + CF_LARGEFILE workaround for clang exit-code vs warnings
+	  + CF_MATH_LIB quiet strict gcc warning
+	  + CF_WITH_LIBTOOL fix a few places in configure/build scripts where
+	    DESTDIR and rpath were combined
+	  + CF_XOPEN_SOURCE add "uclinux" to list of Linux's
+	+ update config.guess, config.sub
 
 2016/11/20
 	+ added fur.po (Friulian) from
