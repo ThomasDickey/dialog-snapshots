@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.251 2017/01/24 01:17:56 tom Exp $
+ * $Id: dialog.c,v 1.252 2017/01/25 01:51:08 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -406,7 +406,6 @@ unescape_argv(int *argcp, char ***argvp)
     int j, k;
     int limit_includes = 20 + *argcp;
     int count_includes = 0;
-    bool changed = FALSE;
     bool doalloc = FALSE;
     char *filename;
 
@@ -417,13 +416,13 @@ unescape_argv(int *argcp, char ***argvp)
 	bool escaped = FALSE;
 	if (!strcmp((*argvp)[j], "--")) {
 	    escaped = TRUE;
-	    changed = dlg_eat_argv(argcp, argvp, j, 1);
+	    dlg_eat_argv(argcp, argvp, j, 1);
 	} else if (!strcmp((*argvp)[j], "--args")) {
 	    fprintf(stderr, "Showing arguments at arg%d\n", j);
 	    for (k = 0; k < *argcp; ++k) {
 		fprintf(stderr, " arg%d:%s\n", k, (*argvp)[k]);
 	    }
-	    changed = dlg_eat_argv(argcp, argvp, j, 1);
+	    dlg_eat_argv(argcp, argvp, j, 1);
 	    --j;
 	} else if (!strcmp((*argvp)[j], "--file")) {
 	    if (++count_includes > limit_includes) {
@@ -535,13 +534,8 @@ unescape_argv(int *argcp, char ***argvp)
 	}
     }
 
-    /* if we didn't find any "--" tokens, there's no reason to do the table
-     * lookup in isOption()
-     */
-    if (!changed) {
-	free(dialog_opts);
-	dialog_opts = 0;
-    }
+    dialog_opts[known_opts] = 0;
+    dlg_trace_msg("# %d options vs %d arguments\n", known_opts, *argcp);
     dialog_argv = (*argvp);
 }
 
@@ -641,8 +635,13 @@ howmany_tags(char *argv[], int group)
 	    Usage(temp);
 	}
 
-	argv += group;
-	result++;
+	if ((have % group) == 0) {
+	    argv += have;
+	    result += (have / group);
+	} else {
+	    argv += group;
+	    result++;
+	}
     }
 
     return result;

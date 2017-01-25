@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.95 2016/04/22 01:04:12 tom Exp $
+# $Id: makefile.in,v 1.96 2017/01/24 10:14:26 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2015,2016 Thomas E. Dickey                              #
+# Copyright (c) 1999-2016,2017 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -203,7 +203,7 @@ dialog$o \
 $(OBJECTS) : $(srcdir)/dialog.h $(srcdir)/dlg_keys.h dlg_config.h VERSION
 
 $(PROG)$x : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
-	$(LINK) -o $@ dialog$o -L. -l@PACKAGE@ $(LDFLAGS) $(LIBS)
+	$(LINK) -o $@ dialog$o -L. -l@PACKAGE@ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
 clean	\
 distclean \
