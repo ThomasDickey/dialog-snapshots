@@ -1,5 +1,5 @@
 /*
- * $Id: argv.c,v 1.7 2017/01/24 01:41:35 tom Exp $
+ * $Id: argv.c,v 1.8 2017/01/25 00:48:38 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
@@ -32,7 +32,7 @@
 char **
 dlg_string_to_argv(char *blob)
 {
-    size_t n;
+    size_t n, k;
     int pass;
     size_t length = strlen(blob);
     char **result = 0;
@@ -41,11 +41,14 @@ dlg_string_to_argv(char *blob)
     for (pass = 0; pass < 2; ++pass) {
 	bool inparm = FALSE;
 	bool quoted = FALSE;
+	bool escape = FALSE;
 	char *param = blob;
 	size_t count = 0;
 
 	for (n = 0; n < length; ++n) {
-	    if (quoted && blob[n] == '"') {
+	    if (escape && (blob[n] == '"' || blob[n] == '\n')) {
+		;
+	    } else if (quoted && blob[n] == '"') {
 		quoted = FALSE;
 	    } else if (blob[n] == '"') {
 		quoted = TRUE;
@@ -66,10 +69,18 @@ dlg_string_to_argv(char *blob)
 		if (blob[n] == '\\') {
 		    if (n + 1 == length) {
 			break;	/* The string is terminated by a backslash */
-		    } else if (!quoted) {
-			++n;	/* Skip the backslash */
-			if (blob[n] == '\n')
-			    continue;
+		    } else if ((quoted && blob[n + 1] == '"') ||
+			       (!quoted && blob[n + 1] == '\n')) {
+			/* eat the backslash */
+			if (pass) {
+			    --length;
+			    for (k = n; k < length; ++k)
+				blob[k] = blob[k + 1];
+			    blob[length] = '\0';
+			} else {
+			    escape = TRUE;
+			}
+			continue;
 		    }
 		}
 		if (!inparm) {
@@ -82,6 +93,7 @@ dlg_string_to_argv(char *blob)
 		    *param++ = blob[n];
 		}
 	    }
+	    escape = FALSE;
 	}
 
 	if (!pass) {

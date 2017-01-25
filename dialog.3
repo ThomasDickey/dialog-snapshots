@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.108 2016/08/27 13:08:15 tom Exp $
-.\" Copyright 2005-2014,2016  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.110 2017/01/25 01:13:33 tom Exp $
+.\" Copyright 2005-2016,2017  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2016/08/27 13:08:15 $"
+.TH \*D 3 "" "$Date: 2017/01/25 01:13:33 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -3238,7 +3238,20 @@ is the other string
 .SS dlg_string_to_argv
 Convert a string to an argument vector
 returning an index (which must be freed by the caller).
-The string is modified (replacing gaps between tokens with nulls).
+The string is modified:
+.bP
+Blanks between arguments are replaced by nulls.
+.bP
+Normally arguments are separated by blanks;
+however you can double-quote an argument to enclose blanks.
+The surrounding double-quotes are removed from the string.
+.bP
+A backslash preceding a double-quote within double-quotes is removed.
+.bP
+A backslash preceding a newline outside double-quotes is removed.
+.bP
+Except for special cases, backslashes are preserved in the strings,
+since other \fB\*l\fP functions interpret backslashes, e.g., for colors.
 .TP 5
 .B char *\fIblob
 is the string to convert.
