@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.189 2016/08/26 23:38:56 tom Exp $
-.\" Copyright 2005-2015,2016  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.190 2017/01/31 00:00:07 tom Exp $
+.\" Copyright 2005-2016,2017  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -43,7 +43,7 @@
 .IP \(bu 4
 ..
 .
-.TH \*D 1 "" "$Date: 2016/08/26 23:38:56 $"
+.TH \*D 1 "" "$Date: 2017/01/31 00:00:07 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -527,6 +527,11 @@ It does not cause \fBdialog\fP to exit by itself.
 Normally \fB\*p\fP quotes the strings returned by checklist's
 as well as the item-help text.
 Use this option to quote all string results.
+.IP "\fB--reorder"
+By default, the buildlist widget uses the same order for the output (right)
+list as for the input (left).
+Use this option to tell \fB\*p\fP to use the order
+in which a user adds selections to the output list.
 .
 .IP "\fB--scrollbar"
 For widgets holding a scrollable set of data,

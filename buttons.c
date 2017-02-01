@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.97 2016/08/28 00:09:35 tom Exp $
+ *  $Id: buttons.c,v 1.98 2017/01/31 00:26:04 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2015,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -640,7 +640,7 @@ dlg_ok_buttoncode(int button)
     } else if (dialog_vars.help_button && (button == n)) {
 	result = DLG_EXIT_HELP;
     }
-    dlg_trace_msg("# dlg_ok_buttoncode(%d) = %d\n", button, result);
+    DLG_TRACE(("# dlg_ok_buttoncode(%d) = %d\n", button, result));
     return result;
 }
 
@@ -690,7 +690,7 @@ dlg_defaultno_button(void)
 	while (dlg_ok_buttoncode(result) != DLG_EXIT_CANCEL)
 	    ++result;
     }
-    dlg_trace_msg("# dlg_defaultno_button() = %d\n", result);
+    DLG_TRACE(("# dlg_defaultno_button() = %d\n", result));
     return result;
 }
 
@@ -713,7 +713,7 @@ dlg_default_button(void)
 	    }
 	}
     }
-    dlg_trace_msg("# dlg_default_button() = %d\n", result);
+    DLG_TRACE(("# dlg_default_button() = %d\n", result));
     return result;
 }
 

@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.93 2016/08/28 14:18:10 tom Exp $
+ * $Id: calendar.c,v 1.94 2017/01/31 00:27:21 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2013,2016	Thomas E. Dickey
+ *  Copyright 2001-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -111,7 +111,7 @@ nameOfDayOfWeek(int n)
 	table[n] = value;
     }
     if (!shown[n]) {
-	dlg_trace_msg("# DAY(%d) = '%s'\n", n, table[n]);
+	DLG_TRACE(("# DAY(%d) = '%s'\n", n, table[n]));
 	shown[n] = TRUE;
     }
     return table[n];
@@ -157,7 +157,7 @@ nameOfMonth(int n)
 	table[n] = dlg_strclone(posix_mons[n]);
     }
     if (!shown[n]) {
-	dlg_trace_msg("# MON(%d) = '%s'\n", n, table[n]);
+	DLG_TRACE(("# MON(%d) = '%s'\n", n, table[n]));
 	shown[n] = TRUE;
     }
     return table[n];
@@ -641,12 +641,12 @@ trace_date(struct tm *current, struct tm *old)
 		    current->tm_mon != old->tm_mon ||
 		    current->tm_year != old->tm_year);
     if (changed) {
-	dlg_trace_msg("# current %04d/%02d/%02d\n",
-		      current->tm_year + 1900,
-		      current->tm_mon + 1,
-		      current->tm_mday);
+	DLG_TRACE(("# current %04d/%02d/%02d\n",
+		   current->tm_year + 1900,
+		   current->tm_mon + 1,
+		   current->tm_mday));
     } else {
-	dlg_trace_msg("# current (unchanged)\n");
+	DLG_TRACE(("# current (unchanged)\n"));
     }
 }
 
@@ -913,7 +913,7 @@ dialog_calendar(const char *title,
 			step = (key
 				- DLGK_MOUSE(KEY_MAX)
 				- day_cell_number(&current));
-			dlg_trace_msg("# mouseclick decoded %d\n", step);
+			DLG_TRACE(("# mouseclick decoded %d\n", step));
 		    }
 		}
 		if (obj != 0) {

@@ -1,17 +1,25 @@
--- $Id: CHANGES,v 1.565 2017/01/25 01:53:02 tom Exp $
+-- $Id: CHANGES,v 1.575 2017/02/01 02:03:34 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2017/01/24
+2017/01/31
+	+ use DLG_TRACE macro consistently to make "--disable-trace" configure
+	  option work.
+	+ modify buildlist widget to support option "--reorder" for to allow
+	  user to reorder the data based on the sequence of selections
+	  (discussion with Paraic O'Ceallaigh).
+	+ fill background color on unused parts of buildlist.
+	+ fix a minor error in buildlist which let pageup switch columns.
+	+ change several calls to dlg_trace_msg to prefix with "#" to make
+	  the trace logs more consistent for parsing.
+	+ add samples/run_test.sh
 	+ further improve performance with very long command-lines by changes
 	  to howmany_tags().
 	+ modify dlg_string_to_argv() to convert escaped double-quotes to
 	  plain double-quotes when within a double-quoted string.
 	+ modify makefile to apply CFLAGS to linking
-
-2017/01/23
 	+ modify dlg_string_to_argv() to ignore escaped newlines except when
 	  quoted, fixing a problem with samples/checklist9.
 	+ interpret $DIALOGOPTS before expanding "--file", etc., to allow

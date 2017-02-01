@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.22 2016/08/28 01:29:55 tom Exp $
+ *  $Id: trace.c,v 1.23 2017/01/31 00:26:04 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2015,2016	Thomas E. Dickey
+ *  Copyright 2007-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -211,7 +211,7 @@ dlg_trace(const char *fname)
 	    myFP = fopen(fname, "a");
 	    if (myFP != 0) {
 		dlg_trace_time("** opened at");
-		dlg_trace_msg("** dialog %s\n", dialog_version());
+		DLG_TRACE(("** dialog %s\n", dialog_version()));
 	    }
 	}
     } else if (myFP != 0) {

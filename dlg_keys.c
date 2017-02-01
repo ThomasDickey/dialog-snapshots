@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.41 2016/08/28 19:36:18 tom Exp $
+ *  $Id: dlg_keys.c,v 1.42 2017/01/31 00:26:04 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2014,2016 Thomas E. Dickey
+ *  Copyright 2006-2016,2017 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -74,7 +74,7 @@ dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING * binding)
      * registered, there is no other way to see what bindings are available,
      * than by running dialog and tracing it.
      */
-    dlg_trace_msg("# dlg_register_window %s\n", name);
+    DLG_TRACE(("# dlg_register_window %s\n", name));
     dlg_dump_window_keys(dialog_state.trace_output, win);
 #endif
 }

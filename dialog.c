@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.252 2017/01/25 01:51:08 tom Exp $
+ * $Id: dialog.c,v 1.259 2017/01/31 01:57:08 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -156,6 +156,7 @@ typedef enum {
 #ifdef HAVE_XDIALOG2
     ,o_buildlist
     ,o_rangebox
+    ,o_reorder
     ,o_treeview
 #endif
 #if defined(HAVE_XDIALOG2) || defined(HAVE_WHIPTAIL)
@@ -343,6 +344,7 @@ static const Options options[] = {
     { "no-items", 	o_no_items,		1, "" },
     { "no-tags", 	o_no_tags,		1, "" },
     { "rangebox",	o_rangebox,		2, "<text> <height> <width> <min-value> <max-value> <default-value>" },
+    { "reorder", 	o_reorder,		1, "" },
     { "treeview",	o_treeview,		2, "<text> <height> <width> <list-height> <tag1> <item1> <status1> <depth1>..." },
 #endif
 #if defined(HAVE_XDIALOG2) || defined(HAVE_WHIPTAIL)
@@ -387,6 +389,41 @@ handle_leaks(void)
 #define ignore_leak(n)		/* nothing */
 #endif
 
+#define OptionChars "\
+0123456789\
+-\
+abcdefghijklmnopqrstuvwxyz\
+"
+
+/*
+ * Check if the given string from main's argv is an option.
+ */
+static bool
+isOption(const char *arg)
+{
+    bool result = FALSE;
+
+    if (arg != 0) {
+	if (dialog_opts != 0) {
+	    int n;
+	    for (n = 0; dialog_opts[n] != 0; ++n) {
+		if (dialog_opts[n] == arg) {
+		    result = TRUE;
+		    break;
+		}
+	    }
+	} else if (!strncmp(arg, "--", (size_t) 2) && isalpha(UCH(arg[2]))) {
+	    if (strlen(arg) == (strspn) (arg, OptionChars)) {
+		result = TRUE;
+	    } else {
+		handle_leaks();
+		dlg_exiterr("Invalid option \"%s\"", arg);
+	    }
+	}
+    }
+    return result;
+}
+
 /*
  * Make an array showing which argv[] entries are options.  Use "--" as a
  * special token to escape the next argument, allowing it to begin with "--".
@@ -408,9 +445,30 @@ unescape_argv(int *argcp, char ***argvp)
     int count_includes = 0;
     bool doalloc = FALSE;
     char *filename;
+    const char **my_argv = 0;
+    int my_argc;
 
-    dialog_opts = dlg_calloc(const char *, (size_t) *argcp + 1);
-    assert_ptr(dialog_opts, "unescape_argv");
+    for (k = 0; k < 2; ++k) {
+
+	my_argc = 0;
+	if (special_argv != 0) {
+	    for (j = 0; special_argv[j] != 0; ++j) {
+		if (!strcmp(special_argv[j], "--")) {
+		    break;
+		} else if (isOption(special_argv[j])) {
+		    if (k != 0)
+			my_argv[my_argc] = special_argv[j];
+		    my_argc++;
+		}
+	    }
+	}
+
+	if (k == 0) {
+	    my_argc += (*argcp + 1);
+	    my_argv = dlg_calloc(const char *, (size_t) my_argc);
+	    assert_ptr(my_argv, "unescape_argv");
+	}
+    }
 
     for (j = 1; j < *argcp; j++) {
 	bool escaped = FALSE;
@@ -446,7 +504,7 @@ unescape_argv(int *argcp, char ***argvp)
 		}
 
 		if (fp) {
-		    dlg_trace_msg("# opened --file %s ..\n", filename);
+		    DLG_TRACE(("# opened --file %s ..\n", filename));
 		    blob = NULL;
 		    length = 0;
 		    do {
@@ -489,8 +547,8 @@ unescape_argv(int *argcp, char ***argvp)
 			    *argvp = newp;
 			    doalloc = TRUE;
 			}
-			dialog_opts = dlg_realloc(const char *, need, dialog_opts);
-			assert_ptr(dialog_opts, "unescape_argv");
+			my_argv = dlg_realloc(const char *, need, my_argv);
+			assert_ptr(my_argv, "unescape_argv");
 
 			/* Shift the arguments after '--file <filepath>'
 			   right by (added - 2) positions */
@@ -514,7 +572,7 @@ unescape_argv(int *argcp, char ***argvp)
 		    free(list);	/* No-op if 'list' is NULL */
 		    /* Force rescan starting from the first inserted argument */
 		    --j;
-		    dlg_trace_msg("# finished --file\n");
+		    DLG_TRACE(("# finished --file\n"));
 		    continue;
 		} else {
 		    handle_leaks();
@@ -529,49 +587,18 @@ unescape_argv(int *argcp, char ***argvp)
 	    && (*argvp)[j] != 0
 	    && !strncmp((*argvp)[j], "--", (size_t) 2)
 	    && isalpha(UCH((*argvp)[j][2]))) {
-	    dialog_opts[known_opts++] = (*argvp)[j];
-	    dlg_trace_msg("# option argv[%d]=%s\n", j, (*argvp)[j]);
+	    my_argv[my_argc++] = (*argvp)[j];
+	    DLG_TRACE(("# option argv[%d]=%s\n", j, (*argvp)[j]));
 	}
     }
 
-    dialog_opts[known_opts] = 0;
-    dlg_trace_msg("# %d options vs %d arguments\n", known_opts, *argcp);
+    my_argv[my_argc] = 0;
+
+    known_opts = my_argc;
+    dialog_opts = my_argv;
+
+    DLG_TRACE(("# %d options vs %d arguments\n", known_opts, *argcp));
     dialog_argv = (*argvp);
-}
-
-#define OptionChars "\
-0123456789\
--\
-abcdefghijklmnopqrstuvwxyz\
-"
-
-/*
- * Check if the given string from main's argv is an option.
- */
-static bool
-isOption(const char *arg)
-{
-    bool result = FALSE;
-
-    if (arg != 0) {
-	if (dialog_opts != 0) {
-	    int n;
-	    for (n = 0; dialog_opts[n] != 0; ++n) {
-		if (dialog_opts[n] == arg) {
-		    result = TRUE;
-		    break;
-		}
-	    }
-	} else if (!strncmp(arg, "--", (size_t) 2) && isalpha(UCH(arg[2]))) {
-	    if (strlen(arg) == (strspn) (arg, OptionChars)) {
-		result = TRUE;
-	    } else {
-		handle_leaks();
-		dlg_exiterr("Invalid option \"%s\"", arg);
-	    }
-	}
-    }
-    return result;
 }
 
 static eOptions
@@ -624,24 +651,23 @@ howmany_tags(char *argv[], int group)
 {
     int result = 0;
     int have;
-    const char *format = "Expected %d arguments, found only %d";
     char temp[80];
 
     while (argv[0] != 0) {
 	if (isOption(argv[0]))
 	    break;
 	if ((have = arg_rest(argv)) < group) {
+	    const char *format = _("Expected %d arguments, found only %d");
 	    sprintf(temp, format, group, have);
+	    Usage(temp);
+	} else if ((have % group) != 0) {
+	    const char *format = _("Expected %d arguments, found extra %d");
+	    sprintf(temp, format, group, (have % group));
 	    Usage(temp);
 	}
 
-	if ((have % group) == 0) {
-	    argv += have;
-	    result += (have / group);
-	} else {
-	    argv += group;
-	    result++;
-	}
+	argv += have;
+	result += (have / group);
     }
 
     return result;
@@ -948,7 +974,7 @@ call_buildlist(CALLARGS)
 			      numeric_arg(av, 3),
 			      numeric_arg(av, 4),
 			      tags, av + 5,
-			      TRUE);
+			      dialog_vars.reorder);
     RestoreNoTags();
     return result;
 }
@@ -1352,7 +1378,7 @@ Help(void)
     static const char *const tbl_1[] =
     {
 	"cdialog (ComeOn Dialog!) version %s",
-	"Copyright 2000-2015,2016 Thomas E. Dickey",
+	"Copyright 2000-2016,2017 Thomas E. Dickey",
 	"This is free software; see the source for copying conditions.  There is NO",
 	"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
 	"",
@@ -1432,13 +1458,13 @@ process_trace_option(char **argv, int *offset)
     if (dialog_state.trace_output == 0) {
 	dlg_trace(optionString(argv, offset));
     } else {
-	dlg_trace_msg("# ignore extra --trace option\n");
+	DLG_TRACE(("# ignore extra --trace option\n"));
 	*offset += 1;
     }
 
-    dlg_trace_msg("# Parameters:\n");
+    DLG_TRACE(("# Parameters:\n"));
     for (j = 0; argv[j] != 0; ++j) {
-	dlg_trace_msg("# argv[%d] = %s\n", j, argv[j]);
+	DLG_TRACE(("# argv[%d] = %s\n", j, argv[j]));
     }
 }
 #endif
@@ -1453,10 +1479,10 @@ process_common_options(int argc, char **argv, int offset, bool output)
 {
     bool done = FALSE;
 
-    dlg_trace_msg("# process_common_options, offset %d\n", offset);
+    DLG_TRACE(("# process_common_options, offset %d\n", offset));
 
     while (offset < argc && !done) {	/* Common options */
-	dlg_trace_msg("#\targv[%d] = %s\n", offset, argv[offset]);
+	DLG_TRACE(("#\targv[%d] = %s\n", offset, argv[offset]));
 	switch (lookupOption(argv[offset], 1)) {
 	case o_title:
 	    dialog_vars.title = optionString(argv, &offset);
@@ -1710,6 +1736,9 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    break;
 #endif
 #ifdef HAVE_XDIALOG
+	case o_reorder:
+	    dialog_vars.reorder = TRUE;
+	    break;
 	case o_week_start:
 	    dialog_vars.week_start = optionString(argv, &offset);
 	    break;
@@ -1737,7 +1766,7 @@ init_result(char *buffer)
 {
     static bool first = TRUE;
 
-    dlg_trace_msg("# init_result\n");
+    DLG_TRACE(("# init_result\n"));
 
     /* clear everything we do not save for the next widget */
     memset(&dialog_vars, 0, sizeof(dialog_vars));
@@ -1861,9 +1890,9 @@ main(int argc, char *argv[])
 	    ++offset;
 	    continue;
 	}
-	dlg_trace_msg("# discarding %d parameters starting with argv[%d] (%s)\n",
-		      1 + offset - base, base,
-		      argv[base]);
+	DLG_TRACE(("# discarding %d parameters starting with argv[%d] (%s)\n",
+		   1 + offset - base, base,
+		   argv[base]));
 	for (j = base; j < argc; ++j) {
 	    dialog_argv[j] = dialog_argv[j + 1 + (offset - base)];
 	}
@@ -2017,7 +2046,7 @@ main(int argc, char *argv[])
 	retval = show_result((*(modePtr->jumper)) (dialog_vars.title,
 						   argv + offset,
 						   &offset_add));
-	dlg_trace_msg("# widget returns %d\n", retval);
+	DLG_TRACE(("# widget returns %d\n", retval));
 	offset += offset_add;
 
 	if (dialog_vars.input_result != my_buffer) {

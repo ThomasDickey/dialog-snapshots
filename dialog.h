@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.274 2016/08/28 00:43:07 tom Exp $
+ *  $Id: dialog.h,v 1.276 2017/01/31 23:58:06 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2015,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -533,6 +533,8 @@ typedef struct {
     char *week_start;		/* option "--week-start" */
     /* 1.3-20160206 */
     bool iso_week;		/* option "--iso-week" */
+    /* 1.3-20170131 */
+    bool reorder;		/* option "--reorder" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)

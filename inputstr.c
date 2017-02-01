@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.85 2016/01/27 01:05:58 tom Exp $
+ *  $Id: inputstr.c,v 1.87 2017/01/31 00:22:14 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2014,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -105,14 +105,14 @@ show_tsearch(const void *nodep, const VISIT which, const int depth)
     const CACHE *p = *(CACHE * const *) nodep;
     (void) depth;
     if (which == postorder || which == leaf) {
-	dlg_trace_msg("\tcache %p %p:%s\n", p, p->string, p->string);
+	DLG_TRACE(("# cache %p %p:%s\n", p, p->string, p->string));
     }
 }
 
 static void
 trace_cache(const char *fn, int ln)
 {
-    dlg_trace_msg("trace_cache %s@%d\n", fn, ln);
+    DLG_TRACE(("# trace_cache %s@%d\n", fn, ln));
     twalk(sorted_cache, show_tsearch);
 }
 
