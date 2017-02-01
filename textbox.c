@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.111 2016/08/28 01:21:35 tom Exp $
+ *  $Id: textbox.c,v 1.113 2017/01/31 00:22:14 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2012,2016	Thomas E.  Dickey
+ *  Copyright 2000-2016,2017	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -103,7 +103,7 @@ lseek_cur(MY_OBJ * obj, long offset)
     long actual = lseek_obj(obj, offset, SEEK_CUR);
 
     if (actual != offset) {
-	dlg_trace_msg("Lseek returned %ld, expected %ld\n", actual, offset);
+	DLG_TRACE(("# Lseek returned %ld, expected %ld\n", actual, offset));
     }
 }
 

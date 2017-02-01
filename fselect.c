@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.95 2016/08/28 01:57:02 tom Exp $
+ *  $Id: fselect.c,v 1.96 2017/01/31 00:26:04 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2012,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -475,7 +475,7 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
 	    strcpy(path, "./");
 	    leaf = path + strlen(path);
 	}
-	dlg_trace_msg("opendir '%s'\n", path);
+	DLG_TRACE(("opendir '%s'\n", path));
 	if ((dp = opendir(path)) != 0) {
 	    while ((de = readdir(dp)) != 0) {
 		strncpy(leaf, de->d_name, NAMLEN(de))[NAMLEN(de)] = 0;

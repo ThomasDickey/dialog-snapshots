@@ -1,9 +1,9 @@
 /*
- * $Id: mouse.c,v 1.23 2016/02/03 22:49:55 tom Exp $
+ * $Id: mouse.c,v 1.24 2017/01/31 00:27:21 tom Exp $
  *
  * mouse.c -- mouse support for dialog
  *
- * Copyright 2002-2015,2016	Thomas E. Dickey
+ * Copyright 2002-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -55,7 +55,7 @@ void
 dlg_mouse_setcode(int code)
 {
     basecode = code;
-    dlg_trace_msg("# mouse_setcode %d\n", code);
+    DLG_TRACE(("# mouse_setcode %d\n", code));
 }
 
 void
@@ -101,9 +101,9 @@ dlg_mouse_mkregion(int y, int x, int height, int width, int code)
 	(butPtr->x != (basex + x)) ||
 	(butPtr->X != (basex + x + width)) ||
 	(butPtr->code != basecode + code)) {
-	dlg_trace_msg("# mouse_mkregion %d,%d %dx%d %d (%d)\n",
-		      y, x, height, width,
-		      butPtr->code, code);
+	DLG_TRACE(("# mouse_mkregion %d,%d %dx%d %d (%d)\n",
+		   y, x, height, width,
+		   butPtr->code, code));
     }
 
     butPtr->mode = -1;

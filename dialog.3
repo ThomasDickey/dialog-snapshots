@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.110 2017/01/25 01:13:33 tom Exp $
+.\" $Id: dialog.3,v 1.111 2017/01/30 23:52:40 tom Exp $
 .\" Copyright 2005-2016,2017  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 .de bP
 .IP \(bu 4
 ..
-.TH \*D 3 "" "$Date: 2017/01/25 01:13:33 $"
+.TH \*D 3 "" "$Date: 2017/01/30 23:52:40 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -627,6 +627,16 @@ each widget prints its size to \fB\*p\fP's output when it is invoked.
 .\" ---------------------------------------------------------------------------
 .SS .quoted
 This corresponds to the command-line option "\fB--quoted\fP.
+Normally \fB\*p\fP quotes the strings returned by checklist's
+as well as the item-help text.
+If true, \fB\*p\fP will quote all string results.
+.\" ---------------------------------------------------------------------------
+.SS .reorder
+This corresponds to the command-line option "\fB--reorder\fP.
+By default, the buildlist widget uses the same order for the output (right)
+list as for the input (left).
+If true, \fB\*p\fP will use the order in which a user adds selections
+to the output list.
 .\" ---------------------------------------------------------------------------
 .SS .separate_output
 This corresponds to the command-line option "\fB--separate-output\fP".

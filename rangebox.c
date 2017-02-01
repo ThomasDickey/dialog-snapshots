@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.19 2016/08/28 14:07:10 tom Exp $
+ *  $Id: rangebox.c,v 1.21 2017/01/31 00:27:21 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012-2013,2016	Thomas E. Dickey
+ *  Copyright 2012-2016,2017	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -153,12 +153,12 @@ draw_value(VALUE * data, int value)
 	wmove(win, y, x);
 	data->current = value;
 
-	dlg_trace_msg("drew %d offset %d scaled %d limit %d inc %d\n",
-		      value,
-		      offset,
-		      scaled,
-		      data->slide_len,
-		      data->slide_inc);
+	DLG_TRACE(("# drew %d offset %d scaled %d limit %d inc %d\n",
+		   value,
+		   offset,
+		   scaled,
+		   data->slide_len,
+		   data->slide_inc));
 
 	dlg_trace_win(win);
     }
