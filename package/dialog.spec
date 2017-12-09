@@ -1,23 +1,23 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20170509
+%define AppRelease 20171209
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.95 2017/05/09 23:08:48 tom Exp $
+# $XTermId: dialog.spec,v 1.98 2017/12/09 19:55:24 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
 License: LGPL
-Group: Applications/Development
-URL: ftp://invisible-island.net/%{AppProgram}
+Group: Applications/System
+URL: ftp://ftp.invisible-island.net/%{AppProgram}
 Source0: %{AppProgram}-%{AppVersion}-%{AppRelease}.tgz
 Packager: Thomas Dickey <dickey@invisible-island.net>
 
 %description
 Dialog is a program that will let you present a variety of questions or
-display messages using dialog boxes from a shell script.   These  types
-of  dialog  boxes  are  implemented  (though  not  all  are necessarily
-compiled into dialog):
+display messages using dialog boxes from a shell script.  These types
+of dialog boxes are implemented (though not all are necessarily compiled
+into dialog):
 
      buildlist, calendar, checklist, dselect, editbox, form, fselect,
      gauge, infobox, inputbox, inputmenu, menu, mixedform,
@@ -37,27 +37,27 @@ This package installs as "cdialog" to avoid conflict with other packages.
 cp -v package/dialog.map package/%{ActualProg}.map
 
 INSTALL_PROGRAM='${INSTALL}' \
-	./configure \
-		--target %{_target_platform} \
-		--prefix=%{_prefix} \
-		--bindir=%{_bindir} \
-		--libdir=%{_libdir} \
-		--mandir=%{_mandir} \
-		--with-package=%{ActualProg} \
-		--enable-header-subdir \
-		--enable-nls \
-		--enable-widec \
-		--with-shared \
-		--with-ncursesw \
-		--with-versioned-syms \
-		--disable-rpath-hack
+%configure \
+        --target %{_target_platform} \
+        --prefix=%{_prefix} \
+        --bindir=%{_bindir} \
+        --libdir=%{_libdir} \
+        --mandir=%{_mandir} \
+        --with-package=%{ActualProg} \
+        --enable-header-subdir \
+        --enable-nls \
+        --enable-widec \
+        --with-shared \
+        --with-ncursesw \
+        --with-versioned-syms \
+        --disable-rpath-hack
 
 make
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
-make install			DESTDIR=$RPM_BUILD_ROOT
+make install                    DESTDIR=$RPM_BUILD_ROOT
 make install-full               DESTDIR=$RPM_BUILD_ROOT
 
 strip $RPM_BUILD_ROOT%{_bindir}/%{ActualProg}
@@ -81,6 +81,9 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Sat Dec 09 2017 Thomas Dickey
+- update ftp url
 
 * Thu Apr 21 2016 Thomas Dickey
 - remove stray call to libtool
