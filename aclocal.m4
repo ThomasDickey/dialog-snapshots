@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.114 2017/05/09 23:27:04 tom Exp $
+dnl $Id: aclocal.m4,v 1.115 2017/12/09 16:08:45 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2016,2017 -- Thomas E. Dickey
 dnl
@@ -280,7 +280,7 @@ fi
 AC_SUBST($1)dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl AM_WITH_NLS version: 26 updated: 2015/04/15 19:08:48
+dnl AM_WITH_NLS version: 27 updated: 2017/07/10 20:13:33
 dnl -----------
 dnl Inserted as requested by gettext 0.10.40
 dnl File from /usr/share/aclocal
@@ -354,6 +354,8 @@ AC_DEFUN([AM_WITH_NLS],
 
   dnl If we use NLS figure out what method
   if test "$USE_NLS" = "yes"; then
+    dnl We need to process the po/ directory.
+    POSUB=po
     AC_DEFINE(ENABLE_NLS, 1,
       [Define to 1 if translation of program messages to the user's native language
  is requested.])
@@ -367,20 +369,49 @@ AC_DEFUN([AM_WITH_NLS],
     nls_cv_use_gnu_gettext="$nls_cv_force_use_gnu_gettext"
     if test "$nls_cv_force_use_gnu_gettext" != "yes"; then
       dnl User does not insist on using GNU NLS library.  Figure out what
-      dnl to use.  If GNU gettext is available we use this.  Else we have
+      dnl to use.  If GNU gettext is available we use this.  Else we may have
       dnl to fall back to GNU NLS library.
       CATOBJEXT=NONE
 
+      dnl Save these (possibly-set) variables for reference.  If the user
+      dnl overrode these to provide full pathnames, then warn if not actually
+      dnl GNU gettext, but do not override their values.  Also, if they were
+      dnl overridden, suppress the part of the library test which prevents it
+      dnl from finding anything other than GNU gettext.  Doing this also
+      dnl suppresses a bogus search for the intl library.
+      cf_save_msgfmt_path="$MSGFMT"
+      cf_save_xgettext_path="$XGETTEXT"
+
+      dnl Search for GNU msgfmt in the PATH.
+      AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
+          [$ac_dir/$ac_word --statistics /dev/null >/dev/null 2>&1], :)
+      AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
+      AC_SUBST(MSGFMT)
+
+      dnl Search for GNU xgettext in the PATH.
+      AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
+          [$ac_dir/$ac_word --omit-header /dev/null >/dev/null 2>&1], :)
+
+      cf_save_OPTS_1="$CPPFLAGS"
+      if test "x$cf_save_msgfmt_path" = "x$MSGFMT" && \
+         test "x$cf_save_xgettext_path" = "x$XGETTEXT" ; then
+          CF_ADD_CFLAGS(-DIGNORE_MSGFMT_HACK)
+      fi
+
       cf_save_LIBS_1="$LIBS"
       CF_ADD_LIBS($LIBICONV)
-      AC_CACHE_CHECK([for libintl.h and gettext()], cf_cv_func_gettext,[
-        CF_FIND_LINKAGE(CF__INTL_HEAD,
-        CF__INTL_BODY,
+
+      CF_FIND_LINKAGE(CF__INTL_HEAD,
+        CF__INTL_BODY($2),
         intl,
         cf_cv_func_gettext=yes,
         cf_cv_func_gettext=no)
-      ])
+
+      AC_MSG_CHECKING([for libintl.h and gettext()])
+      AC_MSG_RESULT($cf_cv_func_gettext)
+
       LIBS="$cf_save_LIBS_1"
+      CPPFLAGS="$cf_save_OPTS_1"
 
       if test "$cf_cv_func_gettext" = yes ; then
         AC_DEFINE(HAVE_LIBINTL_H,1,[Define to 1 if we have libintl.h])
@@ -408,160 +439,150 @@ AC_DEFUN([AM_WITH_NLS],
           AC_CHECK_FUNCS(dcgettext)
           LIBS="$gt_save_LIBS"
 
-          dnl Search for GNU msgfmt in the PATH.
-          AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
-              [$ac_dir/$ac_word --statistics /dev/null >/dev/null 2>&1], :)
-          AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
-
-          dnl Search for GNU xgettext in the PATH.
-          AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
-              [$ac_dir/$ac_word --omit-header /dev/null >/dev/null 2>&1], :)
-
           CATOBJEXT=.gmo
         fi
+      else
+        AC_MSG_WARN(disabling NLS feature)
+        sed -e /ENABLE_NLS/d confdefs.h >confdefs.tmp
+        mv confdefs.tmp confdefs.h
+        ALL_LINGUAS=
+        CATOBJEXT=.ignored
+        MSGFMT=":"
+        GMSGFMT=":"
+        XGETTEXT=":"
+        POSUB=
+        BUILD_INCLUDED_LIBINTL=no
+        USE_INCLUDED_LIBINTL=no
+        USE_NLS=no
+        nls_cv_use_gnu_gettext=no
       fi
 
       if test "$CATOBJEXT" = "NONE"; then
         dnl GNU gettext is not found in the C library.
         dnl Fall back on GNU gettext library.
-        nls_cv_use_gnu_gettext=yes
+        nls_cv_use_gnu_gettext=maybe
       fi
     fi
 
-    if test "$nls_cv_use_gnu_gettext" = "yes"; then
-      if test ! -d $srcdir/intl ; then
-        AC_MSG_ERROR(no NLS library is packaged with this application)
-      fi
-      dnl Mark actions used to generate GNU NLS library.
-      INTLOBJS="\$(GETTOBJS)"
-      AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
-          [$ac_dir/$ac_word --statistics /dev/null >/dev/null 2>&1], :)
-      AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
-      AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
-          [$ac_dir/$ac_word --omit-header /dev/null >/dev/null 2>&1], :)
-      AC_SUBST(MSGFMT)
-      BUILD_INCLUDED_LIBINTL=yes
-      USE_INCLUDED_LIBINTL=yes
+    if test "$nls_cv_use_gnu_gettext" != "no"; then
       CATOBJEXT=.gmo
-      INTLLIBS="ifelse([$3],[],\$(top_builddir)/intl,[$3])/libintl.ifelse([$1], use-libtool, [l], [])a $LIBICONV"
-      LIBS=`echo " $LIBS " | sed -e 's/ -lintl / /' -e 's/^ //' -e 's/ $//'`
+      if test -f $srcdir/intl/libintl.h ; then
+        dnl Mark actions used to generate GNU NLS library.
+        INTLOBJS="\$(GETTOBJS)"
+        BUILD_INCLUDED_LIBINTL=yes
+        USE_INCLUDED_LIBINTL=yes
+        INTLLIBS="ifelse([$3],[],\$(top_builddir)/intl,[$3])/libintl.ifelse([$1], use-libtool, [l], [])a $LIBICONV"
+        LIBS=`echo " $LIBS " | sed -e 's/ -lintl / /' -e 's/^ //' -e 's/ $//'`
+      elif test "$nls_cv_use_gnu_gettext" = "yes"; then
+        nls_cv_use_gnu_gettext=no
+        AC_MSG_WARN(no NLS library is packaged with this application)
+      fi
     fi
 
-    dnl This could go away some day; the PATH_PROG_WITH_TEST already does it.
     dnl Test whether we really found GNU msgfmt.
     if test "$GMSGFMT" != ":"; then
-      dnl If it is no GNU msgfmt we define it as : so that the
-      dnl Makefiles still can work.
       if $GMSGFMT --statistics /dev/null >/dev/null 2>&1; then
         : ;
       else
-        AC_MSG_RESULT(
-          [found msgfmt program is not GNU msgfmt; ignore it])
-        GMSGFMT=":"
+        AC_MSG_WARN([found msgfmt program is not GNU msgfmt])
       fi
     fi
 
-    dnl This could go away some day; the PATH_PROG_WITH_TEST already does it.
     dnl Test whether we really found GNU xgettext.
     if test "$XGETTEXT" != ":"; then
-        dnl If it is no GNU xgettext we define it as : so that the
-        dnl Makefiles still can work.
       if $XGETTEXT --omit-header /dev/null >/dev/null 2>&1; then
         : ;
       else
-        AC_MSG_RESULT(
-          [found xgettext program is not GNU xgettext; ignore it])
-        XGETTEXT=":"
+        AC_MSG_WARN([found xgettext program is not GNU xgettext])
       fi
     fi
-
-    dnl We need to process the po/ directory.
-    POSUB=po
   fi
 
-  AC_OUTPUT_COMMANDS(
-   [for ac_file in $CONFIG_FILES; do
-
-      # Support "outfile[:infile[:infile...]]"
-      case "$ac_file" in
-        (*:*) ac_file=`echo "$ac_file"|sed 's%:.*%%'` ;;
-      esac
-
-      # PO directories have a Makefile.in generated from Makefile.inn.
-      case "$ac_file" in
-	  (*/[Mm]akefile.in)
-        # Adjust a relative srcdir.
-        ac_dir=`echo "$ac_file"|sed 's%/[^/][^/]*$%%'`
-        ac_dir_suffix="/`echo "$ac_dir"|sed 's%^\./%%'`"
-        ac_dots=`echo "$ac_dir_suffix"|sed 's%/[^/]*%../%g'`
-        ac_base=`basename $ac_file .in`
-        # In autoconf-2.13 it is called $ac_given_srcdir.
-        # In autoconf-2.50 it is called $srcdir.
-        test -n "$ac_given_srcdir" || ac_given_srcdir="$srcdir"
-
-        case "$ac_given_srcdir" in
-          (.)  top_srcdir=`echo $ac_dots|sed 's%/$%%'` ;;
-          (/*) top_srcdir="$ac_given_srcdir" ;;
-          (*)  top_srcdir="$ac_dots$ac_given_srcdir" ;;
+  if test "$XGETTEXT" != ":"; then
+    AC_OUTPUT_COMMANDS(
+     [for ac_file in $CONFIG_FILES; do
+  
+        # Support "outfile[:infile[:infile...]]"
+        case "$ac_file" in
+          (*:*) ac_file=`echo "$ac_file"|sed 's%:.*%%'` ;;
         esac
-
-        if test -f "$ac_given_srcdir/$ac_dir/POTFILES.in"; then
-          rm -f "$ac_dir/POTFILES"
-          test -n "$as_me" && echo "$as_me: creating $ac_dir/POTFILES" || echo "creating $ac_dir/POTFILES"
-          sed -e "/^#/d" -e "/^[ 	]*\$/d" -e "s,.*,     $top_srcdir/& \\\\," -e "\$s/\(.*\) \\\\/\1/" < "$ac_given_srcdir/$ac_dir/POTFILES.in" > "$ac_dir/POTFILES"
-          test -n "$as_me" && echo "$as_me: creating $ac_dir/$ac_base" || echo "creating $ac_dir/$ac_base"
-          sed -e "/POTFILES =/r $ac_dir/POTFILES" "$ac_dir/$ac_base.in" > "$ac_dir/$ac_base"
-        fi
-        ;;
-      esac
-    done])
-
-  dnl If this is used in GNU gettext we have to set BUILD_INCLUDED_LIBINTL
-  dnl to 'yes' because some of the testsuite requires it.
-  if test "$PACKAGE" = gettext; then
-    BUILD_INCLUDED_LIBINTL=yes
-  fi
-
-  dnl intl/plural.c is generated from intl/plural.y. It requires bison,
-  dnl because plural.y uses bison specific features. It requires at least
-  dnl bison-1.26 because earlier versions generate a plural.c that doesn't
-  dnl compile.
-  dnl bison is only needed for the maintainer (who touches plural.y). But in
-  dnl order to avoid separate Makefiles or --enable-maintainer-mode, we put
-  dnl the rule in general Makefile. Now, some people carelessly touch the
-  dnl files or have a broken "make" program, hence the plural.c rule will
-  dnl sometimes fire. To avoid an error, defines BISON to ":" if it is not
-  dnl present or too old.
-  if test "$nls_cv_use_gnu_gettext" = "yes"; then
-    AC_CHECK_PROGS([INTLBISON], [bison])
-    if test -z "$INTLBISON"; then
-      ac_verc_fail=yes
-    else
-      dnl Found it, now check the version.
-      AC_MSG_CHECKING([version of bison])
+  
+        # PO directories have a Makefile.in generated from Makefile.inn.
+        case "$ac_file" in
+        (*/[Mm]akefile.in)
+          # Adjust a relative srcdir.
+          ac_dir=`echo "$ac_file"|sed 's%/[^/][^/]*$%%'`
+          ac_dir_suffix="/`echo "$ac_dir"|sed 's%^\./%%'`"
+          ac_dots=`echo "$ac_dir_suffix"|sed 's%/[^/]*%../%g'`
+          ac_base=`basename $ac_file .in`
+          # In autoconf-2.13 it is called $ac_given_srcdir.
+          # In autoconf-2.50 it is called $srcdir.
+          test -n "$ac_given_srcdir" || ac_given_srcdir="$srcdir"
+  
+          case "$ac_given_srcdir" in
+            (.)  top_srcdir=`echo $ac_dots|sed 's%/$%%'` ;;
+            (/*) top_srcdir="$ac_given_srcdir" ;;
+            (*)  top_srcdir="$ac_dots$ac_given_srcdir" ;;
+          esac
+  
+          if test -f "$ac_given_srcdir/$ac_dir/POTFILES.in"; then
+            rm -f "$ac_dir/POTFILES"
+            test -n "$as_me" && echo "$as_me: creating $ac_dir/POTFILES" || echo "creating $ac_dir/POTFILES"
+            sed -e "/^#/d" -e "/^[ 	]*\$/d" -e "s,.*,     $top_srcdir/& \\\\," -e "\$s/\(.*\) \\\\/\1/" < "$ac_given_srcdir/$ac_dir/POTFILES.in" > "$ac_dir/POTFILES"
+            test -n "$as_me" && echo "$as_me: creating $ac_dir/$ac_base" || echo "creating $ac_dir/$ac_base"
+            sed -e "/POTFILES =/r $ac_dir/POTFILES" "$ac_dir/$ac_base.in" > "$ac_dir/$ac_base"
+          fi
+          ;;
+        esac
+      done])
+  
+    dnl If this is used in GNU gettext we have to set BUILD_INCLUDED_LIBINTL
+    dnl to 'yes' because some of the testsuite requires it.
+    if test "$PACKAGE" = gettext; then
+      BUILD_INCLUDED_LIBINTL=yes
+    fi
+  
+    dnl intl/plural.c is generated from intl/plural.y. It requires bison,
+    dnl because plural.y uses bison specific features. It requires at least
+    dnl bison-1.26 because earlier versions generate a plural.c that doesn't
+    dnl compile.
+    dnl bison is only needed for the maintainer (who touches plural.y). But in
+    dnl order to avoid separate Makefiles or --enable-maintainer-mode, we put
+    dnl the rule in general Makefile. Now, some people carelessly touch the
+    dnl files or have a broken "make" program, hence the plural.c rule will
+    dnl sometimes fire. To avoid an error, defines BISON to ":" if it is not
+    dnl present or too old.
+    if test "$nls_cv_use_gnu_gettext" = "yes"; then
+      AC_CHECK_PROGS([INTLBISON], [bison])
+      if test -z "$INTLBISON"; then
+        ac_verc_fail=yes
+      else
+        dnl Found it, now check the version.
+        AC_MSG_CHECKING([version of bison])
 changequote(<<,>>)dnl
-      ac_prog_version=`$INTLBISON --version 2>&1 | sed -n 's/^.*GNU Bison.* \([0-9]*\.[0-9.]*\).*$/\1/p'`
-      case $ac_prog_version in
-        ('') ac_prog_version="v. ?.??, bad"; ac_verc_fail=yes;;
-        (1.2[6-9]*|1.[3-9][0-9]*|[2-9].*)
+        ac_prog_version=`$INTLBISON --version 2>&1 | sed -n 's/^.*GNU Bison.* \([0-9]*\.[0-9.]*\).*$/\1/p'`
+        case $ac_prog_version in
+          ('') ac_prog_version="v. ?.??, bad"; ac_verc_fail=yes;;
+          (1.2[6-9]*|1.[3-9][0-9]*|[2-9].*)
 changequote([,])dnl
-           ac_prog_version="$ac_prog_version, ok"; ac_verc_fail=no;;
-        (*) ac_prog_version="$ac_prog_version, bad"; ac_verc_fail=yes;;
-      esac
-    AC_MSG_RESULT([$ac_prog_version])
+             ac_prog_version="$ac_prog_version, ok"; ac_verc_fail=no;;
+          (*) ac_prog_version="$ac_prog_version, bad"; ac_verc_fail=yes;;
+        esac
+      AC_MSG_RESULT([$ac_prog_version])
+      fi
+      if test $ac_verc_fail = yes; then
+        INTLBISON=:
+      fi
     fi
-    if test $ac_verc_fail = yes; then
-      INTLBISON=:
-    fi
+  
+    dnl These rules are solely for the distribution goal.  While doing this
+    dnl we only have to keep exactly one list of the available catalogs
+    dnl in configure.in.
+    for lang in $ALL_LINGUAS; do
+      GMOFILES="$GMOFILES $lang.gmo"
+      POFILES="$POFILES $lang.po"
+    done
   fi
-
-  dnl These rules are solely for the distribution goal.  While doing this
-  dnl we only have to keep exactly one list of the available catalogs
-  dnl in configure.in.
-  for lang in $ALL_LINGUAS; do
-    GMOFILES="$GMOFILES $lang.gmo"
-    POFILES="$POFILES $lang.po"
-  done
 
   dnl Make all variables we use known to autoconf.
   AC_SUBST(BUILD_INCLUDED_LIBINTL)
@@ -1166,7 +1187,7 @@ if test "$USE_INCLUDED_LIBINTL" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CC_ENV_FLAGS version: 7 updated: 2017/02/25 18:57:40
+dnl CF_CC_ENV_FLAGS version: 8 updated: 2017/09/23 08:50:24
 dnl ---------------
 dnl Check for user's environment-breakage by stuffing CFLAGS/CPPFLAGS content
 dnl into CC.  This will not help with broken scripts that wrap the compiler
@@ -1190,7 +1211,7 @@ case "$CC" in
 	AC_MSG_WARN(your environment misuses the CC variable to hold CFLAGS/CPPFLAGS options)
 	# humor him...
 	cf_prog=`echo "$CC" | sed -e 's/	/ /g' -e 's/[[ ]]* / /g' -e 's/[[ ]]*[[ ]]-[[^ ]].*//'`
-	cf_flags=`echo "$CC" | ${AWK:-awk} -v prog="$cf_prog" '{ printf("%s", substr([$]0,1+length(prog))); }'`
+	cf_flags=`echo "$CC" | ${AWK:-awk} -v prog="$cf_prog" '{ printf("%s", [substr]([$]0,1+length(prog))); }'`
 	CC="$cf_prog"
 	for cf_arg in $cf_flags
 	do
@@ -1458,7 +1479,7 @@ fi
 AC_CHECK_HEADERS($cf_cv_ncurses_header)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_LIBS version: 39 updated: 2015/05/10 19:52:14
+dnl CF_CURSES_LIBS version: 40 updated: 2017/09/07 17:06:24
 dnl --------------
 dnl Look for the curses libraries.  Older curses implementations may require
 dnl termcap/termlib to be linked as well.  Call CF_CURSES_CPPFLAGS first.
@@ -1551,36 +1572,35 @@ if test ".$ac_cv_func_initscr" != .yes ; then
 	then
 		for cf_curs_lib in $cf_check_list xcurses jcurses pdcurses unknown
 		do
-			AC_CHECK_LIB($cf_curs_lib,initscr,[break])
+			LIBS="-l$cf_curs_lib $cf_save_LIBS"
+			if test "$cf_term_lib" = unknown || test "$cf_term_lib" = "$cf_curs_lib" ; then
+				AC_MSG_CHECKING(if we can link with $cf_curs_lib library)
+				AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
+					[initscr()],
+					[cf_result=yes],
+					[cf_result=no])
+				AC_MSG_RESULT($cf_result)
+				test $cf_result = yes && break
+			elif test "$cf_curs_lib" = "$cf_term_lib" ; then
+				cf_result=no
+			elif test "$cf_term_lib" != predefined ; then
+				AC_MSG_CHECKING(if we need both $cf_curs_lib and $cf_term_lib libraries)
+				AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
+					[initscr(); tgoto((char *)0, 0, 0);],
+					[cf_result=no],
+					[
+					LIBS="-l$cf_curs_lib -l$cf_term_lib $cf_save_LIBS"
+					AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
+						[initscr()],
+						[cf_result=yes],
+						[cf_result=error])
+					])
+				AC_MSG_RESULT($cf_result)
+				test $cf_result != error && break
+			fi
 		done
 	fi
 	test $cf_curs_lib = unknown && AC_MSG_ERROR(no curses library found)
-
-	LIBS="-l$cf_curs_lib $cf_save_LIBS"
-	if test "$cf_term_lib" = unknown ; then
-		AC_MSG_CHECKING(if we can link with $cf_curs_lib library)
-		AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
-			[initscr()],
-			[cf_result=yes],
-			[cf_result=no])
-		AC_MSG_RESULT($cf_result)
-		test $cf_result = no && AC_MSG_ERROR(Cannot link curses library)
-	elif test "$cf_curs_lib" = "$cf_term_lib" ; then
-		:
-	elif test "$cf_term_lib" != predefined ; then
-		AC_MSG_CHECKING(if we need both $cf_curs_lib and $cf_term_lib libraries)
-		AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
-			[initscr(); tgoto((char *)0, 0, 0);],
-			[cf_result=no],
-			[
-			LIBS="-l$cf_curs_lib -l$cf_term_lib $cf_save_LIBS"
-			AC_TRY_LINK([#include <${cf_cv_ncurses_header:-curses.h}>],
-				[initscr()],
-				[cf_result=yes],
-				[cf_result=error])
-			])
-		AC_MSG_RESULT($cf_result)
-	fi
 fi
 fi
 
@@ -2951,7 +2971,7 @@ printf("old\n");
 	,[$1=no])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_CONFIG version: 17 updated: 2015/07/07 04:22:07
+dnl CF_NCURSES_CONFIG version: 18 updated: 2017/07/23 18:30:00
 dnl -----------------
 dnl Tie together the configure-script macros for ncurses, preferring these in
 dnl order:
@@ -2999,6 +3019,7 @@ if test "x${PKG_CONFIG:=none}" != xnone; then
 			AC_DEFINE(NCURSES,1,[Define to 1 if we are using ncurses headers/libraries])
 			NCURSES_CONFIG_PKG=$cf_ncuconfig_root
 		fi
+		CF_TERM_HEADER
 
 	else
 		AC_MSG_RESULT(no)
@@ -3846,7 +3867,7 @@ CF_VERBOSE(...checked $1 [$]$1)
 AC_SUBST(EXTRA_LDFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 90 updated: 2017/02/11 14:48:57
+dnl CF_SHARED_OPTS version: 91 updated: 2017/12/02 18:43:13
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -3947,15 +3968,15 @@ AC_DEFUN([CF_SHARED_OPTS],
 	(aix4.[3-9]*|aix[[5-7]]*)
 		if test "$GCC" = yes; then
 			CC_SHARED_OPTS='-Wl,-brtl'
-			MK_SHARED_LIB='${CC} -shared -Wl,-brtl -Wl,-blibpath:${RPATH_LIST}:/usr/lib -o [$]@'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -shared -Wl,-brtl -Wl,-blibpath:${RPATH_LIST}:/usr/lib -o [$]@'
 		else
 			CC_SHARED_OPTS='-brtl'
 			# as well as '-qpic=large -G' or perhaps "-bM:SRE -bnoentry -bexpall"
-			MK_SHARED_LIB='${CC} -G -Wl,-brtl -Wl,-blibpath:${RPATH_LIST}:/usr/lib -o [$]@'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -G -Wl,-brtl -Wl,-blibpath:${RPATH_LIST}:/usr/lib -o [$]@'
 		fi
 		;;
 	(beos*)
-		MK_SHARED_LIB='${CC} ${CFLAGS} -o $[@] -Xlinker -soname=`basename $[@]` -nostart -e 0'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -o $[@] -Xlinker -soname=`basename $[@]` -nostart -e 0'
 		;;
 	(cygwin*)
 		CC_SHARED_OPTS=
@@ -3975,7 +3996,7 @@ AC_DEFUN([CF_SHARED_OPTS],
 		** SHARED_LIB \[$]SHARED_LIB
 		** IMPORT_LIB \[$]IMPORT_LIB
 EOF
-		exec \[$]* -shared -Wl,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
+		exec \[$]* ${LDFLAGS} -shared -Wl,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
 CF_EOF
 		chmod +x mk_shared_lib.sh
 		;;
@@ -3997,14 +4018,14 @@ CF_EOF
 		** SHARED_LIB \[$]SHARED_LIB
 		** IMPORT_LIB \[$]IMPORT_LIB
 EOF
-		exec \[$]* -shared -Wl,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
+		exec \[$]* ${LDFLAGS} -shared -Wl,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
 CF_EOF
 		chmod +x mk_shared_lib.sh
 		;;
 	(darwin*)
 		cf_try_cflags="no-cpp-precomp"
 		CC_SHARED_OPTS="-dynamic"
-		MK_SHARED_LIB='${CC} ${CFLAGS} -dynamiclib -install_name ${libdir}/`basename $[@]` -compatibility_version ${ABI_VERSION} -current_version ${ABI_VERSION} -o $[@]'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -dynamiclib -install_name ${libdir}/`basename $[@]` -compatibility_version ${ABI_VERSION} -current_version ${ABI_VERSION} -o $[@]'
 		test "$cf_cv_shlib_version" = auto && cf_cv_shlib_version=abi
 		cf_cv_shlib_version_infix=yes
 		AC_CACHE_CHECK([if ld -search_paths_first works], cf_cv_ldflags_search_paths_first, [
@@ -4021,7 +4042,7 @@ CF_EOF
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='+Z'
 		fi
-		MK_SHARED_LIB='${LD} -b -o $[@]'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -b -o $[@]'
 		INSTALL_LIB="-m 555"
 		;;
 	(hpux*)
@@ -4032,7 +4053,7 @@ CF_EOF
 			CC_SHARED_OPTS='+Z'
 			LD_SHARED_OPTS='-Wl,+b,${libdir}'
 		fi
-		MK_SHARED_LIB='${LD} +b ${libdir} -b -o $[@]'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} +b ${libdir} -b -o $[@]'
 		# HP-UX shared libraries must be executable, and should be
 		# readonly to exploit a quirk in the memory manager.
 		INSTALL_LIB="-m 555"
@@ -4040,12 +4061,12 @@ CF_EOF
 	(interix*)
 		test "$cf_cv_shlib_version" = auto && cf_cv_shlib_version=rel
 		if test "$cf_cv_shlib_version" = rel; then
-			cf_shared_soname='`basename $@ .${REL_VERSION}`.${ABI_VERSION}'
+			cf_shared_soname='`basename $[@] .${REL_VERSION}`.${ABI_VERSION}'
 		else
-			cf_shared_soname='`basename $@`'
+			cf_shared_soname='`basename $[@]`'
 		fi
 		CC_SHARED_OPTS=
-		MK_SHARED_LIB='${CC} -shared -Wl,-rpath,${RPATH_LIST} -Wl,-h,'$cf_shared_soname' -o $@'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} -shared -Wl,-rpath,${RPATH_LIST} -Wl,-h,'$cf_shared_soname' -o $[@]'
 		;;
 	(irix*)
 		if test "$cf_cv_enable_rpath" = yes ; then
@@ -4054,9 +4075,9 @@ CF_EOF
 		# tested with IRIX 5.2 and 'cc'.
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='-KPIC'
-			MK_SHARED_LIB='${CC} -shared -rdata_shared -soname `basename $[@]` -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -shared -rdata_shared -soname `basename $[@]` -o $[@]'
 		else
-			MK_SHARED_LIB='${CC} -shared -Wl,-soname,`basename $[@]` -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -shared -Wl,-soname,`basename $[@]` -o $[@]'
 		fi
 		cf_cv_rm_so_locs=yes
 		;;
@@ -4069,7 +4090,7 @@ CF_EOF
 			EXTRA_LDFLAGS="${cf_ld_rpath_opt}\${RPATH_LIST} $EXTRA_LDFLAGS"
 		fi
 		CF_SHARED_SONAME
-		MK_SHARED_LIB='${CC} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
 	(mingw*)
 		cf_cv_shlib_version=mingw
@@ -4094,7 +4115,7 @@ CF_EOF
 		** SHARED_LIB \[$]SHARED_LIB
 		** IMPORT_LIB \[$]IMPORT_LIB
 EOF
-		exec \[$]* -shared -Wl,--enable-auto-import,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
+		exec \[$]* ${LDFLAGS} -shared -Wl,--enable-auto-import,--out-implib=\[$]{IMPORT_LIB} -Wl,--export-all-symbols -o \[$]{SHARED_LIB}
 CF_EOF
 		chmod +x mk_shared_lib.sh
 		;;
@@ -4108,11 +4129,11 @@ CF_EOF
 		fi
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
 		CF_SHARED_SONAME
-		MK_SHARED_LIB='${CC} ${CFLAGS} -shared -Wl,-Bshareable,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-Bshareable,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
 	(nto-qnx*|openbsd*|freebsd[[12]].*)
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
-		MK_SHARED_LIB='${LD} -Bshareable -o $[@]'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -Bshareable -o $[@]'
 		test "$cf_cv_shlib_version" = auto && cf_cv_shlib_version=rel
 		;;
 	(dragonfly*|freebsd*)
@@ -4123,7 +4144,7 @@ CF_EOF
 			EXTRA_LDFLAGS="${cf_ld_rpath_opt}\${RPATH_LIST} $EXTRA_LDFLAGS"
 		fi
 		CF_SHARED_SONAME
-		MK_SHARED_LIB='${CC} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
+		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
 	(netbsd*)
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
@@ -4139,16 +4160,16 @@ CF_EOF
 			fi
 			fi
 			CF_SHARED_SONAME
-			MK_SHARED_LIB='${CC} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname' -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname' -o $[@]'
 		else
-			MK_SHARED_LIB='${CC} -Wl,-shared -Wl,-Bshareable -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -Wl,-shared -Wl,-Bshareable -o $[@]'
 		fi
 		;;
 	(osf*|mls+*)
 		# tested with OSF/1 V3.2 and 'cc'
 		# tested with OSF/1 V3.2 and gcc 2.6.3 (but the c++ demo didn't
 		# link with shared libs).
-		MK_SHARED_LIB='${LD} -set_version ${REL_VERSION}:${ABI_VERSION} -expect_unresolved "*" -shared -soname `basename $[@]`'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -set_version ${REL_VERSION}:${ABI_VERSION} -expect_unresolved "*" -shared -soname `basename $[@]`'
 		case $host_os in
 		(osf4*)
 			MK_SHARED_LIB="${MK_SHARED_LIB} -msym"
@@ -4166,7 +4187,7 @@ CF_EOF
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='-belf -KPIC'
 		fi
-		MK_SHARED_LIB='${LD} -dy -G -h `basename $[@] .${REL_VERSION}`.${ABI_VERSION} -o [$]@'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -dy -G -h `basename $[@] .${REL_VERSION}`.${ABI_VERSION} -o [$]@'
 		if test "$cf_cv_enable_rpath" = yes ; then
 			# only way is to set LD_RUN_PATH but no switch for it
 			RUN_PATH=$libdir
@@ -4180,7 +4201,7 @@ CF_EOF
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='-KPIC'
 		fi
-		MK_SHARED_LIB='${LD} -assert pure-text -o $[@]'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -assert pure-text -o $[@]'
 		test "$cf_cv_shlib_version" = auto && cf_cv_shlib_version=rel
 		;;
 	(solaris2*)
@@ -4203,9 +4224,9 @@ CF_EOF
 			done
 			CFLAGS="$cf_save_CFLAGS"
 			CC_SHARED_OPTS=$cf_shared_opts
-			MK_SHARED_LIB='${CC} -dy -G -h '$cf_cv_shared_soname' -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -dy -G -h '$cf_cv_shared_soname' -o $[@]'
 		else
-			MK_SHARED_LIB='${CC} -shared -dy -G -h '$cf_cv_shared_soname' -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} -shared -dy -G -h '$cf_cv_shared_soname' -o $[@]'
 		fi
 		;;
 	(sysv5uw7*|unix_sv*)
@@ -4213,7 +4234,7 @@ CF_EOF
 		if test "$GCC" != yes; then
 			CC_SHARED_OPTS='-KPIC'
 		fi
-		MK_SHARED_LIB='${LD} -d y -G -o [$]@'
+		MK_SHARED_LIB='${LD} ${LDFLAGS} -d y -G -o [$]@'
 		;;
 	(*)
 		CC_SHARED_OPTS='unknown'
@@ -4844,7 +4865,7 @@ fi
 AC_SUBST(DESTDIR)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 34 updated: 2016/12/31 12:04:57
+dnl CF_WITH_LIBTOOL version: 35 updated: 2017/08/12 07:58:51
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -4868,7 +4889,7 @@ dnl
 dnl	LOCAL=aclocal.m4
 dnl	ORIG=aclocal.m4.orig
 dnl
-dnl	trap "mv $ORIG $LOCAL" 0 1 2 5 15
+dnl	trap "mv $ORIG $LOCAL" 0 1 2 3 15
 dnl	rm -f $ORIG
 dnl	mv $LOCAL $ORIG
 dnl
@@ -6239,7 +6260,7 @@ cf_cv_do_symlinks="$cf_cv_do_symlinks"
 cf_cv_shlib_version="$cf_cv_shlib_version"
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF__INTL_BODY version: 2 updated: 2015/05/10 19:52:14
+dnl CF__INTL_BODY version: 3 updated: 2017/07/10 20:13:33
 dnl -------------
 dnl Test-code needed for libintl compile-checks
 dnl $1 = parameter 2 from AM_WITH_NLS
@@ -6247,7 +6268,9 @@ define([CF__INTL_BODY],[
 	bindtextdomain ("", "");
 	return (int) gettext ("")
 			ifelse([$1], need-ngettext, [ + (int) ngettext ("", "", 0)], [])
+#ifndef IGNORE_MSGFMT_HACK
 			[ + _nl_msg_cat_cntr]
+#endif
 ])
 dnl ---------------------------------------------------------------------------
 dnl CF__INTL_HEAD version: 1 updated: 2007/07/26 17:35:47

@@ -7,10 +7,10 @@
 #
 
 PORTNAME=	cdialog
-PORTVERSION=	1.3.20170509
+PORTVERSION=	1.3.20171209
 PORTEPOCH=	1
 CATEGORIES=	devel
-MASTER_SITES=	ftp://invisible-island.net/${PORTNAME:S|^c||}/
+MASTER_SITES=	ftp://ftp.invisible-island.net/${PORTNAME:S|^c||}/
 DISTNAME=	${PORTNAME:S|^c||}-${PORTVERSION:R}-${PORTVERSION:E}
 EXTRACT_SUFX=	.tgz
 

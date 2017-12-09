@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.578 2017/05/09 23:25:06 tom Exp $
+-- $Id: CHANGES,v 1.583 2017/12/09 20:30:27 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2017/12/09
+	+ update ftp url in test-packages.
+	+ modify test-packages to use recommended compiler/linker flags.
+	+ improved configure macros AM_WITH_NLS, CF_CC_ENV_FLAGS,
+	  CF_CURSES_LIBS, CF_NCURSES_CONFIG, CF_SHARED_OPTS, CF_WITH_LIBTOOL,
+	  CF__INTL_BODY.
+	+ update config.guess, config.sub
 
 2017/05/09
 	+ improved configure macros CF_ADD_CFLAGS, CF_CC_ENV_FLAGS, and
