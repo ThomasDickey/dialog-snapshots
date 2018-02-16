@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.113 2018/02/16 01:53:53 tom Exp $
+.\" $Id: dialog.3,v 1.114 2018/02/16 10:25:25 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/02/16 01:53:53 $"
+.TH \*D 3 "" "$Date: 2018/02/16 10:25:25 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -164,7 +164,7 @@ given string parameter.
 The \fBgauge\fP widget uses this feature.
 .\" ---------------------------------------------------------------------------
 .SS .getc_callbacks
-This is setup in \fIui_getc.c\fP to record windows which must be polled
+This is set up in \fIui_getc.c\fP to record windows which must be polled
 for input, e.g., to handle the background tailbox widget.
 One window is designated as the foreground or control window.
 .\" ---------------------------------------------------------------------------
@@ -944,7 +944,7 @@ If zero, the height is based on the screen size.
 .SS dialog_gauge
 implements the "\fB--gauge\fP" option.
 Alternatively, a simpler or customized gauge widget can be
-setup using
+set up using
 \fBdlg_allocate_gauge\fP,
 \fBdlg_reallocate_gauge\fP,
 \fBdlg_update_gauge\fP and
