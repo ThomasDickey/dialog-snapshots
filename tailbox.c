@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.68 2012/11/18 15:48:52 tom Exp $
+ *  $Id: tailbox.c,v 1.69 2018/02/16 00:38:22 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2011,2012	Thomas E. Dickey
+ *  Copyright 2000-2012,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -220,10 +220,27 @@ handle_input(DIALOG_CALLBACK * cb)
 }
 
 static bool
+valid_callback(DIALOG_CALLBACK * cb)
+{
+    bool valid = FALSE;
+    DIALOG_CALLBACK *p;
+    for (p = dialog_state.getc_callbacks; p != 0; p = p->next) {
+	if (p == cb) {
+	    valid = TRUE;
+	    break;
+	}
+    }
+    return valid;
+}
+
+static bool
 handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 {
     MY_OBJ *obj = (MY_OBJ *) cb;
     bool done = FALSE;
+
+    if (!valid_callback(cb))
+	return FALSE;
 
     if (!fkey && dlg_char_to_button(ch, obj->buttons) == 0) {
 	ch = DLGK_ENTER;

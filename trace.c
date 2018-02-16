@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.23 2017/01/31 00:26:04 tom Exp $
+ *  $Id: trace.c,v 1.24 2018/02/16 00:41:22 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2016,2017	Thomas E. Dickey
+ *  Copyright 2007-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -196,9 +196,11 @@ dlg_trace_chr(int ch, int fkey)
 	    if (fkey_name == 0)
 		fkey_name = "UNKNOWN";
 	}
-	fprintf(myFP, "chr %s (ch=%#x, fkey=%d)\n",
-		fkey_name,
-		ch, fkey);
+	if (ch >= 0) {
+	    fprintf(myFP, "chr %s (ch=%#x, fkey=%d)\n", fkey_name, ch, fkey);
+	} else {
+	    fprintf(myFP, "chr %s (ch=%d, fkey=%d)\n", fkey_name, ch, fkey);
+	}
 	fflush(myFP);
     }
 }

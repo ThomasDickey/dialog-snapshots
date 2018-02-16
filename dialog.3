@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.111 2017/01/30 23:52:40 tom Exp $
-.\" Copyright 2005-2016,2017  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.113 2018/02/16 01:53:53 tom Exp $
+.\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -27,19 +27,27 @@
 .ne 8
 .IP
 ..
-.de EX
-.RS +10
+.de Ex
+.RS +7
+.PP
 .nf
+.ft CW
 ..
-.de EE
+.de Ee
 .fi
+.ft R
 .RE
 ..
 .\" Bulleted paragraph
 .de bP
-.IP \(bu 4
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
 ..
-.TH \*D 3 "" "$Date: 2017/01/30 23:52:40 $"
+.ie \n(.g .ds `` \(lq
+.el       .ds `` ``
+.ie \n(.g .ds '' \(rq
+.el       .ds '' ''
+.TH \*D 3 "" "$Date: 2018/02/16 01:53:53 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -301,7 +309,7 @@ the command-line option "\fB--begin\fP \fIy x\/\fP" (first value).
 .\" ---------------------------------------------------------------------------
 .SS .cancel_label
 This corresponds to the command-line option "\fB--cancel-label\fP \fIstring\/\fP".
-The given \fIstring\fP overrides the label used for "Cancel" buttons.
+The given \fIstring\fP overrides the label used for \*(``Cancel\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .cant_kill
 This corresponds to the command-line option "\fB--no-kill\fP".
@@ -372,10 +380,10 @@ make the default value of the
 \fByes/no\fP
 box a
 .BR No .
-Likewise, make the default button of widgets that provide "OK" and "Cancel"
+Likewise, make the default button of widgets that provide \*(``OK\*('' and \*(``Cancel\*(''
 a \fBCancel\fP.
 If \fB--nocancel\fP was given that option overrides this,
-making the default button always "Yes" (internally the same as "OK").
+making the default button always \*(``Yes\*('' (internally the same as \*(``OK\*('').
 .\" ---------------------------------------------------------------------------
 .SS .dlg_clear_screen
 This corresponds to the command-line option "\fB--clear\fP".
@@ -386,17 +394,17 @@ This may be used alone, without other options.
 .\" ---------------------------------------------------------------------------
 .SS .exit_label
 This corresponds to the command-line option "\fB--exit-label string\fP".
-The given string overrides the label used for "EXIT" buttons.
+The given string overrides the label used for \*(``EXIT\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .extra_button
 This corresponds to the command-line option "\fB--extra-button\fP".
 If true, some widgets show an extra button,
-between "OK" and "Cancel" buttons.
+between \*(``OK\*('' and \*(``Cancel\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .extra_label
 This corresponds to the command-line option "\fB--extra-label\fP \fIstring\/\fP".
-The given string overrides the label used for "Extra" buttons.
-Note: for inputmenu widgets, this defaults to "Rename".
+The given string overrides the label used for \*(``Extra\*('' buttons.
+Note: for inputmenu widgets, this defaults to \*(``Rename\*(''.
 .\" ---------------------------------------------------------------------------
 .SS .formitem_type
 This is set by the command-line option "\fB--passwordform\fP"
@@ -405,11 +413,11 @@ password widgets.
 .\" ---------------------------------------------------------------------------
 .SS .help_button
 This corresponds to the command-line option "\fB--help-button\fP".
-If true, some widgets show a help-button after "OK" and "Cancel" buttons,
+If true, some widgets show a help-button after \*(``OK\*('' and \*(``Cancel\*('' buttons,
 i.e., in checklist, radiolist and menu boxes.
 If \fB--item-help\fR is also given, on exit
-the return status will be the same as for the "OK" button,
-and the item-help text will be written to \fB\*p\fP's output after the token "HELP".
+the return status will be the same as for the \*(``OK\*('' button,
+and the item-help text will be written to \fB\*p\fP's output after the token \*(``HELP\*(''.
 Otherwise, the return status will indicate that the Help button was pressed,
 and no message printed.
 .\" ---------------------------------------------------------------------------
@@ -420,7 +428,7 @@ presses F1.
 .\" ---------------------------------------------------------------------------
 .SS .help_label
 This corresponds to the command-line option "\fB--help-label\fP \fIstring\/\fP".
-The given string overrides the label used for "Help" buttons.
+The given string overrides the label used for \*(``Help\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .help_line
 This corresponds to the command-line option "\fB--hline\fP \fIstring\/\fP".
@@ -431,7 +439,7 @@ like a subtitle.
 This corresponds to the command-line option "\fB--help-status\fP".
 If true, and the the help-button is selected,
 writes the checklist or radiolist information
-after the item-help "HELP" information.
+after the item-help \*(``HELP\*('' information.
 This can be used to reconstruct the state of a checklist after processing
 the help request.
 .\" ---------------------------------------------------------------------------
@@ -525,13 +533,13 @@ If not specified, the limit is 2048.
 .SS .no_items
 This corresponds to the command-line option "\fB--no-items\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a "tag" and "item", i.e., "description").
+with two columns (a \*(``tag\*('' and \*(``item\*('', i.e., \*(``description\*('').
 This tells \fB\*p\fP to read shorter rows from data,
-omitting the "list".
+omitting the \*(``list\*(''.
 .\" ---------------------------------------------------------------------------
 .SS .no_label
 This corresponds to the command-line option "\fB--no-label\fP \fIstring\/\fP".
-The given string overrides the label used for "No" buttons.
+The given string overrides the label used for \*(``No\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .no_lines
 This corresponds to the command-line option "\fB--no-lines\fP.
@@ -546,7 +554,7 @@ in a message into newlines.
 .SS .no_tags
 This corresponds to the command-line option "\fB--no-tags\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a "tag" and "item", also known as "description").
+with two columns (a \*(``tag\*('' and \*(``item\*('', also known as \*(``description\*('').
 The tag is useful for scripting, but may not help the user.
 The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
 column of tags from the display.
@@ -601,7 +609,7 @@ Your application can enable or disable the tag column as needed for each widget.
 .SS .nocancel
 This corresponds to the command-line option "\fB--no-cancel\fP".
 If true,
-suppress the "Cancel" button in checklist, inputbox and menu box modes.
+suppress the \*(``Cancel\*('' button in checklist, inputbox and menu box modes.
 A script can still test if the user pressed the ESC key to cancel to quit.
 .\" ---------------------------------------------------------------------------
 .SS .nocollapse
@@ -614,11 +622,11 @@ option.
 .\" ---------------------------------------------------------------------------
 .SS .nook
 This corresponds to the command-line option "\fB--nook\fP.
-\fB\*L\fP will suppress the "ok" (or "yes") button from the widget.
+\fB\*L\fP will suppress the \*(``ok\*('' (or \*(``yes\*('') button from the widget.
 .\" ---------------------------------------------------------------------------
 .SS .ok_label
 This corresponds to the command-line option "\fB--ok-label\fP \fIstring\/\fP".
-The given string overrides the label used for "OK" buttons.
+The given string overrides the label used for \*(``OK\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .print_siz
 This corresponds to the command-line option "\fB--print-size\fP".
@@ -698,16 +706,16 @@ The string value can be
 .bP
 a number (0 to 6, Sunday through Saturday using POSIX) or
 .bP
-the special value "locale" (this works with systems using glibc,
+the special value \*(``locale\*('' (this works with systems using glibc,
 providing an extension to the \fBlocale\fP command,
 the \fBfirst_weekday\fP value).
 .bP
 a string matching one of the abbreviations for the day of the week
-shown in the \fBcalendar\fP widget, e.g., "Mo" for "Monday".
+shown in the \fBcalendar\fP widget, e.g., \*(``Mo\*('' for \*(``Monday\*(''.
 .\" ---------------------------------------------------------------------------
 .SS .yes_label
 This corresponds to the command-line option "\fB--yes-label\fP \fIstring\/\fP".
-The given string overrides the label used for "Yes" buttons.
+The given string overrides the label used for \*(``Yes\*('' buttons.
 .
 .\" ************************************************************************
 .\" ************************************************************************
@@ -992,7 +1000,7 @@ is the title on the top of the widget.
 .TP 5
 .B const char * \fIfile
 is the name of a file containing the text to display.
-This function is internally bound to F1 (function key "1"),
+This function is internally bound to F1 (function key \*(``1\*(''),
 passing \fBdialog_vars.help_file\fP as a parameter.
 The \fBdialog\fP program sets that variable when the \fB--hfile\fP option
 is given.
@@ -1155,10 +1163,10 @@ is the desired width of the box.
 If zero, the height is based on the screen size.
 .TP 5
 .B int \fIpauseopt
-if true, an "OK" button will be shown,
+if true, an \*(``OK\*('' button will be shown,
 and the dialog will wait for it to complete.
-With an "OK" button, it is denoted a "msgbox",
-without an "OK" button, it is denoted an "infobox".
+With an \*(``OK\*('' button, it is denoted a \*(``msgbox\*('',
+without an \*(``OK\*('' button, it is denoted an \*(``infobox\*(''.
 .\" ************************************************************************
 .SS dialog_pause
 implements the "\fB--pause\fP" option.
@@ -1199,7 +1207,7 @@ is the desired width of the box.
 If zero, the height is based on the screen size.
 .TP 5
 .B int \fIpauseopt
-if true, an "OK" button will be shown,
+if true, an \*(``OK\*('' button will be shown,
 and the dialog will wait for it to complete.
 .\" ************************************************************************
 .SS dialog_progressbox
@@ -1269,7 +1277,7 @@ If zero, the height is based on the screen size.
 if true,
 the window is added to the callback list in \fBdialog_state\fP,
 and the application will poll for the window to be updated.
-Otherwise an "OK" button is added to the window,
+Otherwise an \*(``OK\*('' button is added to the window,
 and it will be closed when the button is activated.
 .\" ************************************************************************
 .SS dialog_textbox
@@ -1993,8 +2001,8 @@ is the number of items in each group, e.g., the second array index.
 .\" ---------------------------------------------------------------------------
 .SS dlg_defaultno_button
 If \fBdialog_vars.defaultno\fP is true, and \fBdialog_vars.nocancel\fP is not,
-find the button-index for the "Cancel" button.
-Otherwise, return the index for "OK" (always zero).
+find the button-index for the \*(``Cancel\*('' button.
+Otherwise, return the index for \*(``OK\*('' (always zero).
 .\" ---------------------------------------------------------------------------
 .SS dlg_del_window
 Remove a window, repainting everything else.
@@ -2307,7 +2315,7 @@ number of arguments to remove.
 Given the character-offset in the string,
 returns the display-offset where
 \fB\*p\fP should position the cursor.
-In this context, "characters" may be multicolumn,
+In this context, \*(``characters\*('' may be multicolumn,
 since the string can be a multibyte character string.
 .TP 5
 .B char * \fIstring
@@ -2367,8 +2375,8 @@ is the button index
 Return a list of button labels.
 If \fBdialog_vars.extra_button\fP is true,
 return the result of \fBdlg_ok_labels\fP.
-Otherwise, return a list with the "Exit" label and (if \fBdialog_vars.help_button\fP
-is set) the "Help" button as well.
+Otherwise, return a list with the \*(``Exit\*('' label and (if \fBdialog_vars.help_button\fP
+is set) the \*(``Help\*('' button as well.
 .\" ---------------------------------------------------------------------------
 .SS dlg_exiterr
 Quit program killing all \fBtailboxbg\fP widgets.
@@ -2645,7 +2653,7 @@ item (cursor) when it returns.
 .B DIALOG_INPUTMENU \fIrename_menutext
 If this is not \fBdlg_dummy_menutext\fP,
 the widget acts like an \fIinputmenu\fP widget,
-providing an extra "Rename" button,
+providing an extra \*(``Rename\*('' button,
 which activates an edit feature on the selected menu item.
 .\" ---------------------------------------------------------------------------
 .SS dlg_move_window
@@ -2759,7 +2767,7 @@ Sets a value used internally by \fBdlg_mouse_mkregion\fP
 which is added to the \fIcode\fP parameter.
 By providing different values,
 e.g., multiples of \fBKEY_MAX\fP,
-it is possible to support multiple "big" regions in a widget.
+it is possible to support multiple \*(``big\*('' regions in a widget.
 The \fIbuildlist\fP widget uses this feature to recognize mouse-clicks
 in the left/right panes.
 .TP 5
@@ -2859,8 +2867,8 @@ is the button-index (which is not necessarily the same as the index
 in the list of labels).
 .\" ---------------------------------------------------------------------------
 .SS dlg_ok_label
-Returns a list with the "Ok" label,
-and if \fBdialog_vars.help_button\fP is true, the "Help" label as well.
+Returns a list with the \*(``Ok\*('' label,
+and if \fBdialog_vars.help_button\fP is true, the \*(``Help\*('' label as well.
 .\" ---------------------------------------------------------------------------
 .SS dlg_ok_labels
 Return a list of button labels for the OK/Cancel group of widgets.
@@ -2870,7 +2878,7 @@ Decode the string as an integer, decrement if greater than zero to make
 a curses-ordinate from a dialog-ordinate.
 .\" ---------------------------------------------------------------------------
 .SS dlg_parse_bindkey
-Parse the parameters of the "bindkeys" configuration-file entry.
+Parse the parameters of the \*(``bindkeys\*('' configuration-file entry.
 This expects widget name which may be "*", followed by curses key definition and
 then \fB\*p\fP key definition.
 .TP 5
@@ -2900,12 +2908,12 @@ is a list of (pointers to) button labels terminated by a null pointer.
 is the current button index
 .\" ---------------------------------------------------------------------------
 .SS dlg_print_listitem
-This is a helper function used for the various "list" widgets,
+This is a helper function used for the various \*(``list\*('' widgets,
 e.g., checklist, menu, buildlist, treeview.
-Each list-widget has "tag" and "description" values for each item
+Each list-widget has \*(``tag\*('' and \*(``description\*('' values for each item
 which can be displayed.
 If \fBdialog_vars.no_tags\fP is true,
-the "tag" value is not shown.
+the \*(``tag\*('' value is not shown.
 The first character of the first value shown (tag or description)
 is highlighted to indicate that the widget will match it for quick navigation.
 .TP 5
@@ -2919,11 +2927,11 @@ the value to display
 the number of columns available for printing the text
 .TP 5
 .B bool \fIfirst
-true if this is the first call (for "tag" and "description"),
+true if this is the first call (for \*(``tag\*('' and \*(``description\*(''),
 and the first character of the value should be highlighted.
 .TP 5
 .B int \fIselected
-nonzero if the text should be displayed using the "selected" colors
+nonzero if the text should be displayed using the \*(``selected\*('' colors
 .\" ---------------------------------------------------------------------------
 .SS dlg_print_scrolled
 This is a wrapper for \fBdlg_print_autowrap\fP which allows the user
@@ -3055,10 +3063,10 @@ is the desired width of the box.
 If zero, the height is based on the screen size.
 .TP 5
 .B int \fIpauseopt
-if true, an "OK" button will be shown,
+if true, an \*(``OK\*('' button will be shown,
 and the dialog will wait for it to complete.
-With an "OK" button, it is denoted a "programbox",
-without an "OK" button, it is denoted a "progressbox".
+With an \*(``OK\*('' button, it is denoted a \*(``programbox\*('',
+without an \*(``OK\*('' button, it is denoted a \*(``progressbox\*(''.
 .TP 5
 .B FILE * \fIfp
 is the file pointer, which may be a pipe or a regular file.
@@ -3099,7 +3107,7 @@ is the percentage to show in the progress bar.
 .SS dlg_register_buttons
 The widget developer should call this function after \fBdlg_register_window\fP,
 for the list of button labels associated with the widget.
-One may bind a key to a button, e.g., "OK" for \fBDLGK_OK\fP,
+One may bind a key to a button, e.g., \*(``OK\*('' for \fBDLGK_OK\fP,
 .TP 5
 .B WINDOW * \fIwin
 is the window with which to associate the buttons
@@ -3135,7 +3143,7 @@ If \fBdialog_vars.input_menu\fP is set, \fBdialog_menu\fP passes this
 pointer to \fBdlg_menu\fP as the \fIrename_menutext\fP parameter.
 Otherwise, it passes \fBdlg_dummy_menutext\fP.
 .LP
-The function should add "RENAMED" to \fBdialog_vars.input_result\fP ,
+The function should add \*(``RENAMED\*('' to \fBdialog_vars.input_result\fP ,
 followed by the menu item's name and the \fInewtext\fP value
 (with a space separating the three items),
 and return \fBDLG_EXIT_EXTRA\fP.
@@ -3163,7 +3171,7 @@ They are not modified by this function.
 .\" ---------------------------------------------------------------------------
 .SS dlg_result_key
 Test a \fB\*p\fP internal keycode to see if it corresponds to one of the push
-buttons on the widget such as "OK".
+buttons on the widget such as \*(``OK\*(''.
 This is only useful if there are user-defined key bindings, since there are
 no built-in bindings that map directly to \fBDLGK_OK\fP, etc.
 Return true if a mapping was done.
@@ -3299,7 +3307,7 @@ name and stores the file pointer in \fBdialog_state.trace\fP.
 .SS dlg_trace_chr
 If \fBdialog_state.trace\fP is set,
 translate the parameters into a printable representation,
-log it on a "chr" line.
+log it on a \*(``chr\*('' line.
 .TP 5
 .B int \fIch
 is the nominal keycode value.
@@ -3322,10 +3330,9 @@ Use the DLG_TRACE macro for portability, in case the trace
 feature is not compiled into the library.
 It uses an extra level of parentheses to work with a variable number of
 parameters, e.g.,
-.ES
-.EX
+.Ex
 DLG_TRACE(("this is dialog version %s\en", dialog_version()));
-.EE
+.Ee
 .\" ---------------------------------------------------------------------------
 .SS dlg_trace_win
 If \fBdialog_state.trace\fP is set,
