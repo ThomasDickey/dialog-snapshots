@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.114 2018/02/16 10:25:25 tom Exp $
+.\" $Id: dialog.3,v 1.116 2018/05/18 09:15:08 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/02/16 10:25:25 $"
+.TH \*D 3 "" "$Date: 2018/05/18 09:15:08 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -124,8 +124,10 @@ These include definitions based on the generated \fI<dlg_config.h>\fP header.
 .\" ************************************************************************
 .SH DATA STRUCTURES
 All of the global data for the \fB\*l\fP library is stored in
-a few structures: \fIDIALOG_STATE\fP, \fIDIALOG_VARS\fP and \fIDIALOG_COLORS\fP.
-The corresponding \fBdialog_state\fP, \fBdialog_vars\fP and \fBdlg_color_table\fP
+a few structures:
+\fIDIALOG_STATE\fP, \fIDIALOG_VARS\fP and \fIDIALOG_COLORS\fP.
+The corresponding
+\fBdialog_state\fP, \fBdialog_vars\fP and \fBdlg_color_table\fP
 global variables should be initialized to zeros,
 and then populated with the data to use.
 A few of these must be nonzero for the corresponding widgets to function.
@@ -282,14 +284,16 @@ It causes line-drawing to be done with ASCII characters, e.g., "+" and "-".
 See \fIDIALOG_VARS.no_lines\fP.
 .\" ---------------------------------------------------------------------------
 .SS .backtitle
-This corresponds to the command-line option "\fB--backtitle\fP \fIbacktitle\/\fP".
+This corresponds to the command-line option
+"\fB--backtitle\fP \fIbacktitle\/\fP".
 It specifies a
 \fIbacktitle\fP
 string to be displayed on the backdrop, at the top of the screen.
 .\" ---------------------------------------------------------------------------
 .SS .beep_after_signal
 This corresponds to the command-line option "\fB--beep-after\fP".
-If true, beep after a user has completed a widget by pressing one of the buttons.
+If true, beep after a user has completed a widget
+by pressing one of the buttons.
 .\" ---------------------------------------------------------------------------
 .SS .beep_signal
 This corresponds to the command-line option "\fB--beep\fP".
@@ -297,7 +301,8 @@ It is obsolete.
 .\" ---------------------------------------------------------------------------
 .SS .begin_set
 This is true if the command-line option "\fB--begin\fP \fIy x\/\fP" was used.
-It specifies the position of the upper left corner of a dialog box on the screen.
+It specifies the position of the upper left corner
+of a dialog box on the screen.
 .\" ---------------------------------------------------------------------------
 .SS .begin_x
 This corresponds to the \fIx\fP value from
@@ -308,7 +313,8 @@ This corresponds to the \fIy\fP value from
 the command-line option "\fB--begin\fP \fIy x\/\fP" (first value).
 .\" ---------------------------------------------------------------------------
 .SS .cancel_label
-This corresponds to the command-line option "\fB--cancel-label\fP \fIstring\/\fP".
+This corresponds to the command-line option
+"\fB--cancel-label\fP \fIstring\/\fP".
 The given \fIstring\fP overrides the label used for \*(``Cancel\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .cant_kill
@@ -351,7 +357,8 @@ occurrences of the given string, and aligns the split data into columns.
 This corresponds to the command-line option "\fB--cr-wrap\fP".
 If true,
 interpret embedded newlines in the dialog text as a newline on the screen.
-Otherwise, \fB\*p\fR will only wrap lines where needed to fit inside the text box.
+Otherwise, \fB\*p\fR will only wrap lines where needed
+to fit inside the text box.
 Even though you can control line breaks with this,
 \fB\*p\fR will still wrap any lines that are too long for the width of the box.
 Without cr-wrap, the layout of your text may be formatted to look nice
@@ -359,7 +366,8 @@ in the source code of your script without affecting the way it will
 look in the dialog.
 .\" ---------------------------------------------------------------------------
 .SS .date_format
-This corresponds to the command-line option "\fB--date-format\fP \fIstring\/\fP".
+This corresponds to the command-line option
+"\fB--date-format\fP \fIstring\/\fP".
 If the host provides \fBstrftime\fP, and the value is nonnull,
 the calendar widget uses this to format its output.
 .\" ---------------------------------------------------------------------------
@@ -368,7 +376,8 @@ This is set by the command-line option "\fB--default-button\fP.
 It is used by \fBdlg_default_button\fP.
 .\" ---------------------------------------------------------------------------
 .SS .default_item
-This corresponds to the command-line option "\fB--default-item\fP \fIstring\/\fP".
+This corresponds to the command-line option
+"\fB--default-item\fP \fIstring\/\fP".
 The given string is used as
 the default item in a checklist, form or menu box.
 Normally the first item in the box is the default.
@@ -380,10 +389,12 @@ make the default value of the
 \fByes/no\fP
 box a
 .BR No .
-Likewise, make the default button of widgets that provide \*(``OK\*('' and \*(``Cancel\*(''
-a \fBCancel\fP.
+Likewise, treat the default button of widgets that provide
+\*(``OK\*('' and \*(``Cancel\*(''
+as a \fICancel\fP.
 If \fB--nocancel\fP was given that option overrides this,
-making the default button always \*(``Yes\*('' (internally the same as \*(``OK\*('').
+making the default button always \*(``Yes\*(''
+(internally the same as \*(``OK\*('').
 .\" ---------------------------------------------------------------------------
 .SS .dlg_clear_screen
 This corresponds to the command-line option "\fB--clear\fP".
@@ -402,7 +413,8 @@ If true, some widgets show an extra button,
 between \*(``OK\*('' and \*(``Cancel\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .extra_label
-This corresponds to the command-line option "\fB--extra-label\fP \fIstring\/\fP".
+This corresponds to the command-line option
+"\fB--extra-label\fP \fIstring\/\fP".
 The given string overrides the label used for \*(``Extra\*('' buttons.
 Note: for inputmenu widgets, this defaults to \*(``Rename\*(''.
 .\" ---------------------------------------------------------------------------
@@ -413,11 +425,13 @@ password widgets.
 .\" ---------------------------------------------------------------------------
 .SS .help_button
 This corresponds to the command-line option "\fB--help-button\fP".
-If true, some widgets show a help-button after \*(``OK\*('' and \*(``Cancel\*('' buttons,
+If true, some widgets show a help-button after
+\*(``OK\*('' and \*(``Cancel\*('' buttons,
 i.e., in checklist, radiolist and menu boxes.
 If \fB--item-help\fR is also given, on exit
 the return status will be the same as for the \*(``OK\*('' button,
-and the item-help text will be written to \fB\*p\fP's output after the token \*(``HELP\*(''.
+and the item-help text will be written to \fB\*p\fP's output
+after the token \*(``HELP\*(''.
 Otherwise, the return status will indicate that the Help button was pressed,
 and no message printed.
 .\" ---------------------------------------------------------------------------
@@ -510,8 +524,8 @@ screen, for the currently selected item.
 .SS .keep_tite
 This is set by the command-line option "\fB--keep-tite\fP"
 to tell \fB\*p\fP to not attempt to cancel the terminal initialization
-(termcap \fIti\/\fP/\,\fIte\/\fP) sequences which correspond to xterm's alternate-screen
-switching.
+(termcap \fIti\/\fP/\,\fIte\/\fP) sequences
+which correspond to xterm's alternate-screen switching.
 Normally \fB\*p\fP does this to avoid flickering when run several times
 in a script.
 .\" ---------------------------------------------------------------------------
@@ -533,7 +547,8 @@ If not specified, the limit is 2048.
 .SS .no_items
 This corresponds to the command-line option "\fB--no-items\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a \*(``tag\*('' and \*(``item\*('', i.e., \*(``description\*('').
+with two columns (a \*(``tag\*('' and \*(``item\*('',
+i.e., \*(``description\*('').
 This tells \fB\*p\fP to read shorter rows from data,
 omitting the \*(``list\*(''.
 .\" ---------------------------------------------------------------------------
@@ -554,7 +569,8 @@ in a message into newlines.
 .SS .no_tags
 This corresponds to the command-line option "\fB--no-tags\fP".
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
-with two columns (a \*(``tag\*('' and \*(``item\*('', also known as \*(``description\*('').
+with two columns (a \*(``tag\*('' and \*(``item\*('',
+also known as \*(``description\*('').
 The tag is useful for scripting, but may not help the user.
 The \fB--no-tags\fP option (from Xdialog) may be used to suppress the
 column of tags from the display.
@@ -622,7 +638,8 @@ option.
 .\" ---------------------------------------------------------------------------
 .SS .nook
 This corresponds to the command-line option "\fB--nook\fP.
-\fB\*L\fP will suppress the \*(``ok\*('' (or \*(``yes\*('') button from the widget.
+\fB\*L\fP will suppress the \*(``ok\*('' (or \*(``yes\*('') button
+from the widget.
 .\" ---------------------------------------------------------------------------
 .SS .ok_label
 This corresponds to the command-line option "\fB--ok-label\fP \fIstring\/\fP".
@@ -671,7 +688,8 @@ printing the resulting size if it is larger than the screen.
 .SS .sleep_secs
 This corresponds to the command-line option "\fB--sleep\fP \fIsecs\/\fP".
 This option is implemented in the main program, not the library.
-If nonzero, this is the number of seconds after to delay after processing a dialog box.
+If nonzero, this is the number of seconds after to delay
+after processing a dialog box.
 .\" ---------------------------------------------------------------------------
 .SS .tab_correct
 This corresponds to the command-line option "\fB--tab-correct\fP".
@@ -679,7 +697,8 @@ If true, convert each tab character of the text to one or more spaces.
 Otherwise, tabs are rendered according to the curses library's interpretation.
 .\" ---------------------------------------------------------------------------
 .SS .time_format
-This corresponds to the command-line option "\fB--time-format\fP \fIstring\/\fP".
+This corresponds to the command-line option
+"\fB--time-format\fP \fIstring\/\fP".
 If the host provides \fBstrftime\fP, and the value is nonnull,
 the timebox widget uses this to format its output.
 .\" ---------------------------------------------------------------------------
@@ -1112,11 +1131,13 @@ is the percentage to show in the progress bar.
 is the number of rows in \fIitems\fP.
 .TP 5
 .B int \fIitems
-is an array of strings which is viewed as a list of \fItag\fP and \fIitem\fP values.
-The \fItag\fP values are listed, one per row, in the list at the top of
-the widget.
+is an array of strings which is viewed as a list
+of \fItag\fP and \fIitem\fP values.
+The \fItag\fP values are listed,
+one per row, in the list at the top of the widget.
 .IP
-The \fIitem\fP values are decoded: digits 0 through 9 are the following strings
+The \fIitem\fP values are decoded:
+digits 0 through 9 are the following strings
 .RS
 .IP 0
 Succeeded
@@ -1533,8 +1554,10 @@ is the percentage to show in the progress bar.
 .\" ---------------------------------------------------------------------------
 .SS dlg_asciibox
 returns its parameter transformed to the
-corresponding "+" or "-", etc. for the line-drawing characters used in \fB\*p\fP.
-If the parameter is not a line-drawing or other special character such as ACS_DARROW, it returns 0.
+corresponding "+" or "-", etc.,
+for the line-drawing characters used in \fB\*p\fP.
+If the parameter is not a line-drawing or other special character
+such as ACS_DARROW, it returns 0.
 .TP 5
 .B chtype \fIch
 is the parameter, usually one of the \fBACS_\fP\fIxxx\fP constants.
@@ -1590,7 +1613,8 @@ is the name of the file.
 .TP 5
 .B int * \fIheight
 is the nominal height.
-If it is -1, use the screen's height (after subtracting \fBdialog_vars.begin_y\fP
+If it is -1, use the screen's height
+(after subtracting \fBdialog_vars.begin_y\fP
 if \fBdialog_vars.begin_set\fP is true).
 .TP 5
 .B int * \fIwidth
@@ -1614,11 +1638,16 @@ returns its \fBchtype\fP parameter transformed as follows:
 .bP
 if neither \fBdialog_vars.ascii_lines\fP nor \fBdialog_vars.no_lines\fP is set.
 .bP
-if \fBdialog_vars.ascii_lines\fP is set, returns the corresponding "+" or "-", etc. for the line-drawing characters used in \fB\*p\fP.
+if \fBdialog_vars.ascii_lines\fP is set,
+returns the corresponding "+" or "-", etc.,
+for the line-drawing characters used in \fB\*p\fP.
 .bP
-otherwise, if \fBdialog_vars.no_lines\fP is set, returns a space for the line-drawing characters.
+otherwise, if \fBdialog_vars.no_lines\fP is set,
+returns a space for the line-drawing characters.
 .bP
-if the parameter is not a line-drawing or other special character such as ACS_DARROW, it returns the parameter unchanged.
+if the parameter is not a line-drawing or other special character
+such as ACS_DARROW,
+it returns the parameter unchanged.
 .\" ---------------------------------------------------------------------------
 .SS dlg_box_x_ordinate
 returns a suitable x-ordinate (column) for a new widget.
@@ -2375,8 +2404,9 @@ is the button index
 Return a list of button labels.
 If \fBdialog_vars.extra_button\fP is true,
 return the result of \fBdlg_ok_labels\fP.
-Otherwise, return a list with the \*(``Exit\*('' label and (if \fBdialog_vars.help_button\fP
-is set) the \*(``Help\*('' button as well.
+Otherwise, return a list with the \*(``Exit\*('' label
+and (if \fBdialog_vars.help_button\fP is set)
+the \*(``Help\*('' button as well.
 .\" ---------------------------------------------------------------------------
 .SS dlg_exiterr
 Quit program killing all \fBtailboxbg\fP widgets.
@@ -2910,8 +2940,8 @@ is the current button index
 .SS dlg_print_listitem
 This is a helper function used for the various \*(``list\*('' widgets,
 e.g., checklist, menu, buildlist, treeview.
-Each list-widget has \*(``tag\*('' and \*(``description\*('' values for each item
-which can be displayed.
+Each list-widget has \*(``tag\*('' and \*(``description\*('' values
+for each item which can be displayed.
 If \fBdialog_vars.no_tags\fP is true,
 the \*(``tag\*('' value is not shown.
 The first character of the first value shown (tag or description)
@@ -3158,7 +3188,8 @@ is the index of the currently-selected item
 is the updated text for the menu item
 .\" ---------------------------------------------------------------------------
 .SS dlg_restore_vars
-Restore \fB\*p\fP's variables from the given variable (see \fBdialog_save_vars\fP).
+Restore \fB\*p\fP's variables from the given variable
+(see \fBdialog_save_vars\fP).
 .TP 5
 .B DIALOG_VARS * \fIsave
 is the variable from which to restore.
