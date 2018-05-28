@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.591 2018/05/19 01:47:35 tom Exp $
+-- $Id: CHANGES,v 1.594 2018/05/28 18:06:38 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+	+ modify msgbox.c, yesno.c to bind SCROLLKEY_BINDINGS before
+	  TRAVERSE_BINDINGS so that up/down arrow will by default scroll the
+	  message up/down rather than be aliases for tab-traversal (report by
+	  Fredrik Kers).
+	+ modify dump_one_binding() to show when a binding is overridden.
+	+ improve format of trace-file, making comment-syntax consistent,
+	  as well as showing argv-splitting as a series of comments.
 
 2018/05/18
 	+ modify dlg_string_to_argv() to change the quoting behavior to be
