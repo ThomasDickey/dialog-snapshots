@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.43 2018/02/16 23:22:29 tom Exp $
+ *  $Id: dlg_keys.c,v 1.45 2018/05/28 17:27:10 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -78,6 +78,7 @@ dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING * binding)
     DLG_TRACE(("# dlg_register_window %s\n", name));
     dlg_dump_keys(dialog_state.trace_output);
     dlg_dump_window_keys(dialog_state.trace_output, win);
+    DLG_TRACE(("# ...done dlg_register_window %s\n", name));
 #endif
 }
 
@@ -200,8 +201,8 @@ dlg_unregister_window(WINDOW *win)
  * Parameters:
  *	win is the window on which the wgetch() was done.
  *	curses_key is the value returned by wgetch().
- *	fkey in/out (on input, it is true if curses_key is a function key,
- *		and on output, it is true if the result is a function key).
+ *	fkey in/out (on input, it is nonzero if curses_key is a function key,
+ *		and on output, it is nonzero if the result is a function key).
  */
 int
 dlg_lookup_key(WINDOW *win, int curses_key, int *fkey)
@@ -809,12 +810,28 @@ dump_dialog_key(FILE *fp, int dialog_key)
 }
 
 static void
-dump_one_binding(FILE *fp, const char *widget, DLG_KEYS_BINDING * binding)
+dump_one_binding(FILE *fp,
+		 WINDOW *win,
+		 const char *widget,
+		 DLG_KEYS_BINDING * binding)
 {
+    int actual;
+    int fkey = (binding->curses_key > 255);
+
     fprintf(fp, "bindkey %s ", widget);
     dump_curses_key(fp, binding->curses_key);
     fputc(' ', fp);
     dump_dialog_key(fp, binding->dialog_key);
+    actual = dlg_lookup_key(win, binding->curses_key, &fkey);
+#ifdef KEY_MOUSE
+    if (is_DLGK_MOUSE(binding->curses_key) && is_DLGK_MOUSE(actual)) {
+	;			/* EMPTY */
+    } else
+#endif
+    if (actual != binding->dialog_key) {
+	fprintf(fp, "\t# overridden by ");
+	dump_dialog_key(fp, actual);
+    }
     fputc('\n', fp);
 }
 
@@ -834,13 +851,13 @@ dlg_dump_window_keys(FILE *fp, WINDOW *win)
 	for (p = all_bindings; p != 0; p = p->link) {
 	    if (p->win == win) {
 		if (dlg_strcmp(last, p->name)) {
-		    fprintf(fp, "\n# key bindings for %s widgets%s\n",
+		    fprintf(fp, "# key bindings for %s widgets%s\n",
 			    !strcmp(p->name, WILDNAME) ? "all" : p->name,
 			    win == 0 ? " (user-defined)" : "");
 		    last = p->name;
 		}
 		for (q = p->binding; q->is_function_key >= 0; ++q) {
-		    dump_one_binding(fp, p->name, q);
+		    dump_one_binding(fp, win, p->name, q);
 		}
 	    }
 	}

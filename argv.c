@@ -1,5 +1,5 @@
 /*
- * $Id: argv.c,v 1.10 2018/05/19 01:43:09 tom Exp $
+ * $Id: argv.c,v 1.11 2018/05/28 12:10:03 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
@@ -37,7 +37,26 @@ dlg_string_to_argv(char *blob)
     size_t length = strlen(blob);
     char **result = 0;
 
-    DLG_TRACE(("# dlg_string_to_argv:\n#\t%s\n", blob));
+#ifdef HAVE_DLG_TRACE
+    if (dialog_state.trace_output) {
+	dlg_trace_msg("# dlg_string_to_argv:\n");
+	dlg_trace_msg("# given:\n");
+	for (n = k = 0; n < length; ++n) {
+	    if (blob[n] == '\n') {
+		dlg_trace_msg("#%s\t%.*s\\n\n",
+			      k ? "+" : "",
+			      (int) (n - k), blob + k);
+		k = n + 1;
+	    }
+	}
+	if (n > k) {
+	    dlg_trace_msg("#%s\t%.*s\n",
+			  k ? "+" : "",
+			  (int) (n - k), blob + k);
+	}
+	dlg_trace_msg("# result:\n");
+    }
+#endif
     for (pass = 0; pass < 2; ++pass) {
 	bool inparm = FALSE;
 	bool quoted = FALSE;

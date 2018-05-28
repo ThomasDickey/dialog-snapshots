@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.24 2018/02/16 00:41:22 tom Exp $
+ *  $Id: trace.c,v 1.25 2018/05/28 11:50:53 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -212,12 +212,13 @@ dlg_trace(const char *fname)
 	if (myFP == 0) {
 	    myFP = fopen(fname, "a");
 	    if (myFP != 0) {
-		dlg_trace_time("** opened at");
-		DLG_TRACE(("** dialog %s\n", dialog_version()));
+		dlg_trace_time("## opened at");
+		DLG_TRACE(("## dialog %s\n", dialog_version()));
+		DLG_TRACE(("## vile: confmode\n"));
 	    }
 	}
     } else if (myFP != 0) {
-	dlg_trace_time("** closed at");
+	dlg_trace_time("## closed at");
 	fclose(myFP);
 	myFP = 0;
     }
