@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.195 2018/05/18 09:14:25 tom Exp $
+.\" $Id: dialog.1,v 1.202 2018/05/31 00:09:53 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2018/05/18 09:14:25 $"
+.TH \*D 1 "" "$Date: 2018/05/31 00:09:53 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -267,7 +267,16 @@ Without cr-wrap, the layout of your text may be formatted to look nice
 in the source code of your script without affecting the way it will
 look in the dialog.
 .IP
-See also the "\fB--no-collapse\fP" and "\fB--trim\fP" options.
+The \fIcr-wrap\fP feature is implemented subject to these conditions:
+.RS
+.bP
+the string contains \*(``\en\*('' and the \fB--no-nl-expand\fP option is
+not used, or
+.bP
+the \fB--trim\fP option is used.
+.RE
+.IP
+For more information, see \fBWhitespace Options\fP.
 .
 .IP "\fB--create-rc \fIfile"
 When
@@ -446,6 +455,17 @@ spaces to a single space for text which is displayed in a message boxes, etc.
 Use this option to disable that feature.
 Note that \fB\*p\fR will still wrap text,
 subject to the "\fB--cr-wrap\fR" and "\fB--trim\fR" options.
+.IP
+The \fIno-collapse\fP feature is implemented subject to these conditions:
+.RS
+.bP
+the string contains \*(``\en\*('' and the \fB--no-nl-expand\fP option is
+not used, or
+.bP
+the \fB--trim\fP option is not used.
+.RE
+.IP
+For more information, see \fBWhitespace Options\fP.
 .
 .IP "\fB--no-items"
 Some widgets (checklist, inputmenu, radiolist, menu) display a list
@@ -480,6 +500,11 @@ Do not enable the mouse.
 .IP "\fB--no-nl-expand
 Do not convert "\en" substrings of the message/prompt text into
 literal newlines.
+.IP
+The \fIno-nl-expand\fP feature is used only if
+the string contains \*(``\en\*('' so that there is something to convert.
+.IP
+For more information, see \fBWhitespace Options\fP.
 .
 .IP "\fB--no-ok"
 .IP "\fB--nook"
@@ -658,6 +683,16 @@ then that is processed (and removed) before \fB\*p\fR initializes the display.
 .IP "\fB--trim"
 eliminate leading blanks,
 trim literal newlines and repeated blanks from message text.
+.IP
+The \fItrim\fP feature is implemented subject to these conditions:
+.RS
+.bP
+the string does not contain \*(``\en\*('' or
+.bP
+the \fB--no-nl-expand\fP option is used.
+.RE
+.IP
+For more information, see \fBWhitespace Options\fP.
 .
 .IP
 See also the "\fB--cr-wrap\fR" and "\fB--no-collapse\fR" options.
@@ -1276,6 +1311,135 @@ when the separate processes of the tailboxbg widget would repaint the screen.
 Beep after a user has completed a widget by pressing one of the buttons.
 .
 .\" ************************************************************************
+.SS "Whitespace Options"
+.PP
+These options can be used to transform whitespace (space, tab, newline)
+as dialog reads the script:
+.RS
+.BR --cr-wrap ,
+.BR --no-collapse ,
+.BR --no-nl-expand ", and"
+.B --trim
+.RE
+.PP
+The options are not independent:
+.bP
+\fB\*L\fP checks if the script contains at least one \*(``\en\*(''
+and (unless \fB--no-nl-expand\fP is set) will ignore the
+\fB--no-collapse\fP and \fB--trim\fP options.
+.bP
+After checking for \*(``\en\*('' and the \fB--no-nl-expand\fP option,
+\fB\*l\fP handles the \fB--trim\fP option.
+.IP
+If the \fB--trim\fP option takes effect,
+then \fB\*l\fP ignores \fB--no-collapse\fP.
+It changes sequences of tabs, spaces
+(and newlines unless \fB-cr-wrap\fP is set) to a single space.
+.bP
+If neither the \*(``\en\*('' or \fB--trim\fP cases apply,
+\fB\*l\fP checks \fB--no-collapse\fP to decide whether to reduce
+sequences of tabs and spaces to a single space.
+.IP
+In this case, \fB\*l\fP ignores \fB-cr-wrap\fP and does not modify newlines.
+.PP
+Taking those dependencies into account,
+here is a table summarizing the behavior
+for the various combinations of options.
+The table assumes that the script contains at least one \*(``\en\*(''
+when the \fB--no-nl-expand\fP option is not set.
+.na
+.TS
+center tab(/) ;
+lB lB lB lB lB
+lB lB lB lB lB
+_ _ _ _ _
+lw5 lw5 lw5 lw5 lw30.
+cr-/no-/no-/trim/Result
+wrap/collapse/nl-expand
+no/no/no/no/T{
+Convert tab to space.
+Convert newline to space.
+Convert \*(``\en\*('' to newline. 
+T}
+no/no/no/yes/T{
+Convert tab to space.
+Convert newline to space.
+Convert \*(``\en\*('' to newline. 
+T}
+no/no/yes/no/T{
+Convert tab to space.
+Do not convert newline to space.
+Convert multiple-space to single.
+Show \*(``\en\*('' literally.
+T}
+no/no/yes/yes/T{
+Convert tab to space.
+Convert multiple-space to single.
+Convert newline to space.
+Show \*(``\en\*('' literally.
+T}
+no/yes/no/no/T{
+Convert newline to space.
+Convert \*(``\en\*('' to newline. 
+T}
+no/yes/no/yes/T{
+Convert newline to space.
+Convert \*(``\en\*('' to newline. 
+T}
+no/yes/yes/no/T{
+Do not convert newline to space.
+Do not reduce multiple blanks.
+Show \*(``\en\*('' literally.
+T}
+no/yes/yes/yes/T{
+Convert multiple-space to single.
+Convert newline to space.
+Show \*(``\en\*('' literally.
+T}
+yes/no/no/no/T{
+Convert tab to space.
+Wrap on newline.
+Convert \*(``\en\*('' to newline. 
+T}
+yes/no/no/yes/T{
+Convert tab to space.
+Wrap on newline.
+Convert \*(``\en\*('' to newline. 
+T}
+yes/no/yes/no/T{
+Convert tab to space.
+Do not convert newline to space.
+Convert multiple-space to single.
+Show \*(``\en\*('' literally.
+T}
+yes/no/yes/yes/T{
+Convert tab to space.
+Convert multiple-space to single.
+Wrap on newline.
+Show \*(``\en\*('' literally.
+T}
+yes/yes/no/no/T{
+Wrap on newline.
+Convert \*(``\en\*('' to newline. 
+T}
+yes/yes/no/yes/T{
+Wrap on newline.
+Convert \*(``\en\*('' to newline. 
+T}
+yes/yes/yes/no/T{
+Do not convert newline to space.
+Do not reduce multiple blanks.
+Show \*(``\en\*('' literally.
+T}
+yes/yes/yes/yes/T{
+Convert multiple-space to single.
+Wrap on newline.
+Show \*(``\en\*('' literally.
+T}
+.TE
+.ad
+.
+.\" ************************************************************************
 .SH "RUN-TIME CONFIGURATION"
 .TP 4
 1.
@@ -1533,7 +1697,7 @@ NetBSD 5.1 curses has incomplete support for wide-characters.
 .SH COMPATIBILITY
 You may want to write scripts which run with
 other \fBdialog\fP \*(``clones\*(''.
-.SS ORIGINAL DIALOG
+.SS Original Dialog
 First, there is the \*(``original\*('' \fBdialog\fP program to consider
 (versions 0.3 to 0.9).
 It had some misspelled (or inconsistent) options.
@@ -1551,9 +1715,8 @@ Option/Treatment
 _
 .TE
 .RE
-.SS XDIALOG
-Technically, "\fBXdialog\fP",
-this is an X application.
+.SS Xdialog
+This is an X application, rather than a terminal program.
 With some care, it is possible to write useful scripts that work
 with both \fBXdialog\fP and \fBdialog\fP.
 .PP
@@ -1599,7 +1762,7 @@ will then have to add the \fB--separate-output\fP option before the
 .PP
 \fB\*L\fP has not used a different separator;
 the difference was likely due to confusion regarding some script.
-.SS WHIPTAIL
+.SS Whiptail
 Then there is \fBwhiptail\fP.
 For practical purposes, it is maintained by Debian
 (very little work is done by its upstream developers).

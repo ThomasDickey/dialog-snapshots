@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.116 2018/05/18 09:15:08 tom Exp $
+.\" $Id: dialog.3,v 1.117 2018/05/31 00:54:32 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/05/18 09:15:08 $"
+.TH \*D 3 "" "$Date: 2018/05/31 00:54:32 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -3431,27 +3431,43 @@ and/or the special substring "\en"
 .LP
 There are several optional features:
 .bP
-Unless \fBdialog_vars.no_nl_expand\fP is set,
-.bP
-If it has "\en" substrings,
-the function preserves extra spaces.
-For instance, spaces following a newline (substring or character)
-are preserved to use as an indentation.
-.bP
-The function changes embedded "\en" substrings to '\en' characters.
-.RE
+Unless \fBdialog_vars.nocollapse\fP is set,
+each tab is converted to a space before other processing.
 .bP
 If \fBdialog_vars.no_nl_expand\fP is not set,
-or if there are no "\en" substrings,
-this function strips all extra spaces to simplify justification.
+and the string has "\en" substrings:
+.RS
+.bP
+The function changes embedded "\en" substrings to '\en' characters.
+.IP
+The function preserves extra spaces after these substitutions.
+For instance, spaces following a newline (substring or character)
+are preserved to use as an indentation.
 .bP
 If \fBdialog_vars.cr_wrap\fP is set,
 the function preserves '\en' newline characters.
 Otherwise, each '\en' newline character is converted to a space.
+.RE
+.bP
+Otherwise, if \fBdialog_vars.trim_whitespace\fP is set:
+.RS
+.bP
+This function strips all extra spaces to simplify justification.
+.bP
+If \fBdialog_vars.cr_wrap\fP is set,
+the function preserves '\en' newline characters.
+Otherwise, each '\en' newline character is converted to a space.
+.RE
+.bP
+Finally
+(if \fBdialog_vars.no_nl_expand\fP is set,
+or the string does not contain "\en" substrings,
+and \fBdialog_vars.trim_whitespace\fP is not set):
+.RS
 .bP
 Unless \fBdialog_vars.nocollapse\fP is set,
-each tab character is converted to a space,
-and sequences of blanks (space or tab) are reduced to a single space.
+sequences of spaces are reduced to a single space.
+.RE
 .TP 5
 .B char * \fIsrc
 is the string to trim
