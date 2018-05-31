@@ -1,9 +1,11 @@
--- $Id: CHANGES,v 1.594 2018/05/28 18:06:38 tom Exp $
+-- $Id: CHANGES,v 1.596 2018/05/30 18:26:28 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+	+ improve documentation of the various whitespace-filtering options,
+	  to show which take precedence (Debian #867536, cf: Debian #102942).
 	+ modify msgbox.c, yesno.c to bind SCROLLKEY_BINDINGS before
 	  TRAVERSE_BINDINGS so that up/down arrow will by default scroll the
 	  message up/down rather than be aliases for tab-traversal (report by
