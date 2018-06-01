@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.276 2017/01/31 23:58:06 tom Exp $
+ *  $Id: dialog.h,v 1.277 2018/05/31 20:29:52 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -560,6 +560,10 @@ extern DIALOG_VARS dialog_vars;
 
 #ifndef HAVE_TYPE_CHTYPE
 #define chtype long
+#endif
+
+#ifndef isblank
+#define isblank(c)       ((c) == ' ' || (c) == TAB)
 #endif
 
 #define UCH(ch)			((unsigned char)(ch))
