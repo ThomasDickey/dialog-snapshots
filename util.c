@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.261 2016/04/24 22:39:46 tom Exp $
+ *  $Id: util.c,v 1.263 2018/06/01 00:28:31 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2241,18 +2241,18 @@ dlg_strcmp(const char *a, const char *b)
 static bool
 trim_blank(char *base, char *dst)
 {
-    int count = 0;
+    int count = isblank(UCH(*dst));
 
     while (dst-- != base) {
 	if (*dst == '\n') {
-	    return FALSE;
-	} else if (*dst != ' ') {
-	    return (count > 1);
-	} else {
+	    break;
+	} else if (isblank(UCH(*dst))) {
 	    count++;
+	} else {
+	    break;
 	}
     }
-    return FALSE;
+    return (count > 1);
 }
 
 /*
@@ -2283,7 +2283,7 @@ dlg_trim_string(char *s)
 		 * then ignore the '\n'.  This eliminates the need to escape
 		 * the '\n' character (no need to use "\n\").
 		 */
-		while (*p1 == ' ')
+		while (isblank(UCH(*p1)))
 		    p1++;
 		if (*p1 == '\n')
 		    p = p1 + 1;
@@ -2292,15 +2292,15 @@ dlg_trim_string(char *s)
 		    *s++ = *p++;
 		else {
 		    /* Replace the '\n' with a space if cr_wrap is not set */
-		    if (!trim_blank(base, s))
+		    if (!trim_blank(base, p))
 			*s++ = ' ';
 		    p++;
 		}
 	    } else		/* If *p != '\n' */
 		*s++ = *p++;
 	} else if (dialog_vars.trim_whitespace) {
-	    if (*p == ' ') {
-		if (*(s - 1) != ' ') {
+	    if (isblank(UCH(*p))) {
+		if (!isblank(UCH(*(s - 1)))) {
 		    *s++ = ' ';
 		    p++;
 		} else
@@ -2308,7 +2308,7 @@ dlg_trim_string(char *s)
 	    } else if (*p == '\n') {
 		if (dialog_vars.cr_wrap)
 		    *s++ = *p++;
-		else if (*(s - 1) != ' ') {
+		else if (!isblank(*(s - 1))) {
 		    /* Strip '\n's if cr_wrap is not set. */
 		    *s++ = ' ';
 		    p++;
@@ -2317,8 +2317,8 @@ dlg_trim_string(char *s)
 	    } else
 		*s++ = *p++;
 	} else {		/* If there are no "\n" strings */
-	    if (*p == ' ' && !dialog_vars.nocollapse) {
-		if (!trim_blank(base, s))
+	    if (isblank(*p) && !dialog_vars.nocollapse) {
+		if (!trim_blank(base, p))
 		    *s++ = *p;
 		p++;
 	    } else
