@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.260 2018/02/15 10:16:06 tom Exp $
+ * $Id: dialog.c,v 1.261 2018/06/04 23:30:41 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -736,6 +736,7 @@ show_result(int ret)
 	if (dialog_vars.input_result != 0
 	    && dialog_vars.input_result[0] != '\0') {
 	    fputs(dialog_vars.input_result, dialog_state.output);
+	    dlg_trace_msg("# input_result:\n%s\n", dialog_vars.input_result);
 	    either = TRUE;
 	}
 	if (either) {
@@ -1432,9 +1433,10 @@ Help(void)
     for (j = 0; j < limit; j++) {
 	if ((opts[j]->pass & 2) != 0
 	    && opts[j]->help != 0
-	    && lookupMode(opts[j]->code))
+	    && lookupMode(opts[j]->code)) {
 	    fprintf(dialog_state.output, "  --%-12s %s\n", opts[j]->name,
 		    opts[j]->help);
+	}
     }
     PrintList(tbl_3);
 
