@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.263 2018/06/01 00:28:31 tom Exp $
+ *  $Id: util.c,v 1.264 2018/06/04 23:30:09 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2014,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1774,8 +1774,10 @@ dlg_beeping(void)
 void
 dlg_print_size(int height, int width)
 {
-    if (dialog_vars.print_siz)
+    if (dialog_vars.print_siz) {
 	fprintf(dialog_state.output, "Size: %d, %d\n", height, width);
+	dlg_trace_msg("# print size: %dx%d\n", height, width);
+    }
 }
 
 void
