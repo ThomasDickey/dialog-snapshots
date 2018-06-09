@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: demo.pl,v 1.21 2018/06/06 01:11:52 tom Exp $
+# $Id: demo.pl,v 1.22 2018/06/06 09:08:59 tom Exp $
 ################################################################################
 #  Copyright 2018	Thomas E. Dickey
 #
@@ -273,7 +273,7 @@ sub doit() {
                         (
                             "A checklist",
                             "This checklist uses \"tag\" values"
-                              . "and descriptions:",
+                              . " and descriptions:",
                             $midcols,
                             ( $#demo_3col + 1 ) / 3
                         ),
@@ -317,7 +317,7 @@ sub doit() {
                         (
                             "A radiolist",
                             "This radiolist uses \"tag\" values"
-                              . "and descriptions:",
+                              . " and descriptions:",
                             $midcols,
                             ( $#demo_3col + 1 ) / 3
                         ),

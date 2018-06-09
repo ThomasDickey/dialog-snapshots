@@ -1,5 +1,5 @@
 # Functions that handle calling dialog(1) -*-perl-*-
-# $Id: dialog.pl,v 1.13 2018/06/06 01:47:24 tom Exp $
+# $Id: dialog.pl,v 1.15 2018/06/06 09:24:17 tom Exp $
 #
 # The "rhs_" functions, as well as return_output originally came from Redhat
 # 4.0, e.g.,
@@ -28,8 +28,18 @@ our $GAUGE;
 our $gauge_width;
 our $scr_lines = 24;
 our @dialog_result;
+our $trace = 0;
 
 require "flush.pl";
+
+sub trace {
+    if ($trace) {
+        if ( open TRACE, ">>dialog.log" ) {
+            printf TRACE $_[0], @_[ 1 .. $#_ ];
+            close TRACE;
+        }
+    }
+}
 
 sub quoted($) {
     my $text = shift;
@@ -556,6 +566,7 @@ sub rhs_wordwrap {
     my ( $intext, $width ) = @_;
     my ( $outtext, $i, $j, @lines, $wrap, @words, $pos, $pad );
 
+    &trace( "rhs_wordwrap\n\tintext:%s\n\twidth:%d\n", $intext, $width );
     $width   = int($width);
     $outtext = "";
     $pad     = 3;             # leave 3 spaces around each line
@@ -564,6 +575,7 @@ sub rhs_wordwrap {
     my $insert_nl = 0;        # 1 if we just did an absolute
                               # and we should preface any new text
                               # with a new line
+    $intext =~ s/\\n/\n/g;
     @lines = split( /\n/, $intext );
 
     for ( $i = 0 ; $i <= $#lines ; $i++ ) {
@@ -595,6 +607,7 @@ sub rhs_wordwrap {
         }
     }
 
+    &trace( "\touttext:%s\n", $outtext );
     return $outtext;
 }
 

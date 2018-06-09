@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.116 2018/02/15 10:09:23 tom Exp $
+dnl $Id: aclocal.m4,v 1.118 2018/06/09 01:58:45 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2017,2018 -- Thomas E. Dickey
 dnl
@@ -280,7 +280,7 @@ fi
 AC_SUBST($1)dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl AM_WITH_NLS version: 28 updated: 2017/07/11 04:44:41
+dnl AM_WITH_NLS version: 29 updated: 2018/02/21 21:26:03
 dnl -----------
 dnl Inserted as requested by gettext 0.10.40
 dnl File from /usr/share/aclocal
@@ -501,12 +501,12 @@ AC_DEFUN([AM_WITH_NLS],
   if test "$XGETTEXT" != ":"; then
     AC_OUTPUT_COMMANDS(
      [for ac_file in $CONFIG_FILES; do
-  
+
         # Support "outfile[:infile[:infile...]]"
         case "$ac_file" in
           (*:*) ac_file=`echo "$ac_file"|sed 's%:.*%%'` ;;
         esac
-  
+
         # PO directories have a Makefile.in generated from Makefile.inn.
         case "$ac_file" in
         (*/[Mm]akefile.in)
@@ -518,13 +518,13 @@ AC_DEFUN([AM_WITH_NLS],
           # In autoconf-2.13 it is called $ac_given_srcdir.
           # In autoconf-2.50 it is called $srcdir.
           test -n "$ac_given_srcdir" || ac_given_srcdir="$srcdir"
-  
+
           case "$ac_given_srcdir" in
             (.)  top_srcdir=`echo $ac_dots|sed 's%/$%%'` ;;
             (/*) top_srcdir="$ac_given_srcdir" ;;
             (*)  top_srcdir="$ac_dots$ac_given_srcdir" ;;
           esac
-  
+
           if test -f "$ac_given_srcdir/$ac_dir/POTFILES.in"; then
             rm -f "$ac_dir/POTFILES"
             test -n "$as_me" && echo "$as_me: creating $ac_dir/POTFILES" || echo "creating $ac_dir/POTFILES"
@@ -535,13 +535,13 @@ AC_DEFUN([AM_WITH_NLS],
           ;;
         esac
       done])
-  
+
     dnl If this is used in GNU gettext we have to set BUILD_INCLUDED_LIBINTL
     dnl to 'yes' because some of the testsuite requires it.
     if test "$PACKAGE" = gettext; then
       BUILD_INCLUDED_LIBINTL=yes
     fi
-  
+
     dnl intl/plural.c is generated from intl/plural.y. It requires bison,
     dnl because plural.y uses bison specific features. It requires at least
     dnl bison-1.26 because earlier versions generate a plural.c that doesn't
@@ -574,7 +574,7 @@ changequote([,])dnl
         INTLBISON=:
       fi
     fi
-  
+
     dnl These rules are solely for the distribution goal.  While doing this
     dnl we only have to keep exactly one list of the available catalogs
     dnl in configure.in.
@@ -2765,7 +2765,7 @@ AC_DEFUN([CF_LIB_SUFFIX],
 	fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 17 updated: 2015/08/05 20:44:28
+dnl CF_MAKEFLAGS version: 18 updated: 2018/02/21 21:26:03
 dnl ------------
 dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
 dnl options to lower-levels.  It's very useful for "make -n" -- if we have it.
@@ -2794,8 +2794,10 @@ CF_EOF
 			esac
 			break
 			;;
-		(.-)	;;
-		(*)	echo "given option \"$cf_option\", no match \"$cf_result\""
+		(.-)
+			;;
+		(*)
+			CF_MSG_LOG(given option \"$cf_option\", no match \"$cf_result\")
 			;;
 		esac
 	done
@@ -4330,6 +4332,116 @@ define([CF_SHARED_SONAME],
 		cf_cv_shared_soname='`basename $[@]`'
 	fi
 ])
+dnl ---------------------------------------------------------------------------
+dnl CF_SIZECHANGE version: 13 updated: 2018/06/08 21:57:23
+dnl -------------
+dnl Check for definitions & structures needed for window size-changing
+dnl
+dnl https://stackoverflow.com/questions/18878141/difference-between-structures-ttysize-and-winsize/50769952#50769952
+AC_DEFUN([CF_SIZECHANGE],
+[
+AC_REQUIRE([CF_STRUCT_TERMIOS])
+AC_CACHE_CHECK(declaration of size-change, cf_cv_sizechange,[
+	cf_cv_sizechange=unknown
+	cf_save_CPPFLAGS="$CPPFLAGS"
+
+for cf_opts in "" "NEED_PTEM_H"
+do
+
+	CPPFLAGS="$cf_save_CPPFLAGS"
+	test -n "$cf_opts" && CPPFLAGS="$CPPFLAGS -D$cf_opts"
+	AC_TRY_COMPILE([#include <sys/types.h>
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#else
+#ifdef HAVE_TERMIO_H
+#include <termio.h>
+#endif
+#endif
+
+#ifdef NEED_PTEM_H
+/* This is a workaround for SCO:  they neglected to define struct winsize in
+ * termios.h -- it's only in termio.h and ptem.h
+ */
+#include <sys/stream.h>
+#include <sys/ptem.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+],[
+#ifdef TIOCGSIZE
+	struct ttysize win;	/* SunOS 3.0... */
+	int y = win.ts_lines;
+	int x = win.ts_cols;
+#else
+#ifdef TIOCGWINSZ
+	struct winsize win;	/* everything else */
+	int y = win.ws_row;
+	int x = win.ws_col;
+#else
+	no TIOCGSIZE or TIOCGWINSZ
+#endif /* TIOCGWINSZ */
+#endif /* TIOCGSIZE */
+	],
+	[cf_cv_sizechange=yes],
+	[cf_cv_sizechange=no])
+
+	CPPFLAGS="$cf_save_CPPFLAGS"
+	if test "$cf_cv_sizechange" = yes ; then
+		echo "size-change succeeded ($cf_opts)" >&AC_FD_CC
+		test -n "$cf_opts" && cf_cv_sizechange="$cf_opts"
+		break
+	fi
+done
+])
+if test "$cf_cv_sizechange" != no ; then
+	AC_DEFINE(HAVE_SIZECHANGE,1,[Define to 1 if sizechange declarations are provided])
+	case $cf_cv_sizechange in
+	(NEED*)
+		AC_DEFINE_UNQUOTED($cf_cv_sizechange )
+		;;
+	esac
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_STRUCT_TERMIOS version: 9 updated: 2018/06/08 21:57:23
+dnl -----------------
+dnl Some machines require _POSIX_SOURCE to completely define struct termios.
+AC_DEFUN([CF_STRUCT_TERMIOS],[
+AC_REQUIRE([CF_XOPEN_SOURCE])
+
+AC_CHECK_HEADERS( \
+termio.h \
+termios.h \
+unistd.h \
+sys/ioctl.h \
+sys/termio.h \
+)
+
+if test "$ac_cv_header_termios_h" = yes ; then
+	case "$CFLAGS $CPPFLAGS" in
+	(*-D_POSIX_SOURCE*)
+		termios_bad=dunno ;;
+	(*)	termios_bad=maybe ;;
+	esac
+	if test "$termios_bad" = maybe ; then
+	AC_MSG_CHECKING(whether termios.h needs _POSIX_SOURCE)
+	AC_TRY_COMPILE([#include <termios.h>],
+		[struct termios foo; int x = foo.c_iflag],
+		termios_bad=no, [
+		AC_TRY_COMPILE([
+#define _POSIX_SOURCE
+#include <termios.h>],
+			[struct termios foo; int x = foo.c_iflag],
+			termios_bad=unknown,
+			termios_bad=yes AC_DEFINE(_POSIX_SOURCE,1,[Define to 1 if we must define _POSIX_SOURCE]))
+			])
+	AC_MSG_RESULT($termios_bad)
+	fi
+fi
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_SUBDIR_PATH version: 7 updated: 2014/12/04 04:33:06
 dnl --------------

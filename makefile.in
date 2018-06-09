@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.96 2017/01/24 10:14:26 tom Exp $
+# $Id: makefile.in,v 1.97 2018/06/09 01:05:18 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2016,2017 Thomas E. Dickey                              #
+# Copyright (c) 1999-2017,2018 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -169,6 +169,7 @@ OBJECTS = $(EXTRAOBJS) \
 	mousewget$o \
 	msgbox$o \
 	textbox$o \
+	ttysize$o \
 	ui_getc$o \
 	util$o \
 	version$o \
