@@ -1,10 +1,14 @@
--- $Id: CHANGES,v 1.600 2018/06/06 01:48:48 tom Exp $
+-- $Id: CHANGES,v 1.603 2018/06/09 02:03:03 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2018/06/05
+2018/06/08
+	+ add dlg_ttysize() to support new options, allowing scripts to obtain
+	  some text-formatting details without initializing the terminal.
+	+ add options --print-text-only and --print-text-size for scripts that
+	  adjust the widget size according to how the captions are formatted.
 	+ improve dialog.pl:
 	  + add demo.pl, to demonstrate the functions
 	  + quote/escape string parameters passed to dialog.
