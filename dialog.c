@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.261 2018/06/04 23:30:41 tom Exp $
+ * $Id: dialog.c,v 1.262 2018/06/10 20:03:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -109,6 +109,8 @@ typedef enum {
     ,o_prgbox
     ,o_print_maxsize
     ,o_print_size
+    ,o_print_text_only
+    ,o_print_text_size
     ,o_print_version
     ,o_programbox
     ,o_progressbox
@@ -288,6 +290,8 @@ static const Options options[] = {
     { "prgbox",		o_prgbox,		2, "<text> <command> <height> <width>" },
     { "print-maxsize",	o_print_maxsize,	1, "" },
     { "print-size",	o_print_size,		1, "" },
+    { "print-text-only",o_print_text_only,	5, "<text> <height> <width>" },
+    { "print-text-size",o_print_text_size,	5, "<text> <height> <width>" },
     { "print-version",	o_print_version,	5, "" },
     { "programbox",	o_programbox,		2, "<text> <height> <width>" },
     { "progressbox",	o_progressbox,		2, "<text> <height> <width>" },
@@ -1317,6 +1321,55 @@ button_code(const char *name)
 }
 
 /*
+ * If this is the last option, we do not want any error messages - just our
+ * output.  Calling end_dialog() cancels the refresh() at the end of the
+ * program as well.
+ */
+static void
+IgnoreNonScreen(char **argv, int offset)
+{
+    if (argv[offset + 1] == 0) {
+	ignore_unknown = TRUE;
+	end_dialog();
+    }
+}
+
+static void
+PrintTextOnly(char **argv, int *offset, eOptions code)
+{
+    /* TODO - handle two optional numeric params */
+    char *text;
+    int height = 0;
+    int width = 0;
+    int height2 = 0;
+    int width2 = 0;
+
+    if (LINES <= 0 && COLS <= 0)
+	dlg_ttysize(fileno(dialog_state.input), &LINES, &COLS);
+
+    text = strdup(optionString(argv, offset));
+    IgnoreNonScreen(argv, *offset);
+
+    dlg_trim_string(text);
+    dlg_auto_size(NULL, text, &height2, &width2, height, width);
+
+    switch (code) {
+    case o_print_text_only:
+	dialog_state.text_only = TRUE;
+	dlg_print_autowrap(stdscr, text, height2, width2);
+	dialog_state.text_only = FALSE;
+	break;
+    case o_print_text_size:
+	fprintf(dialog_state.output, "%d %d\n",
+		dialog_state.text_height,
+		dialog_state.text_width);
+	break;
+    default:
+	break;
+    }
+}
+
+/*
  * Print parts of a message
  */
 static void
@@ -1480,12 +1533,13 @@ static int
 process_common_options(int argc, char **argv, int offset, bool output)
 {
     bool done = FALSE;
+    eOptions code;
 
     DLG_TRACE(("# process_common_options, offset %d\n", offset));
 
     while (offset < argc && !done) {	/* Common options */
 	DLG_TRACE(("#\targv[%d] = %s\n", offset, argv[offset]));
-	switch (lookupOption(argv[offset], 1)) {
+	switch (code = lookupOption(argv[offset], 1)) {
 	case o_title:
 	    dialog_vars.title = optionString(argv, &offset);
 	    break;
@@ -1590,17 +1644,13 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	case o_print_size:
 	    dialog_vars.print_siz = TRUE;
 	    break;
+	case o_print_text_only:
+	case o_print_text_size:
+	    PrintTextOnly(argv, &offset, code);
+	    break;
 	case o_print_maxsize:
 	    if (output) {
-		/*
-		 * If this is the last option, we do not want any error
-		 * messages - just our output.  Calling end_dialog() cancels
-		 * the refresh() at the end of the program as well.
-		 */
-		if (argv[offset + 1] == 0) {
-		    ignore_unknown = TRUE;
-		    end_dialog();
-		}
+		IgnoreNonScreen(argv, offset);
 		fflush(dialog_state.output);
 		fprintf(dialog_state.output, "MaxSize: %d, %d\n", SLINES, SCOLS);
 	    }
@@ -1756,6 +1806,10 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	if (!done)
 	    offset++;
     }
+
+    if (dialog_state.aspect_ratio == 0)
+	dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
+
     return offset;
 }
 
@@ -1804,6 +1858,7 @@ main(int argc, char *argv[])
     char temp[256];
     bool esc_pressed = FALSE;
     bool keep_tite = FALSE;
+    bool first_time = TRUE;
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
@@ -1868,7 +1923,7 @@ main(int argc, char *argv[])
 	case o_version:
 	    dialog_state.output = stdout;
 	    PrintVersion(dialog_state.output);
-	    exit(DLG_EXIT_OK);
+	    dlg_exit(DLG_EXIT_OK);
 	    break;
 	case o_help:
 	    Help();
@@ -1903,13 +1958,14 @@ main(int argc, char *argv[])
     }
     offset = 1;
     init_result(my_buffer);
+    dialog_vars.keep_tite = keep_tite;	/* init_result() cleared global */
 
     /*
      * Dialog's output may be redirected (see above).  Handle the special
      * case of options that only report information without interaction.
      */
     if (argc == 2) {
-	switch (lookupOption(argv[1], 7)) {
+	switch (code = lookupOption(argv[1], 7)) {
 	case o_print_maxsize:
 	    (void) initscr();
 	    endwin();
@@ -1930,14 +1986,12 @@ main(int argc, char *argv[])
 	    Help();
 	    break;
 	}
-	return DLG_EXIT_OK;
-    }
-
-    if (argc < 2) {
+	dlg_exit(DLG_EXIT_OK);
+    } else if (argc < 2) {
 	Help();
     }
 #ifdef HAVE_RC_FILE
-    if (lookupOption(argv[1], 7) == o_create_rc) {
+    else if (lookupOption(argv[1], 7) == o_create_rc) {
 	if (argc != 3) {
 	    sprintf(temp, "Expected a filename for %.50s", argv[1]);
 	    Usage(temp);
@@ -1947,18 +2001,29 @@ main(int argc, char *argv[])
 	    dlg_exiterr("dialog: dlg_parse_rc");
 	}
 	dlg_create_rc(argv[2]);
-	return DLG_EXIT_OK;
+	dlg_exit(DLG_EXIT_OK);
     }
 #endif
-
-    dialog_vars.keep_tite = keep_tite;	/* init_result() cleared global */
+    else {
+	/*
+	 * Handle combinations of common options including --print-text-only
+	 * which can be done before involving curses, in case we can exit
+	 * without initializing curses (and writing to the terminal).
+	 */
+	offset = process_common_options(argc, argv, offset, TRUE);
+	if (offset >= argc)
+	    dlg_exit(DLG_EXIT_OK);
+    }
 
     init_dialog(dialog_state.input, dialog_state.output);
 
     while (offset < argc && !esc_pressed) {
-	init_result(my_buffer);
-
-	offset = process_common_options(argc, argv, offset, TRUE);
+	if (first_time) {
+	    first_time = FALSE;
+	} else {
+	    init_result(my_buffer);
+	    offset = process_common_options(argc, argv, offset, TRUE);
+	}
 
 	if (argv[offset] == NULL) {
 	    if (ignore_unknown)
@@ -1981,9 +2046,6 @@ main(int argc, char *argv[])
 		Usage(temp);
 	    }
 	}
-
-	if (dialog_state.aspect_ratio == 0)
-	    dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
 
 	dlg_put_backtitle();
 
