@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.277 2018/05/31 20:29:52 tom Exp $
+ *  $Id: dialog.h,v 1.278 2018/06/10 21:58:58 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2016,2017	Thomas E. Dickey
+ *  Copyright 2000-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -127,8 +127,8 @@
 #define USE_COLORS TRUE
 
 #ifdef HAVE_COLOR
-#define SCOLS	(COLS - (dialog_state.use_shadow ? 2 : 0))
-#define SLINES	(LINES - (dialog_state.use_shadow ? 1 : 0))
+#define SCOLS	(COLS - (dialog_state.use_shadow ? SHADOW_COLS : 0))
+#define SLINES	(LINES - (dialog_state.use_shadow ? SHADOW_ROWS : 0))
 #else
 #define SCOLS	COLS
 #define SLINES	LINES
@@ -159,11 +159,11 @@
 #define ESC		27
 #define TAB		DLG_CTRL('I')
 
-#define MARGIN 1
-#define GUTTER 2
-#define SHADOW_ROWS 1
-#define SHADOW_COLS 2
-#define ARROWS_COL  5
+#define MARGIN 1	/* width of the line drawn around each box */
+#define GUTTER 2	/* minimum columns between name/description in menu */
+#define SHADOW_ROWS 1	/* rows to reserve for window's shadow */
+#define SHADOW_COLS 2	/* columns to reserve for window's shadow */
+#define ARROWS_COL  5	/* distance from left margin to up/down arrows */
 
 #define MAX_LEN 2048
 #define BUF_SIZE (10L*1024)
@@ -450,6 +450,10 @@ typedef struct {
     bool finish_string;		/* caching optimization for gauge */
     /* 1.2-20150125 */
     bool plain_buttons;		/* true to suppress button-label highlight */
+    /* 1.3-20180610 */
+    bool text_only;		/* option "--print-text-only", etc. */
+    int text_height;
+    int text_width;
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;
@@ -735,6 +739,9 @@ extern void dlg_create_rc(const char * /*filename*/);
 
 /* treeview.c */
 extern int dlg_treeview(const char * /*title*/, const char * /*cprompt*/, int /*height*/, int /*width*/, int /*list_height*/, int /*item_no*/, DIALOG_LISTITEM * /*items*/, const char * /*states*/, int * /*depths*/, int /*flag*/, int * /*current_item*/);
+
+/* ttysize.c */
+extern int dlg_ttysize(int /* fd */, int * /* height */, int * /* width */);
 
 /* ui_getc.c */
 extern int dlg_getc(WINDOW * /*win*/, int * /*fkey*/);
