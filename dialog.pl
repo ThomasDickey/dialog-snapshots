@@ -1,5 +1,5 @@
 # Functions that handle calling dialog(1) -*-perl-*-
-# $Id: dialog.pl,v 1.15 2018/06/06 09:24:17 tom Exp $
+# $Id: dialog.pl,v 1.17 2018/06/12 01:27:04 tom Exp $
 #
 # The "rhs_" functions, as well as return_output originally came from Redhat
 # 4.0, e.g.,
@@ -27,6 +27,7 @@ our $DIALOG = "dialog";
 our $GAUGE;
 our $gauge_width;
 our $scr_lines = 24;
+our $scr_cols  = 80;
 our @dialog_result;
 our $trace = 0;
 
@@ -49,6 +50,33 @@ sub quoted($) {
     return sprintf "\"%s\"", $text;
 }
 
+sub screensize() {
+    my $params = `$DIALOG --stdout --print-maxsize`;
+    $params =~ s/\s+$//;
+    $params =~ s/^[^:]*:\s+//;
+    my @params = split /,\s+/, $params;
+    if ( $#params == 1 ) {
+        $scr_lines = $params[0];
+        $scr_cols  = $params[1];
+    }
+    else {
+        $scr_lines = 24;
+        $scr_cols  = 80;
+    }
+}
+
+sub height_of($$) {
+    my $width   = shift;
+    my $message = shift;
+    my $command =
+        "$DIALOG --stdout --print-text-size "
+      . &quoted($message)
+      . " $scr_lines $width 2>&1";
+    my $params = `$command`;
+    my @params = split( /\s/, $params );
+    return $params[0];
+}
+
 sub rhs_clear {
     return system("$DIALOG --clear");
 }
@@ -67,16 +95,11 @@ sub rhs_textbox {
 
 sub rhs_msgbox {
     my ( $title, $message, $width ) = @_;
-    my ( $tmp, $height, $message_len );
+    my ( $tmp, $height );
 
-    $width       = int($width);
-    $message     = &rhs_wordwrap( $message, $width );
-    $message_len = split( /^/, $message );
-    $tmp         = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-    $height = 4 + $message_len;
+    $width   = int($width);
+    $message = &rhs_wordwrap( $message, $width );
+    $height  = 5 + &height_of( $width, $message );
 
     $tmp =
       system( "$DIALOG --title "
@@ -94,16 +117,11 @@ sub rhs_msgbox {
 
 sub rhs_infobox {
     my ( $title, $message, $width ) = @_;
-    my ( $tmp, $height, $message_len );
+    my ( $tmp, $height );
 
-    $width       = int($width);
-    $message     = &rhs_wordwrap( $message, $width );
-    $message_len = split( /^/, $message );
-    $tmp         = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-    $height = 2 + $message_len;
+    $width   = int($width);
+    $message = &rhs_wordwrap( $message, $width );
+    $height  = 2 + &height_of( $width, $message );
 
     return
       system( "$DIALOG --title "
@@ -115,16 +133,11 @@ sub rhs_infobox {
 
 sub rhs_yesno {
     my ( $title, $message, $width ) = @_;
-    my ( $tmp, $height, $message_len );
+    my ( $tmp, $height );
 
-    $width       = int($width);
-    $message     = &rhs_wordwrap( $message, $width );
-    $message_len = split( /^/, $message );
-    $tmp         = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-    $height = 4 + $message_len;
+    $width   = int($width);
+    $message = &rhs_wordwrap( $message, $width );
+    $height  = 4 + &height_of( $width, $message );
 
     $tmp =
       system( "$DIALOG --title "
@@ -144,18 +157,13 @@ sub rhs_yesno {
 
 sub rhs_gauge {
     my ( $title, $message, $width, $percent ) = @_;
-    my ( $tmp, $height, $message_len );
+    my ( $tmp, $height );
 
     $width       = int($width);
     $gauge_width = $width;
 
     $message = &rhs_wordwrap( $message, $width );
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-    $height = 5 + $message_len;
+    $height = 5 + &height_of( $width, $message );
 
     open( $GAUGE,
             "|$DIALOG --title "
@@ -185,16 +193,11 @@ sub rhs_stop_gauge {
 
 sub rhs_inputbox {
     my ( $title, $message, $width, $instr ) = @_;
-    my ( $tmp, $height, $message_len );
+    my ( $tmp, $height );
 
-    $width       = int($width);
-    $message     = &rhs_wordwrap( $message, $width );
-    $message_len = split( /^/, $message );
-    $tmp         = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-    $height = 7 + $message_len;
+    $width   = int($width);
+    $message = &rhs_wordwrap( $message, $width );
+    $height  = 7 + &height_of( $width, $message );
 
     return &return_output( 0,
             "$DIALOG --title "
@@ -207,7 +210,7 @@ sub rhs_inputbox {
 
 sub rhs_menu {
     my ( $title, $message, $width, $numitems ) = @_;
-    my ( $i, $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $i, $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width    = int($width);
     $numitems = int($numitems);
@@ -226,20 +229,15 @@ sub rhs_menu {
     }
 
     $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
 
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
-    $height = $message_len + 6 + $numitems;
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( 0,
@@ -252,7 +250,7 @@ sub rhs_menu {
 
 sub rhs_menul {
     my ( $title, $message, $width, $numitems ) = @_;
-    my ( $i, $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $i, $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width    = int($width);
     $numitems = int($numitems);
@@ -270,20 +268,15 @@ sub rhs_menul {
     }
 
     $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
 
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
-    $height = $message_len + 6 + $numitems;
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( 0,
@@ -296,7 +289,7 @@ sub rhs_menul {
 
 sub rhs_menua {
     my ( $title, $message, $width, %items ) = @_;
-    my ( $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width = int($width);
     @list  = ();
@@ -305,22 +298,17 @@ sub rhs_menua {
         $list[@list] = &quoted( $items{$ent} );
     }
 
-    $message = &rhs_wordwrap( $message, $width );
-
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
     my $numitems = keys(%items);
-    $height = $message_len + 6 + $numitems;
+    $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
+
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( 0,
@@ -333,7 +321,7 @@ sub rhs_menua {
 
 sub rhs_checklist {
     my ( $title, $message, $width, $numitems ) = @_;
-    my ( $i, $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $i, $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width    = int($width);
     $numitems = int($numitems);
@@ -359,20 +347,15 @@ sub rhs_checklist {
     }
 
     $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
 
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
-    $height = $message_len + 6 + $numitems;
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( "list",
@@ -385,7 +368,7 @@ sub rhs_checklist {
 
 sub rhs_checklistl {
     my ( $title, $message, $width, $numitems ) = @_;
-    my ( $i, $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $i, $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width    = int($width);
     $numitems = int($numitems);
@@ -404,20 +387,15 @@ sub rhs_checklistl {
     }
 
     $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
 
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
-    $height = $message_len + 6 + $numitems;
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
     return &return_output( "list",
             "$DIALOG --title "
@@ -429,7 +407,7 @@ sub rhs_checklistl {
 
 sub rhs_checklista {
     my ( $title, $message, $width, %items ) = @_;
-    my ( $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     shift;
     shift;
@@ -443,22 +421,17 @@ sub rhs_checklista {
         $list[@list] = "OFF";
     }
 
-    $message = &rhs_wordwrap( $message, $width );
-
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
     my $numitems = keys(%items);
-    $height = $message_len + 6 + $numitems;
+    $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
+
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( "list",
@@ -471,7 +444,7 @@ sub rhs_checklista {
 
 sub rhs_radiolist {
     my ( $title, $message, $width, $numitems ) = @_;
-    my ( $i, $tmp, $ent, $height, $menuheight, @list, $message_len );
+    my ( $i, $tmp, $ent, $height, $listheight, $menuheight, @list );
 
     $width    = int($width);
     $numitems = int($numitems);
@@ -497,20 +470,15 @@ sub rhs_radiolist {
     }
 
     $message = &rhs_wordwrap( $message, $width );
+    $listheight = &height_of( $width, $message );
+    $height = 6 + $listheight + $numitems;
 
-    $message_len = split( /^/, $message );
-    $tmp = $message;
-    if ( chop($tmp) eq "\n" ) {
-        $message_len++;
-    }
-
-    $height = $message_len + 6 + $numitems;
     if ( $height <= $scr_lines ) {
         $menuheight = $numitems;
     }
     else {
         $height     = $scr_lines;
-        $menuheight = $scr_lines - $message_len - 6;
+        $menuheight = $scr_lines - $listheight - 6;
     }
 
     return &return_output( 0,
@@ -567,15 +535,15 @@ sub rhs_wordwrap {
     my ( $outtext, $i, $j, @lines, $wrap, @words, $pos, $pad );
 
     &trace( "rhs_wordwrap\n\tintext:%s\n\twidth:%d\n", $intext, $width );
+    &screensize;
     $width   = int($width);
     $outtext = "";
     $pad     = 3;             # leave 3 spaces around each line
     $pos     = $pad;          # current insert position
-    $wrap    = 0;             # 1 if we have been auto wraping
+    $wrap    = 0;             # 1 if we have been auto wrapping
     my $insert_nl = 0;        # 1 if we just did an absolute
                               # and we should preface any new text
                               # with a new line
-    $intext =~ s/\\n/\n/g;
     @lines = split( /\n/, $intext );
 
     for ( $i = 0 ; $i <= $#lines ; $i++ ) {

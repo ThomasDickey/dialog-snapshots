@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.262 2018/06/10 20:03:36 tom Exp $
+ * $Id: dialog.c,v 1.264 2018/06/11 21:01:29 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -452,6 +452,7 @@ unescape_argv(int *argcp, char ***argvp)
     const char **my_argv = 0;
     int my_argc;
 
+    DLG_TRACE(("# unescape_argv\n"));
     for (k = 0; k < 2; ++k) {
 
 	my_argc = 0;
@@ -592,7 +593,7 @@ unescape_argv(int *argcp, char ***argvp)
 	    && !strncmp((*argvp)[j], "--", (size_t) 2)
 	    && isalpha(UCH((*argvp)[j][2]))) {
 	    my_argv[my_argc++] = (*argvp)[j];
-	    DLG_TRACE(("# option argv[%d]=%s\n", j, (*argvp)[j]));
+	    DLG_TRACE(("#\toption argv[%d]=%s\n", j, (*argvp)[j]));
 	}
     }
 
@@ -601,7 +602,7 @@ unescape_argv(int *argcp, char ***argvp)
     known_opts = my_argc;
     dialog_opts = my_argv;
 
-    DLG_TRACE(("# %d options vs %d arguments\n", known_opts, *argcp));
+    DLG_TRACE(("#\t%d options vs %d arguments\n", known_opts, *argcp));
     dialog_argv = (*argvp);
 }
 
@@ -1343,12 +1344,21 @@ PrintTextOnly(char **argv, int *offset, eOptions code)
     int width = 0;
     int height2 = 0;
     int width2 = 0;
+    int next = arg_rest(argv + *offset);
 
     if (LINES <= 0 && COLS <= 0)
 	dlg_ttysize(fileno(dialog_state.input), &LINES, &COLS);
 
     text = strdup(optionString(argv, offset));
     IgnoreNonScreen(argv, *offset);
+
+    if (next >= 1) {
+	next = MIN(next, 3);
+	height = numeric_arg(argv, *offset + 1);
+	if (next >= 2)
+	    width = numeric_arg(argv, *offset + 2);
+	*offset += next - 1;
+    }
 
     dlg_trim_string(text);
     dlg_auto_size(NULL, text, &height2, &width2, height, width);
@@ -1519,7 +1529,7 @@ process_trace_option(char **argv, int *offset)
 
     DLG_TRACE(("# Parameters:\n"));
     for (j = 0; argv[j] != 0; ++j) {
-	DLG_TRACE(("# argv[%d] = %s\n", j, argv[j]));
+	DLG_TRACE(("#\targv[%d] = %s\n", j, argv[j]));
     }
 }
 #endif
@@ -2107,6 +2117,7 @@ main(int argc, char *argv[])
 	    }
 	}
 
+	DLG_TRACE(("# execute %s\n", argv[offset]));
 	retval = show_result((*(modePtr->jumper)) (dialog_vars.title,
 						   argv + offset,
 						   &offset_add));
