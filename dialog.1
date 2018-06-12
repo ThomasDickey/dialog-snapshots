@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.203 2018/06/10 22:21:58 tom Exp $
+.\" $Id: dialog.1,v 1.204 2018/06/11 09:08:12 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2018/06/10 22:21:58 $"
+.TH \*D 1 "" "$Date: 2018/06/11 09:08:12 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -557,14 +557,23 @@ This may be used alone, without other options.
 Prints the size of each dialog box to \fB\*p\fP's output
 when the box is initialized.
 .
-.IP "\fB--print-text-only \fIstring"
+.IP "\fB--print-text-only \fIstring [ height [ width ] ]"
 Prints the string as it would be wrapped in a message box
 to \fB\*p\fP's output.
+.IP
+Because the optional \fIheight\fP and \fIwidth\fP default to zero,
+if they are omitted, \fB\*p\fP autosizes according to the screen dimensions.
 .
-.IP "\fB--print-text-size \fIstring"
+.IP "\fB--print-text-size \fIstring [ height [ width ] ]"
 Prints the size of the string as it would be wrapped in a message box,
 to \fB\*p\fP's output,
-as \fIheight\fP\ \fIwidth\fP.
+as
+.Ex
+height width
+.Ee
+.IP
+Because the optional \fIheight\fP and \fIwidth\fP parameters default to zero,
+if they are omitted, \fB\*p\fP autosizes according to the screen dimensions.
 .
 .IP "\fB--print-version"
 Prints \fB\*p\fR's version to \fB\*p\fP's output.

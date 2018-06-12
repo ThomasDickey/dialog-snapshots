@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.265 2018/06/10 20:06:27 tom Exp $
+ *  $Id: util.c,v 1.266 2018/06/11 08:58:36 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1354,6 +1354,10 @@ dlg_auto_size(const char *title,
     if (*height > SLINES) {
 	*height = SLINES;
     }
+    dlg_trace_msg("# dlg_auto_size(%d,%d) ->%d,%d ->%d,%d\n",
+		  boxlines, mincols,
+		  dialog_state.text_height, dialog_state.text_width,
+		  *height, *width);
 }
 
 /*
