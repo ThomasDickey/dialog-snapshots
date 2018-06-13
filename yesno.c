@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.58 2018/05/28 18:07:46 tom Exp $
+ *  $Id: yesno.c,v 1.60 2018/06/13 00:42:21 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -49,7 +49,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     int button = dlg_default_button();
     WINDOW *dialog = 0;
     int result = DLG_EXIT_UNKNOWN;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     const char **buttons = dlg_yes_labels();
     int min_width = 25;
     bool show = TRUE;
@@ -58,9 +58,18 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 #ifdef KEY_RESIZE
     int req_high = height;
     int req_wide = width;
-  restart:
 #endif
 
+    DLG_TRACE(("# yesno args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+
+#ifdef KEY_RESIZE
+  restart:
+#endif
+    prompt = dlg_strclone(cprompt);
     dlg_tab_correct_str(prompt);
     dlg_button_layout(buttons, &min_width);
     dlg_auto_size(title, prompt, &height, &width, 2, min_width);
@@ -134,8 +143,10 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		dlg_clear();
+		free(prompt);
 		height = req_high;
 		width = req_wide;
+		show = TRUE;
 		goto restart;
 #endif
 	    default:

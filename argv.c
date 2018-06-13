@@ -1,5 +1,5 @@
 /*
- * $Id: argv.c,v 1.11 2018/05/28 12:10:03 tom Exp $
+ * $Id: argv.c,v 1.12 2018/06/12 22:47:23 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
@@ -39,22 +39,22 @@ dlg_string_to_argv(char *blob)
 
 #ifdef HAVE_DLG_TRACE
     if (dialog_state.trace_output) {
-	dlg_trace_msg("# dlg_string_to_argv:\n");
-	dlg_trace_msg("# given:\n");
+	DLG_TRACE(("# dlg_string_to_argv:\n"));
+	DLG_TRACE(("# given:\n"));
 	for (n = k = 0; n < length; ++n) {
 	    if (blob[n] == '\n') {
-		dlg_trace_msg("#%s\t%.*s\\n\n",
-			      k ? "+" : "",
-			      (int) (n - k), blob + k);
+		DLG_TRACE(("#%s\t%.*s\\n\n",
+			   k ? "+" : "",
+			   (int) (n - k), blob + k));
 		k = n + 1;
 	    }
 	}
 	if (n > k) {
-	    dlg_trace_msg("#%s\t%.*s\n",
-			  k ? "+" : "",
-			  (int) (n - k), blob + k);
+	    DLG_TRACE(("#%s\t%.*s\n",
+		       k ? "+" : "",
+		       (int) (n - k), blob + k));
 	}
-	dlg_trace_msg("# result:\n");
+	DLG_TRACE(("# result:\n"));
     }
 #endif
     for (pass = 0; pass < 2; ++pass) {

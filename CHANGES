@@ -1,10 +1,11 @@
--- $Id: CHANGES,v 1.607 2018/06/11 21:45:21 tom Exp $
+-- $Id: CHANGES,v 1.609 2018/06/12 22:34:26 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2018/06/11
+2018/06/12
+	+ improve handling of SIGWINCH for several widgets (Debian #865840).
 	+ add dlg_ttysize() to support new options, allowing scripts to obtain
 	  some text-formatting details without initializing the terminal.
 	+ add options --print-text-only, and --print-text-size for scripts that

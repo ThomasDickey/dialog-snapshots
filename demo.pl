@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: demo.pl,v 1.22 2018/06/06 09:08:59 tom Exp $
+# $Id: demo.pl,v 1.23 2018/06/12 21:39:44 tom Exp $
 ################################################################################
 #  Copyright 2018	Thomas E. Dickey
 #
@@ -206,7 +206,7 @@ sub doit() {
                     &rhs_update_gauge($pct);
                 }
                 $pct = 99;
-                &rhs_update_gauge_and_message( $pct, "This will go faster" );
+                &rhs_update_gauge_and_message( "This will go faster", $pct );
                 while ( $pct > 0 ) {
                     $pct--;
                     &napms($sec);
