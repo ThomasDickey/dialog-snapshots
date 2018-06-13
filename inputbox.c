@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.78 2016/08/28 13:55:10 tom Exp $
+ *  $Id: inputbox.c,v 1.79 2018/06/13 00:07:56 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2012,2016 Thomas E. Dickey
+ *  Copyright 2000-2016,2018 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -83,6 +83,14 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     const char **buttons = dlg_ok_labels();
 
     dlg_does_output();
+
+    DLG_TRACE(("# inputbox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2S("init", init);
+    DLG_TRACE2N("password", password);
 
     dlg_tab_correct_str(prompt);
 

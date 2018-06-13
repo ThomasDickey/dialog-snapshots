@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.266 2018/06/11 08:58:36 tom Exp $
+ *  $Id: util.c,v 1.267 2018/06/12 22:47:23 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1354,10 +1354,10 @@ dlg_auto_size(const char *title,
     if (*height > SLINES) {
 	*height = SLINES;
     }
-    dlg_trace_msg("# dlg_auto_size(%d,%d) ->%d,%d ->%d,%d\n",
-		  boxlines, mincols,
-		  dialog_state.text_height, dialog_state.text_width,
-		  *height, *width);
+    DLG_TRACE(("# dlg_auto_size(%d,%d) ->%d,%d ->%d,%d\n",
+	       boxlines, mincols,
+	       dialog_state.text_height, dialog_state.text_width,
+	       *height, *width));
 }
 
 /*
@@ -1816,7 +1816,7 @@ dlg_print_size(int height, int width)
 {
     if (dialog_vars.print_siz) {
 	fprintf(dialog_state.output, "Size: %d, %d\n", height, width);
-	dlg_trace_msg("# print size: %dx%d\n", height, width);
+	DLG_TRACE(("# print size: %dx%d\n", height, width));
     }
 }
 

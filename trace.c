@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.25 2018/05/28 11:50:53 tom Exp $
+ *  $Id: trace.c,v 1.26 2018/06/13 00:06:48 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -50,6 +50,40 @@ dlg_trace_msg(const char *fmt,...)
 	va_end(ap);
 	fflush(myFP);
     }
+}
+
+void
+dlg_trace_2s(const char *name, const char *value)
+{
+    bool first = TRUE;
+    const char *next;
+    int left, right = 0;
+
+    if (value == 0)
+	value = "<NULL>";
+
+    while (value[right] != '\0') {
+	value += right;
+	if ((next = strchr(value, '\n')) != 0) {
+	    left = (int) (next - value);
+	    right = left + 1;
+	} else {
+	    left = (int) strlen(value);
+	    right = left;
+	}
+	if (first) {
+	    first = FALSE;
+	    dlg_trace_msg("#%14s=%.*s\n", name, left, value);
+	} else {
+	    dlg_trace_msg("#+\t\t%.*s\n", left, value);
+	}
+    }
+}
+
+void
+dlg_trace_2n(const char *name, int value)
+{
+    dlg_trace_msg("#\t%7s=%d\n", name, value);
 }
 
 void

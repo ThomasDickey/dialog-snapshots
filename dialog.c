@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.264 2018/06/11 21:01:29 tom Exp $
+ * $Id: dialog.c,v 1.265 2018/06/12 22:46:04 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -741,7 +741,7 @@ show_result(int ret)
 	if (dialog_vars.input_result != 0
 	    && dialog_vars.input_result[0] != '\0') {
 	    fputs(dialog_vars.input_result, dialog_state.output);
-	    dlg_trace_msg("# input_result:\n%s\n", dialog_vars.input_result);
+	    DLG_TRACE(("# input_result:\n%s\n", dialog_vars.input_result));
 	    either = TRUE;
 	}
 	if (either) {

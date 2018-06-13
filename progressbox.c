@@ -1,10 +1,10 @@
 /*
- *  $Id: progressbox.c,v 1.24 2014/01/12 20:53:44 tom Exp $
+ *  $Id: progressbox.c,v 1.25 2018/06/13 01:01:04 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
  *  Copyright 2005		Valery Reznic
- *  Copyright 2006-2012,2014	Thomas E. Dickey
+ *  Copyright 2006-2014,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -205,6 +205,14 @@ dlg_progressbox(const char *title,
     MY_OBJ *obj;
     char *prompt = dlg_strclone(cprompt);
     int result;
+
+    DLG_TRACE(("# progressbox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("pause", pauseopt);
+    DLG_TRACE2N("fp", fp ? fileno(fp) : -1);
 
     dlg_tab_correct_str(prompt);
     dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
