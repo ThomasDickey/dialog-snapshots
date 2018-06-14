@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.69 2018/02/16 21:43:04 tom Exp $
+ *  $Id: ui_getc.c,v 1.70 2018/06/14 00:05:05 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -89,10 +89,16 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
     DIALOG_CALLBACK *q;
 
     if (p->input != 0) {
-	fclose(p->input);
+	FILE *input = p->input;
+	fclose(input);
 	if (p->input == dialog_state.pipe_input)
 	    dialog_state.pipe_input = 0;
-	p->input = 0;
+	/* more than one callback can have the same input */
+	for (q = dialog_state.getc_callbacks; q != 0; q = q->next) {
+	    if (q->input == input) {
+		q->input = 0;
+	    }
+	}
     }
 
     if (!(p->keep_win))

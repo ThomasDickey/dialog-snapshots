@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.78 2017/01/31 10:20:04 tom Exp $
+ *  $Id: buildlist.c,v 1.79 2018/06/14 01:05:08 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2016,2017	Thomas E. Dickey
+ *  Copyright 2012-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1181,6 +1181,16 @@ dialog_buildlist(const char *title,
     bool show_status = FALSE;
     int current = 0;
     char *help_result;
+
+    DLG_TRACE(("# buildlist args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("lheight", list_height);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
+    DLG_TRACE2N("order", order_mode != 0);
 
     listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, THIS_FUNC);

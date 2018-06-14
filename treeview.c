@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.28 2016/08/28 01:52:07 tom Exp $
+ *  $Id: treeview.c,v 1.30 2018/06/14 00:57:30 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2015,2016	Thomas E. Dickey
+ *  Copyright 2012-2016,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -583,6 +583,16 @@ dialog_treeview(const char *title,
     bool show_status = FALSE;
     int current = 0;
     char *help_result;
+
+    DLG_TRACE(("# treeview args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("lheight", list_height);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
+    DLG_TRACE2N("flag", flag);
 
     listitems = dlg_calloc(DIALOG_LISTITEM, (size_t) item_no + 1);
     assert_ptr(listitems, "dialog_treeview");
