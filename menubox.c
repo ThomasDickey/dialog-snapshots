@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.151 2016/08/28 14:00:16 tom Exp $
+ *  $Id: menubox.c,v 1.154 2018/06/14 01:22:35 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2015,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -331,6 +331,8 @@ dlg_menu(const char *title,
     /* *INDENT-ON* */
 
 #ifdef KEY_RESIZE
+    int old_LINES = LINES;
+    int old_COLS = COLS;
     int old_height = height;
     int old_width = width;
 #endif
@@ -345,10 +347,21 @@ dlg_menu(const char *title,
     int found;
     int use_width, name_width, text_width, list_width;
     WINDOW *dialog, *menu;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt = 0;
     const char **buttons = dlg_ok_labels();
     bool is_inputmenu = ((rename_menutext != 0)
 			 && (rename_menutext != dlg_dummy_menutext));
+
+    DLG_TRACE(("# menubox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("lheight", menu_height);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
+    DLG_TRACE2N("current", *current_item);
+    DLG_TRACE2N("rename", rename_menutext != 0);
 
     dialog_state.plain_buttons = TRUE;
 
@@ -356,11 +369,13 @@ dlg_menu(const char *title,
     all.item_no = item_no;
 
     dlg_does_output();
-    dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE
   retry:
 #endif
+
+    prompt = dlg_strclone(cprompt);
+    dlg_tab_correct_str(prompt);
 
     all.menu_height = menu_height;
     use_width = dlg_calc_list_width(item_no, items) + 10;
@@ -707,13 +722,17 @@ dlg_menu(const char *title,
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		/* reset data */
-		height = old_height;
-		width = old_width;
-		/* repaint */
+#define resizeit(name, NAME) \
+		name = ((NAME >= old_##NAME) \
+			? (NAME - (old_##NAME - old_##name)) \
+			: old_##name)
+		resizeit(height, LINES);
+		resizeit(width, COLS);
+		free(prompt);
 		dlg_clear();
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
 		goto retry;
 #endif
 	    default:

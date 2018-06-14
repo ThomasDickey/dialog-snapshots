@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedgauge.c,v 1.30 2012/11/18 16:30:20 tom Exp $
+ *  $Id: mixedgauge.c,v 1.32 2018/06/14 00:36:54 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
- *  Copyright 2007-2011,2012	Thomas E. Dickey
+ *  Copyright 2007-2012,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -89,7 +89,7 @@ status_string(char *given, char **freeMe)
 	    break;
 	}
     } else if (*given == '-') {
-	size_t need = strlen(++given);
+	size_t need = strlen(++given) + 4;
 	char *temp = dlg_malloc(char, need);
 	*freeMe = temp;
 	sprintf(temp, "%3s%%", given);
@@ -135,6 +135,7 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	    continue;
 
 	(void) wmove(win, y, 2 * MARGIN);
+	(void) wattrset(win, dialog_attr);
 	dlg_print_text(win, dlg->list[item].name, lm, &attr);
 
 	(void) wmove(win, y, lm);
@@ -173,6 +174,7 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	    (void) waddstr(win, status);
 	}
 	(void) wmove(win, y, limit_x - 3);
+	(void) wattrset(win, dialog_attr);
 	(void) waddch(win, ']');
 	(void) wnoutrefresh(win);
     }
