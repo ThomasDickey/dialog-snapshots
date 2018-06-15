@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.94 2017/01/31 00:27:21 tom Exp $
+ * $Id: calendar.c,v 1.95 2018/06/15 09:29:39 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2016,2017	Thomas E. Dickey
+ *  Copyright 2001-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -41,7 +41,7 @@
 #define BTN_HIGH 1		/* height of button-row excluding margin */
 
 /* two more lines: titles for day-of-week and month/year boxes */
-#define MIN_HIGH (DAY_HIGH + 2 + HDR_HIGH + BTN_HIGH + (7 * MARGIN))
+#define MIN_HIGH (DAY_HIGH + 2 + HDR_HIGH + BTN_HIGH + (MAX_DAYS * MARGIN))
 #define MIN_WIDE (DAY_WIDE + (4 * MARGIN))
 
 typedef enum {
@@ -65,12 +65,17 @@ typedef struct _box {
     int week_start;
 } BOX;
 
+#define MAX_DAYS 7
+#define MAX_MONTHS 12
+
+static char *cached_days[MAX_DAYS];
+static char *cached_months[MAX_MONTHS];
+
 static const char *
 nameOfDayOfWeek(int n)
 {
-    static bool shown[7];
-    static const char *table[7];
-    static const char *posix_days[7] =
+    static bool shown[MAX_DAYS];
+    static const char *posix_days[MAX_DAYS] =
     {
 	"Sunday",
 	"Monday",
@@ -82,20 +87,20 @@ nameOfDayOfWeek(int n)
     };
 
     while (n < 0) {
-	n += 7;
+	n += MAX_DAYS;
     }
-    n %= 7;
+    n %= MAX_DAYS;
 #ifdef ENABLE_NLS
-    if (table[n] == 0) {
-	const nl_item items[7] =
+    if (cached_days[n] == 0) {
+	const nl_item items[MAX_DAYS] =
 	{
 	    ABDAY_1, ABDAY_2, ABDAY_3, ABDAY_4, ABDAY_5, ABDAY_6, ABDAY_7
 	};
-	table[n] = dlg_strclone(nl_langinfo(items[n]));
+	cached_days[n] = dlg_strclone(nl_langinfo(items[n]));
 	memset(shown, 0, sizeof(shown));
     }
 #endif
-    if (table[n] == 0) {
+    if (cached_days[n] == 0) {
 	size_t len, limit = MON_WIDE - 1;
 	char *value = dlg_strclone(posix_days[n]);
 
@@ -108,21 +113,20 @@ nameOfDayOfWeek(int n)
 	 */
 	if ((len = strlen(value)) > limit)
 	    value[limit] = '\0';
-	table[n] = value;
+	cached_days[n] = value;
     }
     if (!shown[n]) {
-	DLG_TRACE(("# DAY(%d) = '%s'\n", n, table[n]));
+	DLG_TRACE(("# DAY(%d) = '%s'\n", n, cached_days[n]));
 	shown[n] = TRUE;
     }
-    return table[n];
+    return cached_days[n];
 }
 
 static const char *
 nameOfMonth(int n)
 {
-    static bool shown[12];
-    static const char *table[12];
-    static const char *posix_mons[12] =
+    static bool shown[MAX_MONTHS];
+    static const char *posix_mons[MAX_MONTHS] =
     {
 	"January",
 	"February",
@@ -139,28 +143,28 @@ nameOfMonth(int n)
     };
 
     while (n < 0) {
-	n += 12;
+	n += MAX_MONTHS;
     }
-    n %= 12;
+    n %= MAX_MONTHS;
 #ifdef ENABLE_NLS
-    if (table[n] == 0) {
-	const nl_item items[12] =
+    if (cached_months[n] == 0) {
+	const nl_item items[MAX_MONTHS] =
 	{
 	    MON_1, MON_2, MON_3, MON_4, MON_5, MON_6,
 	    MON_7, MON_8, MON_9, MON_10, MON_11, MON_12
 	};
-	table[n] = dlg_strclone(nl_langinfo(items[n]));
+	cached_months[n] = dlg_strclone(nl_langinfo(items[n]));
 	memset(shown, 0, sizeof(shown));
     }
 #endif
-    if (table[n] == 0) {
-	table[n] = dlg_strclone(posix_mons[n]);
+    if (cached_months[n] == 0) {
+	cached_months[n] = dlg_strclone(posix_mons[n]);
     }
     if (!shown[n]) {
-	DLG_TRACE(("# MON(%d) = '%s'\n", n, table[n]));
+	DLG_TRACE(("# MON(%d) = '%s'\n", n, cached_months[n]));
 	shown[n] = TRUE;
     }
-    return table[n];
+    return cached_months[n];
 }
 
 /*
@@ -178,11 +182,11 @@ static void
 adjust_year_month(int *year, int *month)
 {
     while (*month < 0) {
-	*month += 12;
+	*month += MAX_MONTHS;
 	*year -= 1;
     }
-    while (*month >= 12) {
-	*month -= 12;
+    while (*month >= MAX_MONTHS) {
+	*month -= MAX_MONTHS;
 	*year += 1;
     }
 }
@@ -243,7 +247,7 @@ day_of_week(int y, int m, int d)
 	0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4
     };
     y -= (m < 3);
-    return (6 + (y + (y / 4) - (y / 100) + (y / 400) + t[m - 1] + d)) % 7;
+    return (6 + (y + (y / 4) - (y / 100) + (y / 400) + t[m - 1] + d)) % MAX_DAYS;
 }
 
 static int
@@ -267,7 +271,7 @@ iso_week(int year, int month, int day)
 
     /* add the number weeks *between* date and newyear */
     diy = day_in_year(year, month, day);
-    week += (diy - 1) / 7;
+    week += (diy - 1) / MAX_DAYS;
 
     /* 0 = Monday */
     dow = day_of_week(year, month, day);
@@ -293,8 +297,8 @@ iso_week(int year, int month, int day)
      * If we are in the same week as New Year's eve, check if New Year's eve is
      * in the first week of the next year.
      */
-    new_years_eve_dow = (new_year_dow + 364 + isleap(year)) % 7;
-    if (365 + isleap(year) - diy < 7
+    new_years_eve_dow = (new_year_dow + 364 + isleap(year)) % MAX_DAYS;
+    if (365 + isleap(year) - diy < MAX_DAYS
 	&& new_years_eve_dow >= dow
 	&& new_years_eve_dow < thursday) {
 	++year;
@@ -311,7 +315,7 @@ getisoweeks(int year, int month)
     int day;
     int dpm = days_per_month(year, month);
 
-    for (day = 1; day <= dpm; day += 7)
+    for (day = 1; day <= dpm; day += MAX_DAYS)
 	result[windx++] = iso_week(year, month, day);
     /*
      * Ensure that there is a week number associated with the last day of the
@@ -327,8 +331,8 @@ static int
 day_cell_number(struct tm *current)
 {
     int cell;
-    cell = current->tm_mday - ((6 + current->tm_mday - current->tm_wday) % 7);
-    if ((current->tm_mday - 1) % 7 != current->tm_wday)
+    cell = current->tm_mday - ((6 + current->tm_mday - current->tm_wday) % MAX_DAYS);
+    if ((current->tm_mday - 1) % MAX_DAYS != current->tm_wday)
 	cell += 6;
     else
 	cell--;
@@ -342,13 +346,13 @@ next_or_previous(int key, int two_d)
 
     switch (key) {
     case DLGK_GRID_UP:
-	result = two_d ? -7 : -1;
+	result = two_d ? -MAX_DAYS : -1;
 	break;
     case DLGK_GRID_LEFT:
 	result = -1;
 	break;
     case DLGK_GRID_DOWN:
-	result = two_d ? 7 : 1;
+	result = two_d ? MAX_DAYS : 1;
 	break;
     case DLGK_GRID_RIGHT:
 	result = 1;
@@ -386,7 +390,7 @@ draw_day(BOX * data, struct tm *current)
 		  menubox_border2_attr);
 
     (void) wattrset(data->window, menubox_attr);	/* daynames headline */
-    for (x = 0; x < 7; x++) {
+    for (x = 0; x < MAX_DAYS; x++) {
 	mvwprintw(data->window,
 		  0, (x + 1) * cell_wide, "%*.*s ",
 		  cell_wide - 1,
@@ -396,15 +400,15 @@ draw_day(BOX * data, struct tm *current)
 
     mday = ((6 + current->tm_mday -
 	     current->tm_wday +
-	     data->week_start) % 7) - 7;
-    if (mday <= -7)
-	mday += 7;
+	     data->week_start) % MAX_DAYS) - MAX_DAYS;
+    if (mday <= -MAX_DAYS)
+	mday += MAX_DAYS;
 
     if (dialog_vars.iso_week) {
 	weeks = getisoweeks(current->tm_year + 1900, current->tm_mon + 1);
     } else {
 	/* mday is now in the range -6 to 0. */
-	week = (current->tm_yday + 6 + mday - current->tm_mday) / 7;
+	week = (current->tm_yday + 6 + mday - current->tm_mday) / MAX_DAYS;
     }
 
     for (y = 1; mday < last; y++) {
@@ -414,7 +418,7 @@ draw_day(BOX * data, struct tm *current)
 		  "%*d ",
 		  cell_wide - 1,
 		  weeks ? weeks[windx++] : ++week);
-	for (x = 0; x < 7; x++) {
+	for (x = 0; x < MAX_DAYS; x++) {
 	    this_x = 1 + (x + 1) * cell_wide;
 	    ++mday;
 	    if (wmove(data->window, y, this_x) == ERR)
@@ -603,7 +607,7 @@ WeekStart(void)
 		} else {
 		    int day;
 		    size_t eql = strlen(option);
-		    for (day = 0; day < 7; ++day) {
+		    for (day = 0; day < MAX_DAYS; ++day) {
 			if (!strncmp(nameOfDayOfWeek(day), option, eql)) {
 			    result = day;
 			    break;
@@ -613,7 +617,7 @@ WeekStart(void)
 	    } else if (check < 0) {
 		result = -1;
 	    } else {
-		result = (int) (check % 7);
+		result = (int) (check % MAX_DAYS);
 	    }
 	}
     }
@@ -623,12 +627,23 @@ WeekStart(void)
 static int
 CleanupResult(int code, WINDOW *dialog, char *prompt, DIALOG_VARS * save_vars)
 {
+    int n;
+
     if (dialog != 0)
 	dlg_del_window(dialog);
     dlg_mouse_free_regions();
     if (prompt != 0)
 	free(prompt);
     dlg_restore_vars(save_vars);
+
+    for (n = 0; n < MAX_DAYS; ++n) {
+	free(cached_days[n]);
+	cached_days[n] = 0;
+    }
+    for (n = 0; n < MAX_MONTHS; ++n) {
+	free(cached_months[n]);
+	cached_months[n] = 0;
+    }
 
     return code;
 }
@@ -711,10 +726,19 @@ dialog_calendar(const char *title,
     struct tm current;
     int state = dlg_default_button();
     const char **buttons = dlg_ok_labels();
-    char *prompt = dlg_strclone(subtitle);
+    char *prompt;
     int mincols = MIN_WIDE;
     char buffer[MAX_LEN];
     DIALOG_VARS save_vars;
+
+    DLG_TRACE(("# calendar args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", subtitle);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("day", day);
+    DLG_TRACE2N("month", month);
+    DLG_TRACE2N("year", year);
 
     dlg_save_vars(&save_vars);
     dialog_vars.separate_output = TRUE;
@@ -778,7 +802,9 @@ dialog_calendar(const char *title,
   retry:
 #endif
 
+    prompt = dlg_strclone(subtitle);
     dlg_auto_size(title, prompt, &height, &width, 0, mincols);
+
     height += MIN_HIGH - 1;
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
@@ -892,11 +918,11 @@ dialog_calendar(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		/* repaint */
+		free(prompt);
 		dlg_clear();
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
 		goto retry;
 #endif
 	    default:
