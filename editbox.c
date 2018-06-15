@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.67 2016/08/28 13:35:37 tom Exp $
+ *  $Id: editbox.c,v 1.68 2018/06/15 23:17:44 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2015,2016 Thomas E. Dickey
+ *  Copyright 2007-2016,2018 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -364,6 +364,12 @@ dlg_editbox(const char *title,
     const char **buttons = dlg_ok_labels();
     int mincols = (3 * COLS / 4);
 
+    DLG_TRACE(("# editbox args:\n"));
+    DLG_TRACE2S("title", title);
+    /* FIXME dump the rows & list */
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+
     dlg_save_vars(&save_vars);
     dialog_vars.separate_output = TRUE;
 
@@ -692,12 +698,12 @@ dlg_editbox(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		/* repaint */
 		dlg_clear();
+		dlg_unregister_window(editing);
 		dlg_del_window(editing);
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
 		goto retry;
 #endif
 	    case DLGK_TOGGLE:

@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.96 2017/01/31 00:26:04 tom Exp $
+ *  $Id: fselect.c,v 1.97 2018/06/15 20:10:12 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2016,2017	Thomas E. Dickey
+ *  Copyright 2000-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -601,6 +601,12 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int min_wide = MIN_WIDE;
     int min_items = height ? 0 : 4;
     LIST d_list, f_list;
+
+    DLG_TRACE(("# %s args:\n", dselect ? "dselect" : "fselect"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("path", path);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
 
     dlg_does_output();
 

@@ -1,10 +1,10 @@
 /*
- *  $Id: progressbox.c,v 1.25 2018/06/13 01:01:04 tom Exp $
+ *  $Id: progressbox.c,v 1.26 2018/06/15 23:28:43 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2005		Valery Reznic
  *  Copyright 2006-2014,2018	Thomas E. Dickey
+ *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as
@@ -185,6 +185,7 @@ pause_for_ok(WINDOW *dialog, int height, int width)
 	    beep();
 	}
     }
+    dlg_mouse_free_regions();
     dlg_unregister_window(dialog);
 
     dialog_vars.nocancel = save_nocancel;

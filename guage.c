@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.69 2015/02/26 02:07:12 tom Exp $
+ *  $Id: guage.c,v 1.73 2018/06/15 23:08:04 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2013,2015	Thomas E. Dickey
+ *  Copyright 2000-2015,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -182,13 +182,13 @@ handle_input(DIALOG_CALLBACK * cb)
 {
     MY_OBJ *obj = (MY_OBJ *) cb;
     bool result;
+    bool cleanup = FALSE;
     int status;
     char buf[MY_LEN + 1];
 
     if (dialog_state.pipe_input == 0) {
 	status = -1;
-	delink(obj);
-	dlg_remove_callback(cb);
+	cleanup = TRUE;
     } else if ((status = read_data(buf, dialog_state.pipe_input)) > 0) {
 
 	if (isMarker(buf)) {
@@ -224,17 +224,19 @@ handle_input(DIALOG_CALLBACK * cb)
     } else {
 	if (feof(dialog_state.pipe_input) ||
 	    (ferror(dialog_state.pipe_input) && errno != EINTR)) {
-	    delink(obj);
-	    dlg_remove_callback(cb);
+	    cleanup = TRUE;
 	}
     }
 
+    repaint_text(obj);
     if (status > 0) {
 	result = TRUE;
-	repaint_text(obj);
     } else {
-	repaint_text(obj);
 	result = FALSE;
+	if (cleanup) {
+	    dlg_remove_callback(cb);
+	    delink(obj);
+	}
     }
 
     return result;
@@ -268,6 +270,8 @@ my_cleanup(DIALOG_CALLBACK * cb)
 	    free(obj->prompt);
 	    obj->prompt = obj->prompt_buf;
 	}
+	free(obj->title);
+	dlg_del_window(obj->obj.win);
 	delink(obj);
     }
 }
@@ -372,12 +376,12 @@ dlg_free_gauge(void *objptr)
 {
     MY_OBJ *obj = (MY_OBJ *) objptr;
 
-    curs_set(1);
     if (valid(obj)) {
-	delink(obj);
 	obj->obj.keep_win = FALSE;
 	dlg_remove_callback(&(obj->obj));
+	delink(obj);
     }
+    curs_set(1);
 }
 
 /*
@@ -399,6 +403,13 @@ dialog_gauge(const char *title,
     int ch, result;
     void *objptr = dlg_allocate_gauge(title, cprompt, height, width, percent);
     MY_OBJ *obj = (MY_OBJ *) objptr;
+
+    DLG_TRACE(("# gauge args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("percent", percent);
 
     dlg_add_callback_ref((DIALOG_CALLBACK **) & obj, my_cleanup);
     dlg_update_gauge(obj, percent);
