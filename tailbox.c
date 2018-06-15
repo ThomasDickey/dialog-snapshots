@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.69 2018/02/16 00:38:22 tom Exp $
+ *  $Id: tailbox.c,v 1.70 2018/06/15 00:27:22 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -298,7 +298,11 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
  * Display text from a file in a dialog box, like in a "tail -f".
  */
 int
-dialog_tailbox(const char *title, const char *file, int height, int width, int bg_task)
+dialog_tailbox(const char *title,
+	       const char *filename,
+	       int height,
+	       int width,
+	       int bg_task)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
@@ -328,14 +332,21 @@ dialog_tailbox(const char *title, const char *file, int height, int width, int b
     FILE *fd;
     int min_width = 12;
 
+    DLG_TRACE(("# tailbox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("filename", filename);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("bg_task", bg_task);
+
     /* Open input file for reading */
-    if ((fd = fopen(file, "rb")) == NULL)
+    if ((fd = fopen(filename, "rb")) == NULL)
 	dlg_exiterr("Can't open input file in dialog_tailbox().");
 
 #ifdef KEY_RESIZE
   retry:
 #endif
-    dlg_auto_sizefile(title, file, &height, &width, 2, min_width);
+    dlg_auto_sizefile(title, filename, &height, &width, 2, min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

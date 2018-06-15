@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.56 2016/08/28 14:16:33 tom Exp $
+ * $Id: timebox.c,v 1.57 2018/06/14 09:04:26 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2013,2016   Thomas E. Dickey
+ *  Copyright 2001-2016,2018   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -184,9 +184,18 @@ dialog_timebox(const char *title,
     struct tm current;
     int state = dlg_default_button();
     const char **buttons = dlg_ok_labels();
-    char *prompt = dlg_strclone(subtitle);
+    char *prompt;
     char buffer[MAX_LEN];
     DIALOG_VARS save_vars;
+
+    DLG_TRACE(("# timebox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", subtitle);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("hour", hour);
+    DLG_TRACE2N("minute", minute);
+    DLG_TRACE2N("second", second);
 
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
@@ -200,7 +209,9 @@ dialog_timebox(const char *title,
   retry:
 #endif
 
+    prompt = dlg_strclone(subtitle);
     dlg_auto_size(title, prompt, &height, &width, 0, 0);
+
     height += MIN_HIGH;
     if (width < MIN_WIDE)
 	width = MIN_WIDE;
@@ -348,9 +359,9 @@ dialog_timebox(const char *title,
 		    minute = mn_box.value;
 		    second = sc_box.value;
 		    /* repaint */
+		    free(prompt);
 		    dlg_clear();
 		    dlg_del_window(dialog);
-		    refresh();
 		    dlg_mouse_free_regions();
 		    goto retry;
 #endif

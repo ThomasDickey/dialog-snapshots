@@ -1,10 +1,11 @@
--- $Id: CHANGES,v 1.613 2018/06/14 00:38:10 tom Exp $
+-- $Id: CHANGES,v 1.614 2018/06/14 09:26:56 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2018/06/13
+2018/06/14
+	+ add traces for each widget to show its parameters.
 	+ modify color scheme for mixedgauge to use the dialog window colors,
 	  like the captions.
 	+ fix a too-small malloc in the mixedgauge widget.

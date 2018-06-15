@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.76 2018/05/28 18:07:53 tom Exp $
+ *  $Id: msgbox.c,v 1.77 2018/06/14 09:24:22 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -50,7 +50,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int key = 0, fkey;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog = 0;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     const char **buttons = dlg_ok_label();
     int offset = 0;
     int check;
@@ -61,6 +61,13 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int req_high;
     int req_wide;
 #endif
+
+    DLG_TRACE(("# msgbox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("pauseopt", pauseopt);
 
     dialog_vars.nocancel = TRUE;
     button = dlg_default_button();
@@ -73,6 +80,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 
     dlg_button_layout(buttons, &min_width);
 
+    prompt = dlg_strclone(cprompt);
     dlg_tab_correct_str(prompt);
     dlg_auto_size(title, prompt, &height, &width,
 		  (pauseopt == 1 ? 2 : 0),
@@ -129,6 +137,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
 		    dlg_clear();
+		    free(prompt);
 		    height = req_high;
 		    width = req_wide;
 		    show = TRUE;

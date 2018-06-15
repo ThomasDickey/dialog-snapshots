@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.113 2017/01/31 00:22:14 tom Exp $
+ *  $Id: textbox.c,v 1.114 2018/06/14 09:11:44 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2016,2017	Thomas E.  Dickey
+ *  Copyright 2000-2017,2018	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -656,7 +656,7 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
  * Display text from a file in a dialog box.
  */
 int
-dialog_textbox(const char *title, const char *file, int height, int width)
+dialog_textbox(const char *title, const char *filename, int height, int width)
 {
     /* *INDENT-OFF* */
     static DLG_KEYS_BINDING binding[] = {
@@ -709,6 +709,12 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     int button = dlg_default_button();
     int min_width = 12;
 
+    DLG_TRACE(("# textbox args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("filename", filename);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+
     search_term[0] = '\0';	/* no search term entered yet */
 
     memset(&obj, 0, sizeof(obj));
@@ -719,8 +725,8 @@ dialog_textbox(const char *title, const char *file, int height, int width)
     obj.buttons = dlg_exit_label();
 
     /* Open input file for reading */
-    if ((obj.fd = open(file, O_RDONLY)) == -1)
-	dlg_exiterr("Can't open input file %s", file);
+    if ((obj.fd = open(filename, O_RDONLY)) == -1)
+	dlg_exiterr("Can't open input file %s", filename);
 
     /* Get file size. Actually, 'file_size' is the real file size - 1,
        since it's only the last byte offset from the beginning */
@@ -738,7 +744,7 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 #endif
     moved = TRUE;
 
-    dlg_auto_sizefile(title, file, &height, &width, 2, min_width);
+    dlg_auto_sizefile(title, filename, &height, &width, 2, min_width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 
@@ -949,7 +955,6 @@ dialog_textbox(const char *title, const char *file, int height, int width)
 		/* repaint */
 		dlg_clear();
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
 		goto retry;
 #endif

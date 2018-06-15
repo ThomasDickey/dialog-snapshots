@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.265 2018/06/12 22:46:04 tom Exp $
+ * $Id: dialog.c,v 1.266 2018/06/14 09:06:11 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -381,6 +381,7 @@ handle_leaks(void)
 	free(all_blobs);
 	all_blobs = next;
     }
+    free(dialog_opts);
     if (special_argv != 0) {
 	free(special_argv[0]);
 	free(special_argv);
