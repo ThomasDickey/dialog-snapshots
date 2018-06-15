@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.91 2016/08/28 13:50:58 tom Exp $
+ *  $Id: formbox.c,v 1.92 2018/06/15 01:18:57 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2013,2016	Thomas E. Dickey
+ *  Copyright 2003-2016,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -495,7 +495,9 @@ dlg_form(const char *title,
     int first = TRUE;
     int first_trace = TRUE;
     int chr_offset = 0;
-    int state = dialog_vars.default_button >= 0 ? dlg_default_button() : sTEXT;
+    int state = (dialog_vars.default_button >= 0
+		 ? dlg_default_button()
+		 : sTEXT);
     int x, y, cur_x, cur_y, box_x, box_y;
     int code;
     int key = 0;
@@ -511,19 +513,32 @@ dlg_form(const char *title,
     bool field_changed = FALSE;
     bool non_editable = FALSE;
     WINDOW *dialog, *form;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     const char **buttons = dlg_ok_labels();
     DIALOG_FORMITEM *current;
+
+    DLG_TRACE(("# %sform args:\n", (dialog_vars.formitem_type
+				    ? "password"
+				    : "")));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("lheight", form_height);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
+    DLG_TRACE2N("current", *current_item);
 
     make_FORM_ELTs(items, item_no, &min_height, &min_width);
     dlg_button_layout(buttons, &min_width);
     dlg_does_output();
-    dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE
   retry:
 #endif
 
+    prompt = dlg_strclone(cprompt);
+    dlg_tab_correct_str(prompt);
     dlg_auto_size(title, prompt, &height, &width,
 		  1 + 3 * MARGIN,
 		  MAX(26, 2 + min_width));
@@ -763,11 +778,12 @@ dlg_form(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		/* repaint */
+		free(prompt);
 		dlg_clear();
+		dlg_unregister_window(form);
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
 		goto retry;
 #endif
 	    default:
@@ -862,6 +878,7 @@ dlg_form(const char *title,
     }
 
     dlg_mouse_free_regions();
+    dlg_unregister_window(form);
     dlg_del_window(dialog);
     free(prompt);
 
@@ -911,7 +928,7 @@ dialog_form(const char *title,
 	    char **items)
 {
     int result;
-    int choice;
+    int choice = 0;
     int i;
     DIALOG_FORMITEM *listitems;
     DIALOG_VARS save_vars;

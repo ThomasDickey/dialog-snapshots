@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.32 2018/06/14 00:36:54 tom Exp $
+ *  $Id: mixedgauge.c,v 1.33 2018/06/15 01:27:13 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -384,6 +384,15 @@ dialog_mixedgauge(const char *title,
 {
     DIALOG_MIXEDGAUGE dlg;
     int began = 0;
+
+    DLG_TRACE(("# mixedgauge args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("percent", percent);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
 
     dlg_begin_mixedgauge(&dlg, &began, title, cprompt, height,
 			 width, item_no, items);

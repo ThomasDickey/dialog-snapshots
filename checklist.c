@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.157 2016/08/28 01:50:51 tom Exp $
+ *  $Id: checklist.c,v 1.158 2018/06/15 00:56:36 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2015,2016	Thomas E. Dickey
+ *  Copyright 2000-2016,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -202,9 +202,21 @@ dlg_checklist(const char *title,
     int result = DLG_EXIT_UNKNOWN;
     int num_states;
     WINDOW *dialog;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     const char **buttons = dlg_ok_labels();
     const char *widget_name;
+
+    DLG_TRACE(("# %s args:\n", flag ? "checklist" : "radiolist"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("lheight", list_height);
+    DLG_TRACE2N("llength", item_no);
+    /* FIXME dump the items[][] too */
+    DLG_TRACE2S("states", states);
+    DLG_TRACE2N("flag", flag);
+    DLG_TRACE2N("current", *current_item);
 
     dialog_state.plain_buttons = TRUE;
 
@@ -213,7 +225,6 @@ dlg_checklist(const char *title,
     all.item_no = item_no;
 
     dlg_does_output();
-    dlg_tab_correct_str(prompt);
 
     /*
      * If this is a radiobutton list, ensure that no more than one item is
@@ -239,6 +250,9 @@ dlg_checklist(const char *title,
 #ifdef KEY_RESIZE
   retry:
 #endif
+
+    prompt = dlg_strclone(cprompt);
+    dlg_tab_correct_str(prompt);
 
     all.use_height = list_height;
     use_width = dlg_calc_list_width(item_no, items) + 10;
@@ -561,11 +575,11 @@ dlg_checklist(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		/* repaint */
+		free(prompt);
 		dlg_clear();
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
 		goto retry;
 #endif
 	    default:

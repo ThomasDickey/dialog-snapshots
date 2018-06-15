@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.79 2018/06/14 01:05:08 tom Exp $
+ *  $Id: buildlist.c,v 1.81 2018/06/14 08:53:39 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -560,7 +560,7 @@ dlg_buildlist(const char *title,
     int num_states;
     bool first = TRUE;
     WINDOW *dialog;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     const char **buttons = dlg_ok_labels();
     const char *widget_name = "buildlist";
 
@@ -591,11 +591,13 @@ dlg_buildlist(const char *title,
 	      : dlg_default_button());
 
     dlg_does_output();
-    dlg_tab_correct_str(prompt);
 
 #ifdef KEY_RESIZE
   retry:
 #endif
+
+    prompt = dlg_strclone(cprompt);
+    dlg_tab_correct_str(prompt);
 
     all.use_height = list_height;
     all.use_width = (2 * (dlg_calc_list_width(item_no, items)
@@ -1093,11 +1095,12 @@ dlg_buildlist(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		/* repaint */
+		free(prompt);
 		dlg_clear();
 		dlg_del_window(dialog);
-		refresh();
 		dlg_mouse_free_regions();
+		/* repaint */
+		first = TRUE;
 		goto retry;
 #endif
 	    default:

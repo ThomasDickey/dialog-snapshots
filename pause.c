@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.36 2012/07/03 00:01:59 tom Exp $
+ *  $Id: pause.c,v 1.37 2018/06/14 09:18:22 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2011,2012	Thomas E. Dickey
+ *  Copyright 2004-2012,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -76,21 +76,27 @@ dialog_pause(const char *title,
     int result = DLG_EXIT_UNKNOWN;
     int button_high = (have_buttons ? BTN_HIGH : MARGIN);
     int gauge_y;
-    char *prompt = dlg_strclone(cprompt);
+    char *prompt;
     int save_timeout = dialog_vars.timeout_secs;
 
-    curs_set(0);
+    DLG_TRACE(("# pause args:\n"));
+    DLG_TRACE2S("title", title);
+    DLG_TRACE2S("message", cprompt);
+    DLG_TRACE2N("height", height);
+    DLG_TRACE2N("width", width);
+    DLG_TRACE2N("seconds", seconds);
 
-    dlg_tab_correct_str(prompt);
+    curs_set(0);
 
     dialog_vars.timeout_secs = 0;
     seconds_orig = (seconds > 0) ? seconds : 1;
 
 #ifdef KEY_RESIZE
   retry:
-    height = old_height;
-    width = old_width;
 #endif
+
+    prompt = dlg_strclone(cprompt);
+    dlg_tab_correct_str(prompt);
 
     if (have_buttons) {
 	dlg_auto_size(title, prompt, &height, &width,
@@ -198,6 +204,9 @@ dialog_pause(const char *title,
 	    case KEY_RESIZE:
 		dlg_clear();	/* fill the background */
 		dlg_del_window(dialog);		/* delete this window */
+		height = old_height;
+		width = old_width;
+		free(prompt);
 		refresh();	/* get it all onto the terminal */
 		goto retry;
 #endif
