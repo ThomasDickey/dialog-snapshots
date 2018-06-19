@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.57 2018/06/14 09:04:26 tom Exp $
+ * $Id: timebox.c,v 1.58 2018/06/18 21:15:11 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -82,7 +82,7 @@ draw_cell(BOX * data)
 		 data->height + (2 * MARGIN), data->width + (2 * MARGIN),
 		 menubox_border_attr, menubox_border2_attr);
 
-    (void) wattrset(data->window, item_attr);
+    dlg_attrset(data->window, item_attr);
     wprintw(data->window, "%02d", data->value);
     return 0;
 }
@@ -235,7 +235,7 @@ dialog_timebox(const char *title,
     dlg_draw_title(dialog, title);
     dlg_draw_helpline(dialog, FALSE);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     /* compute positions of hour, month and year boxes */

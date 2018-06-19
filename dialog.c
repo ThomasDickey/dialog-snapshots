@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.266 2018/06/14 09:06:11 tom Exp $
+ * $Id: dialog.c,v 1.267 2018/06/18 09:04:09 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1236,13 +1236,15 @@ static const Mode modes[] =
     {o_tailboxbg,       4, 4, call_tailboxbg},
 #endif
 #ifdef HAVE_XDIALOG
-    {o_buildlist,       4, 0, call_buildlist},
     {o_calendar,        4, 7, call_calendar},
     {o_dselect,         4, 5, call_dselect},
     {o_editbox,         4, 4, call_editbox},
     {o_fselect,         4, 5, call_fselect},
-    {o_rangebox,        5, 7, call_rangebox},
     {o_timebox,         4, 7, call_timebox},
+#endif
+#ifdef HAVE_XDIALOG2
+    {o_buildlist,       4, 0, call_buildlist},
+    {o_rangebox,        5, 7, call_rangebox},
     {o_treeview,        4, 0, call_treeview},
 #endif
 };
@@ -1798,10 +1800,12 @@ process_common_options(int argc, char **argv, int offset, bool output)
 	    dialog_vars.no_tags = TRUE;
 	    break;
 #endif
-#ifdef HAVE_XDIALOG
+#ifdef HAVE_XDIALOG2
 	case o_reorder:
 	    dialog_vars.reorder = TRUE;
 	    break;
+#endif
+#ifdef HAVE_XDIALOG
 	case o_week_start:
 	    dialog_vars.week_start = optionString(argv, &offset);
 	    break;

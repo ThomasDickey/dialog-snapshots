@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.97 2018/06/15 20:10:12 tom Exp $
+ *  $Id: fselect.c,v 1.98 2018/06/18 21:14:03 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -230,11 +230,11 @@ display_list(LIST * list)
 		break;
 	    (void) wmove(list->win, y, 0);
 	    if (n == list->choice)
-		(void) wattrset(list->win, item_selected_attr);
+		dlg_attrset(list->win, item_selected_attr);
 	    (void) waddstr(list->win, list->data[n]);
-	    (void) wattrset(list->win, item_attr);
+	    dlg_attrset(list->win, item_attr);
 	}
-	(void) wattrset(list->win, item_attr);
+	dlg_attrset(list->win, item_attr);
 
 	getparyx(list->win, y, x);
 
@@ -639,7 +639,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
 
     /* Draw the input field box */
     tbox_height = 1;

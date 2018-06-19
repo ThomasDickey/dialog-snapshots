@@ -1,5 +1,5 @@
 /*
- *  $Id: mixedgauge.c,v 1.33 2018/06/15 01:27:13 tom Exp $
+ *  $Id: mixedgauge.c,v 1.34 2018/06/18 22:09:31 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
@@ -135,7 +135,7 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	    continue;
 
 	(void) wmove(win, y, 2 * MARGIN);
-	(void) wattrset(win, dialog_attr);
+	dlg_attrset(win, dialog_attr);
 	dlg_print_text(win, dlg->list[item].name, lm, &attr);
 
 	(void) wmove(win, y, lm);
@@ -143,7 +143,7 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	(void) wmove(win, y, lm + (cells - (int) strlen(status)) / 2);
 	if (freeMe) {
 	    (void) wmove(win, y, lm + 1);
-	    (void) wattrset(win, title_attr);
+	    dlg_attrset(win, title_attr);
 	    for (j = 0; j < cells; j++)
 		(void) waddch(win, ' ');
 
@@ -151,9 +151,9 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	    (void) waddstr(win, status);
 
 	    if ((title_attr & A_REVERSE) != 0) {
-		wattroff(win, A_REVERSE);
+		dlg_attroff(win, A_REVERSE);
 	    } else {
-		(void) wattrset(win, A_REVERSE);
+		dlg_attrset(win, A_REVERSE);
 	    }
 	    (void) wmove(win, y, lm + 1);
 
@@ -174,7 +174,7 @@ myprint_status(DIALOG_MIXEDGAUGE * dlg)
 	    (void) waddstr(win, status);
 	}
 	(void) wmove(win, y, limit_x - 3);
-	(void) wattrset(win, dialog_attr);
+	dlg_attrset(win, dialog_attr);
 	(void) waddch(win, ']');
 	(void) wnoutrefresh(win);
     }
@@ -191,10 +191,10 @@ mydraw_mixed_box(WINDOW *win, int y, int x, int height, int width,
 	chtype attr = A_NORMAL;
 	const char *message = _("Overall Progress");
 	chtype save2 = dlg_get_attrs(win);
-	(void) wattrset(win, title_attr);
+	dlg_attrset(win, title_attr);
 	(void) wmove(win, y, x + 2);
 	dlg_print_text(win, message, width, &attr);
-	(void) wattrset(win, save2);
+	dlg_attrset(win, save2);
     }
 }
 
@@ -222,7 +222,7 @@ dlg_update_mixedgauge(DIALOG_MIXEDGAUGE * dlg, int percent)
      * attribute.
      */
     (void) wmove(dlg->dialog, dlg->height - 3, 4);
-    (void) wattrset(dlg->dialog, gauge_attr);
+    dlg_attrset(dlg->dialog, gauge_attr);
 
     for (i = 0; i < (dlg->width - 2 * (3 + MARGIN)); i++)
 	(void) waddch(dlg->dialog, ' ');
@@ -237,9 +237,9 @@ dlg_update_mixedgauge(DIALOG_MIXEDGAUGE * dlg, int percent)
      */
     x = (percent * (dlg->width - 2 * (3 + MARGIN))) / 100;
     if ((title_attr & A_REVERSE) != 0) {
-	wattroff(dlg->dialog, A_REVERSE);
+	dlg_attroff(dlg->dialog, A_REVERSE);
     } else {
-	(void) wattrset(dlg->dialog, A_REVERSE);
+	dlg_attrset(dlg->dialog, A_REVERSE);
     }
     (void) wmove(dlg->dialog, dlg->height - 3, 4);
     for (i = 0; i < x; i++) {
@@ -340,7 +340,7 @@ dlg_begin_mixedgauge(DIALOG_MIXEDGAUGE * dlg,
 				      dlg->width,
 				      y + dlg->item_no + (2 * MARGIN),
 				      x);
-	(void) wattrset(dlg->caption, dialog_attr);
+	dlg_attrset(dlg->caption, dialog_attr);
 	dlg_print_autowrap(dlg->caption, dlg->prompt, dlg->height, dlg->width);
     }
 

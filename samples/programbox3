@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: progress,v 1.7 2018/06/17 20:45:25 tom Exp $
+# $Id: programbox3,v 1.1 2018/06/19 00:33:40 tom Exp $
 
 . ./setup-vars
 
@@ -12,11 +12,11 @@ do
 read text
 test -z "$text" && break
 ls -ld "$text" || break
-sleep 1
+sleep 0.1
 done <$tempfile
 ) |
 
-$DIALOG --title "PROGRESS" "$@" --progressbox 20 70
+$DIALOG --title "PROGRAMBOX" "$@" --programbox -1 -1
 
 retval=$?
 . ./report-button

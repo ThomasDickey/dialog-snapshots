@@ -21045,7 +21045,7 @@ if test "${enable_mixedform+set}" = set; then
   enableval="$enable_mixedform"
 
 else
-  enableval=$cf_all_widgets
+  enableval=${enable_form:=$cf_all_widgets}
 fi;
 echo "$as_me:21050: result: $enableval" >&5
 echo "${ECHO_T}$enableval" >&6

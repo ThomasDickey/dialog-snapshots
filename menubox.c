@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.154 2018/06/14 01:22:35 tom Exp $
+ *  $Id: menubox.c,v 1.155 2018/06/18 21:14:21 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -95,13 +95,13 @@ print_item(ALL_DATA * data,
 
     /* Clear 'residue' of last item and mark current current item */
     if (is_inputmenu) {
-	(void) wattrset(win, (selected != Unselected) ? item_selected_attr : item_attr);
+	dlg_attrset(win, (selected != Unselected) ? item_selected_attr : item_attr);
 	for (n = my_y - 1; n < my_y + INPUT_ROWS - 1; n++) {
 	    wmove(win, n, 0);
 	    wprintw(win, "%*s", my_width, " ");
 	}
     } else {
-	(void) wattrset(win, menubox_attr);
+	dlg_attrset(win, menubox_attr);
 	wmove(win, my_y, 0);
 	wprintw(win, "%*s", my_width, " ");
     }
@@ -131,7 +131,7 @@ print_item(ALL_DATA * data,
     if (selected) {
 	dlg_item_help(item->help);
     }
-    (void) wattrset(win, save);
+    dlg_attrset(win, save);
 }
 
 /*
@@ -182,7 +182,7 @@ input_menu_edit(ALL_DATA * data,
 	}
     }
     print_item(data, data->menu, items, choice, Selected, TRUE);
-    (void) wattrset(data->menu, save);
+    dlg_attrset(data->menu, save);
 
     *resultp = result;
     return code;
@@ -245,7 +245,7 @@ print_menu(ALL_DATA * data, int choice, int scrollamt, int max_choice, bool is_i
     if (is_inputmenu) {
 	int spare_lines, x_count;
 	spare_lines = data->menu_height % INPUT_ROWS;
-	(void) wattrset(data->menu, menubox_attr);
+	dlg_attrset(data->menu, menubox_attr);
 	for (; spare_lines; spare_lines--) {
 	    wmove(data->menu, data->menu_height - spare_lines, 0);
 	    for (x_count = 0; x_count < data->menu_width;
@@ -408,7 +408,7 @@ dlg_menu(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     all.menu_width = width - 6;

@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.114 2018/06/14 09:11:44 tom Exp $
+ *  $Id: textbox.c,v 1.115 2018/06/18 21:15:11 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -525,7 +525,7 @@ get_search_term(WINDOW *dialog, char *input, int height, int width)
 		  searchbox_attr,
 		  searchbox_border_attr,
 		  searchbox_border2_attr);
-    (void) wattrset(widget, searchbox_title_attr);
+    dlg_attrset(widget, searchbox_title_attr);
     (void) wmove(widget, 0, (box_width - len_caption) / 2);
 
     indx = dlg_index_wchars(caption);
@@ -599,7 +599,7 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	    }
 #endif
 	    /* ESC pressed, or no search term, reprint page to clear box */
-	    (void) wattrset(obj->text, dialog_attr);
+	    dlg_attrset(obj->text, dialog_attr);
 	    back_lines(obj, obj->page_length);
 	    return TRUE;
 	}
@@ -644,7 +644,7 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 	    back_lines(obj, 1L);
 	}
 	/* Reprint page */
-	(void) wattrset(obj->text, dialog_attr);
+	dlg_attrset(obj->text, dialog_attr);
 	moved = TRUE;
     } else {			/* no need to find */
 	(void) beep();

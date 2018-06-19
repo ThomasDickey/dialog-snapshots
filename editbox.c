@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.68 2018/06/15 23:17:44 tom Exp $
+ *  $Id: editbox.c,v 1.69 2018/06/18 21:14:03 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -405,7 +405,7 @@ dlg_editbox(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
 
     /* Draw the editing field in a box */
     box_y = MARGIN + 0;
