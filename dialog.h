@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.279 2018/06/12 23:11:16 tom Exp $
+ *  $Id: dialog.h,v 1.282 2018/06/19 01:04:30 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -388,6 +388,19 @@ extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 #define menubox_border2_attr          DIALOG_ATR(37)
 
 #define DLGK_max (KEY_MAX + 256)
+
+/*
+ * Use attributes.
+ */
+#ifdef PDCURSES
+#define dlg_attrset(w,a)  (void) wattrset((w), (a))
+#define dlg_attron(w,a)   (void) wattron((w), (a))
+#define dlg_attroff(w,a)  (void) wattroff((w), (a))
+#else
+#define dlg_attrset(w,a)  (void) wattrset((w), (int)(a))
+#define dlg_attron(w,a)   (void) wattron((w), (int)(a))
+#define dlg_attroff(w,a)  (void) wattroff((w), (int)(a))
+#endif
 
 /*
  * Callbacks are used to implement the "background" tailbox.
@@ -842,6 +855,7 @@ extern void dlg_trace(const char * /*fname*/);
 #else
 #define DLG_TRACE(params) /* nothing */
 #define DLG_TRACE2S(name,value) /* nothing */
+#define DLG_TRACE2N(name,value) /* nothing */
 #define dlg_trace_win(win) /* nothing */
 #define dlg_trace_chr(ch,fkey) /* nothing */
 #define dlg_trace(fname) /* nothing */

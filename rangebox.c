@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.22 2018/06/15 00:40:47 tom Exp $
+ *  $Id: rangebox.c,v 1.23 2018/06/18 22:09:31 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -128,7 +128,7 @@ draw_value(VALUE * data, int value)
 	    scaled = offset;
 	}
 
-	(void) wattrset(win, gauge_attr);
+	dlg_attrset(win, gauge_attr);
 	wmove(win, data->slide_y, data->slide_x);
 	for (n = 0; n < data->slide_len; ++n) {
 	    (void) waddch(win, ' ');
@@ -136,9 +136,9 @@ draw_value(VALUE * data, int value)
 	wmove(win, data->slide_y, data->value_x);
 	wprintw(win, "%*d", data->value_len, value);
 	if ((gauge_attr & A_REVERSE) != 0) {
-	    wattroff(win, A_REVERSE);
+	    dlg_attroff(win, A_REVERSE);
 	} else {
-	    (void) wattrset(win, A_REVERSE);
+	    dlg_attrset(win, A_REVERSE);
 	}
 	wmove(win, data->slide_y, data->slide_x);
 	for (n = 0; n < scaled; ++n) {
@@ -148,7 +148,7 @@ draw_value(VALUE * data, int value)
 	    }
 	    (void) waddch(win, ch2);
 	}
-	(void) wattrset(win, dialog_attr);
+	dlg_attrset(win, dialog_attr);
 
 	wmove(win, y, x);
 	data->current = value;
@@ -309,7 +309,7 @@ dialog_rangebox(const char *title,
     dlg_draw_title(dialog, title);
     dlg_draw_helpline(dialog, FALSE);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     dlg_trace_win(dialog);

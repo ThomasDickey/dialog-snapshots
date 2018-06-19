@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.158 2018/06/15 00:56:36 tom Exp $
+ *  $Id: checklist.c,v 1.159 2018/06/18 21:14:03 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -70,17 +70,17 @@ print_item(ALL_DATA * data,
 			: item->text);
 
     /* Clear 'residue' of last item */
-    (void) wattrset(win, menubox_attr);
+    dlg_attrset(win, menubox_attr);
     (void) wmove(win, choice, 0);
     for (i = 0; i < data->use_width; i++)
 	(void) waddch(win, ' ');
 
     (void) wmove(win, choice, data->check_x);
-    (void) wattrset(win, selected ? check_selected_attr : check_attr);
+    dlg_attrset(win, selected ? check_selected_attr : check_attr);
     (void) wprintw(win,
 		   (data->checkflag == FLAG_CHECK) ? "[%c]" : "(%c)",
 		   states[item->state]);
-    (void) wattrset(win, menubox_attr);
+    dlg_attrset(win, menubox_attr);
     (void) waddch(win, ' ');
 
     if (both) {
@@ -94,7 +94,7 @@ print_item(ALL_DATA * data,
     if (selected) {
 	dlg_item_help(item->help);
     }
-    (void) wattrset(win, save);
+    dlg_attrset(win, save);
 }
 
 static void
@@ -292,7 +292,7 @@ dlg_checklist(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     all.use_width = width - 6;

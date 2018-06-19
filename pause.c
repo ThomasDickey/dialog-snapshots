@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.37 2018/06/14 09:18:22 tom Exp $
+ *  $Id: pause.c,v 1.38 2018/06/18 22:09:31 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -131,7 +131,7 @@ dialog_pause(const char *title,
 	dlg_draw_title(dialog, title);
 	dlg_draw_helpline(dialog, FALSE);
 
-	(void) wattrset(dialog, dialog_attr);
+	dlg_attrset(dialog, dialog_attr);
 	dlg_print_autowrap(dialog, prompt, height, width);
 
 	dlg_draw_box2(dialog,
@@ -147,7 +147,7 @@ dialog_pause(const char *title,
 	 * attribute.
 	 */
 	(void) wmove(dialog, gauge_y + MARGIN, 4);
-	(void) wattrset(dialog, title_attr);
+	dlg_attrset(dialog, title_attr);
 
 	for (i = 0; i < (width - 2 * (3 + MARGIN)); i++)
 	    (void) waddch(dialog, ' ');
@@ -162,9 +162,9 @@ dialog_pause(const char *title,
 	 */
 	x = (seconds * (width - 2 * (3 + MARGIN))) / seconds_orig;
 	if ((title_attr & A_REVERSE) != 0) {
-	    wattroff(dialog, A_REVERSE);
+	    dlg_attroff(dialog, A_REVERSE);
 	} else {
-	    (void) wattrset(dialog, A_REVERSE);
+	    dlg_attrset(dialog, A_REVERSE);
 	}
 	(void) wmove(dialog, gauge_y + MARGIN, 4);
 	for (i = 0; i < x; i++) {

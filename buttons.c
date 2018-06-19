@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.98 2017/01/31 00:26:04 tom Exp $
+ *  $Id: buttons.c,v 1.99 2018/06/18 22:11:16 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2016,2017	Thomas E. Dickey
+ *  Copyright 2000-2017,2018	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -185,11 +185,11 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 			 : button_label_inactive_attr);
 
     (void) wmove(win, y, x);
-    (void) wattrset(win, selected
-		    ? button_active_attr
-		    : button_inactive_attr);
+    dlg_attrset(win, selected
+		? button_active_attr
+		: button_inactive_attr);
     (void) waddstr(win, "<");
-    (void) wattrset(win, label_attr);
+    dlg_attrset(win, label_attr);
     for (i = 0; i < limit; ++i) {
 	int check;
 	int first = indx[i];
@@ -205,12 +205,12 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 	    }
 #endif
 	    if (check == hotkey) {
-		(void) wattrset(win, key_attr);
+		dlg_attrset(win, key_attr);
 		state = sHAVE_KEY;
 	    }
 	    break;
 	case sHAVE_KEY:
-	    wattrset(win, label_attr);
+	    dlg_attrset(win, label_attr);
 	    state = sHAD_KEY;
 	    break;
 	default:
@@ -218,9 +218,9 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 	}
 	waddnstr(win, label + first, last - first);
     }
-    (void) wattrset(win, selected
-		    ? button_active_attr
-		    : button_inactive_attr);
+    dlg_attrset(win, selected
+		? button_active_attr
+		: button_inactive_attr);
     (void) waddstr(win, ">");
     (void) wmove(win, y, x + ((int) (strspn) (label, " ")) + 1);
 }
@@ -400,7 +400,7 @@ dlg_draw_buttons(WINDOW *win,
 	}
 	(void) wmove(win, final_y, final_x);
 	wrefresh(win);
-	(void) wattrset(win, save);
+	dlg_attrset(win, save);
 	free(buffer);
 	free(hotkeys);
     }

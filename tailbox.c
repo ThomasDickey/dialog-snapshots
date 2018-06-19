@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.70 2018/06/15 00:27:22 tom Exp $
+ *  $Id: tailbox.c,v 1.71 2018/06/17 20:09:36 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -88,12 +88,7 @@ print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 
     (void) wmove(win, row, 0);	/* move cursor to correct line */
     (void) waddch(win, ' ');
-#ifdef NCURSES_VERSION
     (void) waddnstr(win, line, MIN((int) strlen(line), width - 2));
-#else
-    line[MIN((int) strlen(line), width - 2)] = '\0';
-    waddstr(win, line);
-#endif
 
     getyx(win, y, x);
     (void) y;

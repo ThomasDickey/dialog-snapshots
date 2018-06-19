@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.81 2018/06/14 08:53:39 tom Exp $
+ *  $Id: buildlist.c,v 1.82 2018/06/18 21:14:03 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -137,13 +137,13 @@ print_item(ALL_DATA * all,
 			: item->text);
 
     /* Clear 'residue' of last item */
-    (void) wattrset(win, menubox_attr);
+    dlg_attrset(win, menubox_attr);
     (void) wmove(win, row, 0);
     for (i = 0; i < getmaxx(win); i++)
 	(void) waddch(win, ' ');
 
     (void) wmove(win, row, all->check_x);
-    (void) wattrset(win, menubox_attr);
+    dlg_attrset(win, menubox_attr);
 
     if (both) {
 	dlg_print_listitem(win, item->name, climit, first, selected);
@@ -158,7 +158,7 @@ print_item(ALL_DATA * all,
     if (selected) {
 	dlg_item_help(item->help);
     }
-    (void) wattrset(win, save);
+    dlg_attrset(win, save);
 }
 
 /*
@@ -636,7 +636,7 @@ dlg_buildlist(const char *title,
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
     dlg_draw_title(dialog, title);
 
-    (void) wattrset(dialog, dialog_attr);
+    dlg_attrset(dialog, dialog_attr);
     dlg_print_autowrap(dialog, prompt, height, width);
 
     list_width = (width - 6 * MARGIN - 2) / 2;

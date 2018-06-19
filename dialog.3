@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.118 2018/06/10 23:29:21 tom Exp $
+.\" $Id: dialog.3,v 1.120 2018/06/19 00:17:34 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/06/10 23:29:21 $"
+.TH \*D 3 "" "$Date: 2018/06/19 00:17:34 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1608,9 +1608,19 @@ is the number of columns to update.
 is the attribute, e.g., \fBA_BOLD\fP.
 .\" ---------------------------------------------------------------------------
 .SS dlg_auto_size
-Automatically size the window used for a widget.
-If the given height or width are zero,
-justify the \fIprompt\fP text and return the actual limits.
+Compute window size based on the size of the formatted \fIprompt\fP and
+minimum dimensions for a given widget.
+.PP
+\fB\*L\fP sets
+\fBdialog_state.text_height\fP and
+\fBdialog_state.text_width\fP for
+the formatted \fIprompt\fP
+as a side-effect.
+.PP
+Normally \fB\*l\fP writes the formatted \fIprompt\fP to the curses
+window,
+but it will write the formatted \fIprompt\fP to the output stream
+if \fBdialog_state.text_only\fP is set.
 .TP 5
 .B const char * \fItitle
 is the title string to display at the top of the widget.
@@ -1618,12 +1628,50 @@ is the title string to display at the top of the widget.
 .B const char * \fIprompt
 is the message text which will be displayed in the widget,
 used here to determine how large the widget should be.
+.IP
+If the value is \fINULL\fP,
+\fB\*l\fP allows the widget to use the whole screen,
+i.e., if the values referenced by \fIheight\fP and/or \fIwidth\fP are zero.
 .TP 5
 .B int * \fIheight
 is the nominal height.
+\fB\*L\fP checks the referenced value and may update it:
+.RS
+.bP
+if the value is negative,
+\fB\*l\fP updates it to the available height of the screen,
+after reserving rows for the window border and shadow,
+as well as taking into account
+\fBdialog_vars.begin_y\fP and
+\fBdialog_vars.begin_set\fP.
+.bP
+if the value is zero,
+\fB\*l\fP updates it to the required height of the window,
+taking into account a (possibly) multi-line \fIprompt\fP.
+.bP
+if the value is greater than zero, 
+\fB\*l\fP uses it internally, but restores the value on return.
+.RE
 .TP 5
 .B int * \fIwidth
 is the nominal width.
+\fB\*L\fP checks the referenced value and may update it:
+.RS
+.bP
+if the value is negative,
+\fB\*l\fP updates it to the available width of the screen,
+after reserving rows for the window border and shadow,
+as well as taking into account
+\fBdialog_vars.begin_x\fP and
+\fBdialog_vars.begin_set\fP.
+.bP
+if the value is zero,
+\fB\*l\fP updates it to the required width of the window,
+taking into account a (possibly) multi-line \fIprompt\fP.
+.bP
+if the value is greater than zero, 
+\fB\*l\fP uses it internally, but restores the value on return.
+.RE
 .TP 5
 .B int \fIboxlines
 is the number of lines to reserve in the vertical direction.
@@ -1643,14 +1691,24 @@ is the name of the file.
 .TP 5
 .B int * \fIheight
 is the nominal height.
+.IP
 If it is -1, use the screen's height
 (after subtracting \fBdialog_vars.begin_y\fP
 if \fBdialog_vars.begin_set\fP is true).
+.IP
+If it is greater than zero,
+limit the referenced value to the screen-height
+after verifying that the file exists.
 .TP 5
 .B int * \fIwidth
 is the nominal width.
+.IP
 If it is -1, use the screen's width (after subtracting \fBdialog_vars.begin_x\fP
 if \fBdialog_vars.begin_set\fP is true).
+.IP
+If it is greater than zero,
+limit the referenced value to the screen-width
+after verifying that the file exists.
 .TP 5
 .B int \fIboxlines
 is the number of lines to reserve on the screen for drawing boxes.

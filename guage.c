@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.73 2018/06/15 23:08:04 tom Exp $
+ *  $Id: guage.c,v 1.74 2018/06/18 22:09:31 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -128,7 +128,7 @@ repaint_text(MY_OBJ * obj)
 
 	dlg_draw_title(dialog, obj->title);
 
-	(void) wattrset(dialog, dialog_attr);
+	dlg_attrset(dialog, dialog_attr);
 	dlg_draw_helpline(dialog, FALSE);
 	dlg_print_autowrap(dialog, obj->prompt, obj->height, obj->width);
 
@@ -145,7 +145,7 @@ repaint_text(MY_OBJ * obj)
 	 * attribute.
 	 */
 	(void) wmove(dialog, obj->height - 3, 4);
-	(void) wattrset(dialog, gauge_attr);
+	dlg_attrset(dialog, gauge_attr);
 
 	for (i = 0; i < (obj->width - 2 * (3 + MARGIN)); i++)
 	    (void) waddch(dialog, ' ');
@@ -160,9 +160,9 @@ repaint_text(MY_OBJ * obj)
 	 */
 	x = (obj->percent * (obj->width - 2 * (3 + MARGIN))) / 100;
 	if ((gauge_attr & A_REVERSE) != 0) {
-	    wattroff(dialog, A_REVERSE);
+	    dlg_attroff(dialog, A_REVERSE);
 	} else {
-	    (void) wattrset(dialog, A_REVERSE);
+	    dlg_attrset(dialog, A_REVERSE);
 	}
 	(void) wmove(dialog, obj->height - 3, 4);
 	for (i = 0; i < x; i++) {
