@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.74 2018/06/18 22:09:31 tom Exp $
+ *  $Id: guage.c,v 1.75 2018/06/19 22:57:29 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -421,6 +421,7 @@ dialog_gauge(const char *title,
 	if (fkey && ch == KEY_RESIZE) {
 	    MY_OBJ *oldobj = obj;
 
+	    dlg_will_resize(obj->obj.win);
 	    dlg_mouse_free_regions();
 
 	    obj = dlg_allocate_gauge(title,

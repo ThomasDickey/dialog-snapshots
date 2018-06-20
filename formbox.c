@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.93 2018/06/18 21:14:03 tom Exp $
+ *  $Id: formbox.c,v 1.94 2018/06/19 22:57:01 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -775,6 +775,7 @@ dlg_form(const char *title,
 
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

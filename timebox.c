@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.58 2018/06/18 21:15:11 tom Exp $
+ * $Id: timebox.c,v 1.59 2018/06/19 22:57:01 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -352,6 +352,7 @@ dialog_timebox(const char *title,
 		    break;
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
+		    dlg_will_resize(dialog);
 		    /* reset data */
 		    height = old_height;
 		    width = old_width;

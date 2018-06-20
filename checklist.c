@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.159 2018/06/18 21:14:03 tom Exp $
+ *  $Id: checklist.c,v 1.160 2018/06/19 22:57:01 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -572,6 +572,7 @@ dlg_checklist(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

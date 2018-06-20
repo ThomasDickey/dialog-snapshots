@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.42 2018/06/18 21:15:11 tom Exp $
+ *  $Id: progressbox.c,v 1.45 2018/06/19 23:32:05 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -72,6 +72,7 @@ free_obj(MY_OBJ * obj)
 static void
 restart_obj(MY_OBJ * obj)
 {
+    free(obj->prompt);
     obj->high = obj->old_high;
     obj->wide = obj->old_wide;
     dlg_clear();
@@ -219,18 +220,12 @@ get_line(MY_OBJ * obj, int *restart)
 static void
 print_line(MY_OBJ * obj, const char *line, int row)
 {
-    int i, y, x;
     int width = obj->wide - (2 * MARGIN);
+    int limit = MIN((int) strlen(line), width - 2);
 
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
-    (void) waddch(obj->text, ' ');
-    (void) waddnstr(obj->text, line, MIN((int) strlen(line), width - 2));
-
-    getyx(obj->text, y, x);
-    (void) y;
-    /* Clear 'residue' of previous line */
-    for (i = 0; i < width - x; i++)
-	(void) waddch(obj->text, ' ');
+    wprintw(obj->text, " %.*s", limit, line);
+    wclrtoeol(obj->text);
 }
 
 #ifdef KEY_RESIZE
@@ -260,7 +255,7 @@ wrote_data(MY_OBJ * obj, int want)
     return result;
 }
 
-static void
+static int
 reprint_lines(MY_OBJ * obj, int buttons)
 {
     int want = getmaxy(obj->text) - (buttons ? 2 : 0);
@@ -270,6 +265,7 @@ reprint_lines(MY_OBJ * obj, int buttons)
 	print_line(obj, wrote_data(obj, have - n), n);
     }
     (void) wrefresh(obj->text);
+    return have;
 }
 #endif
 
@@ -340,6 +336,7 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(obj->obj.win);
 		restart_obj(obj);
 		start_obj(obj, title, cprompt);
 		reprint_lines(obj, TRUE);
@@ -379,6 +376,7 @@ dlg_progressbox(const char *title,
     int i;
     MY_OBJ *obj;
     int again = 0;
+    int toprow = 0;
     int result;
 
     DLG_TRACE(("# progressbox args:\n"));
@@ -400,19 +398,21 @@ dlg_progressbox(const char *title,
     obj->old_high = height;
     obj->old_wide = width;
 
+    curs_set(0);
   restart:
 #endif
 
     start_obj(obj, title, cprompt);
 #ifdef KEY_RESIZE
     if (again) {
-	reprint_lines(obj, FALSE);
+	toprow = reprint_lines(obj, FALSE);
     }
 #endif
 
-    for (i = 0; get_line(obj, &again); i++) {
+    for (i = toprow; get_line(obj, &again); i++) {
 #ifdef KEY_RESIZE
 	if (again) {
+	    dlg_will_resize(obj->obj.win);
 	    restart_obj(obj);
 	    goto restart;
 	}
@@ -426,10 +426,12 @@ dlg_progressbox(const char *title,
 	    print_line(obj, obj->line, getmaxy(obj->text) - 1);
 	}
 	(void) wrefresh(obj->text);
-	dlg_trace_win(obj->obj.win);
 	if (obj->is_eof)
 	    break;
     }
+
+    dlg_trace_win(obj->obj.win);
+    curs_set(1);
 
     if (pauseopt) {
 	int need = 1 + MARGIN;

@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.69 2018/06/18 21:14:03 tom Exp $
+ *  $Id: editbox.c,v 1.70 2018/06/19 22:57:01 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -695,6 +695,7 @@ dlg_editbox(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

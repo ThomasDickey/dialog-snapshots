@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.120 2018/06/19 00:17:34 tom Exp $
+.\" $Id: dialog.3,v 1.121 2018/06/20 01:21:53 tom Exp $
 .\" Copyright 2005-2017,2018  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/06/19 00:17:34 $"
+.TH \*D 3 "" "$Date: 2018/06/20 01:21:53 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -3423,6 +3423,26 @@ is the string to convert
 If the parameter is non-null, opens a trace file with that
 name and stores the file pointer in \fBdialog_state.trace\fP.
 .\" ---------------------------------------------------------------------------
+.SS dlg_trace_2n
+logs a numeric value as a comment.
+.TP 5
+.B char * \fIname
+is the name to log in the comment.
+.TP 5
+.B int \fIvalue
+is the value to log in the comment.
+.\" ---------------------------------------------------------------------------
+.SS dlg_trace_2n
+logs a string value as a comment.
+If the value contains embedded newlines,
+the comment is continued with \*(``#+\*('' markers.
+.TP 5
+.B char * \fIname
+is the name to log in the comment.
+.TP 5
+.B int \fIvalue
+is the value to log in the comment.
+.\" ---------------------------------------------------------------------------
 .SS dlg_trace_chr
 If \fBdialog_state.trace\fP is set,
 translate the parameters into a printable representation,
@@ -3452,6 +3472,10 @@ parameters, e.g.,
 .Ex
 DLG_TRACE(("this is dialog version %s\en", dialog_version()));
 .Ee
+.\" ---------------------------------------------------------------------------
+.SS dlg_ttysize
+Returns the screensize without using curses.
+That allows the function to be used before initializing the screen.
 .\" ---------------------------------------------------------------------------
 .SS dlg_trace_win
 If \fBdialog_state.trace\fP is set,
@@ -3574,6 +3598,11 @@ points to the gauge object to update.
 .TP 5
 .B int \fIpercent
 is the new percentage value to display.
+.\" ---------------------------------------------------------------------------
+.SS dlg_will_resize
+This filters out bursts of \fBKEY_RESIZE\fP values.
+Call this after \fBdlg_getc\fP returns \fBKEY_RESIZE\fP,
+to improve performance.
 .\" ---------------------------------------------------------------------------
 .SS dlg_yes_buttoncode
 Map the given button index for \fBdlg_yes_labels\fP into \fB\*p\fP's exit-code.

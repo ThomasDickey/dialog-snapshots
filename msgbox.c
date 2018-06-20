@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.78 2018/06/18 21:15:11 tom Exp $
+ *  $Id: msgbox.c,v 1.79 2018/06/19 22:57:01 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -136,6 +136,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		switch (key) {
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
+		    dlg_will_resize(dialog);
 		    dlg_clear();
 		    free(prompt);
 		    height = req_high;

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.270 2018/06/18 23:06:44 tom Exp $
+ *  $Id: util.c,v 1.271 2018/06/19 22:53:14 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2189,6 +2189,34 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 #endif
 	}
     }
+}
+
+/*
+ * Having just received a KEY_RESIZE, wait a short time to ignore followup
+ * KEY_RESIZE events.
+ */
+void
+dlg_will_resize(WINDOW *win)
+{
+    int n, ch, base;
+    int caught = 0;
+
+    dlg_trace_win(win);
+    wtimeout(win, 20);
+    for (n = base = 0; n < base + 10; ++n) {
+	if ((ch = wgetch(win)) != ERR) {
+	    if (ch == KEY_RESIZE) {
+		base = n;
+		++caught;
+	    } else {
+		ungetch(ch);
+		break;
+	    }
+	}
+    }
+    dlg_trace_msg("# caught %d KEY_RESIZE key%s\n",
+		  1 + caught,
+		  caught == 1 ? "" : "s");
 }
 #endif /* KEY_RESIZE */
 
