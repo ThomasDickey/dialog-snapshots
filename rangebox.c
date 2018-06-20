@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.23 2018/06/18 22:09:31 tom Exp $
+ *  $Id: rangebox.c,v 1.24 2018/06/19 22:57:01 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -386,6 +386,7 @@ dialog_rangebox(const char *title,
 		    break;
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
+		    dlg_will_resize(dialog);
 		    /* reset data */
 		    height = old_height;
 		    width = old_width;

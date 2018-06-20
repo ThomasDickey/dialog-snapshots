@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.155 2018/06/18 21:14:21 tom Exp $
+ *  $Id: menubox.c,v 1.156 2018/06/19 22:57:01 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -721,6 +721,7 @@ dlg_menu(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 #define resizeit(name, NAME) \
 		name = ((NAME >= old_##NAME) \

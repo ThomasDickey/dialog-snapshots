@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.38 2018/06/18 22:09:31 tom Exp $
+ *  $Id: pause.c,v 1.39 2018/06/19 22:57:01 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -202,6 +202,7 @@ dialog_pause(const char *title,
 	    switch (key) {
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		dlg_clear();	/* fill the background */
 		dlg_del_window(dialog);		/* delete this window */
 		height = old_height;

@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.96 2018/06/18 22:11:16 tom Exp $
+ * $Id: calendar.c,v 1.97 2018/06/19 22:57:01 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -915,6 +915,7 @@ dialog_calendar(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

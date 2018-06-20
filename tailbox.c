@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.71 2018/06/17 20:09:36 tom Exp $
+ *  $Id: tailbox.c,v 1.72 2018/06/19 22:57:01 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -404,6 +404,7 @@ dialog_tailbox(const char *title,
 	    ch = dlg_getc(dialog, &fkey);
 #ifdef KEY_RESIZE
 	    if (fkey && ch == KEY_RESIZE) {
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

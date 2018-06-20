@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.115 2018/06/18 21:15:11 tom Exp $
+ *  $Id: textbox.c,v 1.117 2018/06/19 22:57:01 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -92,7 +92,7 @@ lseek_end(MY_OBJ * obj, long offset)
 {
     long actual = lseek_obj(obj, offset, SEEK_END);
 
-    if (actual > offset) {
+    if (offset == 0L && actual > offset) {
 	obj->file_size = actual;
     }
 }
@@ -948,6 +948,7 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

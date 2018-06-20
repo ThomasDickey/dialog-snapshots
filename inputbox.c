@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.80 2018/06/18 21:14:21 tom Exp $
+ *  $Id: inputbox.c,v 1.81 2018/06/19 22:57:01 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -238,6 +238,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

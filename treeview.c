@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.31 2018/06/18 21:15:11 tom Exp $
+ *  $Id: treeview.c,v 1.32 2018/06/19 22:57:01 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -532,6 +532,7 @@ dlg_treeview(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;

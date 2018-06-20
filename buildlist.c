@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.82 2018/06/18 21:14:03 tom Exp $
+ *  $Id: buildlist.c,v 1.83 2018/06/19 22:57:01 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -1092,6 +1092,7 @@ dlg_buildlist(const char *title,
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
+		dlg_will_resize(dialog);
 		/* reset data */
 		height = old_height;
 		width = old_width;
