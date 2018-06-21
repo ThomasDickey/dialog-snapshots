@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.267 2018/06/18 09:04:09 tom Exp $
+ * $Id: dialog.c,v 1.268 2018/06/21 09:16:05 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -366,9 +366,11 @@ static void
 ignore_leak(void *value)
 {
     AllBlobs *next = dlg_calloc(AllBlobs, (size_t) 1);
-    next->blob = value;
-    next->next = all_blobs;
-    all_blobs = next;
+    if (next != 0) {
+	next->blob = value;
+	next->next = all_blobs;
+	all_blobs = next;
+    }
 }
 
 static void

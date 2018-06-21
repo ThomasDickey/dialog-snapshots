@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.156 2018/06/19 22:57:01 tom Exp $
+ *  $Id: menubox.c,v 1.159 2018/06/21 23:28:56 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -147,7 +147,7 @@ input_menu_edit(ALL_DATA * data,
     char *result;
     int offset = 0;
     int key = 0, fkey = 0;
-    int first = TRUE;
+    bool first = TRUE;
     /* see above */
     bool is_inputmenu = TRUE;
     int y = ItemToRow(choice);

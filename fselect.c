@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.99 2018/06/19 22:57:01 tom Exp $
+ *  $Id: fselect.c,v 1.102 2018/06/21 23:28:04 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -290,10 +290,10 @@ fix_arrows(LIST * list)
     }
 }
 
-static int
-show_list(char *target, LIST * list, int keep)
+static bool
+show_list(char *target, LIST * list, bool keep)
 {
-    int changed = keep || find_choice(target, list);
+    bool changed = keep || find_choice(target, list);
     display_list(list);
     return changed;
 }
@@ -302,12 +302,12 @@ show_list(char *target, LIST * list, int keep)
  * Highlight the closest match to 'target' in the given list, setting offset
  * to match.
  */
-static int
-show_both_lists(char *input, LIST * d_list, LIST * f_list, int keep)
+static bool
+show_both_lists(char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     char *leaf = leaf_of(input);
 
-    return show_list(leaf, d_list, keep) | show_list(leaf, f_list, keep);
+    return show_list(leaf, d_list, keep) || show_list(leaf, f_list, keep);
 }
 
 /*
@@ -429,7 +429,7 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 }
 
 static bool
-fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
+fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     bool result = TRUE;
     bool rescan = FALSE;
@@ -478,7 +478,11 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, int keep)
 	DLG_TRACE(("opendir '%s'\n", path));
 	if ((dp = opendir(path)) != 0) {
 	    while ((de = readdir(dp)) != 0) {
-		strncpy(leaf, de->d_name, NAMLEN(de))[NAMLEN(de)] = 0;
+		size_t len = NAMLEN(de);
+		if (len == 0 || (len + have + 2) >= MAX_LEN)
+		    continue;
+		memcpy(leaf, de->d_name, len);
+		leaf[len] = '\0';
 		if (stat(path, &sb) == 0) {
 		    if ((sb.st_mode & S_IFMT) == S_IFDIR)
 			add_to_list(d_list, leaf);
@@ -586,8 +590,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     int result = DLG_EXIT_UNKNOWN;
     int state = dialog_vars.default_button >= 0 ? dlg_default_button() : sTEXT;
     int button;
-    int first = (state == sTEXT);
-    int first_trace = TRUE;
+    bool first = (state == sTEXT);
+    bool first_trace = TRUE;
     char *input;
     char *completed;
     char current[MAX_LEN + 1];
@@ -721,7 +725,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	if (resized) {
 	    resized = FALSE;
 	    dlg_show_string(w_text, input, offset, inputbox_attr,
-			    0, 0, tbox_width, (bool) 0, (bool) first);
+			    0, 0, tbox_width, FALSE, first);
 	}
 #endif
 
