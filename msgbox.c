@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.79 2018/06/19 22:57:01 tom Exp $
+ *  $Id: msgbox.c,v 1.81 2018/06/21 23:29:59 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -56,7 +56,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     int check;
     bool show = TRUE;
     int min_width = (pauseopt == 1 ? 12 : 0);
-    int save_nocancel = dialog_vars.nocancel;
+    bool save_nocancel = dialog_vars.nocancel;
 #ifdef KEY_RESIZE
     int req_high;
     int req_wide;

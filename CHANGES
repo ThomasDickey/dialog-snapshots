@@ -1,10 +1,10 @@
--- $Id: CHANGES,v 1.617 2018/06/19 09:18:34 tom Exp $
+-- $Id: CHANGES,v 1.619 2018/06/21 09:19:45 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2018/06/19
+2018/06/21
 	+ improve file-offset computation in textbox.c (Werner Fink).
 	+ fix an overlooked case with real_auto_size() to maximize when
 	  height or width is given as -1.
@@ -58,7 +58,7 @@ to it:
 	+ add a check for valid object pointer in tailbox's main loop since
 	  the getc-callback may have been freed within ui_getc.c (report by
 	  "David").
-	+ improved configure macros for ncurses: CF_SHARED_OPTS,
+	+ improved configure macros for ncurses: CF_GNU_SOURCE, CF_SHARED_OPTS,
 	  CF_CURSES_LIBS, CF_CURSES_FUNCS, CF_NCURSES_CONFIG
 	+ improved configure script checks for groff vs man2html: 
 	  CF_PROG_GROFF and CF_WITH_MAN2HTML

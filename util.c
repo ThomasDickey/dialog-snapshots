@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.271 2018/06/19 22:53:14 tom Exp $
+ *  $Id: util.c,v 1.272 2018/06/21 23:47:10 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2397,7 +2397,7 @@ dlg_trim_string(char *s)
 	    } else if (*p == '\n') {
 		if (dialog_vars.cr_wrap)
 		    *s++ = *p++;
-		else if (!isblank(*(s - 1))) {
+		else if (!isblank(UCH(*(s - 1)))) {
 		    /* Strip '\n's if cr_wrap is not set. */
 		    *s++ = ' ';
 		    p++;
@@ -2406,7 +2406,7 @@ dlg_trim_string(char *s)
 	    } else
 		*s++ = *p++;
 	} else {		/* If there are no "\n" strings */
-	    if (isblank(*p) && !dialog_vars.nocollapse) {
+	    if (isblank(UCH(*p)) && !dialog_vars.nocollapse) {
 		if (!trim_blank(base, p))
 		    *s++ = *p;
 		p++;

@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.81 2018/06/19 22:57:01 tom Exp $
+ *  $Id: inputbox.c,v 1.84 2018/06/21 23:29:35 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -74,8 +74,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     int key, fkey, code;
     int result = DLG_EXIT_UNKNOWN;
     int state;
-    int first;
-    int edited;
+    bool first;
+    bool edited;
     char *input;
     WINDOW *dialog;
     WINDOW *editor;
@@ -152,7 +152,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
     if (*input != '\0') {
 	dlg_show_string(editor, input, chr_offset, inputbox_attr,
-			0, 0, box_width, password, first);
+			0, 0, box_width, (bool) (password != 0), first);
 	wsyncup(editor);
 	wcursyncup(editor);
     }
@@ -172,7 +172,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	if (!first) {
 	    if (*input != '\0' && !edited) {
 		dlg_show_string(editor, input, chr_offset, inputbox_attr,
-				0, 0, box_width, password, first);
+				0, 0, box_width, (bool) (password != 0), first);
 		wmove(editor, 0, chr_offset);
 		wsyncup(editor);
 		wcursyncup(editor);
@@ -198,7 +198,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 
 	    if (edit) {
 		dlg_show_string(editor, input, chr_offset, inputbox_attr,
-				0, 0, box_width, password, first);
+				0, 0, box_width, (bool) (password != 0), first);
 		wsyncup(editor);
 		wcursyncup(editor);
 		first = FALSE;

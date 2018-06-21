@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.94 2018/06/19 22:57:01 tom Exp $
+ *  $Id: formbox.c,v 1.95 2018/06/21 08:23:31 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -492,8 +492,8 @@ dlg_form(const char *title,
 #endif
 
     int form_width;
-    int first = TRUE;
-    int first_trace = TRUE;
+    bool first = TRUE;
+    bool first_trace = TRUE;
     int chr_offset = 0;
     int state = (dialog_vars.default_button >= 0
 		 ? dlg_default_button()

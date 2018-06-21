@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.45 2018/06/19 23:32:05 tom Exp $
+ *  $Id: progressbox.c,v 1.47 2018/06/21 09:14:47 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -200,9 +200,11 @@ get_line(MY_OBJ * obj, int *restart)
 	WINDOW *win = obj->text;
 	WROTE *wrote = dlg_calloc(WROTE, 1);
 
-	wrote->text = dlg_strclone(obj->line);
-	wrote->link = obj->wrote;
-	obj->wrote = wrote;
+	if (wrote != 0) {
+	    wrote->text = dlg_strclone(obj->line);
+	    wrote->link = obj->wrote;
+	    obj->wrote = wrote;
+	}
 
 	nodelay(win, TRUE);
 	if ((ch = wgetch(win)) == KEY_RESIZE) {
@@ -286,7 +288,7 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
     int result = DLG_EXIT_UNKNOWN;
     const char **buttons = dlg_ok_label();
     int check;
-    int save_nocancel = dialog_vars.nocancel;
+    bool save_nocancel = dialog_vars.nocancel;
     bool redraw = TRUE;
 
     dialog_vars.nocancel = TRUE;

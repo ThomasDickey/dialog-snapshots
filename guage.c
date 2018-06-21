@@ -1,5 +1,5 @@
 /*
- *  $Id: guage.c,v 1.75 2018/06/19 22:57:29 tom Exp $
+ *  $Id: guage.c,v 1.76 2018/06/21 08:23:43 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
@@ -245,7 +245,7 @@ handle_input(DIALOG_CALLBACK * cb)
 static bool
 handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 {
-    int status = TRUE;
+    bool status = TRUE;
 
     *result = DLG_EXIT_OK;
     if (cb != 0) {
