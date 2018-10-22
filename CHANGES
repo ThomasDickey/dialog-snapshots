@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.619 2018/06/21 09:19:45 tom Exp $
+-- $Id: CHANGES,v 1.620 2018/10/22 11:22:03 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2018/10/22
+	+ improved configure macros CF_CC_ENV_FLAGS, CF_LD_RPATH_OPT,
+	  CF_LIBRARY_PATH, CF_SHARED_OPTS, CF_WITH_MAN2HTML,
+	  CF_WITH_VERSIONED_SYMS from ncurses
+	+ add ast.po, from
+		http://translationproject.org/latest/dialog/
 
 2018/06/21
 	+ improve file-offset computation in textbox.c (Werner Fink).
