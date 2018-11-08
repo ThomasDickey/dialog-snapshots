@@ -1,8 +1,13 @@
--- $Id: CHANGES,v 1.620 2018/10/22 11:22:03 tom Exp $
+-- $Id: CHANGES,v 1.622 2018/11/08 01:42:46 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2018/11/07
+	+ convert ja.po to UTF-8 for consistency (suggested by Stanislav
+	  Brabec).
+	+ repair mis-encoded hi.po (report/analysis by Stanislav Brabec).
 
 2018/10/22
 	+ improved configure macros CF_CC_ENV_FLAGS, CF_LD_RPATH_OPT,
