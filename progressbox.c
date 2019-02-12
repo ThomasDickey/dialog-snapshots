@@ -1,9 +1,9 @@
 /*
- *  $Id: progressbox.c,v 1.47 2018/06/21 09:14:47 tom Exp $
+ *  $Id: progressbox.c,v 1.48 2019/02/11 20:52:07 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2006-2014,2018	Thomas E. Dickey
+ *  Copyright 2006-2018,2019	Thomas E. Dickey
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -227,7 +227,9 @@ print_line(MY_OBJ * obj, const char *line, int row)
 
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
     wprintw(obj->text, " %.*s", limit, line);
-    wclrtoeol(obj->text);
+    while (++limit < width) {
+	waddch(obj->text, ' ');
+    }
 }
 
 #ifdef KEY_RESIZE
