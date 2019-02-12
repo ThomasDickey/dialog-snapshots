@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.283 2018/06/19 22:52:11 tom Exp $
+ *  $Id: dialog.h,v 1.285 2019/02/11 23:11:28 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2017,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -126,14 +126,27 @@
 #define USE_SHADOW TRUE
 #define USE_COLORS TRUE
 
+/*
+ * These allow using the print-formatting code before curses is initialized.
+ */
+#define DLG_COLS  (COLS  ? COLS  : dialog_state.screen_width)
+#define DLG_LINES (LINES ? LINES : dialog_state.screen_height)
+
+/*
+ * Define the usable size of a window, discounting the area needed for shadow.
+ */
 #ifdef HAVE_COLOR
-#define SCOLS	(COLS - (dialog_state.use_shadow ? SHADOW_COLS : 0))
-#define SLINES	(LINES - (dialog_state.use_shadow ? SHADOW_ROWS : 0))
+#define SCOLS	(DLG_COLS  - (dialog_state.use_shadow ? SHADOW_COLS : 0))
+#define SLINES	(DLG_LINES - (dialog_state.use_shadow ? SHADOW_ROWS : 0))
 #else
 #define SCOLS	COLS
 #define SLINES	LINES
 #endif
 
+/*
+ * These are the default values for exit-codes, which can be overridden by
+ * environment variables, e.g., $DIALOG_CANCEL for DLG_EXIT_CANCEL.
+ */
 #define DLG_EXIT_ESC		255
 #define DLG_EXIT_UNKNOWN	-2	/* never return this (internal use) */
 #define DLG_EXIT_ERROR		-1	/* the shell sees this as 255 */
@@ -467,6 +480,9 @@ typedef struct {
     bool text_only;		/* option "--print-text-only", etc. */
     int text_height;
     int text_width;
+    /* 1.3-20190211 */
+    int screen_height;
+    int screen_width;
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;

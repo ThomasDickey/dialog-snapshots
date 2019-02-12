@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.121 2018/06/20 01:21:53 tom Exp $
-.\" Copyright 2005-2017,2018  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.122 2019/02/11 22:36:20 tom Exp $
+.\" Copyright 2005-2018,2019  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2018/06/20 01:21:53 $"
+.TH \*D 3 "" "$Date: 2019/02/11 22:36:20 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -211,6 +211,14 @@ a specific file descriptor,
 or directly from the terminal.
 The adjusted pipe stream value is stored in this variable.
 .\" ---------------------------------------------------------------------------
+.SS .screen_height
+The text-formatting functions use this for the number of rows used for
+formatting a string.
+.LP
+It is used by \fB\*l\fP for the command-line options
+"\fB--print-text-size\fP" and
+"\fB--print-text-only\fP".
+.\" ---------------------------------------------------------------------------
 .SS .screen_initialized
 This is set in \fIinit_dialog\fP and
 reset in \fIend_dialog\fP.
@@ -223,6 +231,14 @@ by the curses library.
 Normally that is the standard output,
 unless that happens to not be a terminal (and if \fIinit_dialog\fP can
 successfully open the terminal directly).
+.\" ---------------------------------------------------------------------------
+.SS .screen_width
+The text-formatting functions use this for the number of columns used for
+formatting a string.
+.LP
+It is used by \fB\*l\fP for the command-line options
+"\fB--print-text-size\fP" and
+"\fB--print-text-only\fP".
 .\" ---------------------------------------------------------------------------
 .SS .separate_str
 This corresponds to the command-line option "\fB--separate-widget\fP".
@@ -241,7 +257,7 @@ option is given.
 The default is 8.
 .\" ---------------------------------------------------------------------------
 .SS .text_height
-This text-formatting functions set this to the number of lines used for
+The text-formatting functions set this to the number of lines used for
 formatting a string.
 .LP
 It is used by \fB\*l\fP for the command-line options
@@ -263,7 +279,7 @@ Also,
 \fBinit_dialog\fP is called.
 .\" ---------------------------------------------------------------------------
 .SS .text_width
-This text-formatting functions set this to the number of columns used for
+The text-formatting functions set this to the number of columns used for
 formatting a string.
 .LP
 It is used by \fB\*l\fP for the command-line options

@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.622 2018/11/08 01:42:46 tom Exp $
+-- $Id: CHANGES,v 1.626 2019/02/11 22:32:08 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/02/11
+	+ modify to work with ncurses' threaded-library, which does not allow
+	  assignment to LINES/COLS (report by Marcus Roeckrath).
+	+ correct clearing after text in progressbox from 2018/06/21 changes
+	  for resizing (reports by David Boyd, Alan Somers).
+	+ improved configure macros CF_GNU_SOURCE, CF_POSIX_C_SOURCE,
+	  CF_XOPEN_SOURCE
+	+ update config.guess, config.sub
 
 2018/11/07
 	+ convert ja.po to UTF-8 for consistency (suggested by Stanislav

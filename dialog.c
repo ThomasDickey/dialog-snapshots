@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.268 2018/06/21 09:16:05 tom Exp $
+ * $Id: dialog.c,v 1.269 2019/02/11 21:58:48 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2017,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1351,8 +1351,11 @@ PrintTextOnly(char **argv, int *offset, eOptions code)
     int width2 = 0;
     int next = arg_rest(argv + *offset);
 
-    if (LINES <= 0 && COLS <= 0)
-	dlg_ttysize(fileno(dialog_state.input), &LINES, &COLS);
+    if (LINES <= 0 && COLS <= 0) {
+	dlg_ttysize(fileno(dialog_state.input),
+		    &dialog_state.screen_height,
+		    &dialog_state.screen_width);
+    }
 
     text = strdup(optionString(argv, offset));
     IgnoreNonScreen(argv, *offset);
