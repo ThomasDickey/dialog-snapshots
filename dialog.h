@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.285 2019/02/11 23:11:28 tom Exp $
+ *  $Id: dialog.h,v 1.286 2019/07/24 21:50:20 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -483,6 +483,10 @@ typedef struct {
     /* 1.3-20190211 */
     int screen_height;
     int screen_width;
+#ifdef KEY_RESIZE
+    /* 1.3-20190724 */
+    bool had_resize;		/* ERR may follow KEY_RESIZE when polling */
+#endif
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;

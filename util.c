@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.272 2018/06/21 23:47:10 tom Exp $
+ *  $Id: util.c,v 1.274 2019/07/25 00:00:19 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2016,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -26,6 +26,8 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+
+#include <sys/time.h>
 
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
@@ -187,11 +189,11 @@ del_subwindows(WINDOW *parent)
 void
 dlg_put_backtitle(void)
 {
-    int i;
 
     if (dialog_vars.backtitle != NULL) {
 	chtype attr = A_NORMAL;
 	int backwidth = dlg_count_columns(dialog_vars.backtitle);
+	int i;
 
 	dlg_attrset(stdscr, screen_attr);
 	(void) wmove(stdscr, 0, 1);
@@ -448,9 +450,9 @@ static int defined_colors = 1;	/* pair-0 is reserved */
 void
 dlg_color_setup(void)
 {
-    unsigned i;
-
     if (has_colors()) {		/* Terminal supports color? */
+	unsigned i;
+
 	(void) start_color();
 
 #if defined(HAVE_USE_DEFAULT_COLORS)
@@ -555,12 +557,12 @@ dlg_color_pair(int foreground, int background)
 static chtype
 define_color(WINDOW *win, int foreground)
 {
-    int pair;
     short fg, bg, background;
     if (dialog_state.text_only) {
 	background = COLOR_BLACK;
     } else {
 	chtype attrs = dlg_get_attrs(win);
+	int pair;
 
 	if ((pair = PAIR_NUMBER(attrs)) != 0
 	    && pair_content((short) pair, &fg, &bg) != ERR) {
@@ -665,7 +667,6 @@ dlg_print_listitem(WINDOW *win,
 {
     chtype attr = A_NORMAL;
     int limit;
-    const int *cols;
     chtype attrs[4];
 
     if (text == 0)
@@ -691,6 +692,8 @@ dlg_print_listitem(WINDOW *win,
 	    }
 	}
     } else {
+	const int *cols;
+
 	attrs[1] = item_selected_attr;
 	attrs[0] = item_attr;
 
@@ -715,9 +718,7 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
     int y_before, x_before = 0;
     int y_after, x_after;
     int tabbed = 0;
-    bool thisTab;
     bool ended = FALSE;
-    chtype useattr;
 #ifdef USE_WIDE_CURSES
     int combined = 0;
 #endif
@@ -729,6 +730,9 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	getyx(win, y_origin, x_origin);
     }
     while (cols > 0 && (*txt != '\0')) {
+	bool thisTab;
+	chtype useattr;
+
 	if (dialog_vars.colors) {
 	    while (isOurEscape(txt)) {
 		int code;
@@ -1068,11 +1072,8 @@ dlg_print_scrolled(WINDOW *win,
     if (pauseopt) {
 	int wide = width - (2 * MARGIN);
 	int high = LINES;
-	int y, x;
 	int len;
-	int percent;
 	WINDOW *dummy;
-	char buffer[5];
 
 #if defined(NCURSES_VERSION_PATCH) && NCURSES_VERSION_PATCH >= 20040417
 	/*
@@ -1088,6 +1089,8 @@ dlg_print_scrolled(WINDOW *win,
 	    dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
 	    last = 0;
 	} else {
+	    int y, x;
+
 	    wbkgdset(dummy, dialog_attr | ' ');
 	    dlg_attrset(dummy, dialog_attr);
 	    werase(dummy);
@@ -1109,12 +1112,16 @@ dlg_print_scrolled(WINDOW *win,
 
 	    /* if the text is incomplete, or we have scrolled, show the percentage */
 	    if (y > 0 && wide > 4) {
-		percent = (int) ((height + offset) * 100.0 / y);
+		int percent = (int) ((height + offset) * 100.0 / y);
+
 		if (percent < 0)
 		    percent = 0;
 		if (percent > 100)
 		    percent = 100;
+
 		if (offset != 0 || percent != 100) {
+		    char buffer[5];
+
 		    dlg_attrset(win, position_indicator_attr);
 		    (void) wmove(win, MARGIN + height, wide - 4);
 		    (void) sprintf(buffer, "%d%%", percent);
@@ -1205,7 +1212,6 @@ auto_size_preformatted(const char *prompt, int *height, int *width)
 {
     int high = 0, wide = 0;
     float car;			/* Calculated Aspect Ratio */
-    float diff;
     int max_y = SLINES - 1;
     int max_x = SCOLS - 2;
     int max_width = max_x;
@@ -1220,7 +1226,7 @@ auto_size_preformatted(const char *prompt, int *height, int *width)
      * width proportionately.
      */
     if (car > ar) {
-	diff = car / (float) ar;
+	float diff = car / (float) ar;
 	max_x = (int) ((float) wide / diff + 4);
 	justify_text((WINDOW *) 0, prompt, max_y, max_x, &high, &wide);
 	car = (float) wide / (float) high;
@@ -1249,10 +1255,10 @@ auto_size_preformatted(const char *prompt, int *height, int *width)
 static int
 longest_word(const char *string)
 {
-    int length, result = 0;
+    int result = 0;
 
     while (*string != '\0') {
-	length = 0;
+	int length = 0;
 	while (*string != '\0' && !isspace(UCH(*string))) {
 	    length++;
 	    string++;
@@ -1278,7 +1284,6 @@ real_auto_size(const char *title,
     int y = (dialog_vars.begin_set ? dialog_vars.begin_y : 1);
     int title_length = title ? dlg_count_columns(title) : 0;
     int high;
-    int wide;
     int save_high = *height;
     int save_wide = *width;
     int max_high;
@@ -1301,6 +1306,8 @@ real_auto_size(const char *title,
     }
 
     if (*width <= 0) {
+	int wide;
+
 	if (prompt != 0) {
 	    wide = MAX(title_length, mincols);
 	    if (strchr(prompt, '\n') == 0) {
@@ -1393,8 +1400,6 @@ dlg_auto_sizefile(const char *title,
     int len = title ? dlg_count_columns(title) : 0;
     int nc = 4;
     int numlines = 2;
-    long offset;
-    int ch;
     FILE *fd;
 
     /* Open input file for reading */
@@ -1415,8 +1420,12 @@ dlg_auto_sizefile(const char *title,
     }
 
     while (!feof(fd)) {
+	int ch;
+	long offset;
+
 	if (ferror(fd))
 	    break;
+
 	offset = 0;
 	while (((ch = getc(fd)) != '\n') && !feof(fd)) {
 	    if ((ch == TAB) && (dialog_vars.tab_correct)) {
@@ -1647,9 +1656,9 @@ repaint_cell(DIALOG_WINDOWS * dw, bool draw, int y, int x)
 static void
 repaint_shadow(DIALOG_WINDOWS * dw, bool draw, int y, int x, int height, int width)
 {
-    int i, j;
-
     if (UseShadow(dw)) {
+	int i, j;
+
 #if !USE_WCHGAT
 	chtype save = dlg_get_attrs(dw->shadow);
 	dlg_attrset(dw->shadow, draw ? shadow_attr : screen_attr);
@@ -1801,7 +1810,7 @@ dlg_exit(int code)
 
 /* quit program killing all tailbg */
 void
-dlg_exiterr(const char *fmt,...)
+dlg_exiterr(const char *fmt, ...)
 {
     int retval;
     va_list ap;
@@ -1896,8 +1905,11 @@ dlg_calc_listh(int *height, int *list_height, int item_no)
 int
 dlg_calc_listw(int item_no, char **items, int group)
 {
-    int n, i, len1 = 0, len2 = 0;
+    int i, len1 = 0, len2 = 0;
+
     for (i = 0; i < (item_no * group); i += group) {
+	int n;
+
 	if ((n = dlg_count_columns(items[i])) > len1)
 	    len1 = n;
 	if ((n = dlg_count_columns(items[i + 1])) > len2)
@@ -2165,9 +2177,9 @@ dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
 void
 dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 {
-    DIALOG_WINDOWS *p;
-
     if (win != 0) {
+	DIALOG_WINDOWS *p;
+
 	dlg_ctl_size(height, width);
 
 	if ((p = find_window(win)) != 0) {
@@ -2198,22 +2210,27 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 void
 dlg_will_resize(WINDOW *win)
 {
-    int n, ch, base;
+    int n, base;
     int caught = 0;
 
+    dialog_state.had_resize = TRUE;
     dlg_trace_win(win);
-    wtimeout(win, 20);
+    wtimeout(win, WTIMEOUT_VAL * 5);
+
     for (n = base = 0; n < base + 10; ++n) {
+	int ch;
+
 	if ((ch = wgetch(win)) != ERR) {
 	    if (ch == KEY_RESIZE) {
 		base = n;
 		++caught;
-	    } else {
+	    } else if (ch != ERR) {
 		ungetch(ch);
 		break;
 	    }
 	}
     }
+    wtimeout(win, 0);
     dlg_trace_msg("# caught %d KEY_RESIZE key%s\n",
 		  1 + caught,
 		  caught == 1 ? "" : "s");
@@ -2282,14 +2299,15 @@ dlg_item_help(const char *txt)
 {
     if (USE_ITEM_HELP(txt)) {
 	chtype attr = A_NORMAL;
-	int y, x;
 
 	dlg_attrset(stdscr, itemhelp_attr);
 	(void) wmove(stdscr, LINES - 1, 0);
 	(void) wclrtoeol(stdscr);
 	(void) addch(' ');
 	dlg_print_text(stdscr, txt, COLS - 1, &attr);
+
 	if (itemhelp_attr & A_COLOR) {
+	    int y, x;
 	    /* fill the remainder of the line with the window's attributes */
 	    getyx(stdscr, y, x);
 	    (void) y;

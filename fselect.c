@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.102 2018/06/21 23:28:04 tom Exp $
+ *  $Id: fselect.c,v 1.104 2019/07/24 23:40:15 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2017,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -125,9 +125,9 @@ data_of(LIST * list)
 static void
 free_list(LIST * list, int reinit)
 {
-    int n;
-
     if (list->data != 0) {
+	int n;
+
 	for (n = 0; list->data[n] != 0; n++)
 	    free(list->data[n]);
 	free(list->data);
@@ -173,13 +173,14 @@ keep_visible(LIST * list)
 static int
 find_choice(char *target, LIST * list)
 {
-    int n;
     int choice = list->choice;
-    int len_1, len_2, cmp_1, cmp_2;
 
     if (*target == 0) {
 	list->choice = 0;
     } else {
+	int n;
+	int len_1, cmp_1;
+
 	/* find the match with the longest length.  If more than one has the
 	 * same length, choose the one with the closest match of the final
 	 * character.
@@ -189,6 +190,7 @@ find_choice(char *target, LIST * list)
 	for (n = 0; n < list->length; n++) {
 	    char *a = target;
 	    char *b = list->data[n];
+	    int len_2, cmp_2;
 
 	    len_2 = 0;
 	    while ((*a != 0) && (*b != 0) && (*a == *b)) {
@@ -216,13 +218,13 @@ find_choice(char *target, LIST * list)
 static void
 display_list(LIST * list)
 {
-    int n;
-    int x;
-    int y;
-    int top;
-    int bottom;
-
     if (list->win != 0) {
+	int n;
+	int x;
+	int y;
+	int top;
+	int bottom;
+
 	dlg_attr_clear(list->win, getmaxy(list->win), getmaxx(list->win), item_attr);
 	for (n = list->offset; n < list->length && list->data[n]; n++) {
 	    y = n - list->offset;
@@ -264,16 +266,17 @@ display_list(LIST * list)
  * that is really required is that they're distinct, so we can put them in a
  * switch statement.
  */
+#if USE_MOUSE
 static void
 fix_arrows(LIST * list)
 {
-    int x;
-    int y;
-    int top;
-    int right;
-    int bottom;
-
     if (list->win != 0) {
+	int x;
+	int y;
+	int top;
+	int right;
+	int bottom;
+
 	getparyx(list->win, y, x);
 	top = y - 1;
 	right = getmaxx(list->win);
@@ -289,6 +292,9 @@ fix_arrows(LIST * list)
 			: KEY_NPAGE));
     }
 }
+#else
+#define fix_arrows(list)	/* nothing */
+#endif
 
 static bool
 show_list(char *target, LIST * list, bool keep)
@@ -386,7 +392,6 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
     char *test;
     size_t test_len;
     size_t i;
-    int j;
     char *buff;
 
     match(name, d_list, f_list, &match_list);
@@ -406,6 +411,8 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 	    i++;
 	}
     } else {
+	int j;
+
 	for (i = 0; i < test_len; i++) {
 	    char test_char = test[i];
 	    if (test_char == '\0')
@@ -433,12 +440,9 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 {
     bool result = TRUE;
     bool rescan = FALSE;
-    DIR *dp;
-    DIRENT *de;
     struct stat sb;
     int n;
     char path[MAX_LEN + 1];
-    char *leaf;
 
     /* check if we've updated the lists */
     for (n = 0; current[n] && input[n]; n++) {
@@ -457,7 +461,9 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
     }
 
     if (rescan) {
+	DIR *dp;
 	size_t have = strlen(input);
+	char *leaf;
 
 	if (have > MAX_LEN)
 	    have = MAX_LEN;
@@ -477,6 +483,8 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 	}
 	DLG_TRACE(("opendir '%s'\n", path));
 	if ((dp = opendir(path)) != 0) {
+	    DIRENT *de;
+
 	    while ((de = readdir(dp)) != 0) {
 		size_t len = NAMLEN(de);
 		if (len == 0 || (len + have + 2) >= MAX_LEN)

@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.99 2018/06/18 22:11:16 tom Exp $
+ *  $Id: buttons.c,v 1.100 2019/07/25 00:06:38 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2017,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -35,11 +35,11 @@ static void
 center_label(char *buffer, int longest, const char *label)
 {
     int len = dlg_count_columns(label);
-    int left = 0, right = 0;
+    int right = 0;
 
     *buffer = 0;
     if (len < longest) {
-	left = (longest - len) / 2;
+	int left = (longest - len) / 2;
 	right = (longest - len - left);
 	if (left > 0)
 	    sprintf(buffer, "%*s", left, " ");
@@ -60,14 +60,16 @@ string_to_char(const char **stringp)
 #ifdef USE_WIDE_CURSES
     const char *string = *stringp;
     size_t have = strlen(string);
-    size_t check;
     size_t len;
     wchar_t cmp2[2];
     mbstate_t state;
 
     memset(&state, 0, sizeof(state));
     len = mbrlen(string, have, &state);
+
     if ((int) len > 0 && len <= have) {
+	size_t check;
+
 	memset(&state, 0, sizeof(state));
 	memset(cmp2, 0, sizeof(cmp2));
 	check = mbrtowc(cmp2, string, len, &state);
@@ -132,9 +134,10 @@ get_hotkeys(const char **labels)
 {
     int *result = 0;
     size_t count = count_labels(labels);
-    size_t n;
 
     if ((result = dlg_calloc(int, count + 1)) != 0) {
+	size_t n;
+
 	for (n = 0; n < count; ++n) {
 	    const char *label = labels[n];
 	    const int *indx = dlg_index_wchars(label);
@@ -281,12 +284,13 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
     int count = dlg_button_count(labels);
     int longest;
     int length;
-    int unused;
-    int used;
     int result;
 
     *margin = 0;
     if (count != 0) {
+	int unused;
+	int used;
+
 	dlg_button_sizes(labels, FALSE, &longest, &length);
 	used = (length + (count * 2));
 	unused = limit - used;
@@ -312,10 +316,11 @@ dlg_button_x_step(const char **labels, int limit, int *gap, int *margin, int *st
 void
 dlg_button_layout(const char **labels, int *limit)
 {
-    int width = 1;
     int gap, margin, step;
 
     if (labels != 0 && dlg_button_count(labels)) {
+	int width = 1;
+
 	while (!dlg_button_x_step(labels, width, &gap, &margin, &step))
 	    ++width;
 	width += (4 * MARGIN);
@@ -338,7 +343,6 @@ dlg_draw_buttons(WINDOW *win,
 		 int limit)
 {
     chtype save = dlg_get_attrs(win);
-    int n;
     int step = 0;
     int length;
     int longest;
@@ -347,7 +351,6 @@ dlg_draw_buttons(WINDOW *win,
     int gap;
     int margin;
     size_t need;
-    char *buffer;
 
     dlg_mouse_setbase(getbegx(win), getbegy(win));
 
@@ -368,7 +371,10 @@ dlg_draw_buttons(WINDOW *win,
      */
     need = (size_t) longest;
     if (need != 0) {
+	char *buffer;
+	int n;
 	int *hotkeys = get_hotkeys(labels);
+
 	assert_ptr(hotkeys, "dlg_draw_buttons");
 
 	for (n = 0; labels[n] != 0; ++n) {
@@ -461,11 +467,12 @@ dlg_char_to_button(int ch, const char **labels)
 
     if (labels != 0) {
 	int *hotkeys = get_hotkeys(labels);
-	int j;
 
 	ch = (int) dlg_toupper(dlg_last_getc());
 
 	if (hotkeys != 0) {
+	    int j;
+
 	    for (j = 0; labels[j] != 0; ++j) {
 		if (ch == hotkeys[j]) {
 		    dlg_flush_getc();
@@ -702,10 +709,11 @@ dlg_defaultno_button(void)
 int
 dlg_default_button(void)
 {
-    int i, n;
     int result = 0;
 
     if (dialog_vars.default_button >= 0) {
+	int i, n;
+
 	for (i = 0; (n = dlg_ok_buttoncode(i)) >= 0; i++) {
 	    if (n == dialog_vars.default_button) {
 		result = i;

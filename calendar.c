@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.97 2018/06/19 22:57:01 tom Exp $
+ * $Id: calendar.c,v 1.98 2019/07/25 00:06:38 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2017,2018	Thomas E. Dickey
+ *  Copyright 2001-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -75,16 +75,6 @@ static const char *
 nameOfDayOfWeek(int n)
 {
     static bool shown[MAX_DAYS];
-    static const char *posix_days[MAX_DAYS] =
-    {
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-    };
 
     while (n < 0) {
 	n += MAX_DAYS;
@@ -101,6 +91,16 @@ nameOfDayOfWeek(int n)
     }
 #endif
     if (cached_days[n] == 0) {
+	static const char *posix_days[MAX_DAYS] =
+	{
+	    "Sunday",
+	    "Monday",
+	    "Tuesday",
+	    "Wednesday",
+	    "Thursday",
+	    "Friday",
+	    "Saturday"
+	};
 	size_t len, limit = MON_WIDE - 1;
 	char *value = dlg_strclone(posix_days[n]);
 
@@ -126,21 +126,6 @@ static const char *
 nameOfMonth(int n)
 {
     static bool shown[MAX_MONTHS];
-    static const char *posix_mons[MAX_MONTHS] =
-    {
-	"January",
-	"February",
-	"March",
-	"April",
-	"May",
-	"June",
-	"July",
-	"August",
-	"September",
-	"October",
-	"November",
-	"December"
-    };
 
     while (n < 0) {
 	n += MAX_MONTHS;
@@ -158,6 +143,21 @@ nameOfMonth(int n)
     }
 #endif
     if (cached_months[n] == 0) {
+	static const char *posix_mons[MAX_MONTHS] =
+	{
+	    "January",
+	    "February",
+	    "March",
+	    "April",
+	    "May",
+	    "June",
+	    "July",
+	    "August",
+	    "September",
+	    "October",
+	    "November",
+	    "December"
+	};
 	cached_months[n] = dlg_strclone(posix_mons[n]);
     }
     if (!shown[n]) {
@@ -722,7 +722,7 @@ dialog_calendar(const char *title,
     int result = DLG_EXIT_UNKNOWN;
     int week_start;
     WINDOW *dialog;
-    time_t now_time = time((time_t *) 0);
+    time_t now_time;
     struct tm current;
     int state = dlg_default_button();
     const char **buttons = dlg_ok_labels();

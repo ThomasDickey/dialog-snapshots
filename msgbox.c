@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.81 2018/06/21 23:29:59 tom Exp $
+ *  $Id: msgbox.c,v 1.83 2019/07/24 22:17:14 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2012,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -124,9 +124,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		show = FALSE;
 	    }
 	    key = dlg_mouse_wgetch(dialog, &fkey);
-	    if (dlg_result_key(key, fkey, &result))
+	    if (dlg_result_key(key, fkey, &result)) {
 		break;
-
+	    }
 	    if (!fkey && (check = dlg_char_to_button(key, buttons)) >= 0) {
 		result = dlg_ok_buttoncode(check);
 		break;
@@ -180,7 +180,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 		    }
 		    break;
 		}
-	    } else {
+	    } else if (key > 0) {
 		beep();
 	    }
 	}
