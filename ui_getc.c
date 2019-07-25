@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.70 2018/06/14 00:05:05 tom Exp $
+ *  $Id: ui_getc.c,v 1.71 2019/07/25 00:07:15 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- *  Copyright 2001-2013,2018	Thomas E. Dickey
+ *  Copyright 2001-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -187,15 +187,17 @@ check_inputs(void)
     DIALOG_CALLBACK *p;
     fd_set read_fds;
     struct timeval test;
-    int last_fd = -1;
-    int fd;
-    int found;
     int result = -1;
 
     if ((p = dialog_state.getc_callbacks) != 0) {
+	int last_fd = -1;
+	int found;
+	int fd;
+
 	FD_ZERO(&read_fds);
 
 	while (p != 0) {
+
 	    p->input_ready = FALSE;
 	    if (p->input != 0 && (fd = fileno(p->input)) >= 0) {
 		FD_SET(fd, &read_fds);
@@ -343,9 +345,7 @@ really_getch(WINDOW *win, int *fkey)
 {
     int ch;
 #ifdef USE_WIDE_CURSES
-    int code;
     mbstate_t state;
-    wchar_t my_wchar;
     wint_t my_wint;
 
     /*
@@ -353,6 +353,9 @@ really_getch(WINDOW *win, int *fkey)
      * having to change the rest of the code to use wide-characters.
      */
     if (used_last_getc >= have_last_getc) {
+	int code;
+	wchar_t my_wchar;
+
 	used_last_getc = 0;
 	have_last_getc = 0;
 	ch = ERR;
@@ -596,7 +599,6 @@ void
 dlg_killall_bg(int *retval)
 {
     DIALOG_CALLBACK *cb;
-    int pid;
 #ifdef HAVE_TYPE_UNIONWAIT
     union wait wstatus;
 #else
@@ -613,6 +615,7 @@ dlg_killall_bg(int *retval)
 	    }
 	}
 	if (dialog_state.getc_callbacks != 0) {
+	    int pid;
 
 	    refresh();
 	    fflush(stdout);

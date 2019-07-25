@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.72 2018/06/19 22:57:01 tom Exp $
+ *  $Id: tailbox.c,v 1.74 2019/07/24 23:46:36 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2012,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -104,12 +104,6 @@ static void
 last_lines(MY_OBJ * obj, int target)
 {
     FILE *fp = obj->obj.input;
-    size_t inx;
-    int count = 0;
-    char buf[BUFSIZ + 1];
-    size_t size_to_read;
-    size_t size_as_read;
-    long offset = 0;
     long fpos = 0;
 
     if (fseek(fp, 0L, SEEK_END) == -1
@@ -117,8 +111,16 @@ last_lines(MY_OBJ * obj, int target)
 	dlg_exiterr("Error moving file pointer in last_lines().");
 
     if (fpos != 0) {
+	long offset = 0;
+
 	++target;
 	for (;;) {
+	    size_t inx;
+	    size_t size_to_read;
+	    size_t size_as_read;
+	    int count = 0;
+	    char buf[BUFSIZ + 1];
+
 	    if (fpos >= BUFSIZ) {
 		size_to_read = BUFSIZ;
 	    } else {
@@ -383,7 +385,7 @@ dialog_tailbox(const char *title,
     obj->obj.handle_getc = handle_my_getc;
     obj->obj.handle_input = bg_task ? handle_input : 0;
     obj->obj.keep_bg = bg_task && dialog_vars.cant_kill;
-    obj->obj.bg_task = bg_task;
+    obj->obj.bg_task = (bool) bg_task;
     obj->text = text;
     obj->buttons = buttons;
     dlg_add_callback(&(obj->obj));

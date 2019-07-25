@@ -1,12 +1,13 @@
 /*
- *  $Id: editbox.c,v 1.70 2018/06/19 22:57:01 tom Exp $
+ *  $Id: editbox.c,v 1.73 2019/07/24 23:32:46 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2016,2018 Thomas E. Dickey
+ *  Copyright 2007-2018,2019 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -54,11 +55,8 @@ grow_list(char ***list, int *have, int want)
 static void
 load_list(const char *file, char ***list, int *rows)
 {
-    FILE *fp;
     char *blob = 0;
     struct stat sb;
-    unsigned n, pass;
-    unsigned need;
     size_t size;
 
     *list = 0;
@@ -72,6 +70,9 @@ load_list(const char *file, char ***list, int *rows)
     if ((blob = dlg_malloc(char, size + 2)) == 0) {
 	fail_list();
     } else {
+	FILE *fp;
+	unsigned n, pass;
+
 	blob[size] = '\0';
 
 	if ((fp = fopen(file, "r")) == 0)
@@ -89,7 +90,8 @@ load_list(const char *file, char ***list, int *rows)
 
 	for (pass = 0; pass < 2; ++pass) {
 	    int first = TRUE;
-	    need = 0;
+	    unsigned need = 0;
+
 	    for (n = 0; n < size; ++n) {
 		if (first && pass) {
 		    (*list)[need] = blob + n;
@@ -285,9 +287,10 @@ static int
 widest_line(char **list)
 {
     int result = MAX_LEN;
-    char *value;
 
     if (list != 0) {
+	char *value;
+
 	while ((value = *list++) != 0) {
 	    int check = (int) strlen(value);
 	    if (check > result)
@@ -718,7 +721,7 @@ dlg_editbox(const char *title,
 		beep();
 		break;
 	    }
-	} else {
+	} else if (key > 0) {
 	    beep();
 	}
     }

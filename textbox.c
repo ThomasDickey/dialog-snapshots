@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.117 2018/06/19 22:57:01 tom Exp $
+ *  $Id: textbox.c,v 1.118 2019/07/25 00:07:15 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2017,2018	Thomas E.  Dickey
+ *  Copyright 2000-2018,2019	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -127,14 +127,14 @@ xalloc(size_t size)
 static void
 read_high(MY_OBJ * obj, size_t size_read)
 {
-    char *buftab, ch;
-    int i = 0, j, n, tmpint;
-    long begin_line;
+    char *buftab;
 
     /* Allocate space for read buffer */
     buftab = xalloc(size_read + 1);
 
     if ((obj->fd_bytes_read = read(obj->fd, buftab, size_read)) != -1) {
+	int i = 0, j, n, tmpint;
+	long begin_line;
 
 	buftab[obj->fd_bytes_read] = '\0';	/* mark end of valid data */
 
@@ -179,7 +179,9 @@ read_high(MY_OBJ * obj, size_t size_read)
 
 	j = 0;
 	begin_line = 0;
-	while (j < obj->fd_bytes_read)
+	while (j < obj->fd_bytes_read) {
+	    char ch;
+
 	    if (((ch = buftab[j++]) == TAB) && (dialog_vars.tab_correct != 0)) {
 		tmpint = (dialog_state.tab_len
 			  - ((int) ((long) i - begin_line) % dialog_state.tab_len));
@@ -190,6 +192,7 @@ read_high(MY_OBJ * obj, size_t size_read)
 		    begin_line = i + 1;
 		obj->buf[i++] = ch;
 	    }
+	}
 
 	obj->buf[i] = '\0';	/* mark end of valid data */
 
@@ -571,16 +574,17 @@ static bool
 perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 {
     int dir;
-    long tempinx;
-    long fpos;
-    int result;
-    bool found;
-    bool temp, temp1;
     bool moved = FALSE;
 
     /* set search direction */
     dir = (key == '/' || key == 'n') ? 1 : 0;
     if (dir ? !obj->end_reached : !obj->begin_reached) {
+	long tempinx;
+	long fpos;
+	int result;
+	bool found;
+	bool temp, temp1;
+
 	if (key == 'n' || key == 'N') {
 	    if (search_term[0] == '\0') {	/* No search term yet */
 		(void) beep();

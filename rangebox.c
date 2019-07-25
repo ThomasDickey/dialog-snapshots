@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.24 2018/06/19 22:57:01 tom Exp $
+ *  $Id: rangebox.c,v 1.25 2019/07/25 00:34:59 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012-2017,2018	Thomas E. Dickey
+ *  Copyright 2012-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -28,19 +28,6 @@
 
 #define MIN_HIGH (ONE_HIGH + 1 + (4 * MARGIN))
 #define MIN_WIDE (10 + 2 + (2 * MARGIN))
-
-struct _box;
-
-typedef struct _box {
-    WINDOW *parent;
-    WINDOW *window;
-    int x;
-    int y;
-    int width;
-    int height;
-    int period;
-    int value;
-} BOX;
 
 typedef struct {
     /* window in which the value and slider are drawn */

@@ -1,8 +1,18 @@
--- $Id: CHANGES,v 1.626 2019/02/11 22:32:08 tom Exp $
+-- $Id: CHANGES,v 1.634 2019/07/24 22:06:53 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/07/24
+	+ modify dlg_will_resize() and dlg_result_key() functions to reduce
+	  the chance that dialog exits on a SIGWINCH (Debian #930775).
+	+ make test-package for the development headers/library
+	+ add --libs-only-L, etc., to dialog-config script (prompted by
+	  discussion with Andrew Kosteltsev).
+	+ fix a memory leak in gauge widget (Andrew Kosteltsev).
+	+ minor fix for CF_GCC_WARNINGS
+	+ update config.guess, config.sub
 
 2019/02/11
 	+ modify to work with ncurses' threaded-library, which does not allow

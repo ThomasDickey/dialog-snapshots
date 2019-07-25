@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.32 2018/06/19 22:57:01 tom Exp $
+ *  $Id: treeview.c,v 1.33 2019/07/24 22:17:14 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2016,2018	Thomas E. Dickey
+ *  Copyright 2012-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -552,7 +552,7 @@ dlg_treeview(const char *title,
 		    beep();
 		}
 	    }
-	} else {
+	} else if (key > 0) {
 	    beep();
 	}
     }

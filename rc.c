@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.53 2018/05/31 20:32:15 tom Exp $
+ *  $Id: rc.c,v 1.54 2019/07/25 00:07:15 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2012,2018	Thomas E. Dickey
+ *  Copyright 2000-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -435,7 +435,6 @@ dlg_create_rc(const char *filename)
     }
 #ifdef HAVE_COLOR
     for (i = 0; i < (unsigned) dlg_color_count(); ++i) {
-	char buffer[MAX_LEN + 1];
 	unsigned j;
 	bool repeat = FALSE;
 
@@ -453,6 +452,8 @@ dlg_create_rc(const char *filename)
 	}
 
 	if (!repeat) {
+	    char buffer[MAX_LEN + 1];
+
 	    fprintf(rc_file, "%s = %s\n", dlg_color_table[i].name,
 		    attr_to_str(buffer,
 				dlg_color_table[i].fg,

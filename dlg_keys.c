@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.45 2018/05/28 17:27:10 tom Exp $
+ *  $Id: dlg_keys.c,v 1.48 2019/07/25 00:41:10 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2017,2018 Thomas E. Dickey
+ *  Copyright 2006-2018,2019 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -274,6 +274,17 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
 {
     int done = FALSE;
 
+#ifdef KEY_RESIZE
+    if (dialog_state.had_resize) {
+	if (dialog_key == ERR) {
+	    dialog_key = 0;
+	} else {
+	    dialog_state.had_resize = FALSE;
+	}
+    } else if (fkey && dialog_key == KEY_RESIZE) {
+	dialog_state.had_resize = TRUE;
+    }
+#endif
 #ifdef HAVE_RC_FILE
     if (fkey) {
 	switch ((DLG_KEYS_ENUM) dialog_key) {
@@ -563,13 +574,13 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
     LIST_BINDINGS *entry = 0;
     DLG_KEYS_BINDING *data = 0;
     char *name;
-    LIST_BINDINGS *p, *q;
     DLG_KEYS_BINDING *result = find_binding(widget, curses_key);
 
     if (result == 0
 	&& (entry = dlg_calloc(LIST_BINDINGS, 1)) != 0
 	&& (data = dlg_calloc(DLG_KEYS_BINDING, 2)) != 0
 	&& (name = dlg_strclone(widget)) != 0) {
+	LIST_BINDINGS *p, *q;
 
 	entry->name = name;
 	entry->binding = data;
@@ -606,7 +617,6 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
 static int
 decode_escaped(char **string)
 {
-    unsigned n;
     int result = 0;
 
     if (IsOctal(**string)) {
@@ -617,6 +627,8 @@ decode_escaped(char **string)
 	    result = (result << 3) | (ch - '0');
 	}
     } else {
+	unsigned n;
+
 	for (n = 0; n < TableSize(escaped_letters); ++n) {
 	    if (**string == escaped_letters[n].letter) {
 		*string += 1;
@@ -663,13 +675,8 @@ int
 dlg_parse_bindkey(char *params)
 {
     char *p = skip_white(params);
-    char *q;
-    bool escaped = FALSE;
-    int modified = 0;
     int result = FALSE;
-    unsigned xx;
     char *widget;
-    int is_function = FALSE;
     int curses_key;
     int dialog_key;
 
@@ -679,6 +686,12 @@ dlg_parse_bindkey(char *params)
 
     p = skip_black(p);
     if (p != widget && *p != '\0') {
+	char *q;
+	unsigned xx;
+	bool escaped = FALSE;
+	int modified = 0;
+	int is_function = FALSE;
+
 	*p++ = '\0';
 	p = skip_white(p);
 	q = p;
@@ -715,7 +728,7 @@ dlg_parse_bindkey(char *params)
 		char fprefix[2];
 		char check[2];
 		int keynumber;
-		if (sscanf(q, "%[Ff]%d%c", fprefix, &keynumber, check) == 2) {
+		if (sscanf(q, "%1[Ff]%d%c", fprefix, &keynumber, check) == 2) {
 		    curses_key = KEY_F(keynumber);
 		    is_function = TRUE;
 		} else {

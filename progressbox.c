@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.48 2019/02/11 20:52:07 tom Exp $
+ *  $Id: progressbox.c,v 1.51 2019/07/24 23:45:06 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -7,9 +7,8 @@
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU Lesser General Public License as
- *  published by the Free Software Foundation; either version 2.1 of the
- *  License, or (at your option) any later version.
+ *  it under the terms of the GNU Lesser General Public License, version 2.1
+ *  as published by the Free Software Foundation.
  *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -83,7 +82,6 @@ static void
 start_obj(MY_OBJ * obj, const char *title, const char *cprompt)
 {
     int y, x, thigh;
-    int i;
 
     obj->prompt = dlg_strclone(cprompt);
     dlg_tab_correct_str(obj->prompt);
@@ -108,6 +106,7 @@ start_obj(MY_OBJ * obj, const char *title, const char *cprompt)
     dlg_draw_helpline(obj->obj.win, FALSE);
 
     if (obj->prompt[0] != '\0') {
+	int i;
 	int y2, x2;
 
 	dlg_attrset(obj->obj.win, dialog_attr);
@@ -358,7 +357,7 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
 		break;
 	    }
 
-	} else {
+	} else if (key > 0) {
 	    beep();
 	}
     }

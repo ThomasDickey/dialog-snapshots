@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.269 2019/02/11 21:58:48 tom Exp $
+ * $Id: dialog.c,v 1.270 2019/07/24 23:27:01 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -499,11 +499,6 @@ unescape_argv(int *argcp, char ***argvp)
 	    if ((filename = (*argvp)[j + 1]) != 0) {
 		FILE *fp;
 		char **list;
-		char *blob;
-		int added;
-		size_t bytes_read;
-		size_t length;
-		int n;
 
 		if (*filename == '&') {
 		    fp = fdopen(atoi(filename + sizeof(char)), "r");
@@ -512,6 +507,12 @@ unescape_argv(int *argcp, char ***argvp)
 		}
 
 		if (fp) {
+		    char *blob;
+		    int added;
+		    size_t bytes_read;
+		    size_t length;
+		    int n;
+
 		    DLG_TRACE(("# opened --file %s ..\n", filename));
 		    blob = NULL;
 		    length = 0;
@@ -612,10 +613,11 @@ unescape_argv(int *argcp, char ***argvp)
 static eOptions
 lookupOption(const char *name, int pass)
 {
-    unsigned n;
     eOptions result = o_unknown;
 
     if (isOption(name)) {
+	unsigned n;
+
 	name += 2;
 	for (n = 0; n < sizeof(options) / sizeof(options[0]); n++) {
 	    if ((pass & options[n].pass) != 0
@@ -658,10 +660,11 @@ static int
 howmany_tags(char *argv[], int group)
 {
     int result = 0;
-    int have;
     char temp[80];
 
     while (argv[0] != 0) {
+	int have;
+
 	if (isOption(argv[0]))
 	    break;
 	if ((have = arg_rest(argv)) < group) {
@@ -687,11 +690,12 @@ numeric_arg(char **av, int n)
     int result = 0;
 
     if (n < dlg_count_argv(av)) {
-	char msg[80];
 	char *last = 0;
 	result = (int) strtol(av[n], &last, 10);
 
 	if (last == 0 || *last != 0) {
+	    char msg[80];
+
 	    sprintf(msg, "Expected a number for token %d of %.20s", n, av[0]);
 	    Usage(msg);
 	}
@@ -1882,9 +1886,8 @@ main(int argc, char *argv[])
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
-    int j, have;
+    int j;
     eOptions code;
-    const Mode *modePtr;
     char my_buffer[MAX_LEN + 1];
 
     memset(&dialog_state, 0, sizeof(dialog_state));
@@ -2038,6 +2041,9 @@ main(int argc, char *argv[])
     init_dialog(dialog_state.input, dialog_state.output);
 
     while (offset < argc && !esc_pressed) {
+	int have;
+	const Mode *modePtr;
+
 	if (first_time) {
 	    first_time = FALSE;
 	} else {

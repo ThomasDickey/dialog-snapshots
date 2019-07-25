@@ -1,9 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.62 2018/06/19 22:57:01 tom Exp $
+ *  $Id: yesno.c,v 1.63 2019/07/24 22:17:14 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2012,2018	Thomas E. Dickey
+ *  Copyright 1999-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -161,7 +161,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 		}
 		break;
 	    }
-	} else {
+	} else if (key > 0) {
 	    beep();
 	}
     }

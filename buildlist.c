@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.83 2018/06/19 22:57:01 tom Exp $
+ *  $Id: buildlist.c,v 1.85 2019/07/24 23:05:37 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2017,2018	Thomas E. Dickey
+ *  Copyright 2012-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -77,9 +77,10 @@ index2row(ALL_DATA * all, int choice, int selected)
 {
     MY_DATA *data = all->list + selected;
     int result = -1;
-    int row;
 
     if (okIndex(all, choice)) {
+	int row;
+
 	for (row = 0; row < all->item_no; ++row) {
 	    TRACE(("!... choice %d: %p vs row %d: %p\n",
 		   choice, all->items + choice,
@@ -270,9 +271,10 @@ first_item(ALL_DATA * all, int selected)
 {
     MY_DATA *data = all->list + selected;
     int result = -1;
-    int n;
 
     if (myItem(data, 0) != 0) {
+	int n;
+
 	for (n = 0; n < all->item_no; ++n) {
 	    if (myItem(data, 0) == &all->items[n]) {
 		result = n;
@@ -309,9 +311,10 @@ skip_rows(ALL_DATA * all, int row, int skip, int selected)
 {
     MY_DATA *data = all->list + selected;
     int result = row;
-    int n;
 
     if (skip > 0) {
+	int n;
+
 	for (n = row + 1; (n < all->item_no) && (n <= row + skip); ++n) {
 	    if (myItem(data, n) == 0)
 		break;
@@ -1113,7 +1116,7 @@ dlg_buildlist(const char *title,
 		    beep();
 		}
 	    }
-	} else {
+	} else if (key > 0) {
 	    beep();
 	}
     }

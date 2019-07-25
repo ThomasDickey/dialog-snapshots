@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.95 2018/06/21 08:23:31 tom Exp $
+ *  $Id: formbox.c,v 1.96 2019/07/25 00:06:38 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2016,2018	Thomas E. Dickey
+ *  Copyright 2003-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -151,12 +151,13 @@ static int
 set_choice(DIALOG_FORMITEM item[], int choice, int item_no, bool * noneditable)
 {
     int result = -1;
-    int i;
 
     *noneditable = FALSE;
     if (!is_readonly(&item[choice])) {
 	result = choice;
     } else {
+	int i;
+
 	for (i = 0; i < item_no; i++) {
 	    if (!is_readonly(&(item[i]))) {
 		result = i;
@@ -292,7 +293,6 @@ scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int 
     int old_scroll = *scrollamt;
     int old_row = MIN(item[old_choice].text_y, item[old_choice].name_y);
     int target = old_scroll + stepsize;
-    int n;
 
     if (stepsize < 0) {
 	if (old_row != old_scroll)
@@ -309,6 +309,8 @@ scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int 
     }
 
     if (result) {
+	int n;
+
 	for (n = 0; item[n].name != 0; ++n) {
 	    if (item[n].text_flen > 0) {
 		int new_row = MIN(item[n].text_y, item[n].name_y);

@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.59 2018/06/19 22:57:01 tom Exp $
+ * $Id: timebox.c,v 1.61 2019/07/25 00:05:00 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2016,2018   Thomas E. Dickey
+ *  Copyright 2001-2018,2019   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -180,7 +180,7 @@ dialog_timebox(const char *title,
     int button;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
-    time_t now_time = time((time_t *) 0);
+    time_t now_time;
     struct tm current;
     int state = dlg_default_button();
     const char **buttons = dlg_ok_labels();
@@ -394,7 +394,7 @@ dialog_timebox(const char *title,
 			beep();
 		    }
 		}
-	    } else {
+	    } else if (key > 0) {
 		beep();
 	    }
 	}
