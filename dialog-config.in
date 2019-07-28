@@ -1,5 +1,5 @@
 #!@SHELL@
-# $Id: dialog-config.in,v 1.7 2019/07/23 08:44:33 tom Exp $
+# $Id: dialog-config.in,v 1.9 2019/07/28 23:02:53 tom Exp $
 ##############################################################################
 # Copyright (c) 2007-2012,2019 Thomas E. Dickey                              #
 #                                                                            #
@@ -32,16 +32,30 @@ prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 datarootdir="@datarootdir@"
 
-bindir="@bindir@"
-libdir="@libdir@"
-datadir="@datadir@"
-mandir="@mandir@"
+same_prefix=yes
+same_exec_prefix=yes
 
 THIS="@PACKAGE@"
 
 test $# = 0 && exec @SHELL@ "$0" --error
 
 while test $# -gt 0; do
+
+	# (re)evaluate symbols that may depend upon $prefix
+	if [ "x$same_prefix" != "xyes" ]
+	then
+		eval exec_prefix='@exec_prefix@'
+		eval datarootdir='@datarootdir@'
+	elif [ "x$same_exec_prefix" != "xyes" ]
+	then
+		eval datarootdir='@datarootdir@'
+	fi
+
+	eval bindir='"@bindir@"'
+	eval libdir='"@libdir@"'
+	eval datadir='"@datadir@"'
+	eval mandir='"@mandir@"'
+
 	case "$1" in
 	-*=*)
 		ARG=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'`
@@ -56,12 +70,14 @@ while test $# -gt 0; do
 	--prefix=*)
 		prefix="$ARG"
 		test -z "$exec_prefix" && exec_prefix="$ARG"
+		same_prefix=no
 		;;
 	--prefix)
 		echo "$prefix"
 		;;
 	--exec-prefix=*)
 		exec_prefix="$ARG"
+		same_exec_prefix=no
 		;;
 	--exec-prefix)
 		echo "$exec_prefix"
@@ -86,7 +102,7 @@ ENDECHO
 		;;
 	--libs-only-L)
 		OPTS=
-		for opt in "$LIBS"
+		for opt in @LIBS@
 		do
 			case "x$opt" in
 			x-L*)
@@ -98,7 +114,7 @@ ENDECHO
 		;;
 	--libs-only-l)
 		OPTS=
-		for opt in "$LIBS"
+		for opt in @LIBS@
 		do
 			case "x$opt" in
 			x-l*)
@@ -110,7 +126,7 @@ ENDECHO
 		;;
 	--libs-only-other)
 		OPTS=
-		for opt in "$LIBS"
+		for opt in @LIBS@
 		do
 			case "x$opt" in
 			x-[lL]*)
