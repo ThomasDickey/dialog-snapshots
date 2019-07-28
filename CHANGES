@@ -1,8 +1,15 @@
--- $Id: CHANGES,v 1.634 2019/07/24 22:06:53 tom Exp $
+-- $Id: CHANGES,v 1.636 2019/07/28 23:13:00 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/07/28
+	+ modify dialog-config.in so that setting prefix or exec-prefix to
+	  a given value with --prefix=VALUE or --exec-prefix=VALUE has the
+	  expected result of changing bindir, etc.
+	+ correct substitution for $LIBS value in dialog-config.in (report by
+	  Andrew Kosteltsev).
 
 2019/07/24
 	+ modify dlg_will_resize() and dlg_result_key() functions to reduce
