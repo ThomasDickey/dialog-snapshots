@@ -1,5 +1,5 @@
 #!@SHELL@
-# $Id: dialog-config.in,v 1.9 2019/07/28 23:02:53 tom Exp $
+# $Id: dialog-config.in,v 1.11 2019/08/02 00:20:15 tom Exp $
 ##############################################################################
 # Copyright (c) 2007-2012,2019 Thomas E. Dickey                              #
 #                                                                            #
@@ -52,9 +52,18 @@ while test $# -gt 0; do
 	fi
 
 	eval bindir='"@bindir@"'
+	eval includedir='"@includedir@"'
 	eval libdir='"@libdir@"'
 	eval datadir='"@datadir@"'
 	eval mandir='"@mandir@"'
+
+	[ -z "$includedir" ] && includedir="${prefix}/include" 
+
+	eval LDFLAGS='"@LDFLAGS@"'
+	[ -z "$LDFLAGS" ] && LDFLAGS="-L${exec_prefix}/lib"
+
+	eval LIBS='"@LIBS@"'
+	LIBS="-l${THIS} $LIBS"
 
 	case "$1" in
 	-*=*)
@@ -85,24 +94,25 @@ while test $# -gt 0; do
 	# compile/link
 	--cflags|--cflags-only-I)
 		INCS=
-		if test "${prefix}/include" != /usr/include ; then
-			INCS="-I${prefix}/include"
+		if test "$includedir" != /usr/include ; then
+			INCS="-I$includedir"
 		fi
 		sed -e 's,^[ ]*,,' -e 's, [ ]*, ,g' -e 's,[ ]*$,,' <<-ENDECHO
 			$INCS
 ENDECHO
 		;;
 	--cflags-only-other)
+		# no -D/-U options should be needed
 		echo
 		;;
 	--libs)
 		sed -e 's,^[ ]*,,' -e 's, [ ]*, ,g' -e 's,[ ]*$,,' <<-ENDECHO
-			-L${exec_prefix}/lib -l${THIS} @LIBS@
+			$LIBS
 ENDECHO
 		;;
 	--libs-only-L)
 		OPTS=
-		for opt in @LIBS@
+		for opt in $LDFLAGS $LIBS
 		do
 			case "x$opt" in
 			x-L*)
@@ -114,7 +124,7 @@ ENDECHO
 		;;
 	--libs-only-l)
 		OPTS=
-		for opt in @LIBS@
+		for opt in $LDFLAGS $LIBS
 		do
 			case "x$opt" in
 			x-l*)
@@ -126,7 +136,7 @@ ENDECHO
 		;;
 	--libs-only-other)
 		OPTS=
-		for opt in @LIBS@
+		for opt in $LDFLAGS $LIBS
 		do
 			case "x$opt" in
 			x-[lL]*)
