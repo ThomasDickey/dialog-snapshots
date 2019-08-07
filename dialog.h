@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.286 2019/07/24 21:50:20 tom Exp $
+ *  $Id: dialog.h,v 1.287 2019/08/05 21:30:42 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -798,6 +798,7 @@ extern char * dlg_strempty(void);
 extern chtype dlg_asciibox(chtype /*ch*/);
 extern chtype dlg_boxchar(chtype /*ch*/);
 extern chtype dlg_get_attrs(WINDOW * /*win*/);
+extern const char * dlg_exitcode2s(int /*code*/);
 extern const char * dlg_print_line(WINDOW * /*win*/, chtype * /*attr*/, const char * /*prompt*/, int /*lm*/, int /*rm*/, int * /*x*/);
 extern int dlg_box_x_ordinate(int /*width*/);
 extern int dlg_box_y_ordinate(int /*height*/);
@@ -809,6 +810,7 @@ extern int dlg_default_item(char ** /*items*/, int /*llen*/);
 extern int dlg_default_listitem(DIALOG_LISTITEM * /*items*/);
 extern int dlg_defaultno_button(void);
 extern int dlg_default_button(void);
+extern int dlg_exitname2n(const char * /*name*/);
 extern int dlg_max_input(int /*max_len*/);
 extern int dlg_print_scrolled(WINDOW * /* win */, const char * /* prompt */, int /* offset */, int /* height */, int /* width */, int /* pauseopt */);
 extern void dlg_add_help_formitem(int * /* result */, char ** /* tag */, DIALOG_FORMITEM * /* item */);

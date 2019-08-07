@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.161 2019/07/24 22:17:14 tom Exp $
+ *  $Id: checklist.c,v 1.162 2019/08/05 09:14:59 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -384,8 +384,10 @@ dlg_checklist(const char *title,
 	    wmove(dialog, all.box_y + choice + 1, all.box_x + all.check_x + 2);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	was_mouse = (fkey && is_DLGK_MOUSE(key));
 	if (was_mouse)

@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.51 2019/07/24 23:45:06 tom Exp $
+ *  $Id: progressbox.c,v 1.52 2019/08/06 00:21:07 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -316,8 +316,10 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
 	}
 
 	key = dlg_mouse_wgetch(obj->obj.win, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	if (!fkey && (check = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = dlg_ok_buttoncode(check);
@@ -361,6 +363,8 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
 	    beep();
 	}
     }
+    dlg_add_last_key(-1);
+
     dlg_mouse_free_regions();
     dlg_unregister_window(obj->obj.win);
 

@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.48 2019/07/25 00:41:10 tom Exp $
+ *  $Id: dlg_keys.c,v 1.54 2019/08/05 23:33:46 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -274,6 +274,7 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
 {
     int done = FALSE;
 
+    dlg_trace_msg("# dlg_result_key(dialog_key=%d, fkey=%d)\n", dialog_key, fkey);
 #ifdef KEY_RESIZE
     if (dialog_state.had_resize) {
 	if (dialog_key == ERR) {
@@ -289,8 +290,10 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
     if (fkey) {
 	switch ((DLG_KEYS_ENUM) dialog_key) {
 	case DLGK_OK:
-	    *resultp = DLG_EXIT_OK;
-	    done = TRUE;
+	    if (!dialog_vars.nook) {
+		*resultp = DLG_EXIT_OK;
+		done = TRUE;
+	    }
 	    break;
 	case DLGK_CANCEL:
 	    if (!dialog_vars.nocancel) {
@@ -328,6 +331,70 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
     }
 
     return done;
+}
+
+/*
+ * If a key was bound to one of the button-codes in dlg_result_key(), fake
+ * a button-value and an "Enter" key to cause the calling widget to return
+ * the corresponding status.
+ *
+ * See dlg_ok_buttoncode(), which maps settings for ok/extra/help and button
+ * number into exit-code.
+ */
+int
+dlg_button_key(int exit_code, int *button, int *dialog_key, int *fkey)
+{
+    int changed = FALSE;
+    switch (exit_code) {
+    case DLG_EXIT_OK:
+	if (!dialog_vars.nook) {
+	    *button = 0;
+	    changed = TRUE;
+	}
+	break;
+    case DLG_EXIT_EXTRA:
+	if (dialog_vars.extra_button) {
+	    *button = dialog_vars.nook ? 0 : 1;
+	    changed = TRUE;
+	}
+	break;
+    case DLG_EXIT_CANCEL:
+	if (!dialog_vars.nocancel) {
+	    *button = dialog_vars.nook ? 1 : 2;
+	    changed = TRUE;
+	}
+	break;
+    case DLG_EXIT_HELP:
+	if (dialog_vars.help_button) {
+	    int cancel = dialog_vars.nocancel ? 0 : 1;
+	    int extra = dialog_vars.extra_button ? 1 : 0;
+	    int okay = dialog_vars.nook ? 0 : 1;
+	    *button = okay + extra + cancel;
+	    changed = TRUE;
+	}
+	break;
+    }
+    if (changed) {
+	dlg_trace_msg("# dlg_button_key(%d:%s) button %d\n",
+		      exit_code, dlg_exitcode2s(exit_code), *button);
+	*dialog_key = *fkey = DLGK_ENTER;
+    }
+    return changed;
+}
+
+int
+dlg_ok_button_key(int exit_code, int *button, int *dialog_key, int *fkey)
+{
+    int result;
+    DIALOG_VARS save;
+
+    dlg_save_vars(&save);
+    dialog_vars.nocancel = TRUE;
+
+    result = dlg_button_key(exit_code, button, dialog_key, fkey);
+
+    dlg_restore_vars(&save);
+    return result;
 }
 
 #ifdef HAVE_RC_FILE

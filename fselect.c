@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.104 2019/07/24 23:40:15 tom Exp $
+ *  $Id: fselect.c,v 1.105 2019/08/06 00:38:38 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -771,8 +771,10 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	    fix_arrows(&d_list);
 	    fix_arrows(&f_list);
 	    key = dlg_mouse_wgetch((state == sTEXT) ? w_text : dialog, &fkey);
-	    if (dlg_result_key(key, fkey, &result))
-		break;
+	    if (dlg_result_key(key, fkey, &result)) {
+		if (!dlg_button_key(result, &button, &key, &fkey))
+		    break;
+	    }
 	}
 
 	if (key == DLGK_TOGGLE) {
@@ -917,6 +919,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	    break;
 	}
     }
+    dlg_add_separator();
+    dlg_add_last_key(-1);
 
     dlg_unregister_window(w_text);
     dlg_del_window(dialog);

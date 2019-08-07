@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.161 2019/07/24 23:42:20 tom Exp $
+ *  $Id: menubox.c,v 1.163 2019/08/05 23:36:14 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -204,6 +204,8 @@ handle_button(int code, DIALOG_LISTITEM * items, int choice)
 	dlg_add_string(help_result);
 	break;
     }
+    dlg_add_separator();
+    dlg_add_last_key(-1);
     return code;
 }
 
@@ -216,6 +218,8 @@ dlg_renamed_menutext(DIALOG_LISTITEM * items, int current, char *newtext)
     dlg_add_string(items[current].name);
     dlg_add_result(" ");
     dlg_add_string(newtext);
+    dlg_add_separator();
+    dlg_add_last_key(-1);
     return DLG_EXIT_EXTRA;
 }
 
@@ -518,8 +522,10 @@ dlg_menu(const char *title,
 		  all.box_x + all.tag_x + 1);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	found = FALSE;
 	if (fkey) {

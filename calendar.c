@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.98 2019/07/25 00:06:38 tom Exp $
+ * $Id: calendar.c,v 1.99 2019/08/05 09:14:59 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -881,8 +881,10 @@ dialog_calendar(const char *title,
 	    dlg_set_focus(dialog, obj->window);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 #define Mouse2Key(key) (key - M_EVENT)
 	if (fkey && (key >= DLGK_MOUSE(KEY_MIN) && key <= DLGK_MOUSE(KEY_MAX))) {

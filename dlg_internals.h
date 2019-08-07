@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_internals.h,v 1.1 2019/07/24 08:26:15 tom Exp $
+ *  $Id: dlg_internals.h,v 1.2 2019/08/05 21:34:54 tom Exp $
  *
  *  dlg_internals.h -- runtime binding support for dialog
  *
@@ -25,6 +25,8 @@
 #define DLG_INTERNALS_H_included 1
 
 #include <dialog.h>
+
+#define TableSize(name) (sizeof(name)/sizeof((name)[0]))
 
 /* *INDENT-OFF* */
 #define resizeit(name, NAME) \

@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.85 2019/07/24 23:05:37 tom Exp $
+ *  $Id: buildlist.c,v 1.88 2019/08/06 21:08:20 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -772,8 +772,10 @@ dlg_buildlist(const char *title,
 	}
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	was_mouse = (fkey && is_DLGK_MOUSE(key));
 	if (was_mouse)
@@ -1248,16 +1250,17 @@ dialog_buildlist(const char *title,
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].state) {
+		if (dlg_need_separator())
+		    dlg_add_separator();
 		if (separate_output) {
 		    dlg_add_string(listitems[i].name);
-		    dlg_add_separator();
 		} else {
-		    if (dlg_need_separator())
-			dlg_add_separator();
 		    dlg_add_quoted(listitems[i].name);
 		}
 	    }
 	}
+	if (dlg_need_separator())
+	    dlg_add_separator();
 	dlg_add_last_key(-1);
     }
 

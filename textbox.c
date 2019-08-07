@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.118 2019/07/25 00:07:15 tom Exp $
+ *  $Id: textbox.c,v 1.121 2019/08/06 21:14:24 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -824,8 +824,10 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 	next = 0;		/* ...but not scroll by a line */
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_ok_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	if (!fkey && (code = dlg_char_to_button(key, obj.buttons)) >= 0) {
 	    result = dlg_ok_buttoncode(code);
@@ -979,6 +981,7 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 	    }
 	}
     }
+    dlg_add_last_key(-1);
 
     dlg_del_window(dialog);
     free(obj.buf);

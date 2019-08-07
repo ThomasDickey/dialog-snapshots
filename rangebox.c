@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.25 2019/07/25 00:34:59 tom Exp $
+ *  $Id: rangebox.c,v 1.26 2019/08/05 09:14:59 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -310,8 +310,10 @@ dialog_rangebox(const char *title,
 	}
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;

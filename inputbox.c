@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.85 2019/07/24 22:17:14 tom Exp $
+ *  $Id: inputbox.c,v 1.86 2019/08/06 00:50:58 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -178,8 +178,10 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		wcursyncup(editor);
 	    }
 	    key = dlg_mouse_wgetch((state == sTEXT) ? editor : dialog, &fkey);
-	    if (dlg_result_key(key, fkey, &result))
-		break;
+	    if (dlg_result_key(key, fkey, &result)) {
+		if (!dlg_button_key(result, &code, &key, &fkey))
+		    break;
+	    }
 	}
 
 	/*
@@ -257,6 +259,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    beep();
 	}
     }
+    dlg_add_separator();
+    dlg_add_last_key(-1);
 
     dlg_unregister_window(editor);
     dlg_del_window(dialog);
