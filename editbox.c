@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.73 2019/07/24 23:32:46 tom Exp $
+ *  $Id: editbox.c,v 1.74 2019/08/05 09:15:36 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -513,8 +513,10 @@ dlg_editbox(const char *title,
 	    break;
 	}
 	if (state != sTEXT) {
-	    if (dlg_result_key(key, fkey, &result))
-		break;
+	    if (dlg_result_key(key, fkey, &result)) {
+		if (!dlg_button_key(result, &code, &key, &fkey))
+		    break;
+	    }
 	}
 
 	was_mouse = (fkey && is_DLGK_MOUSE(key));

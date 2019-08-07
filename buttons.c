@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.100 2019/07/25 00:06:38 tom Exp $
+ *  $Id: buttons.c,v 1.101 2019/08/05 20:46:00 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -647,7 +647,8 @@ dlg_ok_buttoncode(int button)
     } else if (dialog_vars.help_button && (button == n)) {
 	result = DLG_EXIT_HELP;
     }
-    DLG_TRACE(("# dlg_ok_buttoncode(%d) = %d\n", button, result));
+    DLG_TRACE(("# dlg_ok_buttoncode(%d) = %d:%s\n",
+	       button, result, dlg_exitcode2s(result)));
     return result;
 }
 

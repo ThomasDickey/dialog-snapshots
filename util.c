@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.274 2019/07/25 00:00:19 tom Exp $
+ *  $Id: util.c,v 1.275 2019/08/05 21:42:22 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -26,6 +26,7 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+#include <dlg_internals.h>
 
 #include <sys/time.h>
 
@@ -89,14 +90,13 @@ DIALOG_VARS dialog_vars;
 #define COLOR_DATA(upr)		/*nothing */
 #endif
 
-#define DATA(atr,upr,lwr,cmt) { atr COLOR_DATA(upr) RC_DATA(lwr,cmt) }
-
 #define UseShadow(dw) ((dw) != 0 && (dw)->normal != 0 && (dw)->shadow != 0)
 
 /*
  * Table of color and attribute values, default is for mono display.
  * The order matches the DIALOG_ATR() values.
  */
+#define DATA(atr,upr,lwr,cmt) { atr COLOR_DATA(upr) RC_DATA(lwr,cmt) }
 /* *INDENT-OFF* */
 DIALOG_COLORS dlg_color_table[] =
 {
@@ -139,6 +139,7 @@ DIALOG_COLORS dlg_color_table[] =
     DATA(A_REVERSE,	SEARCHBOX_BORDER2,	searchbox_border2, "Search box border2"),
     DATA(A_REVERSE,	MENUBOX_BORDER2,	menubox_border2, "Menu box border2")
 };
+#undef DATA
 /* *INDENT-ON* */
 
 /*
@@ -1806,6 +1807,54 @@ dlg_exit(int code)
 	}
 	_exit(code);
     }
+}
+
+#define DATA(name) { DLG_EXIT_ ## name, #name }
+/* *INDENT-OFF* */
+static struct {
+    int code;
+    const char *name;
+} exit_codenames[] = {
+    DATA(ESC),
+    DATA(UNKNOWN),
+    DATA(ERROR),
+    DATA(OK),
+    DATA(CANCEL),
+    DATA(HELP),
+    DATA(EXTRA),
+    DATA(ITEM_HELP),
+};
+#undef DATA
+/* *INDENT-ON* */
+
+const char *
+dlg_exitcode2s(int code)
+{
+    const char *result = "?";
+    size_t n;
+
+    for (n = 0; n < TableSize(exit_codenames); ++n) {
+	if (exit_codenames[n].code == code) {
+	    result = exit_codenames[n].name;
+	    break;
+	}
+    }
+    return result;
+}
+
+int
+dlg_exitname2n(const char *name)
+{
+    int result = DLG_EXIT_UNKNOWN;
+    size_t n;
+
+    for (n = 0; n < TableSize(exit_codenames); ++n) {
+	if (!dlg_strcmp(exit_codenames[n].name, name)) {
+	    result = exit_codenames[n].code;
+	    break;
+	}
+    }
+    return result;
 }
 
 /* quit program killing all tailbg */

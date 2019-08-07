@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.71 2019/07/25 00:07:15 tom Exp $
+ *  $Id: ui_getc.c,v 1.72 2019/08/05 09:08:41 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -315,6 +315,7 @@ dlg_add_last_key(int mode)
 	} else {
 	    char temp[80];
 	    sprintf(temp, "%d", last_getc);
+	    dlg_trace_msg("# dlg_add_last_key(%s)\n", temp);
 	    dlg_add_string(temp);
 	    if (mode == -1)
 		dlg_add_separator();

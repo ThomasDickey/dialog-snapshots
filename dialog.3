@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.124 2019/07/24 22:27:09 tom Exp $
+.\" $Id: dialog.3,v 1.125 2019/08/07 00:33:05 tom Exp $
 .\" Copyright 2005-2018,2019  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2019/07/24 22:27:09 $"
+.TH \*D 3 "" "$Date: 2019/08/07 00:33:05 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1830,6 +1830,14 @@ Count the buttons in the list.
 .B const char ** \fIlabels
 is a list of (pointers to) button labels terminated by a null pointer.
 .\" ---------------------------------------------------------------------------
+.SS dlg_button_key
+If a key was bound to one of the button-codes in \fBdlg_result_key\fP, fake
+a button-value and an \*(``Cancel\*(''  key
+to cause the calling widget to return the corresponding status.
+.PP
+See \fBdlg_ok_buttoncode\fP, which maps settings for ok/extra/help and button
+number into exit-code.
+.\" ---------------------------------------------------------------------------
 .SS dlg_button_layout
 Make sure there is enough space for the buttons by
 computing the width required for their labels,
@@ -2504,6 +2512,21 @@ The \fB\*p\fP program uses this function
 to allow shell scripts to remap the exit codes so they can distinguish ESC
 from ERROR.
 .\" ---------------------------------------------------------------------------
+.SS dlg_exitcode2s
+Returns the name of an exit-code, e.g.,
+\*(``OK\*('' for \fBDLG_EXIT_OK\fP.
+.TP 5
+.B int \fIcode
+is an exit-code for \fB\*p\fP as defined in \fB<\*p.h>\fP.
+.\" ---------------------------------------------------------------------------
+.SS dlg_exitname2n
+Returns an exit-code as the reverse of \fBdlg_exitcode2n\fP, e.g.,
+0 (\fBDLG_EXIT_OK\fP) for the \*(``OK\*('' string.
+.TP 5
+.B const char * \fIname
+is the name of an exit-code for \fB\*p\fP as defined in \fB<\*p.h>\fP
+but omitting the \*(``DLG_EXIT_\*('' prefix.
+.\" ---------------------------------------------------------------------------
 .SS dlg_exit_buttoncode
 Map the given button index for \fBdlg_exit_label\fP into \fB\*p\fP's exit-code.
 .TP 5
@@ -3005,6 +3028,10 @@ into \fB\*p\fP's exit-code.
 .B int \fIbutton
 is the button-index (which is not necessarily the same as the index
 in the list of labels).
+.\" ---------------------------------------------------------------------------
+.SS dlg_ok_button_key
+Calls \fBdlg_button_key\fP with the \*(``Cancel\*('' button disabled,
+e.g., for the textbox widget.
 .\" ---------------------------------------------------------------------------
 .SS dlg_ok_label
 Returns a list with the \*(``Ok\*('' label,

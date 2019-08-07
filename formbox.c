@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.96 2019/07/25 00:06:38 tom Exp $
+ *  $Id: formbox.c,v 1.97 2019/08/05 09:15:21 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -660,8 +660,10 @@ dlg_form(const char *title,
 	}
 
 	key = dlg_mouse_wgetch((state == sTEXT) ? form : dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &code, &key, &fkey))
+		break;
+	}
 
 	/* handle non-functionkeys */
 	if (!fkey) {

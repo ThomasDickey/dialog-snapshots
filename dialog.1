@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.206 2018/11/08 01:49:28 tom Exp $
-.\" Copyright 2005-2017,2018  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.208 2019/08/06 21:28:23 tom Exp $
+.\" Copyright 2005-2018,2019  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2018/11/08 01:49:28 $"
+.TH \*D 1 "" "$Date: 2019/08/06 21:28:23 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -358,24 +358,29 @@ The help message is also printed if no options are given,
 or if an unrecognized option is given.
 .
 .IP "\fB--help-button"
-Show a help-button after \*(``OK\*('' and \*(``Cancel\*('' buttons,
-e.g., in checklist, radiolist and menu boxes,
-and other widgets which have an \*(``OK\*('' button,
-whether or not the \*(``Cancel\*('' button is used.
+Show a help-button after \*(``OK\*('' and \*(``Cancel\*('' buttons
+in boxes which have a list of tagged items
+(i.e., checklist, radiolist, menu, and treeview boxes).
 .IP
-On exit, the return status will indicate that the Help button was pressed.
-\fB\*L\fP will also write a message to its output
+On exit, the return status indicates that the Help button was pressed.
+\fB\*L\fP also writes a message to its output
 after the token \*(``HELP\*('':
 .RS
 .bP
-If "\fB--item-help\fR" is also given, the item-help text will be written.
+If "\fB--item-help\fR" is also given, the item-help text is written.
 .bP
-Otherwise, the item's tag (the first field) will be written.
+Otherwise, the item's tag (the first field) is written.
 .RE
 .IP
 .IP
 You can use the \fB--help-tags\fP option and/or set the DIALOG_ITEM_HELP
 environment variable to modify these messages and exit-status.
+.IP
+This option can be applied to other widgets,
+which have an \*(``OK\*('' button,
+whether or not the \*(``Cancel\*('' button is used.
+The return status and output are not treated specially for the other widgets;
+the help-button is just an extra button.
 .
 .IP "\fB--help-label \fIstring"
 Override the label used for \*(``Help\*('' buttons.
@@ -450,7 +455,8 @@ See the discussion of the "\fB--clear\fR" option for examples.
 .
 .IP "\fB--last-key"
 At exit, report the last key which the user entered.
-This is the curses key code rather than a symbol or literal character.
+This is the curses key code rather than a symbol or literal character,
+and is only reported for keys which are bound to an action.
 It can be used by scripts to distinguish between two keys which are
 bound to the same action.
 .

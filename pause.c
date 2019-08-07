@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.39 2018/06/19 22:57:01 tom Exp $
+ *  $Id: pause.c,v 1.41 2019/08/07 00:36:01 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2012,2018	Thomas E. Dickey
+ *  Copyright 2004-2018,2019	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -194,8 +194,8 @@ dialog_pause(const char *title,
 	    key = dlg_mouse_wgetch_nowait(dialog, &fkey);
 	    if (key == ERR) {
 		;		/* ignore errors in nodelay mode */
-	    } else {
-		if (dlg_result_key(key, fkey, &result))
+	    } else if (dlg_result_key(key, fkey, &result)) {
+		if (!dlg_button_key(result, &button, &key, &fkey))
 		    break;
 	    }
 
@@ -244,6 +244,7 @@ dialog_pause(const char *title,
 	    }
 	}
     } while ((result == DLG_EXIT_UNKNOWN) && (seconds-- > 0));
+    dlg_add_last_key(-1);
 
     curs_set(1);
     dlg_mouse_free_regions();

@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.33 2019/07/24 22:17:14 tom Exp $
+ *  $Id: treeview.c,v 1.35 2019/08/06 21:35:58 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -362,8 +362,10 @@ dlg_treeview(const char *title,
 	    wmove(dialog, box_y + choice + 1, box_x + all.check_x + 2);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	was_mouse = (fkey && is_DLGK_MOUSE(key));
 	if (was_mouse)
@@ -649,12 +651,11 @@ dialog_treeview(const char *title,
     if (show_status) {
 	for (i = 0; i < item_no; i++) {
 	    if (listitems[i].state) {
+		if (dlg_need_separator())
+		    dlg_add_separator();
 		if (dialog_vars.separate_output) {
 		    dlg_add_string(listitems[i].name);
-		    dlg_add_separator();
 		} else {
-		    if (dlg_need_separator())
-			dlg_add_separator();
 		    if (flag == FLAG_CHECK)
 			dlg_add_quoted(listitems[i].name);
 		    else
@@ -662,6 +663,8 @@ dialog_treeview(const char *title,
 		}
 	    }
 	}
+	if (dlg_need_separator())
+	    dlg_add_separator();
 	dlg_add_last_key(-1);
     }
 

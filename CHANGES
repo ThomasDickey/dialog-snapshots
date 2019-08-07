@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.637 2019/08/02 00:40:14 tom Exp $
+-- $Id: CHANGES,v 1.638 2019/08/06 22:28:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/08/06
+	+ extend --last-key feature to the remaining widgets which have
+	  ok/cancel buttons, and add logic to map keys which happen to be
+	  bound to ok/extra/cancel/help to simulate a button-press on the
+	  corresponding button (report by "sgewrk"). 
 
 2019/08/01
 	+ further fixes for dialog-config.in (report by Andrew Kosteltsev).

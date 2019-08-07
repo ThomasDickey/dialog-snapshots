@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.61 2019/07/25 00:05:00 tom Exp $
+ * $Id: timebox.c,v 1.62 2019/08/05 09:14:59 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -296,8 +296,10 @@ dialog_timebox(const char *title,
 	    dlg_set_focus(dialog, obj->window);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
-	if (dlg_result_key(key, fkey, &result))
-	    break;
+	if (dlg_result_key(key, fkey, &result)) {
+	    if (!dlg_button_key(result, &button, &key, &fkey))
+		break;
+	}
 
 	if ((key2 = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = key2;
