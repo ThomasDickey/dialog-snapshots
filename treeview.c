@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.35 2019/08/06 21:35:58 tom Exp $
+ *  $Id: treeview.c,v 1.37 2019/08/08 23:47:23 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -21,7 +21,7 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #define INDENT 3
@@ -663,9 +663,7 @@ dialog_treeview(const char *title,
 		}
 	    }
 	}
-	if (dlg_need_separator())
-	    dlg_add_separator();
-	dlg_add_last_key(-1);
+	AddLastKey();
     }
 
     dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);

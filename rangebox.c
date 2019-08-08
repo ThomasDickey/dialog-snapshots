@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.26 2019/08/05 09:14:59 tom Exp $
+ *  $Id: rangebox.c,v 1.27 2019/08/08 21:28:56 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -21,7 +21,7 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #define ONE_HIGH 1
@@ -410,8 +410,7 @@ dialog_rangebox(const char *title,
 
     sprintf(buffer, "%d", cur_value);
     dlg_add_result(buffer);
-    dlg_add_separator();
-    dlg_add_last_key(-1);
+    AddLastKey();
 
     dlg_del_window(dialog);
     dlg_mouse_free_regions();

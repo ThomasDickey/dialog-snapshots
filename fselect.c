@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.105 2019/08/06 00:38:38 tom Exp $
+ *  $Id: fselect.c,v 1.106 2019/08/08 21:28:56 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -21,7 +21,7 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #include <sys/types.h>
@@ -919,8 +919,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	    break;
 	}
     }
-    dlg_add_separator();
-    dlg_add_last_key(-1);
+    AddLastKey();
 
     dlg_unregister_window(w_text);
     dlg_del_window(dialog);

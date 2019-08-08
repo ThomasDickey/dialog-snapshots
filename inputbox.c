@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.86 2019/08/06 00:50:58 tom Exp $
+ *  $Id: inputbox.c,v 1.87 2019/08/08 21:28:56 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -24,7 +24,7 @@
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #define sTEXT -1
@@ -259,8 +259,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	    beep();
 	}
     }
-    dlg_add_separator();
-    dlg_add_last_key(-1);
+    AddLastKey();
 
     dlg_unregister_window(editor);
     dlg_del_window(dialog);
