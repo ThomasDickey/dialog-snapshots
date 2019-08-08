@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_internals.h,v 1.2 2019/08/05 21:34:54 tom Exp $
+ *  $Id: dlg_internals.h,v 1.3 2019/08/08 21:29:41 tom Exp $
  *
  *  dlg_internals.h -- runtime binding support for dialog
  *
@@ -33,6 +33,14 @@
 		name = ((NAME >= old_##NAME) \
 			? (NAME - (old_##NAME - old_##name)) \
 			: old_##name)
+
+#define AddLastKey() \
+	if (dialog_vars.last_key) { \
+	    if (dlg_need_separator()) \
+		dlg_add_separator(); \
+	    dlg_add_last_key(-1); \
+	}
+
 
 /* *INDENT-ON* */
 

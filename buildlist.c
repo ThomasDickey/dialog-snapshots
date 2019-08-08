@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.88 2019/08/06 21:08:20 tom Exp $
+ *  $Id: buildlist.c,v 1.89 2019/08/08 23:08:23 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -21,7 +21,7 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 /*
@@ -1237,7 +1237,6 @@ dialog_buildlist(const char *title,
 	if ((show_status = dialog_vars.help_status)) {
 	    if (separate_output) {
 		dlg_add_string(help_result);
-		dlg_add_separator();
 	    } else {
 		dlg_add_quoted(help_result);
 	    }
@@ -1259,9 +1258,7 @@ dialog_buildlist(const char *title,
 		}
 	    }
 	}
-	if (dlg_need_separator())
-	    dlg_add_separator();
-	dlg_add_last_key(-1);
+	AddLastKey();
     }
 
     dlg_free_columns(&listitems[0].text, (int) sizeof(DIALOG_LISTITEM), item_no);

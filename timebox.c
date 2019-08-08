@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.62 2019/08/05 09:14:59 tom Exp $
+ * $Id: timebox.c,v 1.63 2019/08/08 21:28:56 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -21,7 +21,7 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #include <time.h>
@@ -426,8 +426,7 @@ dialog_timebox(const char *title,
 	DefaultFormat(buffer, hr_box);
 
     dlg_add_result(buffer);
-    dlg_add_separator();
-    dlg_add_last_key(-1);
+    AddLastKey();
 
     return CleanupResult(result, dialog, prompt, &save_vars);
 }

@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.638 2019/08/06 22:28:23 tom Exp $
+-- $Id: CHANGES,v 1.640 2019/08/08 23:41:21 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/08/08
+	+ amend change to --last-key feature to eliminate an unnecessary
+	  separator (report by Gabriele Balducci).
 
 2019/08/06
 	+ extend --last-key feature to the remaining widgets which have
