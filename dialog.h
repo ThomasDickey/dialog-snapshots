@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.287 2019/08/05 21:30:42 tom Exp $
+ *  $Id: dialog.h,v 1.289 2019/09/25 00:57:16 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -615,12 +615,16 @@ extern DIALOG_VARS dialog_vars;
  * Table for attribute- and color-values.
  */
 typedef struct {
-    chtype atr;
+    chtype atr;			/* attribute corresponding to fg, bg, etc */
 #ifdef HAVE_COLOR
-    int fg;
-    int bg;
-    int hilite;
-#endif
+    int fg;			/* foreground color-number */
+    int bg;			/* background color-number */
+    int hilite;			/* true if bold */
+#ifdef HAVE_RC_FILE2
+    int ul;			/* true if underline */
+    int rv;			/* true if reverse */
+#endif /* HAVE_RC_FILE2 */
+#endif /* HAVE_COLOR */
 #ifdef HAVE_RC_FILE
     const char *name;
     const char *comment;

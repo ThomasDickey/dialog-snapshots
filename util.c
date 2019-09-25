@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.275 2019/08/05 21:42:22 tom Exp $
+ *  $Id: util.c,v 1.277 2019/09/25 00:57:16 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -82,13 +82,22 @@ DIALOG_VARS dialog_vars;
 
 #ifdef HAVE_COLOR
 #include <dlg_colors.h>
+#ifdef HAVE_RC_FILE2
+#define COLOR_DATA(upr) , \
+	concat(DLGC_FG_,upr), \
+	concat(DLGC_BG_,upr), \
+	concat(DLGC_HL_,upr), \
+	concat(DLGC_UL_,upr), \
+	concat(DLGC_RV_,upr)
+#else /* HAVE_RC_FILE2 */
 #define COLOR_DATA(upr) , \
 	concat(DLGC_FG_,upr), \
 	concat(DLGC_BG_,upr), \
 	concat(DLGC_HL_,upr)
-#else
+#endif /* HAVE_RC_FILE2 */
+#else /* HAVE_COLOR */
 #define COLOR_DATA(upr)		/*nothing */
-#endif
+#endif /* HAVE_COLOR */
 
 #define UseShadow(dw) ((dw) != 0 && (dw)->normal != 0 && (dw)->shadow != 0)
 
@@ -480,14 +489,16 @@ dlg_color_setup(void)
 	     sizeof(dlg_color_table[0]); i++) {
 
 	    /* Initialize color pairs */
-	    chtype color = dlg_color_pair(dlg_color_table[i].fg,
-					  dlg_color_table[i].bg);
+	    chtype atr = dlg_color_pair(dlg_color_table[i].fg,
+					dlg_color_table[i].bg);
 
-	    /* Setup color attributes */
-	    dlg_color_table[i].atr = ((dlg_color_table[i].hilite
-				       ? A_BOLD
-				       : 0)
-				      | color);
+	    atr |= (dlg_color_table[i].hilite ? A_BOLD : 0);
+#ifdef HAVE_RC_FILE2
+	    atr |= (dlg_color_table[i].ul ? A_UNDERLINE : 0);
+	    atr |= (dlg_color_table[i].rv ? A_REVERSE : 0);
+#endif /* HAVE_RC_FILE2 */
+
+	    dlg_color_table[i].atr = atr;
 	}
 #endif
     } else {
@@ -499,7 +510,7 @@ dlg_color_setup(void)
 int
 dlg_color_count(void)
 {
-    return sizeof(dlg_color_table) / sizeof(dlg_color_table[0]);
+    return TableSize(dlg_color_table);
 }
 
 /*
@@ -773,6 +784,8 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 		    break;
 		case 'n':
 		    *attr = A_NORMAL;
+		    break;
+		default:
 		    break;
 		}
 		++txt;
@@ -1755,7 +1768,7 @@ dlg_exit(int code)
     bool overridden = FALSE;
 
   retry:
-    for (n = 0; n < sizeof(table) / sizeof(table[0]); n++) {
+    for (n = 0; n < TableSize(table); n++) {
 	if (table[n].code == code) {
 	    if ((name = getenv(table[n].name)) != 0) {
 		value = strtol(name, &temp, 0);
