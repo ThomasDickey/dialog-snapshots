@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.270 2019/07/24 23:27:01 tom Exp $
+ * $Id: dialog.c,v 1.271 2019/09/24 08:26:46 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -25,6 +25,7 @@
  */
 
 #include <dialog.h>
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,6 +33,8 @@
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
 #endif
+
+#include <dlg_internals.h>
 
 #define PASSARGS             t,       av,        offset_add
 #define CALLARGS const char *t, char *av[], int *offset_add
@@ -619,7 +622,7 @@ lookupOption(const char *name, int pass)
 	unsigned n;
 
 	name += 2;
-	for (n = 0; n < sizeof(options) / sizeof(options[0]); n++) {
+	for (n = 0; n < TableSize(options); n++) {
 	    if ((pass & options[n].pass) != 0
 		&& !strcmp(name, options[n].name)) {
 		result = options[n].code;
@@ -1314,7 +1317,7 @@ button_code(const char *name)
     int code = DLG_EXIT_ERROR;
     size_t i;
 
-    for (i = 0; i < (sizeof(table) / sizeof(table[0])); i++) {
+    for (i = 0; i < TableSize(table); i++) {
 	if (!dlg_strcmp(name, table[i].name)) {
 	    code = table[i].code;
 	    break;
@@ -1419,7 +1422,7 @@ lookupMode(eOptions code)
     const Mode *modePtr = 0;
     unsigned n;
 
-    for (n = 0; n < sizeof(modes) / sizeof(modes[0]); n++) {
+    for (n = 0; n < TableSize(modes); n++) {
 	if (modes[n].code == code) {
 	    modePtr = &modes[n];
 	    break;
@@ -1475,7 +1478,7 @@ Help(void)
 	"Global-auto-size if also menu_height/list_height = 0.",
 	0
     };
-    size_t limit = sizeof(options) / sizeof(options[0]);
+    size_t limit = TableSize(options);
     size_t j, k;
     const Options **opts;
 

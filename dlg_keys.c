@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.54 2019/08/05 23:33:46 tom Exp $
+ *  $Id: dlg_keys.c,v 1.55 2019/09/23 23:50:51 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -23,12 +23,12 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+#include <dlg_internals.h>
 
 #define LIST_BINDINGS struct _list_bindings
 
 #define CHR_BACKSLASH   '\\'
 #define IsOctal(ch)     ((ch) >= '0' && (ch) <= '7')
-#define TableSize(name) (sizeof(name)/sizeof(name[0]))
 
 LIST_BINDINGS {
     LIST_BINDINGS *link;

@@ -1,7 +1,7 @@
-dnl $Id: configure.in,v 1.92 2018/06/18 08:59:49 tom Exp $
+dnl $Id: configure.in,v 1.93 2019/09/25 00:59:50 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2016,2018 -- Thomas E. Dickey
+dnl Copyright 1999-2018,2019 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -129,11 +129,20 @@ CF_ARG_MSG_ENABLE([if you want extra dialogs],
 	[  --disable-extras        do not include extra dialogs],
 	[cf_all_widgets=yes],[cf_all_widgets=no],yes)
 
+cf_use_dialogrc=yes
 CF_ARG_MSG_ENABLE([if you want config-file support],
 	rc-file,
 	[  --disable-rc-file       do not include config-file support],
 	[EXTRAOBJS="$EXTRAOBJS rc\$o"
-	 AC_DEFINE(HAVE_RC_FILE,1,[Define to 1 to include config-file support])],,$cf_all_widgets)
+	 AC_DEFINE(HAVE_RC_FILE,1,[Define to 1 to include config-file support])],cf_use_dialogrc=no,$cf_all_widgets)
+
+cf_use_dialogrc2=yes
+if test "$cf_use_dialogrc" = yes; then
+CF_ARG_MSG_ENABLE([if you want extra attributes in config-file],
+	rc-file2,
+	[  --disable-rc-file2      do not use extra attributes in config-file],
+	[AC_DEFINE(HAVE_RC_FILE2,1,[Define to 1 to use extra attributes in config-file])],cf_use_dialogrc2=no,$cf_all_widgets)
+fi
 
 CF_ARG_MSG_ENABLE([if you want Xdialog-style dialogs],
 	Xdialog,
