@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.277 2019/09/25 00:57:16 tom Exp $
+ *  $Id: util.c,v 1.279 2019/09/26 00:02:43 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -739,6 +739,8 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	y_origin = y_after = 0;
 	x_origin = x_after = 0;
     } else {
+	y_after = 0;
+	x_after = 0;
 	getyx(win, y_origin, x_origin);
     }
     while (cols > 0 && (*txt != '\0')) {
@@ -2293,9 +2295,9 @@ dlg_will_resize(WINDOW *win)
 	}
     }
     wtimeout(win, 0);
-    dlg_trace_msg("# caught %d KEY_RESIZE key%s\n",
-		  1 + caught,
-		  caught == 1 ? "" : "s");
+    DLG_TRACE(("# caught %d KEY_RESIZE key%s\n",
+	       1 + caught,
+	       caught == 1 ? "" : "s"));
 }
 #endif /* KEY_RESIZE */
 

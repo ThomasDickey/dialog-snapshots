@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.123 2019/07/22 23:25:53 tom Exp $
+dnl $Id: aclocal.m4,v 1.131 2019/09/27 00:34:14 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2018,2019 -- Thomas E. Dickey
 dnl
@@ -2345,9 +2345,10 @@ rm -rf conftest*
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_VERSION version: 7 updated: 2012/10/18 06:46:33
+dnl CF_GCC_VERSION version: 8 updated: 2019/09/07 13:38:36
 dnl --------------
-dnl Find version of gcc
+dnl Find version of gcc, and (because icc/clang pretend to be gcc without being
+dnl compatible), attempt to determine if icc/clang is actually used.
 AC_DEFUN([CF_GCC_VERSION],[
 AC_REQUIRE([AC_PROG_CC])
 GCC_VERSION=none
@@ -2357,9 +2358,11 @@ if test "$GCC" = yes ; then
 	test -z "$GCC_VERSION" && GCC_VERSION=unknown
 	AC_MSG_RESULT($GCC_VERSION)
 fi
+CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
+CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 35 updated: 2019/06/16 09:45:01
+dnl CF_GCC_WARNINGS version: 36 updated: 2019/09/07 13:38:36
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -2381,8 +2384,6 @@ dnl
 AC_DEFUN([CF_GCC_WARNINGS],
 [
 AC_REQUIRE([CF_GCC_VERSION])
-CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
-CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 if test "x$have_x" = xyes; then CF_CONST_X_STRING fi
 cat > conftest.$ac_ext <<EOF
 #line __oline__ "${as_me:-configure}"
@@ -2785,6 +2786,76 @@ then
 		;;
 	esac
 fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_LD_SEARCHPATH version: 2 updated: 2019/09/26 20:34:14
+dnl ----------------
+dnl Try to obtain the linker's search-path, for use in scripts.
+dnl
+dnl Ignore LD_LIBRARY_PATH, etc.
+AC_DEFUN([CF_LD_SEARCHPATH],[
+AC_CACHE_CHECK(for linker search path,cf_cv_ld_searchpath,[
+
+if test "$cross_compiling" != yes ; then
+
+# GNU binutils' ld does not involve permissions which may stop ldconfig.
+cf_pathlist=`ld --verbose 2>/dev/null | grep SEARCH_DIR | sed -e 's,SEARCH_DIR[[("=]][[("=]]*,,g' -e 's/"[[)]];//gp' | sort -u`
+
+# The -NX options tell newer versions of Linux ldconfig to not attempt to
+# update the cache, which makes it run faster.
+test -z "$cf_pathlist" && \
+	cf_pathlist=`ldconfig -NX -v 2>/dev/null | sed -e '/^[[ 	]]/d' -e 's/:$//' | sort -u`
+
+test -z "$cf_pathlist" &&
+	cf_pathlist=`ldconfig -v 2>/dev/null | sed -n -e '/^[[ 	]]/d' -e 's/:$//p' | sort -u`
+
+# This works with OpenBSD 6.5, which lists only filenames
+test -z "$cf_pathlist" &&
+	cf_pathlist=`ldconfig -v 2>/dev/null | sed -n -e 's,^Adding \(.*\)/.*[$],\1,p' | sort -u`
+
+if test -z "$cf_pathlist"
+then
+	# dyld default path with MacOS
+	if test -f /usr/bin/otool && test "x`uname -s`" = xDarwin
+	then
+		# do this to bypass check
+		cf_cv_ld_searchpath='$HOME/lib'
+		cf_pathlist="/usr/local/lib /lib /usr/lib"
+	fi
+fi
+
+if test -z "$cf_pathlist"
+then
+	# Solaris is hardcoded
+	if test -d /opt/SUNWspro/lib
+	then
+		cf_pathlist="/opt/SUNWspro/lib /usr/ccs/lib /usr/lib"
+	elif test -d /usr/ccs/lib
+	then
+		cf_pathlist="/usr/ccs/lib /usr/lib"
+	fi
+fi
+
+fi
+
+# If nothing else, assume it is conventional
+test -z "$cf_pathlist" && cf_pathlist="/usr/lib /lib"
+
+# Finally, check that this is only directories
+for cf_path in [$]0 $cf_pathlist
+do
+	if test -d "$cf_path"; then
+		test -n "$cf_cv_ld_searchpath" && cf_cv_ld_searchpath="${cf_cv_ld_searchpath} "
+		cf_cv_ld_searchpath="${cf_cv_ld_searchpath}${cf_path}"
+	fi
+done
+
+# Ensure that it is nonempty
+test -z "$cf_cv_ld_searchpath" && cf_cv_ld_searchpath=/usr/lib
+])
+
+LD_SEARCHPATH=`echo "$cf_cv_ld_searchpath"|sed -e 's/ /|/g'`
+AC_SUBST(LD_SEARCHPATH)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_LIBRARY_PATH version: 10 updated: 2015/04/15 19:08:48

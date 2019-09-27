@@ -1,5 +1,5 @@
 #!@SHELL@
-# $Id: dialog-config.in,v 1.11 2019/08/02 00:20:15 tom Exp $
+# $Id: dialog-config.in,v 1.13 2019/09/26 00:50:46 tom Exp $
 ##############################################################################
 # Copyright (c) 2007-2012,2019 Thomas E. Dickey                              #
 #                                                                            #
@@ -60,10 +60,50 @@ while test $# -gt 0; do
 	[ -z "$includedir" ] && includedir="${prefix}/include" 
 
 	eval LDFLAGS='"@LDFLAGS@"'
-	[ -z "$LDFLAGS" ] && LDFLAGS="-L${exec_prefix}/lib"
-
 	eval LIBS='"@LIBS@"'
 	LIBS="-l${THIS} $LIBS"
+
+	# If the directory given by --libdir is not in the LDFLAGS+LIBS set,
+	# prepend it to LDFLAGS to help link this application's library.
+	found=no
+	for opt in $LDFLAGS $LIBS
+	do
+		if [ "x$-L${libdir}" = "x$opt" ]
+		then
+			found=yes
+			break
+		fi
+	done
+	if [ $found = no ]
+	then
+		[ -n "$LFLAGS" ] && LDFLAGS=" $LFDLAGS"
+		LDFLAGS="-L${libdir}$LDFLAGS"
+	fi
+	[ -z "$LDFLAGS" ] && LDFLAGS="-L${exec_prefix}/lib"
+
+	# Ignore -L options which do not correspond to an actual directory,
+	# or which are standard library directories (i.e., the linker is
+	# supposed to search those directories).
+	#
+	# There is no portable way to find the list of standard library
+	# directories.  Require a POSIX shell anyway, to keep this simple.
+	lib_flags=
+	for opt in $LDFLAGS $LIBS
+	do
+		case $opt in
+		-L*)
+			[ -d ${opt##-L} ] || continue
+			case ${opt##-L} in
+			@LD_SEARCHPATH@) # skip standard libdir
+				continue
+				;;
+			*)
+				;;
+			esac
+			;;
+		esac
+		lib_flags="$lib_flags $opt"
+	done
 
 	case "$1" in
 	-*=*)
@@ -106,17 +146,22 @@ ENDECHO
 		echo
 		;;
 	--libs)
-		sed -e 's,^[ ]*,,' -e 's, [ ]*, ,g' -e 's,[ ]*$,,' <<-ENDECHO
-			$LIBS
-ENDECHO
+		OPTS=
+		for opt in $lib_flags
+		do
+			[ -n "$OPTS" ] && OPTS="$OPTS "
+			OPTS="${OPTS}${opt}"
+		done
+		printf "%s\n" "$OPTS"
 		;;
 	--libs-only-L)
 		OPTS=
-		for opt in $LDFLAGS $LIBS
+		for opt in $lib_flags
 		do
 			case "x$opt" in
 			x-L*)
-				OPTS="$OPTS $opt"
+				[ -n "$OPTS" ] && OPTS="$OPTS "
+				OPTS="${OPTS}${opt}"
 				;;
 			esac
 		done
@@ -124,11 +169,12 @@ ENDECHO
 		;;
 	--libs-only-l)
 		OPTS=
-		for opt in $LDFLAGS $LIBS
+		for opt in $lib_flags
 		do
 			case "x$opt" in
 			x-l*)
-				OPTS="$OPTS $opt"
+				[ -n "$OPTS" ] && OPTS="$OPTS "
+				OPTS="${OPTS}${opt}"
 				;;
 			esac
 		done
@@ -136,13 +182,14 @@ ENDECHO
 		;;
 	--libs-only-other)
 		OPTS=
-		for opt in $LDFLAGS $LIBS
+		for opt in $lib_flags
 		do
 			case "x$opt" in
 			x-[lL]*)
 				;;
 			*)
-				OPTS="$OPTS $opt"
+				[ -n "$OPTS" ] && OPTS="$OPTS "
+				OPTS="${OPTS}${opt}"
 				;;
 			esac
 		done
