@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.55 2019/09/23 23:50:51 tom Exp $
+ *  $Id: dlg_keys.c,v 1.56 2019/09/25 08:58:48 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -274,7 +274,7 @@ dlg_result_key(int dialog_key, int fkey GCC_UNUSED, int *resultp)
 {
     int done = FALSE;
 
-    dlg_trace_msg("# dlg_result_key(dialog_key=%d, fkey=%d)\n", dialog_key, fkey);
+    DLG_TRACE(("# dlg_result_key(dialog_key=%d, fkey=%d)\n", dialog_key, fkey));
 #ifdef KEY_RESIZE
     if (dialog_state.had_resize) {
 	if (dialog_key == ERR) {
@@ -375,8 +375,8 @@ dlg_button_key(int exit_code, int *button, int *dialog_key, int *fkey)
 	break;
     }
     if (changed) {
-	dlg_trace_msg("# dlg_button_key(%d:%s) button %d\n",
-		      exit_code, dlg_exitcode2s(exit_code), *button);
+	DLG_TRACE(("# dlg_button_key(%d:%s) button %d\n",
+		   exit_code, dlg_exitcode2s(exit_code), *button));
 	*dialog_key = *fkey = DLGK_ENTER;
     }
     return changed;

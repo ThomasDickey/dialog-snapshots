@@ -1,8 +1,18 @@
--- $Id: CHANGES,v 1.641 2019/09/25 00:35:36 tom Exp $
+-- $Id: CHANGES,v 1.646 2019/09/27 01:23:53 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/09/26
+	+ improve dialog-config script's filtering of -L options using the
+	  linker default directories.
+	+ improve dialog-config script, adding a -L option corresponding to
+	  the configure --libdir option if it would be a duplicate (report by
+	  Andrew Kosteltsev).
+	+ build-fix for configure --disable-trace
+	+ updated pt.po from
+		http://translationproject.org/latest/dialog/
 
 2019/09/24
 	+ allow for underline- and reverse-video flags in the ".rc" file
