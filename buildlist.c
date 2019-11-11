@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.89 2019/08/08 23:08:23 tom Exp $
+ *  $Id: buildlist.c,v 1.90 2019/11/11 01:41:43 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -653,8 +653,7 @@ dlg_buildlist(const char *title,
      * After displaying the prompt, we know how much space we really have.
      * Limit the list to avoid overwriting the ok-button.
      */
-    if (all.use_height + MIN_HIGH > height - cur_y)
-	all.use_height = height - MIN_HIGH - cur_y;
+    all.use_height = height - MIN_HIGH - cur_y;
     if (all.use_height <= 0)
 	all.use_height = 1;
 

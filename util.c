@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.279 2019/09/26 00:02:43 tom Exp $
+ *  $Id: util.c,v 1.280 2019/11/10 23:20:58 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1886,6 +1886,13 @@ dlg_exiterr(const char *fmt, ...)
     (void) vfprintf(stderr, fmt, ap);
     va_end(ap);
     (void) fputc('\n', stderr);
+
+#ifdef HAVE_DLG_TRACE
+    va_start(ap, fmt);
+    dlg_trace_msg("## Error: ");
+    dlg_trace_va_msg(fmt, ap);
+    va_end(ap);
+#endif
 
     dlg_killall_bg(&retval);
 

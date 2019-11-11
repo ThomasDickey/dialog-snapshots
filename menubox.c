@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.164 2019/08/08 21:00:23 tom Exp $
+ *  $Id: menubox.c,v 1.166 2019/11/11 01:41:15 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -166,8 +166,18 @@ input_menu_edit(ALL_DATA * data,
 
     /* taken out of inputbox.c - but somewhat modified */
     for (;;) {
-	if (!first)
+	if (!first) {
+	    int check = DLG_EXIT_UNKNOWN;
 	    key = dlg_mouse_wgetch(data->menu, &fkey);
+	    if (dlg_result_key(key, fkey, &check)) {
+		if (check == DLG_EXIT_CANCEL) {
+		    code = FALSE;
+		    break;
+		} else {
+		    flash();
+		}
+	    }
+	}
 	if (dlg_edit_string(result, &offset, key, fkey, first)) {
 	    dlg_show_string(data->menu, result, offset, inputbox_attr,
 			    y,
@@ -423,8 +433,7 @@ dlg_menu(const char *title,
      * After displaying the prompt, we know how much space we really have.
      * Limit the list to avoid overwriting the ok-button.
      */
-    if (all.menu_height + MIN_HIGH > height - cur_y)
-	all.menu_height = height - MIN_HIGH - cur_y;
+    all.menu_height = height - MIN_HIGH - cur_y;
     if (all.menu_height <= 0)
 	all.menu_height = 1;
 

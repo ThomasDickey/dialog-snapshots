@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.106 2019/08/08 21:28:56 tom Exp $
+ *  $Id: fselect.c,v 1.107 2019/11/11 00:48:13 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -632,10 +632,8 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 #ifdef KEY_RESIZE
   retry:
 #endif
-    dlg_auto_size(title, (char *) 0, &height, &width, 6, 25);
-    height += MIN_HIGH + min_items;
-    if (width < min_wide)
-	width = min_wide;
+    dlg_auto_size(title, "", &height, &width, MIN_HIGH + min_items, min_wide);
+
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);
 

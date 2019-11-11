@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.37 2019/08/08 23:47:23 tom Exp $
+ *  $Id: treeview.c,v 1.38 2019/11/11 01:38:22 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -291,8 +291,7 @@ dlg_treeview(const char *title,
      * After displaying the prompt, we know how much space we really have.
      * Limit the list to avoid overwriting the ok-button.
      */
-    if (use_height + MIN_HIGH > height - cur_y)
-	use_height = height - MIN_HIGH - cur_y;
+    use_height = height - MIN_HIGH - cur_y;
     if (use_height <= 0)
 	use_height = 1;
 

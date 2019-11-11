@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.289 2019/09/25 00:57:16 tom Exp $
+ *  $Id: dialog.h,v 1.290 2019/11/10 23:17:37 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -871,6 +871,7 @@ extern int dlg_strcmp(const char * /*a*/, const char * /*b*/);
 #ifdef HAVE_DLG_TRACE
 #define DLG_TRACE(params) dlg_trace_msg params
 extern void dlg_trace_msg(const char *fmt, ...) GCC_PRINTFLIKE(1,2);
+extern void dlg_trace_va_msg(const char *fmt, va_list ap);
 #define DLG_TRACE2S(name,value) dlg_trace_2s (name,value)
 #define DLG_TRACE2N(name,value) dlg_trace_2n (name,value)
 extern void dlg_trace_2s(const char * /*name*/, const char * /*value*/);
@@ -882,6 +883,7 @@ extern void dlg_trace(const char * /*fname*/);
 #define DLG_TRACE(params) /* nothing */
 #define DLG_TRACE2S(name,value) /* nothing */
 #define DLG_TRACE2N(name,value) /* nothing */
+#define dlg_trace_va_msg(fmt, ap) /* nothing */
 #define dlg_trace_win(win) /* nothing */
 #define dlg_trace_chr(ch,fkey) /* nothing */
 #define dlg_trace(fname) /* nothing */
