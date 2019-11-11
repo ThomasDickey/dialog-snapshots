@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.162 2019/08/05 09:14:59 tom Exp $
+ *  $Id: checklist.c,v 1.163 2019/11/11 01:26:35 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -304,8 +304,7 @@ dlg_checklist(const char *title,
      * After displaying the prompt, we know how much space we really have.
      * Limit the list to avoid overwriting the ok-button.
      */
-    if (all.use_height + MIN_HIGH > height - cur_y)
-	all.use_height = height - MIN_HIGH - cur_y;
+    all.use_height = height - MIN_HIGH - cur_y;
     if (all.use_height <= 0)
 	all.use_height = 1;
 

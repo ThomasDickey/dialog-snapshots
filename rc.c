@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.56 2019/09/25 00:57:16 tom Exp $
+ *  $Id: rc.c,v 1.57 2019/11/10 23:25:25 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -515,6 +515,7 @@ static void
 report_error(const char *filename, int line_no, const char *msg)
 {
     fprintf(stderr, "%s:%d: %s\n", filename, line_no, msg);
+    dlg_trace_msg("%s:%d: %s\n", filename, line_no, msg);
 }
 
 /*

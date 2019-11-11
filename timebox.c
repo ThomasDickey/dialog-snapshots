@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.63 2019/08/08 21:28:56 tom Exp $
+ * $Id: timebox.c,v 1.64 2019/11/11 01:34:33 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -210,11 +210,8 @@ dialog_timebox(const char *title,
 #endif
 
     prompt = dlg_strclone(subtitle);
-    dlg_auto_size(title, prompt, &height, &width, 0, 0);
+    dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
 
-    height += MIN_HIGH;
-    if (width < MIN_WIDE)
-	width = MIN_WIDE;
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);

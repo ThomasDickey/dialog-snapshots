@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.29 2019/07/24 23:50:46 tom Exp $
+ *  $Id: trace.c,v 1.30 2019/11/10 23:20:33 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -49,6 +49,15 @@ dlg_trace_msg(const char *fmt, ...)
 	va_start(ap, fmt);
 	vfprintf(myFP, fmt, ap);
 	va_end(ap);
+	fflush(myFP);
+    }
+}
+
+void
+dlg_trace_va_msg(const char *fmt, va_list ap)
+{
+    if (myFP != 0) {
+	vfprintf(myFP, fmt, ap);
 	fflush(myFP);
     }
 }
