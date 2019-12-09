@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.211 2019/11/10 22:40:30 tom Exp $
+.\" $Id: dialog.1,v 1.212 2019/12/09 10:07:30 tom Exp $
 .\" Copyright 2005-2018,2019  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2019/11/10 22:40:30 $"
+.TH \*D 1 "" "$Date: 2019/12/09 10:07:30 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -452,7 +452,8 @@ it clears the old widget from the screen by painting over it.
 Use this option to suppress that repainting.
 .IP
 At exit, \fB\*p\fR repaints all of the widgets which have been
-marked with \*(``\fB--keep-window\fR\*('', even if they are not \fBtailboxbg\fR widgets.
+marked with \*(``\fB--keep-window\fR\*('',
+even if they are not \fBtailboxbg\fR widgets.
 That causes them to be repainted in reverse order.
 See the discussion of the \*(``\fB--clear\fR\*('' option for examples.
 .
@@ -601,7 +602,7 @@ if they are omitted, \fB\*p\fP autosizes according to the screen dimensions.
 .IP "\fB--print-version"
 Prints \fB\*p\fR's version to \fB\*p\fP's output.
 This may be used alone, without other options.
-It does not cause \fBdialog\fP to exit by itself.
+It does not cause \fB\*l\fP to exit by itself.
 .
 .IP "\fB--quoted"
 Normally \fB\*p\fP quotes the strings returned by checklist's
@@ -686,7 +687,8 @@ if no user response within the given number of seconds.
 A timeout of zero seconds is ignored.
 .IP
 This option is ignored by the \*(``\fB--pause\fP\*('' widget.
-It is also overridden if the background \*(``\fB--tailboxbg\fP\*('' option is used
+It is also overridden
+if the background \*(``\fB--tailboxbg\fP\*('' option is used
 to set up multiple concurrent widgets.
 .
 .IP "\fB--title \fItitle"
@@ -697,7 +699,7 @@ string to be displayed at the top of the dialog box.
 .IP "\fB--trace \fIfilename"
 logs the command-line parameters,
 keystrokes and other information to the given file.
-If \fBdialog\fP reads a configure file, it is logged as well.
+If \fB\*l\fP reads a configure file, it is logged as well.
 Piped input to the \fIgauge\fP widget is logged.
 Use control/T to log a picture of the current dialog window.
 .IP
@@ -737,7 +739,8 @@ the \fB--no-nl-expand\fP option is used.
 For more information, see \fBWhitespace Options\fP.
 .
 .IP
-See also the \*(``\fB--cr-wrap\fR\*('' and \*(``\fB--no-collapse\fR\*('' options.
+See also the \*(``\fB--cr-wrap\fR\*(''
+and \*(``\fB--no-collapse\fR\*('' options.
 .
 .IP "\fB--version"
 Prints \fB\*p\fR's version to the standard output, and exits.
@@ -808,7 +811,8 @@ If the "\fB--separate-output\fP" option is not given,
 the strings will be quoted as needed
 to make it simple for scripts to separate them.
 By default, this uses double-quotes.
-See the \*(``\fB--single-quoted\fP\*('' option, which modifies the quoting behavior.
+See the \*(``\fB--single-quoted\fP\*('' option,
+which modifies the quoting behavior.
 .
 .
 .IP "\fB--calendar \fItext height width day month year"
@@ -845,7 +849,8 @@ If the \*(``\fB--separate-output\fP\*('' option is not given,
 the strings will be quoted as needed
 to make it simple for scripts to separate them.
 By default, this uses double-quotes.
-See the \*(``\fB--single-quoted\fP\*('' option, which modifies the quoting behavior.
+See the \*(``\fB--single-quoted\fP\*('' option,
+which modifies the quoting behavior.
 .
 .
 .IP "\fB--dselect \fIfilepath height width\fR"
@@ -1140,7 +1145,7 @@ This dialog box is used to display the output of a command that is
 specified as an argument to \fBprgbox\fP.
 .IP
 After the command completes, the user can press the \fIENTER\fP key so that
-\fBdialog\fP will exit and the calling shell script can continue its operation.
+\fB\*l\fP will exit and the calling shell script can continue its operation.
 .IP
 If three parameters are given, it displays the text under the title,
 delineated from the scrolling file's contents.
@@ -1156,7 +1161,7 @@ box is that a \fBprogram\fP box displays an \fBOK\fP button
 .IP
 This dialog box is used to display the piped output of a command.
 After the command completes, the user can press the \fIENTER\fP key so that
-\fBdialog\fP will exit and the calling shell script can continue its operation.
+\fB\*l\fP will exit and the calling shell script can continue its operation.
 .IP
 If three parameters are given, it displays the text under the title,
 delineated from the scrolling file's contents.
@@ -1773,9 +1778,9 @@ NetBSD 5.1 curses has incomplete support for wide-characters.
 .\" ************************************************************************
 .SH COMPATIBILITY
 You may want to write scripts which run with
-other \fBdialog\fP \*(``clones\*(''.
+other \fB\*l\fP \*(``clones\*(''.
 .SS Original Dialog
-First, there is the \*(``original\*('' \fBdialog\fP program to consider
+First, there is the \*(``original\*('' \fB\*p\fP program to consider
 (versions 0.3 to 0.9).
 It had some misspelled (or inconsistent) options.
 The \fB\*p\fP program maps those deprecated options to the preferred ones.
@@ -1795,7 +1800,7 @@ _
 .SS Xdialog
 This is an X application, rather than a terminal program.
 With some care, it is possible to write useful scripts that work
-with both \fBXdialog\fP and \fBdialog\fP.
+with both \fBXdialog\fP and \fB\*p\fP.
 .PP
 The \fB\*p\fP program ignores these options which are recognized
 by \fBXdialog\fP:
@@ -1920,7 +1925,8 @@ There are visual differences which are not addressed by command-line options:
 \fB\*p\fP centers lists within the window.
 \fBwhiptail\fP typically puts lists against the left margin.
 .bP
-\fBwhiptail\fP uses angle brackets (\*(``<\*('' and \*(``>\*('') for marking buttons.
+\fBwhiptail\fP uses angle brackets (\*(``<\*('' and \*(``>\*('')
+for marking buttons.
 \fB\*p\fP uses square brackets.
 .bP
 \fBwhiptail\fP marks the limits of subtitles with vertical bars.

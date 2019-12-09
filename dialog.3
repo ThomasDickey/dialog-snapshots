@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.125 2019/08/07 00:33:05 tom Exp $
+.\" $Id: dialog.3,v 1.127 2019/12/09 10:04:31 tom Exp $
 .\" Copyright 2005-2018,2019  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2019/08/07 00:33:05 $"
+.TH \*D 3 "" "$Date: 2019/12/09 10:04:31 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1073,7 +1073,7 @@ is the title on the top of the widget.
 is the name of a file containing the text to display.
 This function is internally bound to F1 (function key \*(``1\*(''),
 passing \fBdialog_vars.help_file\fP as a parameter.
-The \fBdialog\fP program sets that variable when the \fB--hfile\fP option
+The \fB\*p\fP program sets that variable when the \fB--hfile\fP option
 is given.
 .TP 5
 .B int \fIheight
@@ -3522,6 +3522,25 @@ parameters, e.g.,
 DLG_TRACE(("this is dialog version %s\en", dialog_version()));
 .Ee
 .\" ---------------------------------------------------------------------------
+.SS dlg_trace_va_msg
+Write a formatted message to the trace file.
+.TP 5
+.B const char *\fIfmt
+is the format of the \fBprintf\fP-like message to write.
+.TP 5
+.B va_list \fIap
+are the variables to apply to the \fIfmt\fP format.
+.LP
+This is used in \fBdlg_exiterr\fP to capture error messages in the trace file:
+.Ex
+va_start(ap, fmt);
+dlg_trace_msg("## Error: ");
+dlg_trace_va_msg(fmt, ap);
+va_end(ap);
+.Ee
+.LP
+Unlike \fBdlg_trace_msg\fP, an extra macro is not needed.
+.\" ---------------------------------------------------------------------------
 .SS dlg_ttysize
 Returns the screensize without using curses.
 That allows the function to be used before initializing the screen.
@@ -3584,7 +3603,7 @@ The widget sets the referenced location to the index of the current display
 item (cursor) when it returns.
 .\" ---------------------------------------------------------------------------
 .SS dlg_trim_string
-The \fBdialog\fP program uses this in each widget to adjust the
+The \fB\*p\fP program uses this in each widget to adjust the
 message string,
 which may contain the newline character (referred to as '\en')
 and/or the special substring "\en"

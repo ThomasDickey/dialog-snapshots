@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.271 2019/09/24 08:26:46 tom Exp $
+ * $Id: dialog.c,v 1.272 2019/12/09 09:29:19 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1555,7 +1555,7 @@ process_trace_option(char **argv, int *offset)
  * output stream.
  */
 static int
-process_common_options(int argc, char **argv, int offset, bool output)
+process_common_options(int argc, char **argv, int offset, int output)
 {
     bool done = FALSE;
     eOptions code;
@@ -1885,7 +1885,7 @@ main(int argc, char *argv[])
     char temp[256];
     bool esc_pressed = FALSE;
     bool keep_tite = FALSE;
-    bool first_time = TRUE;
+    int initial = 1;
     int offset = 1;
     int offset_add;
     int retval = DLG_EXIT_OK;
@@ -2036,8 +2036,8 @@ main(int argc, char *argv[])
 	 * which can be done before involving curses, in case we can exit
 	 * without initializing curses (and writing to the terminal).
 	 */
-	offset = process_common_options(argc, argv, offset, TRUE);
-	if (offset >= argc)
+	initial = process_common_options(argc, argv, offset, TRUE);
+	if (initial >= argc)
 	    dlg_exit(DLG_EXIT_OK);
     }
 
@@ -2047,12 +2047,8 @@ main(int argc, char *argv[])
 	int have;
 	const Mode *modePtr;
 
-	if (first_time) {
-	    first_time = FALSE;
-	} else {
-	    init_result(my_buffer);
-	    offset = process_common_options(argc, argv, offset, TRUE);
-	}
+	init_result(my_buffer);
+	offset = process_common_options(argc, argv, offset, offset > initial);
 
 	if (argv[offset] == NULL) {
 	    if (ignore_unknown)
