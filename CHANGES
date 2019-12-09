@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.658 2019/11/11 01:44:09 tom Exp $
+-- $Id: CHANGES,v 1.660 2019/12/09 09:35:39 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/12/09
+	+ amend change for parsing command-options before calling init_dialog,
+	  to handle --no-shadow, etc., which are initialized in init_dialog
+	  (report by Paul Cercueil, cf: 2018/06/21).
+	+ add dlg_trace_va_msg to manpage, symbol files.
 
 2019/11/10
 	+ improve layout of several widgets' data area when maximizing. 
