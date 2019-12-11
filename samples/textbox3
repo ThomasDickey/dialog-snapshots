@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: textbox3,v 1.6 2010/01/13 10:37:01 tom Exp $
+# $Id: textbox3,v 1.7 2019/12/11 00:05:22 tom Exp $
 
 . ./setup-vars
 
@@ -8,8 +8,8 @@
 TEXT=/usr/share/common-licenses/GPL
 test -f $TEXT || TEXT=../COPYING
 
-cat textbox.txt | expand > $tempfile
-cat $TEXT | expand >> $tempfile
+expand < textbox.txt > $tempfile
+expand < $TEXT >> $tempfile
 
 $DIALOG --clear --title "TEXT BOX" \
 	--extra-button "$@" \

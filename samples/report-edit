@@ -1,11 +1,11 @@
 #!/bin/sh
-# $Id: report-edit,v 1.4 2012/06/29 09:29:41 tom Exp $
+# $Id: report-edit,v 1.5 2019/12/11 01:23:08 tom Exp $
 # Report results from editing.
 # vile:shmode
 
-case $retval in
+case ${retval:-0} in
   $DIALOG_OK)
-    diff -c $input $output
+    diff -c "${input:-input}" "${output:-output}"
     echo "OK"
     ;;
   $DIALOG_CANCEL)

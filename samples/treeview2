@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: treeview2,v 1.3 2012/12/23 22:28:00 tom Exp $
+# $Id: treeview2,v 1.4 2019/12/11 01:49:01 tom Exp $
 
 . ./setup-vars
 
@@ -44,7 +44,7 @@ EOF
 
 $DIALOG --title "TREE VIEW DIALOG" \
 	--scrollbar \
-	--treeview "TreeView demo" 0 0 10 `cat $input | sed -e 's/:/ /g'` 2> $output
+	--treeview "TreeView demo" 0 0 10 `sed -e 's/:/ /g' "$input"` 2> $output
 
 retval=$?
 

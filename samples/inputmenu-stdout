@@ -1,5 +1,5 @@
 #! /bin/sh
-# $Id: inputmenu-stdout,v 1.13 2012/07/06 18:11:12 tom Exp $
+# $Id: inputmenu-stdout,v 1.14 2019/12/11 00:32:57 tom Exp $
 # 2002 - written by Tobias Rittweiler <tobrit@freebits.de>
 
 . ./setup-vars
@@ -9,7 +9,7 @@ uid=`id|sed -e 's/^uid=//' -e 's/(.*//'`
 gid=`id|sed -e 's/^.*gid=//' -e 's/(.*//'`
 home="$HOME"
 
-while [ ${returncode:-99} -ne 1 -a ${returncode:-99} -ne 250 ]; do
+while [ "${returncode:-99}" -ne 1 ] && [ "${returncode:-99}" -ne 250 ]; do
 	value=`$DIALOG \
 		--stdout --clear --ok-label "Create" \
 		--backtitle "An Example for the use of --inputmenu:" "$@" \

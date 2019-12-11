@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.280 2019/11/10 23:20:58 tom Exp $
+ *  $Id: util.c,v 1.281 2019/12/10 22:23:19 Peter.Korsgaard Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2419,7 +2419,7 @@ dlg_strcmp(const char *a, const char *b)
 static bool
 trim_blank(char *base, char *dst)
 {
-    int count = isblank(UCH(*dst));
+    int count = !!isblank(UCH(*dst));
 
     while (dst-- != base) {
 	if (*dst == '\n') {
