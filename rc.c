@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.57 2019/11/10 23:25:25 tom Exp $
+ *  $Id: rc.c,v 1.58 2019/12/11 02:20:36 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -41,6 +41,8 @@
 #else
 #define MAX_TOKEN MIN_TOKEN
 #endif
+
+#define UNKNOWN_COLOR -2
 
 /*
  * For matching color names with color values
@@ -182,7 +184,7 @@ from_boolean(const char *str)
 static int
 from_color_name(const char *str)
 {
-    int code = -1;
+    int code = UNKNOWN_COLOR;
     size_t i;
 
     if (str != NULL && *str != '\0') {
@@ -315,9 +317,9 @@ str_to_attr(char *str, DIALOG_COLORS * result)
 	trim_token(&tokens[i]);
 
     /* validate */
-    if (-1 == (result->fg = from_color_name(tokens[0]))
-	|| -1 == (result->bg = from_color_name(tokens[1]))
-	|| -1 == (result->hilite = from_boolean(tokens[2]))
+    if (UNKNOWN_COLOR == (result->fg = from_color_name(tokens[0]))
+	|| UNKNOWN_COLOR == (result->bg = from_color_name(tokens[1]))
+	|| UNKNOWN_COLOR == (result->hilite = from_boolean(tokens[2]))
 #ifdef HAVE_RC_FILE2
 	|| (tok_count >= 4 && (result->ul = from_boolean(tokens[3])) == -1)
 	|| (tok_count >= 5 && (result->rv = from_boolean(tokens[4])) == -1)

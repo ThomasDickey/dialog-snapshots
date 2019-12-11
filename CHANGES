@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.660 2019/12/09 09:35:39 tom Exp $
+-- $Id: CHANGES,v 1.664 2019/12/11 02:27:44 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/12/10
+	+ correct rc-file lookup of "default" color (report by Grady Martin,
+	  cf: 2019/09/24).
+	+ fix several issues in the sample scripts reported by shellcheck.
+	+ fix a few spelling errors reported by codespell (report by Jens
+	  Schleusener).
+	+ correct check for return-value of isblank(), which is not necessarily
+	  0/1 (report/patch by Paul Cercueil, Peter Korsgaard, cf: 2018/05/31).
 
 2019/12/09
 	+ amend change for parsing command-options before calling init_dialog,
@@ -454,7 +463,7 @@ to it:
 
 2012/12/30 - release 1.2
 	+ improve some older changelog entries to help with HTML'izing content.
-	+ various fixes/improvments for scrollbar appearance.
+	+ various fixes/improvements for scrollbar appearance.
 	+ add mappings for some equivalent options provided by whiptail;
 	  add configure option --disable-whiptail to allow suppressing these.
 	+ add configure option --disable-Xdialog2 to allow suppressing the

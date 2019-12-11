@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.100 2019/08/08 21:28:56 tom Exp $
+ * $Id: calendar.c,v 1.101 2019/12/10 22:50:33 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -746,7 +746,7 @@ dialog_calendar(const char *title,
     dlg_does_output();
 
     /*
-     * Unless overrridden, the current time/date is our starting point.
+     * Unless overridden, the current time/date is our starting point.
      */
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
