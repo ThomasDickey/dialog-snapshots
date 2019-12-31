@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.132 2019/11/04 09:39:28 tom Exp $
+dnl $Id: aclocal.m4,v 1.134 2019/12/31 20:44:32 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2018,2019 -- Thomas E. Dickey
 dnl
@@ -3553,7 +3553,7 @@ EOF
 test "$cf_cv_ncurses_version" = no || AC_DEFINE(NCURSES,1,[Define to 1 if we are using ncurses headers/libraries])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NL_LANGINFO_1STDAY version: 1 updated: 2016/02/08 19:06:25
+dnl CF_NL_LANGINFO_1STDAY version: 2 updated: 2019/12/31 15:39:51
 dnl ---------------------
 dnl glibc locale support has runtime extensions which might be implemented in
 dnl other systems.
@@ -3570,7 +3570,7 @@ AC_CACHE_CHECK(if runtime has nl_langinfo support for first weekday,
 ],[cf_nl_langinfo_1stday=no
 ])
 ])
-test "x$cf_nl_langinfo_1stday" = xyes && AC_DEFINE(HAVE_NL_LANGINFO_1STDAY)
+test "x$cf_nl_langinfo_1stday" = xyes && AC_DEFINE(HAVE_NL_LANGINFO_1STDAY,1,[Define to 1 if runtime has nl_langinfo support for first weekday])
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_NO_LEAKS_OPTION version: 6 updated: 2015/04/12 15:39:00
@@ -3905,11 +3905,15 @@ AC_DEFUN([CF_PROG_AR],[
 AC_CHECK_TOOL(AR, ar, ar)
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_CC version: 4 updated: 2014/07/12 18:57:58
+dnl CF_PROG_CC version: 5 updated: 2019/12/31 08:53:54
 dnl ----------
 dnl standard check for CC, plus followup sanity checks
 dnl $1 = optional parameter to pass to AC_PROG_CC to specify compiler name
 AC_DEFUN([CF_PROG_CC],[
+CF_ACVERSION_CHECK(2.53,
+	[AC_MSG_WARN(this will incorrectly handle gnatgcc choice)
+	 AC_REQUIRE([AC_PROG_CC])],
+	[])
 ifelse($1,,[AC_PROG_CC],[AC_PROG_CC($1)])
 CF_GCC_VERSION
 CF_ACVERSION_CHECK(2.52,
@@ -3963,11 +3967,16 @@ AC_SUBST(GROFF_NOTE)
 AC_SUBST(NROFF_NOTE)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_LINT version: 3 updated: 2016/05/22 15:25:54
+dnl CF_PROG_LINT version: 4 updated: 2019/11/20 18:55:37
 dnl ------------
 AC_DEFUN([CF_PROG_LINT],
 [
 AC_CHECK_PROGS(LINT, lint cppcheck splint)
+case "x$LINT" in
+(xcppcheck|x*/cppcheck)
+	test -z "$LINT_OPTS" && LINT_OPTS="--enable=all"
+	;;
+esac
 AC_SUBST(LINT_OPTS)
 ])dnl
 dnl ---------------------------------------------------------------------------
