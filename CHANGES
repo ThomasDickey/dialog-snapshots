@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.664 2019/12/11 02:27:44 tom Exp $
+-- $Id: CHANGES,v 1.665 2019/12/31 20:38:10 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2019/12/31
+	+ updated configure-macros.
+	+ update config.guess
 
 2019/12/10
 	+ correct rc-file lookup of "default" color (report by Grady Martin,
