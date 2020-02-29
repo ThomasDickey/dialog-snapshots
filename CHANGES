@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.665 2019/12/31 20:38:10 tom Exp $
+-- $Id: CHANGES,v 1.666 2020/02/29 01:30:10 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2020/02/28
+	+ updated configure-macros, to work around ncurses vs xcode's c99 -W
+	+ update config.guess
 
 2019/12/31
 	+ updated configure-macros.
