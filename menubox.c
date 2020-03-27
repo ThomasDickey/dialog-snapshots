@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.166 2019/11/11 01:41:15 tom Exp $
+ *  $Id: menubox.c,v 1.168 2020/03/26 22:43:24 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -740,9 +740,7 @@ dlg_menu(const char *title,
 		resizeit(height, LINES);
 		resizeit(width, COLS);
 		free(prompt);
-		dlg_clear();
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
+		_dlg_resize_cleanup(dialog);
 		/* repaint */
 		goto retry;
 #endif

@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.290 2019/11/10 23:17:37 tom Exp $
+ *  $Id: dialog.h,v 1.294 2020/03/26 23:05:13 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -192,6 +192,7 @@
 /* how many spaces is a tab long (default)? */
 #define TAB_LEN 8
 #define WTIMEOUT_VAL        10	/* minimum amount of time needed for curses */
+#define WTIMEOUT_OFF        -1	/* value to disable timeout */
 
 #ifndef A_CHARTEXT
 #define A_CHARTEXT 0xff
@@ -442,6 +443,7 @@ typedef struct _dlg_windows {
     struct _dlg_windows *next;
     WINDOW *normal;
     WINDOW *shadow;
+    int getc_timeout;
 } DIALOG_WINDOWS;
 
 /*
@@ -817,6 +819,7 @@ extern int dlg_default_button(void);
 extern int dlg_exitname2n(const char * /*name*/);
 extern int dlg_max_input(int /*max_len*/);
 extern int dlg_print_scrolled(WINDOW * /* win */, const char * /* prompt */, int /* offset */, int /* height */, int /* width */, int /* pauseopt */);
+extern int dlg_set_timeout(WINDOW * /* win */, bool /* will_getc */);
 extern void dlg_add_help_formitem(int * /* result */, char ** /* tag */, DIALOG_FORMITEM * /* item */);
 extern void dlg_add_help_listitem(int * /* result */, char ** /* tag */, DIALOG_LISTITEM * /* item */);
 extern void dlg_add_quoted(char * /*string*/);
@@ -845,6 +848,7 @@ extern void dlg_print_listitem(WINDOW * /*win*/, const char * /*text*/, int /*cl
 extern void dlg_print_size(int /*height*/, int /*width*/);
 extern void dlg_print_text(WINDOW * /*win*/, const char * /*txt*/, int /*len*/, chtype * /*attr*/);
 extern void dlg_put_backtitle(void);
+extern void dlg_reset_timeout(WINDOW * /* win */);
 extern void dlg_restore_vars(DIALOG_VARS * /* save */);
 extern void dlg_save_vars(DIALOG_VARS * /* save */);
 extern void dlg_set_focus(WINDOW * /*parent*/, WINDOW * /*win*/);
@@ -890,6 +894,9 @@ extern void dlg_trace(const char * /*fname*/);
 #endif
 
 #ifdef KEY_RESIZE
+extern void _dlg_resize_cleanup(WINDOW * /*win*/);
+extern void _dlg_resize_clear(void);
+extern void _dlg_resize_refresh(WINDOW * /*win*/);
 extern void dlg_move_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern void dlg_will_resize(WINDOW * /*win*/);
 #endif
@@ -965,10 +972,15 @@ extern int dlg_mouse_wgetch_nowait (WINDOW * /*win*/, int * /*fkey*/);
  */
 #ifdef NO_LEAKS
 extern void _dlg_inputstr_leaks(void);
-#if defined(NCURSES_VERSION) && defined(HAVE__NC_FREE_AND_EXIT)
+#if defined(NCURSES_VERSION)
+#if defined(HAVE_CURSES_EXIT)
+/* just use curses_exit() */
+#elif defined(HAVE__NC_FREE_AND_EXIT)
 extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
+#define curses_exit(code) _nc_free_and_exit(code)
 #endif
-#endif
+#endif /* NCURSES_VERSION */
+#endif /* NO_LEAKS */
 
 #ifdef __cplusplus
 }

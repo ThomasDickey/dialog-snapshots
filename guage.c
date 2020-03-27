@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.78 2019/07/24 23:40:26 tom Exp $
+ *  $Id: guage.c,v 1.80 2020/03/26 22:44:24 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -441,7 +441,7 @@ dialog_gauge(const char *title,
 	    oldobj->obj.keep_win = FALSE;
 
 	    /* remove the old version of the gauge */
-	    dlg_clear();
+	    _dlg_resize_clear();
 	    dlg_remove_callback(&(oldobj->obj));
 	    refresh();
 

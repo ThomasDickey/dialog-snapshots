@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.90 2019/11/11 01:41:43 tom Exp $
+ *  $Id: buildlist.c,v 1.92 2020/03/26 22:43:24 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2018,2019	Thomas E. Dickey
+ *  Copyright 2012-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1101,9 +1101,7 @@ dlg_buildlist(const char *title,
 		height = old_height;
 		width = old_width;
 		free(prompt);
-		dlg_clear();
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
+		_dlg_resize_cleanup(dialog);
 		/* repaint */
 		first = TRUE;
 		goto retry;

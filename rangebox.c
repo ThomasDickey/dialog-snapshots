@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.28 2019/11/11 01:32:10 tom Exp $
+ *  $Id: rangebox.c,v 1.30 2020/03/26 22:43:24 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012-2018,2019	Thomas E. Dickey
+ *  Copyright 2012-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -378,9 +378,7 @@ dialog_rangebox(const char *title,
 		    width = old_width;
 		    /* repaint */
 		    free(prompt);
-		    dlg_clear();
-		    dlg_del_window(dialog);
-		    dlg_mouse_free_regions();
+		    _dlg_resize_cleanup(dialog);
 		    goto retry;
 #endif
 		case DLGK_MOUSE('i'):

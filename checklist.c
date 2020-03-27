@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.163 2019/11/11 01:26:35 tom Exp $
+ *  $Id: checklist.c,v 1.165 2020/03/26 22:43:24 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -578,9 +578,7 @@ dlg_checklist(const char *title,
 		height = old_height;
 		width = old_width;
 		free(prompt);
-		dlg_clear();
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
+		_dlg_resize_cleanup(dialog);
 		/* repaint */
 		goto retry;
 #endif

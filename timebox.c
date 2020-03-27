@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.64 2019/11/11 01:34:33 tom Exp $
+ * $Id: timebox.c,v 1.66 2020/03/26 22:43:24 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2018,2019   Thomas E. Dickey
+ *  Copyright 2001-2019,2020   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -360,9 +360,7 @@ dialog_timebox(const char *title,
 		    second = sc_box.value;
 		    /* repaint */
 		    free(prompt);
-		    dlg_clear();
-		    dlg_del_window(dialog);
-		    dlg_mouse_free_regions();
+		    _dlg_resize_cleanup(dialog);
 		    goto retry;
 #endif
 		default:

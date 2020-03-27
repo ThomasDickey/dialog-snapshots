@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.73 2019/09/25 08:56:42 tom Exp $
+ *  $Id: ui_getc.c,v 1.74 2020/03/23 23:55:01 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- *  Copyright 2001-2018,2019	Thomas E. Dickey
+ *  Copyright 2001-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -68,7 +68,7 @@ dlg_add_callback(DIALOG_CALLBACK * p)
 {
     p->next = dialog_state.getc_callbacks;
     dialog_state.getc_callbacks = p;
-    wtimeout(p->win, WTIMEOUT_VAL);
+    dlg_set_timeout(p->win, TRUE);
 }
 
 /*
@@ -445,14 +445,9 @@ dlg_getc(WINDOW *win, int *fkey)
     bool done = FALSE;
     bool literal = FALSE;
     DIALOG_CALLBACK *p = 0;
-    int interval = (dialog_vars.timeout_secs * 1000);
+    int interval = dlg_set_timeout(win, may_handle_inputs());
     time_t expired = time((time_t *) 0) + dialog_vars.timeout_secs;
     time_t current;
-
-    if (may_handle_inputs())
-	wtimeout(win, WTIMEOUT_VAL);
-    else if (interval > 0)
-	wtimeout(win, interval);
 
     while (!done) {
 	bool handle_others = FALSE;

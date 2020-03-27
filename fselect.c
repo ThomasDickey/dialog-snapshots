@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.107 2019/11/11 00:48:13 tom Exp $
+ *  $Id: fselect.c,v 1.109 2020/03/26 22:44:24 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -869,10 +869,9 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		*current = 0;
 		resized = TRUE;
 		/* repaint */
-		dlg_clear();
-		dlg_del_window(dialog);
-		refresh();
-		dlg_mouse_free_regions();
+		free_list(&d_list, FALSE);
+		free_list(&f_list, FALSE);
+		_dlg_resize_refresh(dialog);
 		goto retry;
 #endif
 	    default:
