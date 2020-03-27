@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.281 2019/12/10 22:23:19 Peter.Korsgaard Exp $
+ *  $Id: util.c,v 1.285 2020/03/26 23:14:46 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -163,6 +163,7 @@ add_subwindow(WINDOW *parent, WINDOW *child)
     if (p != 0) {
 	p->normal = parent;
 	p->shadow = child;
+	p->getc_timeout = WTIMEOUT_OFF;
 	p->next = dialog_state.all_subwindows;
 	dialog_state.all_subwindows = p;
     }
@@ -241,6 +242,30 @@ dlg_clear(void)
 {
     dlg_attr_clear(stdscr, LINES, COLS, screen_attr);
 }
+
+#ifdef KEY_RESIZE
+void
+_dlg_resize_clear(void)
+{
+    dlg_clear();
+    dlg_put_backtitle();
+}
+
+void
+_dlg_resize_cleanup(WINDOW *w)
+{
+    _dlg_resize_clear();
+    dlg_del_window(w);
+    dlg_mouse_free_regions();
+}
+
+void
+_dlg_resize_refresh(WINDOW *w)
+{
+    _dlg_resize_cleanup(w);
+    refresh();
+}
+#endif /* KEY_RESIZE */
 
 #define isprivate(s) ((s) != 0 && strstr(s, "\033[?") != 0)
 
@@ -692,15 +717,17 @@ dlg_print_listitem(WINDOW *win,
 	attrs[0] = tag_attr;
 
 	dlg_attrset(win, selected ? attrs[3] : attrs[2]);
-	(void) waddnstr(win, text, indx[1]);
+	if (*text != '\0') {
+	    (void) waddnstr(win, text, indx[1]);
 
-	if ((int) strlen(text) > indx[1]) {
-	    limit = dlg_limit_columns(text, climit, 1);
-	    if (limit > 1) {
-		dlg_attrset(win, selected ? attrs[1] : attrs[0]);
-		(void) waddnstr(win,
-				text + indx[1],
-				indx[limit] - indx[1]);
+	    if ((int) strlen(text) > indx[1]) {
+		limit = dlg_limit_columns(text, climit, 1);
+		if (limit > 1) {
+		    dlg_attrset(win, selected ? attrs[1] : attrs[0]);
+		    (void) waddnstr(win,
+				    text + indx[1],
+				    indx[limit] - indx[1]);
+		}
 	    }
 	}
     } else {
@@ -1798,8 +1825,8 @@ dlg_exit(int code)
 
 #ifdef NO_LEAKS
     _dlg_inputstr_leaks();
-#if defined(NCURSES_VERSION) && defined(HAVE__NC_FREE_AND_EXIT)
-    _nc_free_and_exit(code);
+#if defined(NCURSES_VERSION) && (defined(HAVE_CURSES_EXIT) || defined(HAVE__NC_FREE_AND_EXIT))
+    curses_exit(code);
 #endif
 #endif
 
@@ -2229,6 +2256,7 @@ dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
     }
     p->next = dialog_state.all_windows;
     p->normal = win;
+    p->getc_timeout = WTIMEOUT_OFF;
     dialog_state.all_windows = p;
 #ifdef HAVE_COLOR
     if (dialog_state.use_shadow) {
@@ -2275,6 +2303,50 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 }
 
 /*
+ * dlg_getc() uses the return-value to determine how to handle an ERR return
+ * from a non-blocking read:
+ * a) if greater than zero, there was an expired timeout (blocking for a short
+ *    time), or
+ * b) if zero, it was a non-blocking read, or
+ * c) if negative, an error occurred on a blocking read.
+ */
+int
+dlg_set_timeout(WINDOW *win, bool will_getc)
+{
+    DIALOG_WINDOWS *p;
+    int result = 0;
+    int interval;
+
+    if ((p = find_window(win)) != NULL) {
+	interval = (dialog_vars.timeout_secs * 1000);
+
+	if (will_getc) {
+	    interval = WTIMEOUT_VAL;
+	} else {
+	    result = interval;
+	    if (interval <= 0) {
+		interval = WTIMEOUT_OFF;
+	    }
+	}
+	wtimeout(win, interval);
+	p->getc_timeout = interval;
+    }
+    return result;
+}
+
+void
+dlg_reset_timeout(WINDOW *win)
+{
+    DIALOG_WINDOWS *p;
+
+    if ((p = find_window(win)) != NULL) {
+	wtimeout(win, p->getc_timeout);
+    } else {
+	wtimeout(win, WTIMEOUT_OFF);
+    }
+}
+
+/*
  * Having just received a KEY_RESIZE, wait a short time to ignore followup
  * KEY_RESIZE events.
  */
@@ -2301,7 +2373,7 @@ dlg_will_resize(WINDOW *win)
 	    }
 	}
     }
-    wtimeout(win, 0);
+    dlg_reset_timeout(win);
     DLG_TRACE(("# caught %d KEY_RESIZE key%s\n",
 	       1 + caught,
 	       caught == 1 ? "" : "s"));

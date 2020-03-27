@@ -1,7 +1,7 @@
-dnl $Id: configure.in,v 1.94 2019/09/26 00:35:15 tom Exp $
+dnl $Id: configure.in,v 1.96 2020/03/26 23:18:24 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2018,2019 -- Thomas E. Dickey
+dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@ dnl holders shall not be used in advertising or otherwise to promote the
 dnl sale, use or other dealings in this Software without prior written
 dnl authorization.
 dnl ---------------------------------------------------------------------------
-AC_PREREQ(2.52.20170501)
+AC_PREREQ(2.52.20200111)
 AC_INIT(dialog.h)
 AC_CONFIG_HEADER(dlg_config.h:config.hin)
 
@@ -212,7 +212,6 @@ dnl Checks for library functions.
 dnl
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(\
-_nc_free_and_exit \
 btowc \
 mblen \
 mbrlen \
@@ -249,6 +248,8 @@ wcursyncup \
 wget_wch \
 wsyncup \
 )
+
+CF_CURSES_EXIT
 
 AC_CHECK_FUNC(start_color,[AC_DEFINE(HAVE_COLOR,1,[Define to 1 if (n)curses has start_color function])])
 CF_CURSES_CHTYPE

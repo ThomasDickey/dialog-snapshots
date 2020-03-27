@@ -1,9 +1,9 @@
 /*
- *  $Id: pause.c,v 1.41 2019/08/07 00:36:01 tom Exp $
+ *  $Id: pause.c,v 1.43 2020/03/26 22:44:24 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
- *  Copyright 2004-2018,2019	Thomas E. Dickey
+ *  Copyright 2004-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -203,7 +203,7 @@ dialog_pause(const char *title,
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		dlg_will_resize(dialog);
-		dlg_clear();	/* fill the background */
+		_dlg_resize_clear();	/* fill the background */
 		dlg_del_window(dialog);		/* delete this window */
 		height = old_height;
 		width = old_width;

@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.84 2019/08/06 20:26:35 tom Exp $
+ *  $Id: msgbox.c,v 1.86 2020/03/26 22:44:24 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -138,7 +138,7 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
 		    dlg_will_resize(dialog);
-		    dlg_clear();
+		    _dlg_resize_clear();
 		    free(prompt);
 		    height = req_high;
 		    width = req_wide;

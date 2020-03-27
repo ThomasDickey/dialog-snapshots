@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.87 2019/08/08 21:28:56 tom Exp $
+ *  $Id: inputbox.c,v 1.89 2020/03/26 22:44:24 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2018,2019 Thomas E. Dickey
+ *  Copyright 2000-2019,2020 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -245,10 +245,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		dlg_clear();
-		dlg_del_window(dialog);
-		refresh();
-		dlg_mouse_free_regions();
+		_dlg_resize_refresh(dialog);
 		goto retry;
 #endif
 	    default:

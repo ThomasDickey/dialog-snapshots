@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedgauge.c,v 1.35 2019/07/25 00:06:38 tom Exp $
+ *  $Id: mixedgauge.c,v 1.36 2020/03/26 03:22:44 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
- *  Copyright 2007-2018,2019	Thomas E. Dickey
+ *  Copyright 2007-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -368,6 +368,8 @@ dlg_finish_mixedgauge(DIALOG_MIXEDGAUGE * dlg, int status)
 #endif
     curs_set(1);
     dlg_del_window(dlg->dialog);
+    free(dlg->prompt);
+    free(dlg->list);
     return status;
 }
 

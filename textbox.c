@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.121 2019/08/06 21:14:24 tom Exp $
+ *  $Id: textbox.c,v 1.123 2020/03/26 22:43:24 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2018,2019	Thomas E.  Dickey
+ *  Copyright 2000-2019,2020	Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -960,9 +960,7 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 		width = old_width;
 		back_lines(&obj, obj.page_length);
 		/* repaint */
-		dlg_clear();
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    }

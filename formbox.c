@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.98 2019/11/10 19:03:40 tom Exp $
+ *  $Id: formbox.c,v 1.100 2020/03/26 22:43:24 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2018,2019	Thomas E. Dickey
+ *  Copyright 2003-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -783,10 +783,8 @@ dlg_form(const char *title,
 		height = old_height;
 		width = old_width;
 		free(prompt);
-		dlg_clear();
+		_dlg_resize_cleanup(dialog);
 		dlg_unregister_window(form);
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
 		/* repaint */
 		goto retry;
 #endif

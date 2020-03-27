@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.74 2019/07/24 23:46:36 tom Exp $
+ *  $Id: tailbox.c,v 1.76 2020/03/26 22:44:24 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -411,10 +411,7 @@ dialog_tailbox(const char *title,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		dlg_clear();
-		dlg_del_window(dialog);
-		refresh();
-		dlg_mouse_free_regions();
+		_dlg_resize_refresh(dialog);
 		dlg_button_layout(buttons, &min_width);
 		goto retry;
 	    }

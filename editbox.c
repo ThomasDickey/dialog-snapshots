@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.74 2019/08/05 09:15:36 tom Exp $
+ *  $Id: editbox.c,v 1.76 2020/03/26 22:44:24 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2018,2019 Thomas E. Dickey
+ *  Copyright 2007-2019,2020 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -704,7 +704,7 @@ dlg_editbox(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		dlg_clear();
+		_dlg_resize_clear();
 		dlg_unregister_window(editing);
 		dlg_del_window(editing);
 		dlg_del_window(dialog);

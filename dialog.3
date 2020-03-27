@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.127 2019/12/09 10:04:31 tom Exp $
-.\" Copyright 2005-2018,2019  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.128 2020/03/24 00:26:28 tom Exp $
+.\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2019/12/09 10:04:31 $"
+.TH \*D 3 "" "$Date: 2020/03/24 00:26:28 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -3324,6 +3324,10 @@ is the index of the currently-selected item
 .B char * \fInewtext
 is the updated text for the menu item
 .\" ---------------------------------------------------------------------------
+.SS dlg_reset_timeout
+Calls \fBwtimeout\fP with the value saved for a window in the
+last call to \fBdlg_set_timeout\fP.
+.\" ---------------------------------------------------------------------------
 .SS dlg_restore_vars
 Restore \fB\*p\fP's variables from the given variable
 (see \fBdialog_save_vars\fP).
@@ -3374,6 +3378,22 @@ Setup a fixed-buffer for the result in \fBdialog_vars.input_result\fP
 .TP 5
 .B const char * \fIstring
 is the new contents for the result
+.\" ---------------------------------------------------------------------------
+.SS dlg_set_timeout
+Calls \fBwtimeout\fP to establish a preferred timeout for nonblocking
+reads, e.g., to allow the gauge widget to handle window-resizing events.
+The \fBdlg_may_resize\fP function temporarily overrides this value,
+to allow it to skip over the error codes returned while the ncurses
+library processes window-resizing events.
+It restores the value established in this call
+by calling \fBdlg_restore_timeout\fP.
+.TP 5
+.B WINDOW * \fIwin
+is the window whose input-timeout should be set
+.TP 5
+.B bool \fIwill_getc
+is true if the widget is expected to read keyboard characters.
+Some (such as the gauge widget) do not.
 .\" ---------------------------------------------------------------------------
 .SS dlg_show_string
 Displays the string, shifted as necessary, to fit within the box and show

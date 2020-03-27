@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.101 2019/12/10 22:50:33 tom Exp $
+ * $Id: calendar.c,v 1.103 2020/03/26 22:43:24 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2018,2019	Thomas E. Dickey
+ *  Copyright 2001-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -922,9 +922,7 @@ dialog_calendar(const char *title,
 		height = old_height;
 		width = old_width;
 		free(prompt);
-		dlg_clear();
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
+		_dlg_resize_cleanup(dialog);
 		/* repaint */
 		goto retry;
 #endif

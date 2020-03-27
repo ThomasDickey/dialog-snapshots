@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.38 2019/11/11 01:38:22 tom Exp $
+ *  $Id: treeview.c,v 1.40 2020/03/26 22:44:24 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2018,2019	Thomas E. Dickey
+ *  Copyright 2012-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -538,10 +538,7 @@ dlg_treeview(const char *title,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		dlg_clear();
-		dlg_del_window(dialog);
-		refresh();
-		dlg_mouse_free_regions();
+		_dlg_resize_refresh(dialog);
 		goto retry;
 #endif
 	    default:
