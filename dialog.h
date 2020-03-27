@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.294 2020/03/26 23:05:13 tom Exp $
+ *  $Id: dialog.h,v 1.296 2020/03/27 18:28:35 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -895,8 +895,6 @@ extern void dlg_trace(const char * /*fname*/);
 
 #ifdef KEY_RESIZE
 extern void _dlg_resize_cleanup(WINDOW * /*win*/);
-extern void _dlg_resize_clear(void);
-extern void _dlg_resize_refresh(WINDOW * /*win*/);
 extern void dlg_move_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern void dlg_will_resize(WINDOW * /*win*/);
 #endif

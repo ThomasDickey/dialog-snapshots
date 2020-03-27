@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.76 2020/03/26 22:44:24 tom Exp $
+ *  $Id: tailbox.c,v 1.78 2020/03/27 19:31:03 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -263,7 +263,16 @@ handle_my_getc(DIALOG_CALLBACK * cb, int ch, int fkey, int *result)
 		obj->hscroll += 1;
 	    break;
 	default:
-	    beep();
+	    if (is_DLGK_MOUSE(ch)) {
+		*result = dlg_ok_buttoncode(ch - M_EVENT);
+		if (*result != DLG_EXIT_ERROR) {
+		    done = TRUE;
+		} else {
+		    beep();
+		}
+	    } else {
+		beep();
+	    }
 	    break;
 	}
 	if ((obj->hscroll != obj->old_hscroll))
@@ -403,7 +412,7 @@ dialog_tailbox(const char *title,
     } else {
 	int ch;
 	do {
-	    ch = dlg_getc(dialog, &fkey);
+	    ch = dlg_mouse_wgetch(dialog, &fkey);
 #ifdef KEY_RESIZE
 	    if (fkey && ch == KEY_RESIZE) {
 		dlg_will_resize(dialog);
@@ -411,7 +420,7 @@ dialog_tailbox(const char *title,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		_dlg_resize_refresh(dialog);
+		_dlg_resize_cleanup(dialog);
 		dlg_button_layout(buttons, &min_width);
 		goto retry;
 	    }

@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.109 2020/03/26 22:44:24 tom Exp $
+ *  $Id: fselect.c,v 1.111 2020/03/27 20:58:52 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -362,18 +362,29 @@ match(char *name, LIST * d_list, LIST * f_list, MATCH * match_list)
     size_t test_len = strlen(test);
     char **matches = dlg_malloc(char *, (size_t) (d_list->length + f_list->length));
     size_t data_len = 0;
-    int i;
-    for (i = 2; i < d_list->length; i++) {
-	if (strncmp(test, d_list->data[i], test_len) == 0) {
-	    matches[data_len++] = d_list->data[i];
+
+    if (matches != 0) {
+	int i;
+	char **new_ptr;
+
+	for (i = 2; i < d_list->length; i++) {
+	    if (strncmp(test, d_list->data[i], test_len) == 0) {
+		matches[data_len++] = d_list->data[i];
+	    }
+	}
+	for (i = 0; i < f_list->length; i++) {
+	    if (strncmp(test, f_list->data[i], test_len) == 0) {
+		matches[data_len++] = f_list->data[i];
+	    }
+	}
+	if ((new_ptr = dlg_realloc(char *, data_len + 1, matches)) != 0) {
+	    matches = new_ptr;
+	} else {
+	    free(matches);
+	    matches = 0;
+	    data_len = 0;
 	}
     }
-    for (i = 0; i < f_list->length; i++) {
-	if (strncmp(test, f_list->data[i], test_len) == 0) {
-	    matches[data_len++] = f_list->data[i];
-	}
-    }
-    matches = dlg_realloc(char *, data_len + 1, matches);
     match_list->data = matches;
     match_list->length = (int) data_len;
 }
@@ -871,7 +882,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		/* repaint */
 		free_list(&d_list, FALSE);
 		free_list(&f_list, FALSE);
-		_dlg_resize_refresh(dialog);
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    default:

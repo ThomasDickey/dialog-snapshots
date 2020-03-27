@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.43 2020/03/26 22:44:24 tom Exp $
+ *  $Id: pause.c,v 1.46 2020/03/27 20:32:55 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -72,7 +72,7 @@ dialog_pause(const char *title,
     const char **buttons = dlg_ok_labels();
     bool have_buttons = (dlg_button_count(buttons) != 0);
     bool first;
-    int key = 0, fkey;
+    int key, fkey;
     int result = DLG_EXIT_UNKNOWN;
     int button_high = (have_buttons ? BTN_HIGH : MARGIN);
     int gauge_y;
@@ -203,12 +203,10 @@ dialog_pause(const char *title,
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		dlg_will_resize(dialog);
-		_dlg_resize_clear();	/* fill the background */
-		dlg_del_window(dialog);		/* delete this window */
 		height = old_height;
 		width = old_width;
 		free(prompt);
-		refresh();	/* get it all onto the terminal */
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    case DLGK_FIELD_NEXT:

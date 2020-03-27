@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.40 2020/03/26 22:44:24 tom Exp $
+ *  $Id: treeview.c,v 1.42 2020/03/27 20:23:03 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -196,12 +196,11 @@ dlg_treeview(const char *title,
 #endif
     ALL_DATA all;
     int i, j, key2, found, x, y, cur_y, box_x, box_y;
-    int key = 0, fkey;
+    int key, fkey;
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
     int scrollamt = 0;
     int max_choice;
-    int was_mouse;
     int use_height;
     int use_width, name_width, text_width, tree_width;
     int result = DLG_EXIT_UNKNOWN;
@@ -356,7 +355,10 @@ dlg_treeview(const char *title,
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
     dlg_trace_win(dialog);
+
     while (result == DLG_EXIT_UNKNOWN) {
+	int was_mouse;
+
 	if (button < 0)		/* --visit-items */
 	    wmove(dialog, box_y + choice + 1, box_x + all.check_x + 2);
 
@@ -538,7 +540,7 @@ dlg_treeview(const char *title,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		_dlg_resize_refresh(dialog);
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    default:

@@ -1,10 +1,16 @@
--- $Id: CHANGES,v 1.678 2020/03/26 23:16:52 tom Exp $
+-- $Id: CHANGES,v 1.683 2020/03/27 21:14:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2020/03/26
+2020/03/27
+	+ add clarification in manual page to show when the single/double
+	  quotes may be needed (prompted by discussion with Danilo G Baio).
+	+ fix an extra ".exe" in makefile.in which prevented Cygwin build.
+	+ fix most cppcheck warnings
+	+ tailbox/tailboxbg's exit-button now works with mouse-clicks
+	+ fix repainting while resizing for the editbox widget.
 	+ add configure-check for curses_exit() from ncurses 6.2
 	+ fix a few memory leaks in fselect.c, mixedgauge.c when resizing.
 	+ fix inconsistency in dlg_string_to_argv() which made the checklist9

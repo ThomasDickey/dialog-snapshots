@@ -1,5 +1,5 @@
 /*
- *  $Id: rangebox.c,v 1.30 2020/03/26 22:43:24 tom Exp $
+ *  $Id: rangebox.c,v 1.31 2020/03/27 20:30:54 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
@@ -196,7 +196,7 @@ dialog_rangebox(const char *title,
     int old_width = width;
 #endif
     VALUE data;
-    int key = 0, key2, fkey;
+    int key, fkey;
     int button;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
@@ -297,7 +297,10 @@ dialog_rangebox(const char *title,
     dlg_print_autowrap(dialog, prompt, height, width);
 
     dlg_trace_win(dialog);
+
     while (result == DLG_EXIT_UNKNOWN) {
+	int key2;
+
 	draw_value(&data, cur_value);
 	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);

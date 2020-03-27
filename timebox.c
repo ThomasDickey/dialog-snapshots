@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.66 2020/03/26 22:43:24 tom Exp $
+ * $Id: timebox.c,v 1.67 2020/03/27 20:26:21 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -176,7 +176,7 @@ dialog_timebox(const char *title,
     int old_width = width;
 #endif
     BOX hr_box, mn_box, sc_box;
-    int key = 0, key2, fkey;
+    int key, fkey;
     int button;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog;
@@ -286,6 +286,7 @@ dialog_timebox(const char *title,
 	BOX *obj = (state == sHR ? &hr_box
 		    : (state == sMN ? &mn_box :
 		       (state == sSC ? &sc_box : 0)));
+	int key2;
 
 	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);

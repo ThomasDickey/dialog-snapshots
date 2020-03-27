@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.76 2020/03/26 22:44:24 tom Exp $
+ *  $Id: editbox.c,v 1.79 2020/03/27 21:04:47 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -275,7 +275,8 @@ col_to_chr_offset(const char *text, int col)
     return result;
 }
 
-#define SCROLL_TO(target) show_all = scroll_to(pagesize, listsize, &base_row, &thisrow, target)
+#define Scroll_To(target) scroll_to(pagesize, listsize, &base_row, &thisrow, target)
+#define SCROLL_TO(target) show_all = Scroll_To(target)
 
 #define PREV_ROW (*list)[thisrow - 1]
 #define THIS_ROW (*list)[thisrow]
@@ -358,8 +359,8 @@ dlg_editbox(const char *title,
     int result = DLG_EXIT_UNKNOWN;
     int state;
     size_t max_len = (size_t) dlg_max_input(widest_line(*list));
-    char *input, *buffer;
-    bool show_all, show_one, was_mouse;
+    char *buffer;
+    bool show_all, show_one;
     bool first_trace = TRUE;
     WINDOW *dialog;
     WINDOW *editing;
@@ -439,7 +440,8 @@ dlg_editbox(const char *title,
     pagesize = getmaxy(editing);
 
     while (result == DLG_EXIT_UNKNOWN) {
-	int edit = 0;
+	bool was_mouse;
+	char *input;
 
 	if (show_all) {
 	    display_all(editing, *list, thisrow, base_row, listsize, chr_offset);
@@ -557,6 +559,8 @@ dlg_editbox(const char *title,
 	}
 
 	if (state == sTEXT) {	/* editing box selected */
+	    int edit = 0;
+
 	    /*
 	     * Intercept scrolling keys that dlg_edit_string() does not
 	     * understand.
@@ -613,7 +617,7 @@ dlg_editbox(const char *title,
 			    }
 			    --listsize;
 			    --thisrow;
-			    SCROLL_TO(thisrow);
+			    (void) Scroll_To(thisrow);
 
 			    show_all = TRUE;
 			}
@@ -692,7 +696,7 @@ dlg_editbox(const char *title,
 		    chr_offset = 0;
 		    col_offset = 0;
 		    THIS_ROW = tmp;
-		    SCROLL_TO(thisrow);
+		    (void) Scroll_To(thisrow);
 		    show_all = TRUE;
 		} else {
 		    result = dlg_ok_buttoncode(state);
@@ -704,12 +708,10 @@ dlg_editbox(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
-		_dlg_resize_clear();
-		dlg_unregister_window(editing);
-		dlg_del_window(editing);
-		dlg_del_window(dialog);
-		dlg_mouse_free_regions();
 		/* repaint */
+		dlg_del_window(editing);
+		dlg_unregister_window(editing);
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    case DLGK_TOGGLE:

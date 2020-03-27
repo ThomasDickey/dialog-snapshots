@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.103 2020/03/26 22:43:24 tom Exp $
+ * $Id: calendar.c,v 1.104 2020/03/27 20:20:18 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -101,7 +101,7 @@ nameOfDayOfWeek(int n)
 	    "Friday",
 	    "Saturday"
 	};
-	size_t len, limit = MON_WIDE - 1;
+	size_t limit = MON_WIDE - 1;
 	char *value = dlg_strclone(posix_days[n]);
 
 	/*
@@ -111,7 +111,7 @@ nameOfDayOfWeek(int n)
 	 * double-width cell.  For now (2016/01/26), handle too-long names only
 	 * for POSIX values.
 	 */
-	if ((len = strlen(value)) > limit)
+	if (strlen(value) > limit)
 	    value[limit] = '\0';
 	cached_days[n] = value;
     }
@@ -301,7 +301,6 @@ iso_week(int year, int month, int day)
     if (365 + isleap(year) - diy < MAX_DAYS
 	&& new_years_eve_dow >= dow
 	&& new_years_eve_dow < thursday) {
-	++year;
 	week = 1;
     }
     return week;
@@ -371,7 +370,7 @@ static int
 draw_day(BOX * data, struct tm *current)
 {
     int cell_wide = MON_WIDE;
-    int y, x, this_x = 0;
+    int y, x, this_x;
     int save_y = 0, save_x = 0;
     int day = current->tm_mday;
     int mday;
@@ -715,8 +714,7 @@ dialog_calendar(const char *title,
 #endif
     BOX dy_box, mn_box, yr_box;
     int fkey;
-    int key = 0;
-    int key2;
+    int key;
     int step;
     int button;
     int result = DLG_EXIT_UNKNOWN;
@@ -871,6 +869,7 @@ dialog_calendar(const char *title,
 
     dlg_trace_win(dialog);
     while (result == DLG_EXIT_UNKNOWN) {
+	int key2;
 	BOX *obj = (state == sDAY ? &dy_box
 		    : (state == sMONTH ? &mn_box :
 		       (state == sYEAR ? &yr_box : 0)));

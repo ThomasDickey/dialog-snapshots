@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.285 2020/03/26 23:14:46 tom Exp $
+ *  $Id: util.c,v 1.289 2020/03/27 23:53:01 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -245,25 +245,12 @@ dlg_clear(void)
 
 #ifdef KEY_RESIZE
 void
-_dlg_resize_clear(void)
+_dlg_resize_cleanup(WINDOW *w)
 {
     dlg_clear();
     dlg_put_backtitle();
-}
-
-void
-_dlg_resize_cleanup(WINDOW *w)
-{
-    _dlg_resize_clear();
     dlg_del_window(w);
     dlg_mouse_free_regions();
-}
-
-void
-_dlg_resize_refresh(WINDOW *w)
-{
-    _dlg_resize_cleanup(w);
-    refresh();
 }
 #endif /* KEY_RESIZE */
 
@@ -1018,7 +1005,7 @@ justify_text(WINDOW *win,
 	     int *high, int *wide)
 {
     chtype attr = A_NORMAL;
-    int x = (2 * MARGIN);
+    int x;
     int y = MARGIN;
     int max_x = 2;
     int lm = (2 * MARGIN);	/* left margin (box-border plus a space) */
@@ -2270,39 +2257,6 @@ dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
 }
 
 /*
- * Move/Resize a window, optionally with a shadow.
- */
-#ifdef KEY_RESIZE
-void
-dlg_move_window(WINDOW *win, int height, int width, int y, int x)
-{
-    if (win != 0) {
-	DIALOG_WINDOWS *p;
-
-	dlg_ctl_size(height, width);
-
-	if ((p = find_window(win)) != 0) {
-	    (void) wresize(win, height, width);
-	    (void) mvwin(win, y, x);
-#ifdef HAVE_COLOR
-	    if (p->shadow != 0) {
-		if (dialog_state.use_shadow) {
-		    (void) mvwin(p->shadow, y + SHADOW_ROWS, x + SHADOW_COLS);
-		} else {
-		    p->shadow = 0;
-		}
-	    }
-#endif
-	    (void) refresh();
-
-#ifdef HAVE_COLOR
-	    draw_childs_shadow(p);
-#endif
-	}
-    }
-}
-
-/*
  * dlg_getc() uses the return-value to determine how to handle an ERR return
  * from a non-blocking read:
  * a) if greater than zero, there was an expired timeout (blocking for a short
@@ -2343,6 +2297,39 @@ dlg_reset_timeout(WINDOW *win)
 	wtimeout(win, p->getc_timeout);
     } else {
 	wtimeout(win, WTIMEOUT_OFF);
+    }
+}
+
+/*
+ * Move/Resize a window, optionally with a shadow.
+ */
+#ifdef KEY_RESIZE
+void
+dlg_move_window(WINDOW *win, int height, int width, int y, int x)
+{
+    if (win != 0) {
+	DIALOG_WINDOWS *p;
+
+	dlg_ctl_size(height, width);
+
+	if ((p = find_window(win)) != 0) {
+	    (void) wresize(win, height, width);
+	    (void) mvwin(win, y, x);
+#ifdef HAVE_COLOR
+	    if (p->shadow != 0) {
+		if (dialog_state.use_shadow) {
+		    (void) mvwin(p->shadow, y + SHADOW_ROWS, x + SHADOW_COLS);
+		} else {
+		    p->shadow = 0;
+		}
+	    }
+#endif
+	    (void) refresh();
+
+#ifdef HAVE_COLOR
+	    draw_childs_shadow(p);
+#endif
+	}
     }
 }
 

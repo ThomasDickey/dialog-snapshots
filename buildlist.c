@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.92 2020/03/26 22:43:24 tom Exp $
+ *  $Id: buildlist.c,v 1.93 2020/03/27 20:18:58 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -553,11 +553,10 @@ dlg_buildlist(const char *title,
     ALL_DATA all;
     MY_DATA *data = all.list;
     int i, j, k, key2, found, x, y, cur_x, cur_y;
-    int key = 0, fkey;
+    int key, fkey;
     bool save_visit = dialog_state.visit_items;
     int button;
     int cur_item;
-    int was_mouse;
     int name_width, text_width, full_width, list_width;
     int result = DLG_EXIT_UNKNOWN;
     int num_states;
@@ -744,6 +743,7 @@ dlg_buildlist(const char *title,
 	int at_top = index2row(&all, moi->top_index, which);
 	int at_end = index2row(&all, -1, which);
 	int at_bot = skip_rows(&all, at_top, all.use_height, which);
+	int was_mouse;
 
 	DLG_TRACE(("# ** state %d:%d top %d (%d:%d:%d) %s\n",
 		   cur_item, item_no - 1,

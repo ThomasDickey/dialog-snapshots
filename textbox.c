@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.123 2020/03/26 22:43:24 tom Exp $
+ *  $Id: textbox.c,v 1.124 2020/03/27 20:29:49 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -601,6 +601,8 @@ perform_search(MY_OBJ * obj, int height, int width, int key, char *search_term)
 		ungetch(KEY_RESIZE);
 		/* FALLTHRU */
 	    }
+#else
+	    (void) result;
 #endif
 	    /* ESC pressed, or no search term, reprint page to clear box */
 	    dlg_attrset(obj->text, dialog_attr);
@@ -702,9 +704,9 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 #endif
     long fpos;
     int x, y, cur_x, cur_y;
-    int key = 0, fkey;
+    int key, fkey;
     int next = 0;
-    int i, code, passed_end;
+    int i, passed_end;
     char search_term[MAX_LEN + 1];
     MY_OBJ obj;
     WINDOW *dialog;
@@ -777,6 +779,7 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
     dlg_attr_clear(obj.text, PAGE_LENGTH, PAGE_WIDTH, dialog_attr);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	int code;
 
 	/*
 	 * Update the screen according to whether we shifted up/down by a line
