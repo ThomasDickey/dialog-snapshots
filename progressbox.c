@@ -1,9 +1,9 @@
 /*
- *  $Id: progressbox.c,v 1.52 2019/08/06 00:21:07 tom Exp $
+ *  $Id: progressbox.c,v 1.53 2020/03/27 21:10:23 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2006-2018,2019	Thomas E. Dickey
+ *  Copyright 2006-2019,2020	Thomas E. Dickey
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -144,12 +144,12 @@ get_line(MY_OBJ * obj, int *restart)
 {
     FILE *fp = obj->obj.input;
     int col = 0;
-    int j, tmpint, ch;
+    int j, tmpint;
     char *result = obj->line;
 
     *restart = 0;
     for (;;) {
-	ch = getc(fp);
+	int ch = getc(fp);
 #ifdef KEY_RESIZE
 	/* SIGWINCH may have interrupted this - try to ignore if resizable */
 	if (ferror(fp)) {
@@ -206,7 +206,7 @@ get_line(MY_OBJ * obj, int *restart)
 	}
 
 	nodelay(win, TRUE);
-	if ((ch = wgetch(win)) == KEY_RESIZE) {
+	if (wgetch(win) == KEY_RESIZE) {
 	    *restart = 1;
 	}
 	nodelay(win, FALSE);
@@ -285,10 +285,9 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
     /* *INDENT-ON* */
 
     int button;
-    int key = 0, fkey;
+    int key, fkey;
     int result = DLG_EXIT_UNKNOWN;
     const char **buttons = dlg_ok_label();
-    int check;
     bool save_nocancel = dialog_vars.nocancel;
     bool redraw = TRUE;
 
@@ -305,6 +304,8 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
     dlg_draw_bottom_box2(obj->obj.win, border_attr, border2_attr, dialog_attr);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	int check;
+
 	if (redraw) {
 	    redraw = FALSE;
 	    if (button < 0)

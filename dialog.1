@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.212 2019/12/09 10:07:30 tom Exp $
-.\" Copyright 2005-2018,2019  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.214 2020/03/27 21:14:23 tom Exp $
+.\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2019/12/09 10:07:30 $"
+.TH \*D 1 "" "$Date: 2020/03/27 21:14:23 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -607,7 +607,9 @@ It does not cause \fB\*l\fP to exit by itself.
 .IP "\fB--quoted"
 Normally \fB\*p\fP quotes the strings returned by checklist's
 as well as the item-help text.
-Use this option to quote all string results.
+Use this option to quote all string results as needed
+(i.e., if the string contains whitespace or a single or double-quote character).
+.
 .IP "\fB--reorder"
 By default, the buildlist widget uses the same order for the output (right)
 list as for the input (left).
@@ -637,9 +639,13 @@ Draw a shadow to the right and bottom of each dialog box.
 .IP "\fB--single-quoted"
 Use single-quoting as needed (and no quotes if unneeded) for the
 output of checklist's as well as the item-help text.
-If this option is not set, \fB\*p\fP uses double quotes around each item.
+.IP
+If this option is not set, \fB\*p\fP may use double quotes around each item.
 In either case,
 \fB\*p\fP adds backslashes to make the output useful in shell scripts.
+.IP
+Single quotes would be needed if 
+the string contains whitespace or a single or double-quote character.
 .
 .IP "\fB--size-err"
 Check the resulting size of a dialog box before trying to use it,
@@ -810,10 +816,9 @@ will be printed on \fB\*p\fP's output.
 If the "\fB--separate-output\fP" option is not given,
 the strings will be quoted as needed
 to make it simple for scripts to separate them.
-By default, this uses double-quotes.
+By default, this uses double-quotes, as needed.
 See the \*(``\fB--single-quoted\fP\*('' option,
 which modifies the quoting behavior.
-.
 .
 .IP "\fB--calendar \fItext height width day month year"
 A \fBcalendar\fP box displays
@@ -828,7 +833,6 @@ If the year is given as zero, the current date is used as an initial value.
 .IP
 On exit, the date is printed in the form day/month/year.
 The format can be overridden using the \fB--date-format\fP option.
-.
 .
 .IP "\fB--checklist \fItext height width list-height \fR[ \fItag item status \fR] \fI..."
 A \fBchecklist\fP box is similar to a \fBmenu\fP box;
@@ -848,10 +852,9 @@ will be printed on \fB\*p\fP's output.
 If the \*(``\fB--separate-output\fP\*('' option is not given,
 the strings will be quoted as needed
 to make it simple for scripts to separate them.
-By default, this uses double-quotes.
+By default, this uses double-quotes (as needed).
 See the \*(``\fB--single-quoted\fP\*('' option,
 which modifies the quoting behavior.
-.
 .
 .IP "\fB--dselect \fIfilepath height width\fR"
 The directory-selection dialog displays a text-entry window

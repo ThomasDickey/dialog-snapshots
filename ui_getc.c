@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.74 2020/03/23 23:55:01 tom Exp $
+ *  $Id: ui_getc.c,v 1.75 2020/03/27 21:49:03 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -619,7 +619,7 @@ dlg_killall_bg(int *retval)
 	    reset_shell_mode();
 	    if ((pid = fork()) != 0) {
 		_exit(pid > 0 ? DLG_EXIT_OK : DLG_EXIT_ERROR);
-	    } else if (pid == 0) {	/* child */
+	    } else {		/* child, pid==0 */
 		if ((pid = fork()) != 0) {
 		    /*
 		     * Echo the process-id of the grandchild so a shell script
@@ -649,7 +649,7 @@ dlg_killall_bg(int *retval)
 			;
 #endif
 		    _exit(WEXITSTATUS(wstatus));
-		} else if (pid == 0) {
+		} else {	/* child, pid==0 */
 		    if (!dialog_vars.cant_kill)
 			(void) signal(SIGHUP, finish_bg);
 		    (void) signal(SIGINT, finish_bg);

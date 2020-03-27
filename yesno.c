@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.67 2020/03/26 22:44:24 tom Exp $
+ *  $Id: yesno.c,v 1.70 2020/03/27 20:27:41 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -44,8 +44,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     /* *INDENT-ON* */
 
     int x, y;
-    int key = 0, fkey;
-    int code;
+    int key, fkey;
     int button = dlg_default_button();
     WINDOW *dialog = 0;
     int result = DLG_EXIT_UNKNOWN;
@@ -79,16 +78,9 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
 
-#ifdef KEY_RESIZE
-    if (dialog != 0)
-	dlg_move_window(dialog, height, width, y, x);
-    else
-#endif
-    {
-	dialog = dlg_new_window(height, width, y, x);
-	dlg_register_window(dialog, "yesno", binding);
-	dlg_register_buttons(dialog, "yesno", buttons);
-    }
+    dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "yesno", binding);
+    dlg_register_buttons(dialog, "yesno", buttons);
 
     dlg_draw_box2(dialog, 0, 0, height, width, dialog_attr, border_attr, border2_attr);
     dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
@@ -103,6 +95,8 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 		     buttons, button, FALSE, width);
 
     while (result == DLG_EXIT_UNKNOWN) {
+	int code;
+
 	if (show) {
 	    last = dlg_print_scrolled(dialog, prompt, offset,
 				      page, width, TRUE);
@@ -145,11 +139,11 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:
 		dlg_will_resize(dialog);
-		_dlg_resize_clear();
-		free(prompt);
 		height = req_high;
 		width = req_wide;
 		show = TRUE;
+		free(prompt);
+		_dlg_resize_cleanup(dialog);
 		goto restart;
 #endif
 	    default:

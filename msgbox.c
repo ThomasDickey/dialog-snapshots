@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.86 2020/03/26 22:44:24 tom Exp $
+ *  $Id: msgbox.c,v 1.88 2020/03/27 20:38:45 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -45,15 +45,14 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     };
     /* *INDENT-ON* */
 
-    int x, y, last = 0, page;
+    int x, y, page;
     int button;
-    int key = 0, fkey;
+    int key, fkey;
     int result = DLG_EXIT_UNKNOWN;
     WINDOW *dialog = 0;
     char *prompt;
     const char **buttons = dlg_ok_label();
     int offset = 0;
-    int check;
     bool show = TRUE;
     int min_width = (pauseopt == 1 ? 12 : 0);
     bool save_nocancel = dialog_vars.nocancel;
@@ -91,16 +90,10 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     x = dlg_box_x_ordinate(width);
     y = dlg_box_y_ordinate(height);
 
-#ifdef KEY_RESIZE
-    if (dialog != 0)
-	dlg_move_window(dialog, height, width, y, x);
-    else
-#endif
-    {
-	dialog = dlg_new_window(height, width, y, x);
-	dlg_register_window(dialog, "msgbox", binding);
-	dlg_register_buttons(dialog, "msgbox", buttons);
-    }
+    dialog = dlg_new_window(height, width, y, x);
+    dlg_register_window(dialog, "msgbox", binding);
+    dlg_register_buttons(dialog, "msgbox", buttons);
+
     page = height - (1 + 3 * MARGIN);
 
     dlg_mouse_setbase(x, y);
@@ -111,12 +104,16 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
     dlg_attrset(dialog, dialog_attr);
 
     if (pauseopt) {
+	int last = 0;
+
 	dlg_draw_bottom_box2(dialog, border_attr, border2_attr, dialog_attr);
 	mouse_mkbutton(height - 2, width / 2 - 4, 6, '\n');
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 	dlg_draw_helpline(dialog, FALSE);
 
 	while (result == DLG_EXIT_UNKNOWN) {
+	    int check;
+
 	    if (show) {
 		last = dlg_print_scrolled(dialog, prompt, offset,
 					  page, width, pauseopt);
@@ -138,11 +135,11 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 #ifdef KEY_RESIZE
 		case KEY_RESIZE:
 		    dlg_will_resize(dialog);
-		    _dlg_resize_clear();
 		    free(prompt);
 		    height = req_high;
 		    width = req_wide;
 		    show = TRUE;
+		    _dlg_resize_cleanup(dialog);
 		    goto restart;
 #endif
 		case DLGK_FIELD_NEXT:

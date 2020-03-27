@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.100 2020/03/26 22:43:24 tom Exp $
+ *  $Id: formbox.c,v 1.101 2020/03/27 20:42:19 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -502,7 +502,6 @@ dlg_form(const char *title,
 		 : sTEXT);
     int x, y, cur_x, cur_y, box_x, box_y;
     int code;
-    int key = 0;
     int fkey;
     int choice = dlg_default_formitem(items);
     int new_choice, new_scroll;
@@ -610,6 +609,7 @@ dlg_form(const char *title,
 
     while (result == DLG_EXIT_UNKNOWN) {
 	int edit = FALSE;
+	int key;
 
 	if (scroll_changed) {
 	    print_form(form, items, item_no, scrollamt, choice);

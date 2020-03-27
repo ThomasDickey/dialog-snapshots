@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.168 2020/03/26 22:43:24 tom Exp $
+ *  $Id: menubox.c,v 1.169 2020/03/27 20:53:31 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -351,13 +351,12 @@ dlg_menu(const char *title,
 #endif
     ALL_DATA all;
     int i, j, x, y, cur_x, cur_y;
-    int key = 0, fkey;
+    int fkey;
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
     int result = DLG_EXIT_UNKNOWN;
     int scrollamt = 0;
     int max_choice;
-    int found;
     int use_width, name_width, text_width, list_width;
     WINDOW *dialog, *menu;
     char *prompt = 0;
@@ -373,7 +372,6 @@ dlg_menu(const char *title,
     DLG_TRACE2N("lheight", menu_height);
     DLG_TRACE2N("llength", item_no);
     /* FIXME dump the items[][] too */
-    DLG_TRACE2N("current", *current_item);
     DLG_TRACE2N("rename", rename_menutext != 0);
 
     dialog_state.plain_buttons = TRUE;
@@ -522,7 +520,10 @@ dlg_menu(const char *title,
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
     dlg_trace_win(dialog);
+
     while (result == DLG_EXIT_UNKNOWN) {
+	int key, found;
+
 	if (button < 0)		/* --visit-items */
 	    wmove(dialog,
 		  all.box_y + ItemToRow(choice) + 1,
@@ -757,6 +758,8 @@ dlg_menu(const char *title,
     free(prompt);
 
     *current_item = scrollamt + choice;
+
+    DLG_TRACE2N("current", *current_item);
     return result;
 }
 

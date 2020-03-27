@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.89 2020/03/26 22:44:24 tom Exp $
+ *  $Id: inputbox.c,v 1.91 2020/03/27 20:25:40 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -156,9 +156,8 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	wsyncup(editor);
 	wcursyncup(editor);
     }
-    while (result == DLG_EXIT_UNKNOWN) {
-	int edit = 0;
 
+    while (result == DLG_EXIT_UNKNOWN) {
 	/*
 	 * The last field drawn determines where the cursor is shown:
 	 */
@@ -196,7 +195,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 	}
 
 	if (state == sTEXT) {	/* Input box selected */
-	    edit = dlg_edit_string(input, &chr_offset, key, fkey, first);
+	    int edit = dlg_edit_string(input, &chr_offset, key, fkey, first);
 
 	    if (edit) {
 		dlg_show_string(editor, input, chr_offset, inputbox_attr,
@@ -245,7 +244,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
 		height = old_height;
 		width = old_width;
 		/* repaint */
-		_dlg_resize_refresh(dialog);
+		_dlg_resize_cleanup(dialog);
 		goto retry;
 #endif
 	    default:

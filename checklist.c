@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.165 2020/03/26 22:43:24 tom Exp $
+ *  $Id: checklist.c,v 1.166 2020/03/27 20:19:51 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -192,12 +192,11 @@ dlg_checklist(const char *title,
 #endif
     ALL_DATA all;
     int i, j, key2, found, x, y, cur_x, cur_y;
-    int key = 0, fkey;
+    int key, fkey;
     int button = dialog_state.visit_items ? -1 : dlg_default_button();
     int choice = dlg_default_listitem(items);
     int scrollamt = 0;
     int max_choice;
-    int was_mouse;
     int use_width, list_width, name_width, text_width;
     int result = DLG_EXIT_UNKNOWN;
     int num_states;
@@ -378,7 +377,10 @@ dlg_checklist(const char *title,
     dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
 
     dlg_trace_win(dialog);
+
     while (result == DLG_EXIT_UNKNOWN) {
+	int was_mouse;
+
 	if (button < 0)		/* --visit-items */
 	    wmove(dialog, all.box_y + choice + 1, all.box_x + all.check_x + 2);
 

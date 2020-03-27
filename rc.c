@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.58 2019/12/11 02:20:36 tom Exp $
+ *  $Id: rc.c,v 1.59 2020/03/27 21:10:34 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -185,9 +185,10 @@ static int
 from_color_name(const char *str)
 {
     int code = UNKNOWN_COLOR;
-    size_t i;
 
     if (str != NULL && *str != '\0') {
+	size_t i;
+
 	for (i = 0; i < COLOR_COUNT; ++i) {
 	    if (!dlg_strcmp(str, color_names[i].name)) {
 		code = color_names[i].value;
@@ -264,7 +265,6 @@ str_to_attr(char *str, DIALOG_COLORS * result)
 {
     char *tokens[MAX_TOKEN + 1];
     char tempstr[MAX_LEN + 1];
-    int ret;
     size_t have;
     size_t i = 0;
     size_t tok_count = 0;
@@ -275,6 +275,8 @@ str_to_attr(char *str, DIALOG_COLORS * result)
     result->hilite = -1;
 
     if (str[0] != L_PAREN || lastch(str) != R_PAREN) {
+	int ret;
+
 	if ((ret = find_color(str)) >= 0) {
 	    *result = dlg_color_table[ret];
 	    return 0;
