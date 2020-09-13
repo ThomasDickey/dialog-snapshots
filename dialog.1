@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.214 2020/03/27 21:14:23 tom Exp $
+.\" $Id: dialog.1,v 1.215 2020/09/13 19:00:22 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2020/03/27 21:14:23 $"
+.TH \*D 1 "" "$Date: 2020/09/13 19:00:22 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -1198,17 +1198,6 @@ that you can indicate which entry is currently selected, by setting its
 On exit, the tag of the selected item is written to \fB\*p\fP's output.
 .
 .
-.IP "\fB--tailbox \fIfile height width"
-Display text from a file in a dialog box,
-as in a \*(``tail -f\*('' command.
-Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
-A '0' resets the scrolling.
-.IP
-On exit, no text is written to \fB\*p\fP's output.
-Only an \*(``OK\*('' button is provided for input,
-but an ESC exit status may be returned.
-.
-.
 .nf
 .IP "\fB--rangebox \fItext height width min-value max-value default-value"
 .fi
@@ -1237,6 +1226,17 @@ set the value to its maximum or minimum
 pageup/pagedown
 increment the value so that the slider moves by one column
 .RE
+.
+.
+.IP "\fB--tailbox \fIfile height width"
+Display text from a file in a dialog box,
+as in a \*(``tail -f\*('' command.
+Scroll left/right using vi-style 'h' and 'l', or arrow-keys.
+A '0' resets the scrolling.
+.IP
+On exit, no text is written to \fB\*p\fP's output.
+Only an \*(``OK\*('' button is provided for input,
+but an ESC exit status may be returned.
 .
 .
 .IP "\fB--tailboxbg \fIfile height width"
