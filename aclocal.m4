@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.141 2020/03/26 23:16:59 tom Exp $
+dnl $Id: aclocal.m4,v 1.144 2020/09/13 18:28:11 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
 dnl
@@ -638,10 +638,11 @@ define([CF_ACVERSION_COMPARE],
 [ifelse([$8], , ,[$8])],
 [ifelse([$9], , ,[$9])])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_CFLAGS version: 13 updated: 2017/02/25 18:57:40
+dnl CF_ADD_CFLAGS version: 14 updated: 2020/04/04 16:16:13
 dnl -------------
 dnl Copy non-preprocessor flags to $CFLAGS, preprocessor flags to $CPPFLAGS
-dnl The second parameter if given makes this macro verbose.
+dnl $1 = flags to add
+dnl $2 = if given makes this macro verbose.
 dnl
 dnl Put any preprocessor definitions that use quoted strings in $EXTRA_CPPFLAGS,
 dnl to simplify use of $CPPFLAGS in compiler checks, etc., that are easily
@@ -955,6 +956,12 @@ dnl Allow user to disable a normally-on option.
 AC_DEFUN([CF_ARG_DISABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],yes)])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_ARG_ENABLE version: 3 updated: 1999/03/30 17:24:31
+dnl -------------
+dnl Allow user to enable a normally-off option.
+AC_DEFUN([CF_ARG_ENABLE],
+[CF_ARG_OPTION($1,[$2],[$3],[$4],no)])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_ARG_MSG_ENABLE version: 2 updated: 2000/07/29 19:32:03
 dnl -----------------
 dnl Verbose form of AC_ARG_ENABLE:
@@ -1000,7 +1007,7 @@ ifelse([$3],,[    :]dnl
 ])dnl
 ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_AR_FLAGS version: 6 updated: 2015/10/10 15:25:05
+dnl CF_AR_FLAGS version: 7 updated: 2020/04/04 11:37:29
 dnl -----------
 dnl Check for suitable "ar" (archiver) options for updating an archive.
 dnl
@@ -1011,39 +1018,55 @@ AC_DEFUN([CF_AR_FLAGS],[
 AC_REQUIRE([CF_PROG_AR])
 
 AC_CACHE_CHECK(for options to update archives, cf_cv_ar_flags,[
-	cf_cv_ar_flags=unknown
-	for cf_ar_flags in -curvU -curv curv -crv crv -cqv cqv -rv rv
-	do
+	case $cf_cv_system_name in
+	(*-msvc*)
+		cf_cv_ar_flags=''
+		cat >mk_static_lib.sh <<-EOF
+		#!$SHELL
+		MSVC_BIN="[$]AR"
+		out="\[$]1"
+		shift
+		exec \[$]MSVC_BIN -out:"\[$]out" \[$]@
+		EOF
+		chmod +x mk_static_lib.sh
+		AR=`pwd`/mk_static_lib.sh
+		;;
+	(*)
+		cf_cv_ar_flags=unknown
+		for cf_ar_flags in -curvU -curv curv -crv crv -cqv cqv -rv rv
+		do
 
-		# check if $ARFLAGS already contains this choice
-		if test "x$ARFLAGS" != "x" ; then
-			cf_check_ar_flags=`echo "x$ARFLAGS" | sed -e "s/$cf_ar_flags\$//" -e "s/$cf_ar_flags / /"`
-			if test "x$ARFLAGS" != "$cf_check_ar_flags" ; then
-				cf_cv_ar_flags=
-				break
+			# check if $ARFLAGS already contains this choice
+			if test "x$ARFLAGS" != "x" ; then
+				cf_check_ar_flags=`echo "x$ARFLAGS" | sed -e "s/$cf_ar_flags\$//" -e "s/$cf_ar_flags / /"`
+				if test "x$ARFLAGS" != "$cf_check_ar_flags" ; then
+					cf_cv_ar_flags=
+					break
+				fi
 			fi
-		fi
 
-		rm -f conftest.$ac_cv_objext
-		rm -f conftest.a
+			rm -f conftest.$ac_cv_objext
+			rm -f conftest.a
 
-		cat >conftest.$ac_ext <<EOF
+			cat >conftest.$ac_ext <<EOF
 #line __oline__ "configure"
 int	testdata[[3]] = { 123, 456, 789 };
 EOF
-		if AC_TRY_EVAL(ac_compile) ; then
-			echo "$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext" >&AC_FD_CC
-			$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext 2>&AC_FD_CC 1>/dev/null
-			if test -f conftest.a ; then
-				cf_cv_ar_flags=$cf_ar_flags
+			if AC_TRY_EVAL(ac_compile) ; then
+				echo "$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext" >&AC_FD_CC
+				$AR $ARFLAGS $cf_ar_flags conftest.a conftest.$ac_cv_objext 2>&AC_FD_CC 1>/dev/null
+				if test -f conftest.a ; then
+					cf_cv_ar_flags=$cf_ar_flags
+					break
+				fi
+			else
+				CF_VERBOSE(cannot compile test-program)
 				break
 			fi
-		else
-			CF_VERBOSE(cannot compile test-program)
-			break
-		fi
-	done
-	rm -f conftest.a conftest.$ac_ext conftest.$ac_cv_objext
+		done
+		rm -f conftest.a conftest.$ac_ext conftest.$ac_cv_objext
+		;;
+	esac
 ])
 
 if test -n "$ARFLAGS" ; then
@@ -1329,7 +1352,7 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CLANG_COMPILER version: 2 updated: 2013/11/19 19:23:35
+dnl CF_CLANG_COMPILER version: 3 updated: 2020/08/28 04:10:22
 dnl -----------------
 dnl Check if the given compiler is really clang.  clang's C driver defines
 dnl __GNUC__ (fooling the configure script into setting $GCC to yes) but does
@@ -1359,6 +1382,10 @@ cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 ],[])
 	ifelse([$3],,CFLAGS,[$3])="$cf_save_CFLAGS"
 	AC_MSG_RESULT($ifelse([$2],,CLANG_COMPILER,[$2]))
+fi
+
+if test "x$CLANG_COMPILER" = "xyes" ; then
+	CF_APPEND_TEXT(CFLAGS,-Wno-error=implicit-function-declaration)
 fi
 ])
 dnl ---------------------------------------------------------------------------
@@ -2024,6 +2051,36 @@ AC_ARG_ENABLE(rpath,
 AC_MSG_RESULT($cf_cv_enable_rpath)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_ENABLE_WARNINGS version: 7 updated: 2020/08/29 09:05:21
+dnl ------------------
+dnl Configure-option to enable gcc warnings
+dnl
+dnl $1 = extra options to add, if supported
+dnl $2 = option for checking attributes.  By default, this is done when
+dnl      warnings are enabled.  For other values:
+dnl      yes: always do this, e.g., to use in generated library-headers
+dnl      no: never do this
+AC_DEFUN([CF_ENABLE_WARNINGS],[
+if ( test "$GCC" = yes || test "$GXX" = yes )
+then
+CF_FIX_WARNINGS(CFLAGS)
+CF_FIX_WARNINGS(CPPFLAGS)
+CF_FIX_WARNINGS(LDFLAGS)
+AC_MSG_CHECKING(if you want to turn on gcc warnings)
+CF_ARG_ENABLE(warnings,
+	[  --enable-warnings       test: turn on gcc compiler warnings],
+	[with_warnings=yes],
+	[with_warnings=no])
+AC_MSG_RESULT($with_warnings)
+if test "$with_warnings" = "yes"
+then
+	ifelse($2,,[CF_GCC_ATTRIBUTES])
+	CF_GCC_WARNINGS($1)
+fi
+ifelse($2,yes,[CF_GCC_ATTRIBUTES])
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_FIND_LIBRARY version: 9 updated: 2008/03/23 14:48:54
 dnl ---------------
 dnl Look for a non-standard library, given parameters for AC_TRY_LINK.  We
@@ -2205,6 +2262,40 @@ ifelse([$5],,AC_MSG_WARN(Cannot find $3 library),[$5])
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_FIX_WARNINGS version: 2 updated: 2020/08/28 15:08:28
+dnl ---------------
+dnl Warning flags do not belong in CFLAGS, CPPFLAGS, etc.  Any of gcc's
+dnl "-Werror" flags can interfere with configure-checks.  Those go into
+dnl EXTRA_CFLAGS.
+dnl
+dnl $1 = variable name to repair
+define([CF_FIX_WARNINGS],[
+if ( test "$GCC" = yes || test "$GXX" = yes )
+then
+	case [$]$1 in
+	(*-Werror=*)
+		CF_VERBOSE(repairing $1: [$]$1)
+		cf_temp_flags=
+		for cf_temp_scan in [$]$1
+		do
+			case "x$cf_temp_scan" in
+			(x-Werror=*)
+				CF_APPEND_TEXT(EXTRA_CFLAGS,"$cf_temp_scan")
+				;;
+			(*)
+				CF_APPEND_TEXT(cf_temp_flags,"$cf_temp_scan")
+				;;
+			esac
+		done
+		$1="$cf_temp_flags"
+		CF_VERBOSE(... fixed [$]$1)
+		CF_VERBOSE(... extra $EXTRA_CFLAGS)
+		;;
+	esac
+fi
+AC_SUBST(EXTRA_CFLAGS)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_FORGET_TOOL version: 1 updated: 2013/04/06 18:03:09
 dnl --------------
 dnl Forget that we saw the given tool.
@@ -2254,14 +2345,14 @@ if test $cf_cv_type_unionwait = yes; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_ATTRIBUTES version: 18 updated: 2020/03/10 18:53:47
+dnl CF_GCC_ATTRIBUTES version: 19 updated: 2020/08/29 09:05:21
 dnl -----------------
 dnl Test for availability of useful gcc __attribute__ directives to quiet
 dnl compiler warnings.  Though useful, not all are supported -- and contrary
 dnl to documentation, unrecognized directives cause older compilers to barf.
 AC_DEFUN([CF_GCC_ATTRIBUTES],
 [
-if test "$GCC" = yes
+if ( test "$GCC" = yes || test "$GXX" = yes )
 then
 cat > conftest.i <<EOF
 #ifndef GCC_PRINTF
@@ -2381,7 +2472,7 @@ CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
 CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 37 updated: 2020/01/05 20:04:12
+dnl CF_GCC_WARNINGS version: 38 updated: 2020/08/28 15:08:28
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -2424,7 +2515,7 @@ then
 
 	AC_CHECKING([for $CC warning options])
 	cf_save_CFLAGS="$CFLAGS"
-	EXTRA_CFLAGS="-Wall"
+	EXTRA_CFLAGS="$EXTRA_CFLAGS -Wall"
 	for cf_opt in \
 		wd1419 \
 		wd1683 \
@@ -2447,7 +2538,6 @@ elif test "$GCC" = yes && test "$GCC_VERSION" != "unknown"
 then
 	AC_CHECKING([for $CC warning options])
 	cf_save_CFLAGS="$CFLAGS"
-	EXTRA_CFLAGS=
 	cf_warn_CONST=""
 	test "$with_ext_const" = yes && cf_warn_CONST="Wwrite-strings"
 	cf_gcc_warnings="Wignored-qualifiers Wlogical-op Wvarargs"
@@ -2920,7 +3010,7 @@ fi
 test -z "$cf_cv_libtool_version" && unset cf_cv_libtool_version
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 12 updated: 2015/10/17 19:03:33
+dnl CF_LIB_PREFIX version: 13 updated: 2020/04/04 10:11:47
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -2934,6 +3024,9 @@ define([CF_LIB_PREFIX],
 			LIB_PREFIX=''
 		fi
 		;;
+	(*-msvc*)
+		LIB_PREFIX=''
+		;;
 	(*)	LIB_PREFIX='lib'
 		;;
 	esac
@@ -2941,7 +3034,7 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_SUFFIX version: 25 updated: 2015/04/17 21:13:04
+dnl CF_LIB_SUFFIX version: 26 updated: 2020/04/04 10:11:47
 dnl -------------
 dnl Compute the library file-suffix from the given model name
 dnl $1 = model name
@@ -2956,11 +3049,25 @@ AC_DEFUN([CF_LIB_SUFFIX],
 		$3=[$]$2
 		;;
 	(Xdebug)
-		$2='_g.a'
+		case $cf_cv_system_name in
+		(*-msvc*)
+			$2='_g.lib'
+			;;
+		(*)
+			$2='_g.a'
+			;;
+		esac
 		$3=[$]$2
 		;;
 	(Xprofile)
-		$2='_p.a'
+		case $cf_cv_system_name in
+		(*-msvc*)
+			$2='_p.lib'
+			;;
+		(*)
+			$2='_p.a'
+			;;
+		esac
 		$3=[$]$2
 		;;
 	(Xshared)
@@ -2968,6 +3075,10 @@ AC_DEFUN([CF_LIB_SUFFIX],
 		(aix[[5-7]]*)
 			$2='.so'
 			$3=[$]$2
+			;;
+		(*-msvc*)
+			$2='.dll'
+			$3='.dll.lib'
 			;;
 		(cygwin*|msys*|mingw*)
 			$2='.dll'
@@ -2996,7 +3107,14 @@ AC_DEFUN([CF_LIB_SUFFIX],
 		esac
 		;;
 	(*)
-		$2='.a'
+		case $target in
+		(*-msvc*)
+			$2='.lib'
+			;;
+		(*)
+			$2='.a'
+			;;
+		esac
 		$3=[$]$2
 		;;
 	esac
@@ -3108,6 +3226,19 @@ then
 ifelse($1,,[
 	CF_ADD_LIB(m)
 ],[$1=-lm])
+fi
+])
+dnl ---------------------------------------------------------------------------
+dnl CF_MERGE_EXTRA_CFLAGS version: 1 updated: 2020/09/01 04:19:14
+dnl ---------------------
+dnl CF_FIX_WARNINGS moves problematic flags into EXTRA_CFLAGS, but some scripts
+dnl may depend on being able to override that variable at build-time.  Move it
+dnl all back.
+define([CF_MERGE_EXTRA_CFLAGS],[
+if ( test "$GCC" = yes || test "$GXX" = yes )
+then
+	CF_APPEND_TEXT(CFLAGS,$EXTRA_CFLAGS)
+	EXTRA_CFLAGS=
 fi
 ])
 dnl ---------------------------------------------------------------------------
@@ -4231,7 +4362,7 @@ do
 done
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 94 updated: 2020/02/29 16:09:19
+dnl CF_SHARED_OPTS version: 102 updated: 2020/08/22 18:17:19
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -4458,8 +4589,8 @@ CF_EOF
 		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
 	(mingw*msvc*)
-		cf_cv_shlib_version=mingw
-		cf_cv_shlib_version_infix=mingw
+		cf_cv_shlib_version=msvcdll
+		cf_cv_shlib_version_infix=msvcdll
 		shlibdir=$bindir
 		MAKE_DLLS=
 		if test "$DFT_LWR_MODEL" = "shared" ; then
@@ -4468,25 +4599,100 @@ CF_EOF
 			EXTRA_LDFLAGS="-link -dll $EXTRA_LDFLAGS"
 		fi
 		CC_SHARED_OPTS=
-		MK_SHARED_LIB=$SHELL' '$rel_builddir'/mk_shared_lib.sh $@ ${LD} ${CFLAGS}'
-		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.a"
+		MK_SHARED_LIB=$SHELL' '$rel_builddir'/mk_shared_lib.sh [$]@ ${LD} [$]{CFLAGS}'
+		RM_SHARED_OPTS="$RM_SHARED_OPTS $rel_builddir/mk_shared_lib.sh *.dll.lib"
 		cat >mk_shared_lib.sh <<-CF_EOF
 		#!$SHELL
-		SHARED_LIB=\$1
-		IMPORT_LIB=\`echo "\$1" | sed -e 's/[0-9]*\.dll$\.dll.a/'\`
+		SHARED_LIB=\[$]1
+		IMPORT_LIB=\`echo "\[$]1" | sed -e 's/[[0-9]]*\.dll[$]/.dll.lib/'\`
 		shift
-		my_ld=\$1
+		my_ld=\[$]1
 		shift
 		cat <<-EOF
 		Linking shared library
 		** SHARED LIB \$SHARED_LIB
 		** IMPORT_LIB \$IMPORT_LIB
 EOF
-		args=\$(echo \$* | sed -E "s#-l(\w*)#lib\1.a#g" | sed -E "s#-L(\w*)#-LIBPATH:\1#g")
+		args=\$(echo \[$]* | sed -E "s#-l(\w*)#\1.dll.lib#g" | sed -E "s#-L(\w*)#-LIBPATH:\1#g")
 		exec \$my_ld -DLL -IMPLIB:"\${IMPORT_LIB}" -OUT:"\${SHARED_LIB}" ${LDFLAGS} \$args
 		mv "\${IMPORT_LIB}" "\${IMPORT_LIB}"
 CF_EOF
 		chmod +x mk_shared_lib.sh
+		cat >mk_prog.sh <<-CF_EOF
+		#!$SHELL
+		shift
+		# Ignore first argument (compiler) and use LD (link.exe) unconditionally
+		LD="[$]LD"
+		clopts=()
+		ldopts=("/subsystem:console")
+		libs=()
+		isdll=0
+		while test \[$]# -gt 0; do
+			case "\[$]1" in
+				-link)
+					# ignore -link argument
+					;;
+				-M[[TD]] | -M[[TD]]d)
+					# ignore runtime-library option
+					;;
+				-dll)
+					isdll=1
+					;;
+				-W* | -w*)
+					# ignore warnings
+					;;
+				-D*)
+					clopts+=("\[$]1")
+					;;
+				-I*)
+					clopts+=("\[$]1")
+					;;
+				-l*)
+					libs+=("\`echo \"\[$]1\" | sed \"s/^-l//\"\`")
+					;;
+				-L*)
+					ldopts+=("\`echo \"\[$]1\" | sed \"s/^-L/-LIBPATH:/\"\`")
+					;;
+				*.obj | *.o)
+					ldopts+=("\[$]1")
+					;;
+				-Wl,*)
+					for linkarg in \`echo '\[$]1' | sed -e 's/-Wl,//' -e 's/,/ /'\`; do
+						ldopts+=("\[$]{linkarg}")
+					done
+					;;
+				*.lib)
+					ldopts+=("\[$]1")
+					;;
+				-o)
+					shift
+					ldopts+=("-out:\[$]1")
+					;;
+				*)
+					clopts+=("\[$]1")
+					ldopts+=("\[$]1")
+					;;
+			esac
+			shift
+		done
+		if [[ "\$isdll" -ne 0 ]]; then
+			for lib in \[$]{libs[[*]]}; do
+				ldopts+=("\[$]lib.dll.lib")
+			done
+		else
+			for lib in \[$]{libs[[*]]}; do
+				ldopts+=("\[$]lib.lib")
+			done
+		fi
+		cat <<-EOF
+		Creating program
+		** ld options:   "\[$]{ldopts[[@]]}"
+EOF
+		exec \[$]LD \[$]{ldopts[[@]]}
+CF_EOF
+		chmod +x mk_prog.sh
+		LINK_PROGS="$SHELL ${rel_builddir}/mk_prog.sh"
+		LINK_TESTS="$SHELL ${rel_builddir}/mk_prog.sh"
 		;;
 	(mingw*)
 		cf_cv_shlib_version=mingw
@@ -4527,6 +4733,14 @@ CF_EOF
 		CF_SHARED_SONAME
 		MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-Bshareable,-soname,'$cf_cv_shared_soname',-stats,-lc -o $[@]'
 		;;
+	(nskJ*)
+		CC_SHARED_OPTS=
+		MK_SHARED_LIB='${LD} -Wshared -Weld=-export_all -o $[@]'
+		;;
+	(nskL*)
+		CC_SHARED_OPTS=
+		MK_SHARED_LIB='${LD} -Wshared -Wxld=-export_all -o $[@]'
+		;;
 	(nto-qnx*|openbsd*|freebsd[[12]].*)
 		CC_SHARED_OPTS="$CC_SHARED_OPTS -DPIC"
 		MK_SHARED_LIB='${LD} ${LDFLAGS} -Bshareable -o $[@]'
@@ -4558,7 +4772,7 @@ CF_EOF
 			CF_SHARED_SONAME
 			MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -Wl,-soname,'$cf_cv_shared_soname' -o $[@]'
 		else
-			MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -Wl,-shared -Wl,-Bshareable -o $[@]'
+			MK_SHARED_LIB='${CC} ${LDFLAGS} ${CFLAGS} -shared -o $[@]'
 		fi
 		;;
 	(osf*|mls+*)
@@ -6063,29 +6277,6 @@ fi
 AC_SUBST(RESULTING_SYMS)
 AC_SUBST(VERSIONED_SYMS)
 AC_SUBST(WILDCARD_SYMS)
-])dnl
-dnl ---------------------------------------------------------------------------
-dnl CF_WITH_WARNINGS version: 5 updated: 2004/07/23 14:40:34
-dnl ----------------
-dnl Combine the checks for gcc features into a configure-script option
-dnl
-dnl Parameters:
-dnl	$1 - see CF_GCC_WARNINGS
-AC_DEFUN([CF_WITH_WARNINGS],
-[
-if ( test "$GCC" = yes || test "$GXX" = yes )
-then
-AC_MSG_CHECKING(if you want to check for gcc warnings)
-AC_ARG_WITH(warnings,
-	[  --with-warnings         test: turn on gcc warnings],
-	[cf_opt_with_warnings=$withval],
-	[cf_opt_with_warnings=no])
-AC_MSG_RESULT($cf_opt_with_warnings)
-if test "$cf_opt_with_warnings" != no ; then
-	CF_GCC_ATTRIBUTES
-	CF_GCC_WARNINGS([$1])
-fi
-fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_XOPEN_CURSES version: 15 updated: 2020/03/19 20:23:48
