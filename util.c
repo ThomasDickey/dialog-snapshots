@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.289 2020/03/27 23:53:01 tom Exp $
+ *  $Id: util.c,v 1.290 2020/09/21 23:38:45 Rainer.Weikusat Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -326,8 +326,10 @@ init_dialog(FILE *input, FILE *output)
     setlocale(LC_ALL, "");
 
     dialog_state.output = output;
-    dialog_state.tab_len = TAB_LEN;
-    dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
+    if (dialog_state.tab_len == 0)
+	dialog_state.tab_len = TAB_LEN;
+    if (dialog_state.aspect_ratio == 0)
+	dialog_state.aspect_ratio = DEFAULT_ASPECT_RATIO;
 #ifdef HAVE_COLOR
     dialog_state.use_colors = USE_COLORS;	/* use colors by default? */
     dialog_state.use_shadow = USE_SHADOW;	/* shadow dialog boxes by default? */
