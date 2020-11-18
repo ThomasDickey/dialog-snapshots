@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.689 2020/09/21 23:43:13 tom Exp $
+-- $Id: CHANGES,v 1.693 2020/11/18 01:12:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2020/11/17
+	+ amend initialization for dlg_getc to fix regression in pause widget
+	  from 2020/03/27 changes (report by Aidan Tessier).
+	+ improve configure macros:
+	  CF_CLANG_COMPILER: split-out check for -Qunused-arguments to ensure
+	  that clang supports it.  IBM xlclang does not.
+	  CF_MIXEDCASE_FILENAMES: when cross-compiling to darwin (macOS),
+	  assume the filesystem doesn't support mixed-case
 
 2020/09/21
 	+ modify init_dialog's initialization of tab_len and aspect_ratio to

@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.128 2020/03/24 00:26:28 tom Exp $
+.\" $Id: dialog.3,v 1.129 2020/11/18 01:35:50 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2020/03/24 00:26:28 $"
+.TH \*D 3 "" "$Date: 2020/11/18 01:35:50 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -696,6 +696,10 @@ from the widget.
 .SS .ok_label
 This corresponds to the command-line option "\fB--ok-label\fP \fIstring\/\fP".
 The given string overrides the label used for \*(``OK\*('' buttons.
+.\" ---------------------------------------------------------------------------
+.SS .pause_secs
+When set, force \fBdlg_set_timeout\fP to use 10 milliseconds
+rather than using the \fIDIALOG_VARS.timeout_secs\fP value.
 .\" ---------------------------------------------------------------------------
 .SS .print_siz
 This corresponds to the command-line option "\fB--print-size\fP".

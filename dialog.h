@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.296 2020/03/27 18:28:35 tom Exp $
+ *  $Id: dialog.h,v 1.297 2020/11/18 01:12:12 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -574,6 +574,8 @@ typedef struct {
     bool iso_week;		/* option "--iso-week" */
     /* 1.3-20170131 */
     bool reorder;		/* option "--reorder" */
+    /* 1.3-20201117 */
+    int pause_secs;		/* used by pause widget */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)

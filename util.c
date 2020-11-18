@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.290 2020/09/21 23:38:45 Rainer.Weikusat Exp $
+ *  $Id: util.c,v 1.291 2020/11/18 01:12:12 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2276,7 +2276,7 @@ dlg_set_timeout(WINDOW *win, bool will_getc)
     if ((p = find_window(win)) != NULL) {
 	interval = (dialog_vars.timeout_secs * 1000);
 
-	if (will_getc) {
+	if (will_getc || dialog_vars.pause_secs) {
 	    interval = WTIMEOUT_VAL;
 	} else {
 	    result = interval;
