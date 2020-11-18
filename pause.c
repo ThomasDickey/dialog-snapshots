@@ -1,5 +1,5 @@
 /*
- *  $Id: pause.c,v 1.46 2020/03/27 20:32:55 tom Exp $
+ *  $Id: pause.c,v 1.47 2020/11/18 01:12:12 tom Exp $
  *
  *  pause.c -- implements the pause dialog
  *
@@ -88,8 +88,9 @@ dialog_pause(const char *title,
 
     curs_set(0);
 
-    dialog_vars.timeout_secs = 0;
     seconds_orig = (seconds > 0) ? seconds : 1;
+    dialog_vars.pause_secs = seconds_orig;
+    dialog_vars.timeout_secs = 0;
 
 #ifdef KEY_RESIZE
   retry:
