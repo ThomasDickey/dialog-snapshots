@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.98 2020/09/13 18:13:11 tom Exp $
+dnl $Id: configure.in,v 1.99 2020/11/21 00:09:44 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
@@ -63,6 +63,7 @@ CF_XOPEN_SOURCE
 CF_LARGEFILE
 
 CF_WITH_INSTALL_PREFIX
+CF_WITH_SCREEN_PDCURSES
 CF_ENABLE_WARNINGS(,yes)
 CF_PKG_CONFIG
 

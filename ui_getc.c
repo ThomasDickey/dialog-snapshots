@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.75 2020/03/27 21:49:03 tom Exp $
+ *  $Id: ui_getc.c,v 1.77 2020/11/20 21:24:06 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -23,6 +23,7 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+#include <dlg_internals.h>
 
 #ifdef NEED_WCHAR_H
 #include <wchar.h>
@@ -150,9 +151,11 @@ handle_inputs(WINDOW *win)
 	    }
 	}
     }
-    if (result) {
+    if (result && _dlg_find_window(win)) {
 	(void) wmove(win, cur_y, cur_x);	/* Restore cursor position */
 	wrefresh(win);
+    } else {
+	result = FALSE;
     }
     if (state != ERR)
 	curs_set(state);
@@ -254,10 +257,12 @@ dlg_getc_callbacks(int ch, int fkey, int *result)
 static void
 dlg_raise_window(WINDOW *win)
 {
-    touchwin(win);
-    wmove(win, getcury(win), getcurx(win));
-    wnoutrefresh(win);
-    doupdate();
+    if (_dlg_find_window(win)) {
+	touchwin(win);
+	wmove(win, getcury(win), getcurx(win));
+	wnoutrefresh(win);
+	doupdate();
+    }
 }
 
 /*
@@ -452,6 +457,9 @@ dlg_getc(WINDOW *win, int *fkey)
     while (!done) {
 	bool handle_others = FALSE;
 
+	if (_dlg_find_window(win) == NULL)
+	    break;
+
 	/*
 	 * If there was no pending file-input, check the keyboard.
 	 */
@@ -480,8 +488,10 @@ dlg_getc(WINDOW *win, int *fkey)
 		keypad(win, FALSE);
 		continue;
 	    case CHR_REPAINT:
-		(void) touchwin(win);
-		(void) wrefresh(curscr);
+		if (_dlg_find_window(win)) {
+		    (void) touchwin(win);
+		    (void) wrefresh(curscr);
+		}
 		break;
 	    case ERR:		/* wtimeout() in effect; check for file I/O */
 		if (interval > 0
@@ -495,7 +505,7 @@ dlg_getc(WINDOW *win, int *fkey)
 		    ch = ESC;
 		    done = TRUE;
 		} else if (check_inputs()) {
-		    if (handle_inputs(win))
+		    if (_dlg_find_window(win) && handle_inputs(win))
 			dlg_raise_window(win);
 		    else
 			done = TRUE;
@@ -504,7 +514,7 @@ dlg_getc(WINDOW *win, int *fkey)
 		}
 		break;
 	    case DLGK_HELPFILE:
-		if (dialog_vars.help_file) {
+		if (dialog_vars.help_file && _dlg_find_window(win)) {
 		    int yold, xold;
 		    getyx(win, yold, xold);
 		    dialog_helpfile("HELP", dialog_vars.help_file, 0, 0);
@@ -574,7 +584,7 @@ dlg_getc(WINDOW *win, int *fkey)
 	    }
 	}
     }
-    if (literal)
+    if (literal && _dlg_find_window(win))
 	keypad(win, TRUE);
     return ch;
 }
