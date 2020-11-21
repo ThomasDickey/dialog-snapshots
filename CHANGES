@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.698 2020/11/21 00:18:05 tom Exp $
+-- $Id: CHANGES,v 1.700 2020/11/21 18:51:31 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2020/11/21
+	+ fix regression in dlg_getc() caused by not taking into account
+	  subwindows used for input (report by Michael Wihl).
 
 2020/11/20
 	+ add validity-checks for window pointer (report/testcase by Michael

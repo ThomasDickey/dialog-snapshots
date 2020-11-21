@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.273 2020/02/29 01:32:21 tom Exp $
+ * $Id: dialog.c,v 1.274 2020/11/21 21:18:33 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1887,7 +1887,7 @@ main(int argc, char *argv[])
     bool keep_tite = FALSE;
     int initial = 1;
     int offset = 1;
-    int offset_add;
+    int offset_add = 0;
     int retval = DLG_EXIT_OK;
     int j;
     eOptions code;

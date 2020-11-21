@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20201120
+%define AppRelease 20201121
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.138 2020/11/20 08:57:54 tom Exp $
+# $XTermId: dialog.spec,v 1.139 2020/11/21 14:22:49 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}

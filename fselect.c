@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.111 2020/03/27 20:58:52 tom Exp $
+ *  $Id: fselect.c,v 1.112 2020/11/21 21:20:33 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -921,8 +921,7 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 		first = FALSE;
 		state = sTEXT;
 	    }
-	} else if (state >= 0 &&
-		   (code = dlg_char_to_button(key, buttons)) >= 0) {
+	} else if ((code = dlg_char_to_button(key, buttons)) >= 0) {
 	    result = dlg_ok_buttoncode(code);
 	    break;
 	}
