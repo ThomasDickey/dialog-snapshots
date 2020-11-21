@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.129 2020/11/18 01:35:50 tom Exp $
+.\" $Id: dialog.3,v 1.130 2020/11/20 09:21:01 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2020/11/18 01:35:50 $"
+.TH \*D 3 "" "$Date: 2020/11/20 09:21:01 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1468,6 +1468,10 @@ display and end it are named \fIinit_dialog\fP and \fIend_dialog\fP.
 The only non-widget function whose name begins with "\fIdialog_\fP"
 is \fBdialog_version\fP, which returns the version number of the
 library as a string.
+.PP
+A few functions are prefixed "\fI_dlg_\fP",
+because they are required for internal use,
+but not intended as part of the library application programming interface.
 .
 .PP
 Here is a brief summary of the utility functions and their parameters:

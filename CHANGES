@@ -1,12 +1,20 @@
--- $Id: CHANGES,v 1.693 2020/11/18 01:12:12 tom Exp $
+-- $Id: CHANGES,v 1.698 2020/11/21 00:18:05 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
+2020/11/20
+	+ add validity-checks for window pointer (report/testcase by Michael
+	  Wihl).
+	+ improve configure macros:
+	  CF_CLANG_COMPILER: apply compiler-flags needed for test.
+	  CF_WITH_SCREEN_PDCURSES: use this to reduce X11-checks.
+
 2020/11/17
 	+ amend initialization for dlg_getc to fix regression in pause widget
-	  from 2020/03/27 changes (report by Aidan Tessier).
+	  from 2020/03/27 changes (reports by Aidan Tessier, Norbert Koch,
+	  Josmar Pierri).
 	+ improve configure macros:
 	  CF_CLANG_COMPILER: split-out check for -Qunused-arguments to ensure
 	  that clang supports it.  IBM xlclang does not.

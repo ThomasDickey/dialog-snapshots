@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.291 2020/11/18 01:12:12 tom Exp $
+ *  $Id: util.c,v 1.292 2020/11/20 09:00:57 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1540,8 +1540,8 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
     dlg_draw_box2(win, y, x, height, width, boxchar, borderchar, boxchar);
 }
 
-static DIALOG_WINDOWS *
-find_window(WINDOW *win)
+DIALOG_WINDOWS *
+_dlg_find_window(WINDOW *win)
 {
     DIALOG_WINDOWS *result = 0;
     DIALOG_WINDOWS *p;
@@ -1753,7 +1753,7 @@ erase_childs_shadow(DIALOG_WINDOWS * dw)
 void
 dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
 {
-    repaint_shadow(find_window(win), TRUE, y, x, height, width);
+    repaint_shadow(_dlg_find_window(win), TRUE, y, x, height, width);
 }
 #endif /* HAVE_COLOR */
 
@@ -2273,7 +2273,7 @@ dlg_set_timeout(WINDOW *win, bool will_getc)
     int result = 0;
     int interval;
 
-    if ((p = find_window(win)) != NULL) {
+    if ((p = _dlg_find_window(win)) != NULL) {
 	interval = (dialog_vars.timeout_secs * 1000);
 
 	if (will_getc || dialog_vars.pause_secs) {
@@ -2295,7 +2295,7 @@ dlg_reset_timeout(WINDOW *win)
 {
     DIALOG_WINDOWS *p;
 
-    if ((p = find_window(win)) != NULL) {
+    if ((p = _dlg_find_window(win)) != NULL) {
 	wtimeout(win, p->getc_timeout);
     } else {
 	wtimeout(win, WTIMEOUT_OFF);
@@ -2314,7 +2314,7 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 
 	dlg_ctl_size(height, width);
 
-	if ((p = find_window(win)) != 0) {
+	if ((p = _dlg_find_window(win)) != 0) {
 	    (void) wresize(win, height, width);
 	    (void) mvwin(win, y, x);
 #ifdef HAVE_COLOR

@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.145 2020/11/14 15:12:15 tom Exp $
+dnl $Id: aclocal.m4,v 1.147 2020/11/21 00:15:41 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
 dnl
@@ -1352,7 +1352,7 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CLANG_COMPILER version: 4 updated: 2020/10/31 15:46:50
+dnl CF_CLANG_COMPILER version: 5 updated: 2020/11/20 18:52:27
 dnl -----------------
 dnl Check if the given compiler is really clang.  clang's C driver defines
 dnl __GNUC__ (fooling the configure script into setting $GCC to yes) but does
@@ -1388,12 +1388,15 @@ if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
 		-Wno-error=implicit-function-declaration
 	do
 		AC_MSG_CHECKING(if option $cf_clang_opt works)
+		cf_save_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS $cf_clang_opt"
 		AC_TRY_LINK([
 			#include <stdio.h>],[
 			printf("hello!\n");],[
 			cf_clang_optok=yes],[
 			cf_clang_optok=no])
 		AC_MSG_RESULT($cf_clang_optok)
+		CFLAGS="$cf_save_CFLAGS"
 		if test $cf_clang_optok = yes; then
 			CF_VERBOSE(adding option $cf_clang_opt)
 			CF_APPEND_TEXT(CFLAGS,$cf_clang_opt)
@@ -3242,19 +3245,6 @@ ifelse($1,,[
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_MERGE_EXTRA_CFLAGS version: 1 updated: 2020/09/01 04:19:14
-dnl ---------------------
-dnl CF_FIX_WARNINGS moves problematic flags into EXTRA_CFLAGS, but some scripts
-dnl may depend on being able to override that variable at build-time.  Move it
-dnl all back.
-define([CF_MERGE_EXTRA_CFLAGS],[
-if ( test "$GCC" = yes || test "$GXX" = yes )
-then
-	CF_APPEND_TEXT(CFLAGS,$EXTRA_CFLAGS)
-	EXTRA_CFLAGS=
-fi
-])
-dnl ---------------------------------------------------------------------------
 dnl CF_MBSTATE_T version: 5 updated: 2020/03/19 20:23:48
 dnl ------------
 dnl Check if mbstate_t is declared, and if so, which header file.
@@ -3290,6 +3280,19 @@ if test "$cf_cv_mbstate_t" != unknown ; then
 	AC_DEFINE(HAVE_MBSTATE_T,1,[Define to 1 if mbstate_t is declared])
 fi
 ])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_MERGE_EXTRA_CFLAGS version: 1 updated: 2020/09/01 04:19:14
+dnl ---------------------
+dnl CF_FIX_WARNINGS moves problematic flags into EXTRA_CFLAGS, but some scripts
+dnl may depend on being able to override that variable at build-time.  Move it
+dnl all back.
+define([CF_MERGE_EXTRA_CFLAGS],[
+if ( test "$GCC" = yes || test "$GXX" = yes )
+then
+	CF_APPEND_TEXT(CFLAGS,$EXTRA_CFLAGS)
+	EXTRA_CFLAGS=
+fi
+])
 dnl ---------------------------------------------------------------------------
 dnl CF_MIXEDCASE_FILENAMES version: 8 updated: 2020/11/14 10:12:15
 dnl ----------------------
@@ -6061,6 +6064,23 @@ ifelse($1,,[
  CF_NUMBER_SYNTAX([$]$1_MAJOR,Release major-version)
  CF_NUMBER_SYNTAX([$]$1_MINOR,Release minor-version)
 ])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_SCREEN_PDCURSES version: 1 updated: 2020/08/28 16:56:27
+dnl -----------------------
+dnl Call this macro before CF_ENABLE_WARNINGS for configure scripts which use
+dnl the "--with-screen=pdcurses" selection.  Doing that allows the configure
+dnl script to search for the X11/Xt header files to declare (or not) the
+dnl symbol needed to enable "const" in those header files.  If that configure
+dnl option is not used, then those checks are unnecessary.
+AC_DEFUN([CF_WITH_SCREEN_PDCURSES],[
+AC_PROVIDE([AC_PATH_XTRA])
+AC_PROVIDE([AC_PATH_X])
+if test -n "$with_screen" && test "x$with_screen" = "xpdcurses"
+then
+	AC_PATH_X
+	AC_PATH_XTRA
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_SHARED_OR_LIBTOOL version: 7 updated: 2014/11/02 16:11:49
