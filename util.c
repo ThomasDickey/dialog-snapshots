@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.292 2020/11/20 09:00:57 tom Exp $
+ *  $Id: util.c,v 1.294 2020/11/21 21:32:21 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -838,7 +838,6 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	 */
 	thisTab = (CharOf(*txt) == TAB);
 	if (dialog_state.text_only) {
-	    y_before = y_after;
 	    x_before = x_after;
 	} else {
 	    if (thisTab) {
@@ -1540,18 +1539,49 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
     dlg_draw_box2(win, y, x, height, width, boxchar, borderchar, boxchar);
 }
 
-DIALOG_WINDOWS *
-_dlg_find_window(WINDOW *win)
+/*
+ * Search the given 'list' for the given window 'win'.  Typically 'win' is an
+ * input-window, i.e., a window where we might use wgetch.
+ *
+ * The all-windows list has normal- and shadow-windows.  Since we never use the
+ * shadow as an input window, normally we just look for the normal-window.
+ *
+ * However, the all-subwindows list stores parent/child windows rather than
+ * normal/shadow windows.  When searching that list, we look for the child
+ * window (in the .shadow field).
+ */
+static DIALOG_WINDOWS *
+find_window(DIALOG_WINDOWS * list, WINDOW *win, bool normal)
 {
     DIALOG_WINDOWS *result = 0;
     DIALOG_WINDOWS *p;
 
-    for (p = dialog_state.all_windows; p != 0; p = p->next) {
-	if (p->normal == win) {
+    for (p = list; p != 0; p = p->next) {
+	WINDOW *check = normal ? p->normal : p->shadow;
+	if (check == win) {
 	    result = p;
 	    break;
 	}
     }
+    return result;
+}
+
+#define SearchTopWindows(win) find_window(dialog_state.all_windows, win, TRUE)
+#define SearchSubWindows(win) find_window(dialog_state.all_subwindows, win, FALSE)
+
+/*
+ * Check for the existence of a window, e.g., when used for input or updating
+ * the display.  This is used in dlg_getc() and related functions, to guard
+ * against an asynchronous window-deletion that might invalidate the input
+ * window used in dlg_getc().
+ */
+DIALOG_WINDOWS *
+_dlg_find_window(WINDOW *win)
+{
+    DIALOG_WINDOWS *result = 0;
+
+    if ((result = SearchTopWindows(win)) == NULL)
+	result = SearchSubWindows(win);
     return result;
 }
 
@@ -1753,7 +1783,7 @@ erase_childs_shadow(DIALOG_WINDOWS * dw)
 void
 dlg_draw_shadow(WINDOW *win, int y, int x, int height, int width)
 {
-    repaint_shadow(_dlg_find_window(win), TRUE, y, x, height, width);
+    repaint_shadow(SearchTopWindows(win), TRUE, y, x, height, width);
 }
 #endif /* HAVE_COLOR */
 
@@ -2273,7 +2303,7 @@ dlg_set_timeout(WINDOW *win, bool will_getc)
     int result = 0;
     int interval;
 
-    if ((p = _dlg_find_window(win)) != NULL) {
+    if ((p = SearchTopWindows(win)) != NULL) {
 	interval = (dialog_vars.timeout_secs * 1000);
 
 	if (will_getc || dialog_vars.pause_secs) {
@@ -2295,7 +2325,7 @@ dlg_reset_timeout(WINDOW *win)
 {
     DIALOG_WINDOWS *p;
 
-    if ((p = _dlg_find_window(win)) != NULL) {
+    if ((p = SearchTopWindows(win)) != NULL) {
 	wtimeout(win, p->getc_timeout);
     } else {
 	wtimeout(win, WTIMEOUT_OFF);
@@ -2314,7 +2344,7 @@ dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 
 	dlg_ctl_size(height, width);
 
-	if ((p = _dlg_find_window(win)) != 0) {
+	if ((p = SearchTopWindows(win)) != 0) {
 	    (void) wresize(win, height, width);
 	    (void) mvwin(win, y, x);
 #ifdef HAVE_COLOR

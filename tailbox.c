@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.78 2020/03/27 19:31:03 tom Exp $
+ *  $Id: tailbox.c,v 1.79 2020/11/21 21:31:49 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -331,7 +331,7 @@ dialog_tailbox(const char *title,
     int old_width = width;
 #endif
     int fkey;
-    int x, y, result, thigh;
+    int x, y, result = DLG_EXIT_UNKNOWN, thigh;
     WINDOW *dialog, *text;
     const char **buttons = 0;
     MY_OBJ *obj;
