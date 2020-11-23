@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.299 2020/11/22 23:07:24 tom Exp $
+ *  $Id: dialog.h,v 1.300 2020/11/23 08:59:08 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -798,6 +798,7 @@ extern void dlg_killall_bg(int *retval);
 
 /* util.c */
 extern DIALOG_WINDOWS * _dlg_find_window(WINDOW * /* win */);
+extern WINDOW * dlg_der_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_new_modal_window(WINDOW * /*parent*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_new_window(int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_sub_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);

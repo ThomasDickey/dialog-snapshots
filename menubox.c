@@ -1,5 +1,5 @@
 /*
- *  $Id: menubox.c,v 1.170 2020/11/23 00:28:52 tom Exp $
+ *  $Id: menubox.c,v 1.171 2020/11/23 21:03:11 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
@@ -669,14 +669,19 @@ dlg_menu(const char *title,
 		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
 				 FALSE, width);
 		break;
+
 	    case DLGK_FIELD_NEXT:
 		button = dlg_next_button(buttons, button);
 		dlg_draw_buttons(dialog, height - 2, 0, buttons, button,
 				 FALSE, width);
 		break;
+
 	    case DLGK_TOGGLE:
 	    case DLGK_ENTER:
-		result = dlg_enter_buttoncode(button);
+	    case DLGK_LEAVE:
+		result = ((key == DLGK_LEAVE)
+			  ? dlg_ok_buttoncode(button)
+			  : dlg_enter_buttoncode(button));
 
 		/*
 		 * If dlg_menu() is called from dialog_menu(), we want to
@@ -730,9 +735,6 @@ dlg_menu(const char *title,
 					 buttons, button, FALSE, width);
 		    }
 		}
-		break;
-	    case DLGK_LEAVE:
-		result = dlg_ok_buttoncode(button);
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:

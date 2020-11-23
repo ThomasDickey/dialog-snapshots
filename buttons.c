@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.101 2019/08/05 20:46:00 tom Exp $
+ *  $Id: buttons.c,v 1.103 2020/11/23 23:45:09 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2020	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -593,23 +593,42 @@ dlg_exit_buttoncode(int button)
     return result;
 }
 
+static const char **
+finish_ok_label(const char **labels, int n)
+{
+    if (n == 0) {
+	labels[n++] = my_ok_label();
+	dialog_vars.nook = FALSE;
+	dlg_trace_msg("# ignore --nook, since at least one button is needed\n");
+    }
+
+    labels[n] = NULL;
+    return labels;
+}
+
+/*
+ * Return a list of button labels for the OK (no Cancel) group, used in msgbox
+ * and progressbox.
+ */
 const char **
 dlg_ok_label(void)
 {
     static const char *labels[4];
     int n = 0;
 
-    labels[n++] = my_ok_label();
+    if (!dialog_vars.nook)
+	labels[n++] = my_ok_label();
     if (dialog_vars.extra_button)
 	labels[n++] = my_extra_label();
     if (dialog_vars.help_button)
 	labels[n++] = my_help_label();
-    labels[n] = 0;
-    return labels;
+
+    return finish_ok_label(labels, n);
 }
 
 /*
- * Return a list of button labels for the OK/Cancel group.
+ * Return a list of button labels for the OK/Cancel group, used in most widgets
+ * that select an option or data.
  */
 const char **
 dlg_ok_labels(void)
@@ -625,8 +644,8 @@ dlg_ok_labels(void)
 	labels[n++] = my_cancel_label();
     if (dialog_vars.help_button)
 	labels[n++] = my_help_label();
-    labels[n] = 0;
-    return labels;
+
+    return finish_ok_label(labels, n);
 }
 
 /*

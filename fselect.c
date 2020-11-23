@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.113 2020/11/23 00:43:58 tom Exp $
+ *  $Id: fselect.c,v 1.114 2020/11/23 09:03:54 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -292,6 +292,7 @@ fix_arrows(LIST * list)
 			: KEY_NPAGE));
     }
 }
+
 #else
 #define fix_arrows(list)	/* nothing */
 #endif
@@ -668,13 +669,12 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     tbox_y = height - (BTN_HIGH * 2) + MARGIN;
     tbox_x = (width - tbox_width) / 2;
 
-    w_text = derwin(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
+    w_text = dlg_der_window(dialog, tbox_height, tbox_width, tbox_y, tbox_x);
     if (w_text == 0) {
 	result = DLG_EXIT_ERROR;
 	goto finish;
     }
 
-    (void) keypad(w_text, TRUE);
     dlg_draw_box(dialog, tbox_y - MARGIN, tbox_x - MARGIN,
 		 (2 * MARGIN + 1), tbox_width + (MARGIN + EXT_WIDE),
 		 menubox_border_attr, menubox_border2_attr);
@@ -695,13 +695,12 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
     dbox_y = (2 * MARGIN + 1);
     dbox_x = tbox_x;
 
-    w_work = derwin(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
+    w_work = dlg_der_window(dialog, dbox_height, dbox_width, dbox_y, dbox_x);
     if (w_work == 0) {
 	result = DLG_EXIT_ERROR;
 	goto finish;
     }
 
-    (void) keypad(w_work, TRUE);
     (void) mvwaddstr(dialog, dbox_y - (MARGIN + 1), dbox_x - MARGIN, d_label);
     dlg_draw_box(dialog,
 		 dbox_y - MARGIN, dbox_x - MARGIN,
@@ -716,13 +715,12 @@ dlg_fselect(const char *title, const char *path, int height, int width, int dsel
 	fbox_y = dbox_y;
 	fbox_x = tbox_x + dbox_width + (2 * MARGIN);
 
-	w_work = derwin(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
+	w_work = dlg_der_window(dialog, fbox_height, fbox_width, fbox_y, fbox_x);
 	if (w_work == 0) {
 	    result = DLG_EXIT_ERROR;
 	    goto finish;
 	}
 
-	(void) keypad(w_work, TRUE);
 	(void) mvwaddstr(dialog, fbox_y - (MARGIN + 1), fbox_x - MARGIN, f_label);
 	dlg_draw_box(dialog,
 		     fbox_y - MARGIN, fbox_x - MARGIN,
