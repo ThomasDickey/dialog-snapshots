@@ -1,5 +1,5 @@
 /*
- *  $Id: progressbox.c,v 1.53 2020/03/27 21:10:23 tom Exp $
+ *  $Id: progressbox.c,v 1.54 2020/11/22 15:48:27 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
@@ -68,6 +68,7 @@ free_obj(MY_OBJ * obj)
     free(obj);
 }
 
+#ifdef KEY_RESIZE
 static void
 restart_obj(MY_OBJ * obj)
 {
@@ -77,6 +78,7 @@ restart_obj(MY_OBJ * obj)
     dlg_clear();
     dlg_del_window(obj->obj.win);
 }
+#endif
 
 static void
 start_obj(MY_OBJ * obj, const char *title, const char *cprompt)
@@ -290,6 +292,9 @@ pause_for_ok(MY_OBJ * obj, const char *title, const char *cprompt)
     const char **buttons = dlg_ok_label();
     bool save_nocancel = dialog_vars.nocancel;
     bool redraw = TRUE;
+
+    (void) title;
+    (void) cprompt;
 
     dialog_vars.nocancel = TRUE;
     button = dlg_default_button();

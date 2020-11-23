@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.79 2020/03/27 21:04:47 tom Exp $
+ *  $Id: editbox.c,v 1.80 2020/11/23 00:27:21 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -699,8 +699,12 @@ dlg_editbox(const char *title,
 		    (void) Scroll_To(thisrow);
 		    show_all = TRUE;
 		} else {
-		    result = dlg_ok_buttoncode(state);
+		    result = dlg_enter_buttoncode(state);
 		}
+		break;
+	    case DLGK_LEAVE:
+		if (state >= 0)
+		    result = dlg_ok_buttoncode(state);
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:

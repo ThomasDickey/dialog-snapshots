@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.100 2020/03/27 21:14:23 tom Exp $
+# $Id: makefile.in,v 1.101 2020/11/22 15:45:59 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2018,2020 Thomas E. Dickey                              #
@@ -102,6 +102,7 @@ LINT_OPTS	= @LINT_OPTS@
 CTAGS		= @CTAGS@
 ETAGS		= @ETAGS@
 
+RPATH_LIST	= @RPATH_LIST@
 LIBTOOL		= @LIBTOOL@ @ECHO_LT@
 LIBTOOL_OPTS	= @LIBTOOL_OPTS@
 LIBTOOL_CLEAN	= @LIB_CLEAN@

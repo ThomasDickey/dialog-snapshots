@@ -1,5 +1,5 @@
 /*
- *  $Id: msgbox.c,v 1.88 2020/03/27 20:38:45 tom Exp $
+ *  $Id: msgbox.c,v 1.89 2020/11/23 00:32:02 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
@@ -161,6 +161,9 @@ dialog_msgbox(const char *title, const char *cprompt, int height, int width,
 				     FALSE, width);
 		    break;
 		case DLGK_ENTER:
+		    result = dlg_enter_buttoncode(button);
+		    break;
+		case DLGK_LEAVE:
 		    result = dlg_ok_buttoncode(button);
 		    break;
 		default:

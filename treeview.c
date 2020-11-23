@@ -1,5 +1,5 @@
 /*
- *  $Id: treeview.c,v 1.42 2020/03/27 20:23:03 tom Exp $
+ *  $Id: treeview.c,v 1.43 2020/11/23 00:38:31 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
@@ -522,6 +522,9 @@ dlg_treeview(const char *title,
 	    switch (key) {
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
+		break;
+	    case DLGK_LEAVE:
+		result = dlg_ok_buttoncode(button);
 		break;
 	    case DLGK_FIELD_PREV:
 		button = dlg_prev_button(buttons, button);

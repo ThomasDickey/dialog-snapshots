@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.101 2020/03/27 20:42:19 tom Exp $
+ *  $Id: formbox.c,v 1.102 2020/11/23 00:46:57 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -700,6 +700,10 @@ dlg_form(const char *title,
 		dlg_del_window(dialog);
 		result = (state >= 0) ? dlg_enter_buttoncode(state) : DLG_EXIT_OK;
 		continue;
+	    case DLGK_LEAVE:
+		if (state >= 0)
+		    result = dlg_ok_buttoncode(state);
+		break;
 
 	    case DLGK_GRID_LEFT:
 		if (state == sTEXT)

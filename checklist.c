@@ -1,5 +1,5 @@
 /*
- *  $Id: checklist.c,v 1.166 2020/03/27 20:19:51 tom Exp $
+ *  $Id: checklist.c,v 1.167 2020/11/23 00:37:47 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
@@ -562,6 +562,9 @@ dlg_checklist(const char *title,
 	    switch (key) {
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
+		break;
+	    case DLGK_LEAVE:
+		result = dlg_ok_buttoncode(button);
 		break;
 	    case DLGK_FIELD_PREV:
 		button = dlg_prev_button(buttons, button);

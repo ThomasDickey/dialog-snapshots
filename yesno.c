@@ -1,5 +1,5 @@
 /*
- *  $Id: yesno.c,v 1.70 2020/03/27 20:27:41 tom Exp $
+ *  $Id: yesno.c,v 1.71 2020/11/23 00:48:08 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
@@ -134,6 +134,7 @@ dialog_yesno(const char *title, const char *cprompt, int height, int width)
 				 FALSE, width);
 		break;
 	    case DLGK_ENTER:
+	    case DLGK_LEAVE:
 		result = dlg_yes_buttoncode(button);
 		break;
 #ifdef KEY_RESIZE
