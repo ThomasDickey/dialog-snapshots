@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.294 2020/11/21 21:32:21 tom Exp $
+ *  $Id: util.c,v 1.295 2020/11/23 09:12:00 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -2398,6 +2398,21 @@ dlg_will_resize(WINDOW *win)
 	       caught == 1 ? "" : "s"));
 }
 #endif /* KEY_RESIZE */
+
+WINDOW *
+dlg_der_window(WINDOW *parent, int height, int width, int y, int x)
+{
+    WINDOW *win;
+
+    /* existing uses of derwin are (almost) guaranteed to succeed, and the
+     * caller has to allow for failure.
+     */
+    if ((win = derwin(parent, height, width, y, x)) != 0) {
+	add_subwindow(parent, win);
+	(void) keypad(win, TRUE);
+    }
+    return win;
+}
 
 WINDOW *
 dlg_sub_window(WINDOW *parent, int height, int width, int y, int x)

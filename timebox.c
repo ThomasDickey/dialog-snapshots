@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.68 2020/11/22 23:22:51 tom Exp $
+ * $Id: timebox.c,v 1.69 2020/11/23 09:04:00 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -105,12 +105,11 @@ init_object(BOX * data,
     data->period = period;
     data->value = value % period;
 
-    data->window = derwin(data->parent,
-			  data->height, data->width,
-			  data->y, data->x);
+    data->window = dlg_der_window(data->parent,
+				  data->height, data->width,
+				  data->y, data->x);
     if (data->window == 0)
 	return -1;
-    (void) keypad(data->window, TRUE);
 
     dlg_mouse_setbase(getbegx(parent), getbegy(parent));
     dlg_mouse_mkregion(y, x, height, width, code);

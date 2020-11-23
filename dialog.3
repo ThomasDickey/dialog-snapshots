@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.130 2020/11/20 09:21:01 tom Exp $
+.\" $Id: dialog.3,v 1.131 2020/11/23 09:15:00 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2020/11/20 09:21:01 $"
+.TH \*D 3 "" "$Date: 2020/11/23 09:15:00 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -2164,6 +2164,24 @@ Remove a window, repainting everything else.
 .TP 5
 .B WINDOW * \fIwin
 is the window to remove.
+.\" ---------------------------------------------------------------------------
+.SS dlg_der_window
+create a derived window, e.g., for an input area of a widget
+.TP 5
+.B WINDOW * \fIwin
+is the parent window
+.TP 5
+.B int \fIheight
+is the subwindow's height
+.TP 5
+.B int \fIwidth
+is the subwindow's width
+.TP 5
+.B int \fIy
+is the subwindow's top-row
+.TP 5
+.B int \fIx
+is the subwindow's left-column
 .\" ---------------------------------------------------------------------------
 .SS dlg_does_output
 This is called each time a widget is invoked which may do output.

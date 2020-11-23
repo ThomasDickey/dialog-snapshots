@@ -1,10 +1,15 @@
--- $Id: CHANGES,v 1.704 2020/11/22 23:20:51 tom Exp $
+-- $Id: CHANGES,v 1.708 2020/11/23 23:23:01 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
 
-2020/11/22
+2020/11/23
+	+ modify dlg_ok_label() and dlg_ok_labels() to ignore --no-ok if all
+	  buttons would be omitted.
+	+ add/use dlg_der_window() to account for derived windows just like
+	  subwindows, to fix regression in dlg_getc() in fselect/dselect
+	  widget.
 	+ modify several widgets to make their handling of --no-ok consistent
 	  with the majority of the widgets: editbox.c, menubox.c, msgbox.c,
 	  rangebox.c, textbox.c, timebox.c

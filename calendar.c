@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.105 2020/11/23 00:37:47 tom Exp $
+ * $Id: calendar.c,v 1.106 2020/11/23 09:03:49 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -512,12 +512,11 @@ init_object(BOX * data,
     data->box_draw = box_draw;
     data->week_start = key_offset;
 
-    data->window = derwin(data->parent,
-			  data->height, data->width,
-			  data->y, data->x);
+    data->window = dlg_der_window(data->parent,
+				  data->height, data->width,
+				  data->y, data->x);
     if (data->window == 0)
 	return -1;
-    (void) keypad(data->window, TRUE);
 
     dlg_mouse_setbase(getbegx(parent), getbegy(parent));
     if (code == 'D') {
@@ -884,7 +883,6 @@ dialog_calendar(const char *title,
 	    if (!dlg_button_key(result, &button, &key, &fkey))
 		break;
 	}
-
 #define Mouse2Key(key) (key - M_EVENT)
 	if (fkey && (key >= DLGK_MOUSE(KEY_MIN) && key <= DLGK_MOUSE(KEY_MAX))) {
 	    key = dlg_lookup_key(dialog, Mouse2Key(key), &fkey);
