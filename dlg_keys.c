@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.56 2019/09/25 08:58:48 tom Exp $
+ *  $Id: dlg_keys.c,v 1.57 2020/11/22 23:19:33 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2018,2019 Thomas E. Dickey
+ *  Copyright 2006-2019,2020 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -541,7 +541,8 @@ static const CODENAME dialog_names[] =
     DIALOG_NAME(SELECT),
     DIALOG_NAME(HELPFILE),
     DIALOG_NAME(TRACE),
-    DIALOG_NAME(TOGGLE)
+    DIALOG_NAME(TOGGLE),
+    DIALOG_NAME(LEAVE)
 };
 
 #define MAP2(letter,actual) { letter, actual }

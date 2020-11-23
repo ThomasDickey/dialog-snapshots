@@ -1,5 +1,5 @@
 /*
- * $Id: timebox.c,v 1.67 2020/03/27 20:26:21 tom Exp $
+ * $Id: timebox.c,v 1.68 2020/11/22 23:22:51 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
@@ -316,6 +316,9 @@ dialog_timebox(const char *title,
 		    break;
 		case DLGK_TOGGLE:
 		case DLGK_ENTER:
+		    result = dlg_enter_buttoncode(button);
+		    break;
+		case DLGK_LEAVE:
 		    result = dlg_ok_buttoncode(button);
 		    break;
 		case DLGK_FIELD_PREV:

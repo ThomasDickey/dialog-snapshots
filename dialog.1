@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.215 2020/09/13 19:00:22 tom Exp $
+.\" $Id: dialog.1,v 1.216 2020/11/23 01:05:48 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2020/09/13 19:00:22 $"
+.TH \*D 1 "" "$Date: 2020/11/23 01:05:48 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -532,9 +532,27 @@ For more information, see \fBWhitespace Options\fP.
 .
 .IP "\fB--no-ok"
 .IP "\fB--nook"
-Suppress the \*(``OK\*('' button in checklist, inputbox and menu box modes.
+Suppress the \*(``OK\*('' button, so that it is not displayed.
 A script can still test if the user pressed
-the \*(``Enter\*('' key to accept the data.
+the \*(``Enter\*('' key to accept the data:
+.RS
+.bP
+The \*(``Enter\*('' key is always handled as the \*(``OK\*('' button
+when the \fB\-\-nook\fP option is used.
+That is, by default it is bound to the \fILEAVE\fP virtual key.
+.IP
+When \fB\-\-nook\fP is not used,
+you can use the the \fITab\fP key to move the cursor through the
+fields and buttons on the widget.
+In that case, the \*(``Enter\*('' key activates the current button
+if the cursor is positioned on a button.
+.bP
+To provide for the case where you want to activate a button
+when using \fB--nook\fP,
+there is another virtual key \fILEAVE\fP,
+which activates the current button.
+By default, \fB^D\fP (EOF) is bound to that key.
+.RE
 .
 .IP "\fB--no-shadow"
 Suppress shadows that would be drawn to the right and bottom of each dialog box.

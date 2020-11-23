@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.298 2020/11/20 09:01:39 tom Exp $
+ *  $Id: dialog.h,v 1.299 2020/11/22 23:07:24 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -158,16 +158,17 @@
 
 #define DLG_CTRL(n)	((n) & 0x1f)	/* CTRL is preferred, but conflicts */
 
+#define CHR_LEAVE	DLG_CTRL('D')
 #define CHR_HELP	DLG_CTRL('E')
 #define CHR_BACKSPACE	DLG_CTRL('H')
 #define CHR_REPAINT	DLG_CTRL('L')
-#define CHR_KILL	DLG_CTRL('U')
-#define CHR_LITERAL	DLG_CTRL('V')
-#define CHR_DELETE	127
 #define CHR_NEXT	DLG_CTRL('N')
 #define CHR_PREVIOUS	DLG_CTRL('P')
+#define CHR_KILL	DLG_CTRL('U')
 #define CHR_TRACE	DLG_CTRL('T')
+#define CHR_LITERAL	DLG_CTRL('V')
 #define CHR_SPACE 	' '
+#define CHR_DELETE	127
 
 #define ESC		27
 #define TAB		DLG_CTRL('I')

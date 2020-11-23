@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.31 2020/03/26 23:29:24 tom Exp $
+ *  $Id: trace.c,v 1.32 2020/11/22 23:16:46 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -231,6 +231,7 @@ dlg_trace_chr(int ch, int fkey)
 		    CASE(DLGK_HELPFILE);
 		    CASE(DLGK_TRACE);
 		    CASE(DLGK_TOGGLE);
+		    CASE(DLGK_LEAVE);
 		}
 	    }
 	} else if (ch == ERR) {

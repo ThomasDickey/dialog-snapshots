@@ -1,5 +1,5 @@
 /*
- *  $Id: buildlist.c,v 1.93 2020/03/27 20:18:58 tom Exp $
+ *  $Id: buildlist.c,v 1.94 2020/11/23 00:37:17 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
@@ -1093,6 +1093,9 @@ dlg_buildlist(const char *title,
 	    switch (key) {
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
+		break;
+	    case DLGK_LEAVE:
+		result = dlg_ok_buttoncode(button);
 		break;
 #ifdef KEY_RESIZE
 	    case KEY_RESIZE:

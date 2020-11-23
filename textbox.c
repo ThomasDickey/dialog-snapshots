@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.124 2020/03/27 20:29:49 tom Exp $
+ *  $Id: textbox.c,v 1.125 2020/11/22 23:24:07 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -867,10 +867,10 @@ dialog_textbox(const char *title, const char *filename, int height, int width)
 				 FALSE, width);
 		break;
 	    case DLGK_ENTER:
-		if (dialog_vars.nook)
-		    result = DLG_EXIT_OK;
-		else
-		    result = dlg_exit_buttoncode(button);
+		result = dlg_enter_buttoncode(button);
+		break;
+	    case DLGK_LEAVE:
+		result = dlg_ok_buttoncode(button);
 		break;
 	    case DLGK_PAGE_FIRST:
 		if (!obj.begin_reached) {

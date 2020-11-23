@@ -1,5 +1,5 @@
 /*
- * $Id: calendar.c,v 1.104 2020/03/27 20:20:18 tom Exp $
+ * $Id: calendar.c,v 1.105 2020/11/23 00:37:47 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
@@ -907,6 +907,9 @@ dialog_calendar(const char *title,
 	    case DLGK_TOGGLE:
 	    case DLGK_ENTER:
 		result = dlg_enter_buttoncode(button);
+		break;
+	    case DLGK_LEAVE:
+		result = dlg_ok_buttoncode(button);
 		break;
 	    case DLGK_FIELD_PREV:
 		state = dlg_prev_ok_buttonindex(state, sMONTH);
