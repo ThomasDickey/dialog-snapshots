@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.300 2020/11/23 08:59:08 tom Exp $
+ *  $Id: dialog.h,v 1.302 2020/11/25 00:10:29 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -155,6 +155,7 @@
 #define DLG_EXIT_HELP		2
 #define DLG_EXIT_EXTRA		3
 #define DLG_EXIT_ITEM_HELP	4	/* actually DLG_EXIT_HELP */
+#define DLG_EXIT_TIMEOUT	5
 
 #define DLG_CTRL(n)	((n) & 0x1f)	/* CTRL is preferred, but conflicts */
 
@@ -803,6 +804,7 @@ extern WINDOW * dlg_new_modal_window(WINDOW * /*parent*/, int /*height*/, int /*
 extern WINDOW * dlg_new_window(int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern WINDOW * dlg_sub_window(WINDOW * /*win*/, int /*height*/, int /*width*/, int /*y*/, int /*x*/);
 extern bool dlg_need_separator(void);
+extern char * dlg_getenv_str(const char * /*name*/);
 extern char * dlg_set_result(const char * /*string*/);
 extern char * dlg_strclone(const char * /*cprompt*/);
 extern char * dlg_strempty(void);
@@ -822,6 +824,7 @@ extern int dlg_default_listitem(DIALOG_LISTITEM * /*items*/);
 extern int dlg_defaultno_button(void);
 extern int dlg_default_button(void);
 extern int dlg_exitname2n(const char * /*name*/);
+extern int dlg_getenv_num(const char * /*name*/, int * /* value */);
 extern int dlg_max_input(int /*max_len*/);
 extern int dlg_print_scrolled(WINDOW * /* win */, const char * /* prompt */, int /* offset */, int /* height */, int /* width */, int /* pauseopt */);
 extern int dlg_set_timeout(WINDOW * /* win */, bool /* will_getc */);

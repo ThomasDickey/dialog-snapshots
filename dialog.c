@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.274 2020/11/21 21:18:33 tom Exp $
+ * $Id: dialog.c,v 1.275 2020/11/25 00:05:02 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1864,7 +1864,7 @@ init_result(char *buffer)
      * environment variable.
      */
     if (first) {
-	char *env = getenv("DIALOGOPTS");
+	char *env = dlg_getenv_str("DIALOGOPTS");
 	if (env != 0)
 	    env = dlg_strclone(env);
 	if (env != 0) {

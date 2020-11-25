@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.295 2020/11/23 09:12:00 tom Exp $
+ *  $Id: util.c,v 1.297 2020/11/25 00:35:48 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -264,14 +264,7 @@ _dlg_resize_cleanup(WINDOW *w)
  * option to be given, but some scripts were written making use of the
  * behavior of dialog which tried opening the terminal anyway. 
  */
-static char *
-dialog_tty(void)
-{
-    char *result = getenv("DIALOG_TTY");
-    if (result != 0 && atoi(result) == 0)
-	result = 0;
-    return result;
-}
+#define dialog_tty() (dlg_getenv_num("DIALOG_TTY", (int *)0) > 0)
 
 /*
  * Open the terminal directly.  If one of stdin, stdout or stderr really points
@@ -1806,24 +1799,18 @@ dlg_exit(int code)
 	{ DLG_EXIT_HELP,   	"DIALOG_HELP" },
 	{ DLG_EXIT_OK,	   	"DIALOG_OK" },
 	{ DLG_EXIT_ITEM_HELP,	"DIALOG_ITEM_HELP" },
+	{ DLG_EXIT_TIMEOUT,	"DIALOG_TIMEOUT" },
     };
     /* *INDENT-ON* */
 
     unsigned n;
-    char *name;
-    char *temp;
-    long value;
     bool overridden = FALSE;
 
   retry:
     for (n = 0; n < TableSize(table); n++) {
 	if (table[n].code == code) {
-	    if ((name = getenv(table[n].name)) != 0) {
-		value = strtol(name, &temp, 0);
-		if (temp != 0 && temp != name && *temp == '\0') {
-		    code = (int) value;
-		    overridden = TRUE;
-		}
+	    if (dlg_getenv_num(table[n].name, &code)) {
+		overridden = TRUE;
 	    }
 	    break;
 	}
@@ -1944,7 +1931,51 @@ dlg_exiterr(const char *fmt, ...)
 
     (void) fflush(stderr);
     (void) fflush(stdout);
-    dlg_exit(DLG_EXIT_ERROR);
+    dlg_exit(strcmp(fmt, "timeout") == 0 ? DLG_EXIT_TIMEOUT : DLG_EXIT_ERROR);
+}
+
+/*
+ * Get a string from the environment, rejecting those which are entirely blank.
+ */
+char *
+dlg_getenv_str(const char *name)
+{
+    char *result = getenv(name);
+    if (result != NULL) {
+	while (*result != '\0' && isspace(UCH(*result)))
+	    ++result;
+	if (*result == '\0')
+	    result = NULL;
+    }
+    return result;
+}
+
+/*
+ * Get a number from the environment:
+ * + If the caller provides a pointer in the second parameter, return
+ *   success/failure for the function return, and the actual value via the
+ *   pointer.  Use this for decoding arbitrary numbers, e.g., negative or zero.
+ * + If the caller does not provide a pointer, return the decoded value for
+ *   the function-return.  Use this when only values greater than zero are
+ *   useful.
+ */
+int
+dlg_getenv_num(const char *name, int *value)
+{
+    int result = 0;
+    char *data = getenv(name);
+    if (data != NULL) {
+	char *temp = NULL;
+	long check = strtol(data, &temp, 0);
+	if (temp != 0 && temp != data && *temp == '\0') {
+	    result = (int) check;
+	    if (value != NULL) {
+		*value = result;
+		result = 1;
+	    }
+	}
+    }
+    return result;
 }
 
 void

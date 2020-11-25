@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.77 2020/11/20 21:24:06 tom Exp $
+ *  $Id: ui_getc.c,v 1.80 2020/11/25 01:08:30 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -496,7 +496,11 @@ dlg_getc(WINDOW *win, int *fkey)
 	    case ERR:		/* wtimeout() in effect; check for file I/O */
 		if (interval > 0
 		    && current >= expired) {
+		    int status;
 		    DLG_TRACE(("# dlg_getc: timeout expired\n"));
+		    if (dlg_getenv_num("DIALOG_TIMEOUT", &status)) {
+			dlg_exiterr("timeout");
+		    }
 		    ch = ESC;
 		    done = TRUE;
 		} else if (!valid_file(stdin)

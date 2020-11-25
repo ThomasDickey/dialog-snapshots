@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.131 2020/11/23 09:15:00 tom Exp $
+.\" $Id: dialog.3,v 1.132 2020/11/25 01:26:22 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2020/11/23 09:15:00 $"
+.TH \*D 3 "" "$Date: 2020/11/25 01:26:22 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -2702,6 +2702,29 @@ is the window within which to read.
 .TP 5
 .B int * \fIfkey
 as a side-effect, set this to true if the key-code is really a function-key.
+.\" ---------------------------------------------------------------------------
+.SS dlg_getenv_num
+Get a number from the environment:
+.bP
+If the caller provides a pointer in the second parameter, return
+success/failure for the function return, and the actual value via the
+pointer.  Use this for decoding arbitrary numbers, e.g., negative or zero.
+.bP
+If the caller does not provide a pointer, return the decoded value for
+the function-return.  Use this when only values greater than zero are
+useful.
+.TP 5
+.B char * \fIname
+is the name of the environment-variable to retrieve.
+.TP 5
+.B int * \fIvalue
+is the optional pointer to a return-value.
+.\" ---------------------------------------------------------------------------
+.SS dlg_getenv_str
+Get a string from the environment, rejecting those which are entirely blank.
+.TP 5
+.B char * \fIname
+is the name of the environment-variable to retrieve.
 .\" ---------------------------------------------------------------------------
 .SS dlg_get_attrs
 extract the video attributes from the given window.
