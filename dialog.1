@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.216 2020/11/23 01:05:48 tom Exp $
+.\" $Id: dialog.1,v 1.218 2020/11/25 01:22:27 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2020/11/23 01:05:48 $"
+.TH \*D 1 "" "$Date: 2020/11/25 01:22:27 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -706,9 +706,15 @@ the \fB--timebox\fP widget.
 The day, month, year values in this case are for the current local time.
 .
 .IP "\fB--timeout \fIsecs"
-Timeout (exit with error code)
-if no user response within the given number of seconds.
+Timeout if no user response within the given number of seconds.
 A timeout of zero seconds is ignored.
+.IP
+Normally a timeout causes an ESC character to be entered in the current widget,
+cancelling it.
+Other widgets may still be on the screen;
+these are not cancelled.
+Set the \fBDIALOG_TIMEOUT\fP environment variable to tell \fB\*l\fP to
+directly exit instead, i.e., cancelling all widgets on the screen.
 .IP
 This option is ignored by the \*(``\fB--pause\fP\*('' widget.
 It is also overridden
@@ -1715,15 +1721,29 @@ to use.
 .TP 15
 \fBDIALOG_ITEM_HELP\fP
 .TP 15
+\fBDIALOG_TIMEOUT\fP
+.TP 15
 \fBDIALOG_OK\fP
 Define any of these variables to change the exit code on
+.RS
+.bP
 Cancel (1),
+.bP
 error (\-1),
+.bP
 ESC (255),
+.bP
 Extra (3),
+.bP
 Help (2),
+.bP
 Help with \fB--item-help\fP (2),
-or OK (0).
+.bP
+Timeout (5), or
+.bP
+OK (0).
+.RE
+.IP
 Normally shell scripts cannot distinguish between \-1 and 255.
 .TP 15
 \fBDIALOG_TTY\fP
@@ -1777,6 +1797,9 @@ this special case was introduced in 2004 to simplify compatibility.
 \fB\*L\fP uses DIALOG_ITEM_HELP(4) internally,
 but unless the environment variable is also set,
 it changes that to DIALOG_HELP(2) on exit.
+.TP 5
+5
+if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5. 
 .TP 5
 \-1
 if errors occur inside \fB\*p\fP (DIALOG_ERROR)

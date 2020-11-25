@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.59 2020/03/27 21:10:34 tom Exp $
+ *  $Id: rc.c,v 1.60 2020/11/25 00:06:40 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -555,12 +555,12 @@ dlg_parse_rc(void)
      */
 
     /* try step (a) */
-    if ((filename = getenv("DIALOGRC")) != NULL)
+    if ((filename = dlg_getenv_str("DIALOGRC")) != NULL)
 	rc_file = fopen(filename, "rt");
 
     if (rc_file == NULL) {	/* step (a) failed? */
 	/* try step (b) */
-	if ((filename = getenv("HOME")) != NULL
+	if ((filename = dlg_getenv_str("HOME")) != NULL
 	    && strlen(filename) < MAX_LEN - (sizeof(DIALOGRC) + 3)) {
 	    if (filename[0] == '\0' || lastch(filename) == '/')
 		sprintf(str, "%s%s", filename, DIALOGRC);
