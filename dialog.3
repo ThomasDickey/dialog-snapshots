@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.132 2020/11/25 01:26:22 tom Exp $
+.\" $Id: dialog.3,v 1.134 2020/11/26 18:15:40 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2020/11/25 01:26:22 $"
+.TH \*D 3 "" "$Date: 2020/11/26 18:15:40 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -417,6 +417,13 @@ Without cr-wrap, the layout of your text may be formatted to look nice
 in the source code of your script without affecting the way it will
 look in the dialog.
 .\" ---------------------------------------------------------------------------
+.SS .cursor_off_label
+This corresponds to the command-line option "\fB--cursor-off-label\fP".
+If true, place the terminal cursor at the end of a button instead of
+on the first character of the button label.
+This is useful to reduce visual confusion when the cursor coloration
+interacts poorly with the button-label text colors.
+.\" ---------------------------------------------------------------------------
 .SS .date_format
 This corresponds to the command-line option
 "\fB--date-format\fP \fIstring\/\fP".
@@ -454,6 +461,16 @@ This option is implemented in the main program, not the library.
 If true,
 the screen will be cleared on exit.
 This may be used alone, without other options.
+.\" ---------------------------------------------------------------------------
+.SS .erase_on_exit
+This corresponds to the command-line option "\fB--erase-on-exit\fP".
+If true, remove the dialog widget on program exit, erasing the entire
+screen to its native background color, and place the terminal cursor
+at the lower left corner of the screen.
+This is useful for making the window contents invisible at the end of
+a series of dialog boxes.
+But it can also be used at earlier stages of a series of invocations
+of \fB\*p\fP, if the series may be aborted before it is fully completed.
 .\" ---------------------------------------------------------------------------
 .SS .exit_label
 This corresponds to the command-line option "\fB--exit-label string\fP".
@@ -1679,7 +1696,7 @@ if the value is zero,
 \fB\*l\fP updates it to the required height of the window,
 taking into account a (possibly) multi-line \fIprompt\fP.
 .bP
-if the value is greater than zero, 
+if the value is greater than zero,
 \fB\*l\fP uses it internally, but restores the value on return.
 .RE
 .TP 5
@@ -1699,7 +1716,7 @@ if the value is zero,
 \fB\*l\fP updates it to the required width of the window,
 taking into account a (possibly) multi-line \fIprompt\fP.
 .bP
-if the value is greater than zero, 
+if the value is greater than zero,
 \fB\*l\fP uses it internally, but restores the value on return.
 .RE
 .TP 5
@@ -2707,12 +2724,12 @@ as a side-effect, set this to true if the key-code is really a function-key.
 Get a number from the environment:
 .bP
 If the caller provides a pointer in the second parameter, return
-success/failure for the function return, and the actual value via the
-pointer.  Use this for decoding arbitrary numbers, e.g., negative or zero.
+success/failure for the function return, and the actual value via the pointer.
+Use this for decoding arbitrary numbers, e.g., negative or zero.
 .bP
 If the caller does not provide a pointer, return the decoded value for
-the function-return.  Use this when only values greater than zero are
-useful.
+the function-return.
+Use this when only values greater than zero are useful.
 .TP 5
 .B char * \fIname
 is the name of the environment-variable to retrieve.
@@ -2768,6 +2785,17 @@ Draw the string for the \fBdialog_vars.item_help\fP feature.
 .TP 5
 .B const char * \fItxt
 is the help-message
+.\" ---------------------------------------------------------------------------
+.SS dlg_keep_tite
+This performs the check and modifications
+for the command-line option "\fB--keep-tite\fP",
+used in \fBinit_dialog\fP as well as for
+the command-line option \fB--erase-on-exit\fP.
+.TP 5
+.B FILE * \fIoutput
+is the output stream used for displaying widgets.
+It is either \fIstdout\fP or \fIstderr\fP,
+depending on the \fB--stdout\fP option.
 .\" ---------------------------------------------------------------------------
 .SS dlg_killall_bg
 If \fB\*p\fP has callbacks active,

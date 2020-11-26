@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.218 2020/11/25 01:22:27 tom Exp $
+.\" $Id: dialog.1,v 1.219 2020/11/26 12:38:40 tom Exp $
 .\" Copyright 2005-2019,2020  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2020/11/25 01:22:27 $"
+.TH \*D 1 "" "$Date: 2020/11/26 12:38:40 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -240,6 +240,9 @@ First and third widget visible, staircase effect, ordered 3,1:
 Note, if you want to restore original console colors and send your
 cursor home after the dialog program has exited, use the \fBclear\fR\ (1)
 command.
+Conversely, if you want to clear the screen and send your cursor to
+the lower left after the \fB\*p\fP program has exited, use the
+\fB--erase-on-exit\fR\ option.
 .
 .IP "\fB--colors"
 Interpret embedded \*(``\eZ\*('' sequences in the dialog text
@@ -303,6 +306,12 @@ this can be used to dump a sample configuration file to the file specified
 by
 .IR file "."
 .
+.IP "\fB--cursor-off-label"
+Place the terminal cursor at the end of a button instead of on the
+first character of the button label.
+This is useful to reduce visual confusion when the cursor coloration
+interacts poorly with the button-label text colors.
+.
 .IP "\fB--date-format \fIformat"
 If the host provides \fBstrftime\fP,
 this option allows you to specify the format of the date printed for
@@ -344,6 +353,11 @@ If this option is not given, there is no default button assigned.
 .IP "\fB--default-item \fIstring"
 Set the default item in a checklist, form or menu box.
 Normally the first item in the box is the default.
+.
+.IP "\fB--erase-on-exit"
+When \fB\*p\fP exits, remove the dialog widget, erasing the entire
+screen to its native background color, and place the terminal cursor
+at the lower left corner.
 .
 .IP "\fB--exit-label \fIstring"
 Override the label used for \*(``EXIT\*('' buttons.
@@ -662,7 +676,7 @@ If this option is not set, \fB\*p\fP may use double quotes around each item.
 In either case,
 \fB\*p\fP adds backslashes to make the output useful in shell scripts.
 .IP
-Single quotes would be needed if 
+Single quotes would be needed if
 the string contains whitespace or a single or double-quote character.
 .
 .IP "\fB--size-err"
@@ -1174,9 +1188,9 @@ specified as an argument to \fBprgbox\fP.
 After the command completes, the user can press the \fIENTER\fP key so that
 \fB\*l\fP will exit and the calling shell script can continue its operation.
 .IP
-If three parameters are given, it displays the text under the title,
+If four parameters are given, it displays the text under the title,
 delineated from the scrolling file's contents.
-If only two parameters are given, this text is omitted.
+If only three parameters are given, this text is omitted.
 .
 .
 .IP "\fB--programbox \fItext height width"
@@ -1581,7 +1595,7 @@ as well as C1-controls such as \*(``~A\*('' and \*(``~?\*(''.
 .bP
 Finally, \fB\*l\fP allows backslash escapes as in C.
 Those can be octal character values such as \*(``\\033\*(''
-(the ASCII escape character), 
+(the ASCII escape character),
 or the characters listed in this table:
 .RS 10
 .TS
@@ -1799,7 +1813,7 @@ but unless the environment variable is also set,
 it changes that to DIALOG_HELP(2) on exit.
 .TP 5
 5
-if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5. 
+if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5.
 .TP 5
 \-1
 if errors occur inside \fB\*p\fP (DIALOG_ERROR)

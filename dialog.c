@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.275 2020/11/25 00:05:02 tom Exp $
+ * $Id: dialog.c,v 1.277 2020/11/26 16:49:01 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -58,10 +58,12 @@ typedef enum {
     ,o_column_separator
     ,o_cr_wrap
     ,o_create_rc
+    ,o_cursor_off_label
     ,o_date_format
     ,o_default_button
     ,o_default_item
     ,o_defaultno
+    ,o_erase_on_exit
     ,o_exit_label
     ,o_extra_button
     ,o_extra_label
@@ -236,10 +238,12 @@ static const Options options[] = {
     { "column-separator",o_column_separator,	1, "<str>" },
     { "cr-wrap",	o_cr_wrap,		1, "" },
     { "create-rc",	o_create_rc,		1, NULL },
+    { "cursor-off-label",o_cursor_off_label,	1, "" },
     { "date-format",	o_date_format,		1, "<str>" },
     { "default-button",	o_default_button,	1, "<str>" },
     { "default-item",	o_default_item,		1, "<str>" },
     { "defaultno",	o_defaultno,		1, "" },
+    { "erase-on-exit",	o_erase_on_exit,	1, "" },
     { "exit-label",	o_exit_label,		1, "<str>" },
     { "extra-button",	o_extra_button,		1, "" },
     { "extra-label",	o_extra_label,		1, "<str>" },
@@ -1657,6 +1661,9 @@ process_common_options(int argc, char **argv, int offset, int output)
 	case o_ignore:
 	    ignore_unknown = TRUE;
 	    break;
+	case o_erase_on_exit:
+	    dialog_vars.erase_on_exit = TRUE;
+	    break;
 	case o_keep_window:
 	    dialog_vars.keep_window = TRUE;
 	    break;
@@ -1745,6 +1752,9 @@ process_common_options(int argc, char **argv, int offset, int output)
 	    break;
 	case o_help_label:
 	    dialog_vars.help_label = optionString(argv, &offset);
+	    break;
+	case o_cursor_off_label:
+	    dialog_vars.cursor_off_label = TRUE;
 	    break;
 	case o_date_format:
 	    dialog_vars.date_format = optionString(argv, &offset);
@@ -1984,7 +1994,7 @@ main(int argc, char *argv[])
     }
     offset = 1;
     init_result(my_buffer);
-    dialog_vars.keep_tite = keep_tite;	/* init_result() cleared global */
+    dialog_vars.keep_tite |= keep_tite;		/* init_result() cleared global */
 
     /*
      * Dialog's output may be redirected (see above).  Handle the special
@@ -2004,6 +2014,7 @@ main(int argc, char *argv[])
 	case o_clear:
 	    initscr();
 	    refresh();
+	    dlg_keep_tite((dialog_state.output == stdout) ? stderr : stdout);
 	    endwin();
 	    break;
 	case o_ignore:

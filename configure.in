@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.100 2020/11/22 15:37:04 tom Exp $
+dnl $Id: configure.in,v 1.101 2020/11/26 16:21:27 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
@@ -204,7 +204,7 @@ dnl
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_DIRENT
-AC_CHECK_HEADERS(search.h stdint.h unistd.h)
+AC_CHECK_HEADERS(search.h stdint.h sys/param.h unistd.h)
 CF_CURSES_TERM_H
 
 dnl

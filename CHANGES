@@ -1,8 +1,20 @@
--- $Id: CHANGES,v 1.713 2020/11/26 01:20:23 tom Exp $
+-- $Id: CHANGES,v 1.717 2020/11/26 22:43:51 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2020/11/26
+	+ modify configure script's compiler check to work around Xcode's
+	  useless aliases for standard C.
+	+ enable keep-tite feature for NetBSD 8 and up; earlier releases would
+	  dump core.
+	> new features/fixes (Glenn Herteg)
+	+ add option "--cursor-off-label"
+	+ add option "--erase-on-exit"
+	+ fix errata in manpage.
+	+ fix logic: dlg_button_to_char() would return wrong value if no
+	  uppercase was found
 
 2020/11/25
 	+ add DIALOG_TIMEOUT to sample scripts, and use report-button more
