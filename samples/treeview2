@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: treeview2,v 1.4 2019/12/11 01:49:01 tom Exp $
+# $Id: treeview2,v 1.5 2020/11/26 00:05:52 tom Exp $
 
 . ./setup-vars
 
@@ -46,7 +46,7 @@ $DIALOG --title "TREE VIEW DIALOG" \
 	--scrollbar \
 	--treeview "TreeView demo" 0 0 10 `sed -e 's/:/ /g' "$input"` 2> $output
 
-retval=$?
+returncode=$?
 
 tempfile=$output
 . ./report-tempfile

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: menubox4,v 1.9 2019/12/10 23:16:31 tom Exp $
+# $Id: menubox4,v 1.10 2020/11/26 00:03:58 tom Exp $
 
 . ./setup-vars
 
@@ -22,6 +22,6 @@ Try it now!\n\n\
         "PC-DOS" "IBM PC DOS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                          "clone of a clone" \
         "MS-DOS" "Microsoft DOS xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                       "DOS: Disk Operating System, originally for an IBM contract, hence using the same jargon" 2> $tempfile
 
-retval=$?
+returncode=$?
 
 . ./report-tempfile

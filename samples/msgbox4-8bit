@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: msgbox4-8bit,v 1.5 2019/12/11 00:01:24 tom Exp $
+# $Id: msgbox4-8bit,v 1.8 2020/11/26 00:26:09 tom Exp $
 
 . ./setup-vars
 
@@ -17,13 +17,15 @@ This sample uses characters which are non-printing in POSIX locale.
 Hi, this is a simple message box.  You can use this to \
 display any message you like.  The box will remain until \
 you press the ENTER key." 22 $width
-retval=$?
+returncode=$?
 
-case $retval in
-  $DIALOG_CANCEL)
-    echo "Cancel pressed.";exit;;
-  $DIALOG_ESC)
-    echo "ESC pressed.";exit;;
+case $returncode in
+  $DIALOG_OK)
+    ;;
+  *)
+    . ./report-button;
+    exit
+    ;;
 esac
 
 width=`expr $width + 1`

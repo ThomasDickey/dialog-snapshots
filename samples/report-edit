@@ -1,9 +1,9 @@
 #!/bin/sh
-# $Id: report-edit,v 1.5 2019/12/11 01:23:08 tom Exp $
+# $Id: report-edit,v 1.8 2020/11/26 00:18:32 tom Exp $
 # Report results from editing.
 # vile:shmode
 
-case ${retval:-0} in
+case ${returncode:-0} in
   $DIALOG_OK)
     diff -c "${input:-input}" "${output:-output}"
     echo "OK"
@@ -16,8 +16,12 @@ case ${retval:-0} in
     echo "Extra pressed";;
   $DIALOG_ITEM_HELP)
     echo "Item-help button pressed.";;
+  $DIALOG_TIMEOUT)
+    echo "Timeout expired.";;
   $DIALOG_ERROR)
     echo "ERROR!";;
   $DIALOG_ESC)
     echo "ESC pressed.";;
+  *)
+    echo "Return code was $returncode";;
 esac
