@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.302 2020/11/25 00:10:29 tom Exp $
+ *  $Id: dialog.h,v 1.303 2020/11/26 12:03:54 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -578,6 +578,9 @@ typedef struct {
     bool reorder;		/* option "--reorder" */
     /* 1.3-20201117 */
     int pause_secs;		/* used by pause widget */
+    /* 1.3-20201126 */
+    bool erase_on_exit;		/* option "--erase-on-exit" */
+    bool cursor_off_label;	/* option "--cursor-off-label" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
@@ -851,6 +854,7 @@ extern void dlg_draw_box2(WINDOW * /*win*/, int /*y*/, int /*x*/, int /*height*/
 extern void dlg_draw_title(WINDOW *win, const char *title);
 extern void dlg_exit(int /*code*/) GCC_NORETURN;
 extern void dlg_item_help(const char * /*txt*/);
+extern void dlg_keep_tite(FILE * /*output */);
 extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*height*/, int /*width*/);
 extern void dlg_print_listitem(WINDOW * /*win*/, const char * /*text*/, int /*climit*/, bool /*first*/, int /*selected*/);
 extern void dlg_print_size(int /*height*/, int /*width*/);

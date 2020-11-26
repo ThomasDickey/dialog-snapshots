@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.297 2020/11/25 00:35:48 tom Exp $
+ *  $Id: util.c,v 1.298 2020/11/26 16:24:55 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -38,10 +38,22 @@
 #include <wchar.h>
 #endif
 
-#ifdef NCURSES_VERSION
-#if defined(HAVE_NCURSESW_TERM_H)
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+
+#if defined(NCURSES_VERSION)
+#define CAN_KEEP_TITE 1
+#elif defined(__NetBSD_Version__) && (__NetBSD_Version__ >= 800000000)
+#define CAN_KEEP_TITE 1
+#else
+#define CAN_KEEP_TITE 0
+#endif
+
+#if CAN_KEEP_TITE
+#if defined(NCURSES_VERSION) && defined(HAVE_NCURSESW_TERM_H)
 #include <ncursesw/term.h>
-#elif defined(HAVE_NCURSES_TERM_H)
+#elif defined(NCURSES_VERSION) && defined(HAVE_NCURSES_TERM_H)
 #include <ncurses/term.h>
 #else
 #include <term.h>
@@ -288,7 +300,7 @@ open_terminal(char **result, int mode)
     return open(device, mode);
 }
 
-#ifdef NCURSES_VERSION
+#if CAN_KEEP_TITE
 static int
 my_putc(int ch)
 {
@@ -403,40 +415,7 @@ init_dialog(FILE *input, FILE *output)
 	dialog_state.screen_output = stdout;
 	(void) initscr();
     }
-#ifdef NCURSES_VERSION
-    /*
-     * Cancel xterm's alternate-screen mode.
-     */
-    if (!dialog_vars.keep_tite
-	&& (fileno(dialog_state.screen_output) != fileno(stdout)
-	    || isatty(fileno(dialog_state.screen_output)))
-	&& key_mouse != 0	/* xterm and kindred */
-	&& isprivate(enter_ca_mode)
-	&& isprivate(exit_ca_mode)) {
-	/*
-	 * initscr() or newterm() already wrote enter_ca_mode as a side
-	 * effect of initializing the screen.  It would be nice to not even
-	 * do that, but we do not really have access to the correct copy of
-	 * the terminfo description until those functions have been invoked.
-	 */
-	(void) refresh();
-	(void) tputs(exit_ca_mode, 0, my_putc);
-	(void) tputs(clear_screen, 0, my_putc);
-	/*
-	 * Prevent ncurses from switching "back" to the normal screen when
-	 * exiting from dialog.  That would move the cursor to the original
-	 * location saved in xterm.  Normally curses sets the cursor position
-	 * to the first line after the display, but the alternate screen
-	 * switching is done after that point.
-	 *
-	 * Cancelling the strings altogether also works around the buggy
-	 * implementation of alternate-screen in rxvt, etc., which clear
-	 * more of the display than they should.
-	 */
-	enter_ca_mode = 0;
-	exit_ca_mode = 0;
-    }
-#endif
+    dlg_keep_tite(dialog_state.screen_output);
 #ifdef HAVE_FLUSHINP
     (void) flushinp();
 #endif
@@ -457,6 +436,60 @@ init_dialog(FILE *input, FILE *output)
 
     /* Set screen to screen attribute */
     dlg_clear();
+}
+
+void
+dlg_keep_tite(FILE *output)
+{
+    if (!dialog_vars.keep_tite) {
+#if CAN_KEEP_TITE
+	/*
+	 * Cancel xterm's alternate-screen mode.
+	 */
+	if ((fileno(output) != fileno(stdout)
+	     || isatty(fileno(output)))
+	    && key_mouse != 0	/* xterm and kindred */
+	    && isprivate(enter_ca_mode)
+	    && isprivate(exit_ca_mode)) {
+	    FILE *save = dialog_state.screen_output;
+
+	    /*
+	     * initscr() or newterm() already wrote enter_ca_mode as a side
+	     * effect of initializing the screen.  It would be nice to not even
+	     * do that, but we do not really have access to the correct copy of
+	     * the terminfo description until those functions have been
+	     * invoked.
+	     */
+	    (void) refresh();
+	    dialog_state.screen_output = output;
+	    (void) tputs(exit_ca_mode, 0, my_putc);
+	    (void) tputs(clear_screen, 0, my_putc);
+	    dialog_state.screen_output = save;
+
+	    /*
+	     * Prevent ncurses from switching "back" to the normal screen when
+	     * exiting from dialog.  That would move the cursor to the original
+	     * location saved in xterm.  Normally curses sets the cursor
+	     * position to the first line after the display, but the alternate
+	     * screen switching is done after that point.
+	     *
+	     * Cancelling the strings altogether also works around the buggy
+	     * implementation of alternate-screen in rxvt, etc., which clear
+	     * more of the display than they should.
+	     */
+	    enter_ca_mode = 0;
+	    exit_ca_mode = 0;
+	}
+#else
+	/*
+	 * For other implementations, there are no useful answers:
+	 * + SVr4 curses "could" support a similar approach, but the clue about
+	 *   xterm is absent from its terminal database.
+	 * + PDCurses does not provide terminfo.
+	 */
+	(void) output;
+#endif
+    }
 }
 
 #ifdef HAVE_COLOR
@@ -602,6 +635,14 @@ end_dialog(void)
 {
     if (dialog_state.screen_initialized) {
 	dialog_state.screen_initialized = FALSE;
+	if (dialog_vars.erase_on_exit) {
+	    /*
+	     * Clear the screen to the native background color, and leave the
+	     * terminal cursor at the lower-left corner of the screen.
+	     */
+	    werase(stdscr);
+	    wrefresh(stdscr);
+	}
 	mouse_close();
 	(void) endwin();
 	(void) fflush(stdout);

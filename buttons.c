@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.103 2020/11/23 23:45:09 tom Exp $
+ *  $Id: buttons.c,v 1.105 2020/11/26 17:11:56 Glenn.Herteg Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -225,7 +225,9 @@ print_button(WINDOW *win, char *label, int hotkey, int y, int x, int selected)
 		? button_active_attr
 		: button_inactive_attr);
     (void) waddstr(win, ">");
-    (void) wmove(win, y, x + ((int) (strspn) (label, " ")) + 1);
+    if (!dialog_vars.cursor_off_label) {
+	(void) wmove(win, y, x + ((int) (strspn) (label, " ")) + 1);
+    }
 }
 
 /*
@@ -447,8 +449,9 @@ dlg_button_to_char(const char *label)
     int cmp = -1;
 
     while (*label != 0) {
-	cmp = string_to_char(&label);
-	if (dlg_isupper(cmp)) {
+	int ch = string_to_char(&label);
+	if (dlg_isupper(ch)) {
+	    cmp = ch;
 	    break;
 	}
     }

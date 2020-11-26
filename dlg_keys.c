@@ -1,5 +1,5 @@
 /*
- *  $Id: dlg_keys.c,v 1.57 2020/11/22 23:19:33 tom Exp $
+ *  $Id: dlg_keys.c,v 1.58 2020/11/26 17:11:56 Glenn.Herteg Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
@@ -128,6 +128,10 @@ dlg_register_buttons(WINDOW *win, const char *name, const char **buttons)
 
     for (n = 0; buttons[n] != 0; ++n) {
 	int curses_key = dlg_button_to_char(buttons[n]);
+
+	/* ignore binding if there is no key to bind */
+	if (curses_key < 0)
+	    continue;
 
 	/* ignore multibyte characters */
 	if (curses_key >= KEY_MIN)

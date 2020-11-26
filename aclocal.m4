@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.147 2020/11/21 00:15:41 tom Exp $
+dnl $Id: aclocal.m4,v 1.148 2020/11/26 22:41:41 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2019,2020 -- Thomas E. Dickey
 dnl
@@ -1352,7 +1352,7 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CLANG_COMPILER version: 5 updated: 2020/11/20 18:52:27
+dnl CF_CLANG_COMPILER version: 6 updated: 2020/11/26 17:37:55
 dnl -----------------
 dnl Check if the given compiler is really clang.  clang's C driver defines
 dnl __GNUC__ (fooling the configure script into setting $GCC to yes) but does
@@ -1382,7 +1382,22 @@ make an error
 	AC_MSG_RESULT($ifelse([$2],,CLANG_COMPILER,[$2]))
 fi
 
+CLANG_VERSION=none
+
 if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
+	case "$CC" in
+	(c[[1-9]][[0-9]]|*/c[[1-9]][[0-9]])
+		AC_MSG_WARN(replacing broken compiler alias $CC)
+		CFLAGS="$CFLAGS -std=`echo "$CC" | sed -e 's%.*/%%'`"
+		CC=clang
+		;;
+	esac
+
+	AC_MSG_CHECKING(version of $CC)
+	CLANG_VERSION="`$CC --version 2>/dev/null | sed -e '2,$d' -e 's/^.*(CLANG[[^)]]*) //' -e 's/^.*(Debian[[^)]]*) //' -e 's/^[[^0-9.]]*//' -e 's/[[^0-9.]].*//'`"
+	test -z "$CLANG_VERSION" && CLANG_VERSION=unknown
+	AC_MSG_RESULT($CLANG_VERSION)
+
 	for cf_clang_opt in \
 		-Qunused-arguments \
 		-Wno-error=implicit-function-declaration
