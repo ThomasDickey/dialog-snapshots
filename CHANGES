@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.711 2020/11/24 23:56:29 tom Exp $
+-- $Id: CHANGES,v 1.713 2020/11/26 01:20:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2020/11/25
+	+ add DIALOG_TIMEOUT to sample scripts, and use report-button more
+	  consistently to handle unexpected exit-status values.
 
 2020/11/24
 	+ add dlg_getenv_num() and dlg_getenv_str().

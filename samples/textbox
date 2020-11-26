@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: textbox,v 1.13 2019/12/11 00:04:59 tom Exp $
+# $Id: textbox,v 1.14 2020/11/26 00:05:11 tom Exp $
 
 . ./setup-vars
 
@@ -39,6 +39,6 @@ expand < $TEXT >> $tempfile
 
 $DIALOG --clear --title "TEXT BOX" "$@" --textbox "$tempfile" 22 77
 
-retval=$?
+returncode=$?
 
 . ./report-button

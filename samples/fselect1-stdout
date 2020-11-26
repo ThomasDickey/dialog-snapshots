@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: fselect1-stdout,v 1.7 2019/12/10 23:37:10 tom Exp $
+# $Id: fselect1-stdout,v 1.9 2020/11/26 00:09:12 tom Exp $
 
 . ./setup-vars
 
@@ -12,7 +12,7 @@ do
 	fi
 done
 
-RESULT=`$DIALOG --stdout --title "Please choose a file" "$@" --fselect "$FILE" 14 48`
-retval=$?
+returntext=`$DIALOG --stdout --title "Please choose a file" "$@" --fselect "$FILE" 14 48`
+returncode=$?
 
 . ./report-string

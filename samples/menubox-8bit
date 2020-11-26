@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: menubox-8bit,v 1.7 2019/12/11 00:02:11 tom Exp $
+# $Id: menubox-8bit,v 1.8 2020/11/26 00:03:58 tom Exp $
 
 . ./setup-vars
 
@@ -24,6 +24,6 @@ Try it now!\n\n\
         "`./rotated-data 4 "$SAMPLE"`" "IBM PC DOS" \
         "`./rotated-data 5 "$SAMPLE"`" "Microsoft DOS" 2> $tempfile
 
-retval=$?
+returncode=$?
 
 . ./report-tempfile
