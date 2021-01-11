@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.101 2020/11/22 15:45:59 tom Exp $
+# $Id: makefile.in,v 1.103 2021/01/11 09:03:36 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2018,2020 Thomas E. Dickey                              #
+# Copyright (c) 1999-2020,2021 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -142,7 +142,7 @@ PROG		= @PACKAGE@$x
 	@ECHO_CC@$(LIBTOOL_COMPILE) $(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CPPFLAGS) -c $<
 
 @NROFF_NOTE@.1.txt :
-@NROFF_NOTE@	GROFF_NO_SGR=stupid $(SHELL) -c "tbl $< | nroff -Tascii -man | col -bx" >$@
+@NROFF_NOTE@	GROFF_NO_SGR=stupid $(SHELL) -c "tbl $< | nroff -rHY=0 -Tascii -man | col -bx" >$@
 
 @MAN2HTML_NOTE@.1.html :
 @MAN2HTML_NOTE@	./@MAN2HTML_TEMP@ $* 1 man >$@

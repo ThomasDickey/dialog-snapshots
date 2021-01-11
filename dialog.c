@@ -1,9 +1,9 @@
 /*
- * $Id: dialog.c,v 1.277 2020/11/26 16:49:01 tom Exp $
+ * $Id: dialog.c,v 1.278 2021/01/11 09:02:54 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
