@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.303 2020/11/26 12:03:54 tom Exp $
+ *  $Id: dialog.h,v 1.304 2021/01/17 16:58:22 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -581,6 +581,8 @@ typedef struct {
     /* 1.3-20201126 */
     bool erase_on_exit;		/* option "--erase-on-exit" */
     bool cursor_off_label;	/* option "--cursor-off-label" */
+    /* 1.3-20210117 */
+    bool no_hot_list;		/* option "--no-hot-list" */
 } DIALOG_VARS;
 
 #define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)

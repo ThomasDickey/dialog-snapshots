@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.105 2020/11/26 17:11:56 Glenn.Herteg Exp $
+ *  $Id: buttons.c,v 1.106 2021/01/17 17:03:16 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -422,19 +422,21 @@ dlg_draw_buttons(WINDOW *win,
 int
 dlg_match_char(int ch, const char *string)
 {
-    if (string != 0) {
-	int cmp2 = string_to_char(&string);
+    if (!dialog_vars.no_hot_list) {
+	if (string != 0) {
+	    int cmp2 = string_to_char(&string);
 #ifdef USE_WIDE_CURSES
-	wint_t cmp1 = dlg_toupper(ch);
-	if (cmp2 != 0 && (wchar_t) cmp1 == (wchar_t) dlg_toupper(cmp2)) {
-	    return TRUE;
-	}
-#else
-	if (ch > 0 && ch < 256) {
-	    if (dlg_toupper(ch) == dlg_toupper(cmp2))
+	    wint_t cmp1 = dlg_toupper(ch);
+	    if (cmp2 != 0 && (wchar_t) cmp1 == (wchar_t) dlg_toupper(cmp2)) {
 		return TRUE;
-	}
+	    }
+#else
+	    if (ch > 0 && ch < 256) {
+		if (dlg_toupper(ch) == dlg_toupper(cmp2))
+		    return TRUE;
+	    }
 #endif
+	}
     }
     return FALSE;
 }

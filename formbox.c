@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.102 2020/11/23 00:46:57 tom Exp $
+ *  $Id: formbox.c,v 1.103 2021/01/17 22:19:05 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2019,2020	Thomas E. Dickey
+ *  Copyright 2003-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -394,7 +394,6 @@ make_FORM_ELTs(DIALOG_FORMITEM * item,
 	    sprintf(item[i].text, "%.*s", item[i].text_ilen, old_text);
 
 	    if (item[i].text_free) {
-		item[i].text_free = FALSE;
 		free(old_text);
 	    }
 	    item[i].text_free = TRUE;

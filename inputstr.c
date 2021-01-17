@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.90 2019/07/24 23:42:20 tom Exp $
+ *  $Id: inputstr.c,v 1.91 2021/01/17 22:19:05 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2018,2019	Thomas E. Dickey
+ *  Copyright 2000-2019,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -410,11 +410,11 @@ dlg_index_columns(const char *string)
     CACHE *cache = load_cache(cInxCols, string);
 
     if (!same_cache2(cache, string, len)) {
-	unsigned inx;
 
 	cache->list[0] = 0;
 #ifdef USE_WIDE_CURSES
 	if (have_locale()) {
+	    unsigned inx;
 	    size_t num_bytes = strlen(string);
 	    const int *inx_wchars = dlg_index_wchars(string);
 	    mbstate_t state;
@@ -454,6 +454,8 @@ dlg_index_columns(const char *string)
 	} else
 #endif /* USE_WIDE_CURSES */
 	{
+	    unsigned inx;
+
 	    for (inx = 0; inx < len; ++inx) {
 		chtype ch = UCH(string[inx]);
 

@@ -1,9 +1,9 @@
 /*
- *  $Id: inputbox.c,v 1.92 2020/11/23 00:49:57 tom Exp $
+ *  $Id: inputbox.c,v 1.93 2021/01/17 16:36:37 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
- *  Copyright 2000-2019,2020 Thomas E. Dickey
+ *  Copyright 2000-2020,2021 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -36,6 +36,11 @@
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_BTAB ), \
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_LEFT ), \
 	DLG_KEYS_DATA( DLGK_FIELD_PREV,	KEY_UP )
+
+#define BTN_HIGH 1
+#define HDR_HIGH 1
+#define MIN_HIGH (HDR_HIGH + (MARGIN * 2 + 1) + (BTN_HIGH + MARGIN * 2))
+#define MIN_WIDE 26
 
 /*
  * Display a dialog box for entering a string
@@ -107,13 +112,13 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     key = fkey = 0;
 
     if (init != NULL) {
-	dlg_auto_size(title, prompt, &height, &width, 5,
-		      MIN(MAX(dlg_count_columns(init) + 7, 26),
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH,
+		      MIN(MAX(dlg_count_columns(init) + 7, MIN_WIDE),
 			  SCOLS - (dialog_vars.begin_set ?
 				   dialog_vars.begin_x : 0)));
 	chr_offset = (int) strlen(init);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, 5, 26);
+	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
     }
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
