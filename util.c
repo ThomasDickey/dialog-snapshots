@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.298 2020/11/26 16:24:55 tom Exp $
+ *  $Id: util.c,v 1.300 2021/01/17 22:10:56 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -732,7 +732,7 @@ dlg_print_listitem(WINDOW *win,
     if (text == 0)
 	text = "";
 
-    if (first) {
+    if (first && !dialog_vars.no_hot_list) {
 	const int *indx = dlg_index_wchars(text);
 	attrs[3] = tag_key_selected_attr;
 	attrs[2] = tag_key_attr;
@@ -2373,10 +2373,9 @@ dlg_set_timeout(WINDOW *win, bool will_getc)
 {
     DIALOG_WINDOWS *p;
     int result = 0;
-    int interval;
 
     if ((p = SearchTopWindows(win)) != NULL) {
-	interval = (dialog_vars.timeout_secs * 1000);
+	int interval = (dialog_vars.timeout_secs * 1000);
 
 	if (will_getc || dialog_vars.pause_secs) {
 	    interval = WTIMEOUT_VAL;

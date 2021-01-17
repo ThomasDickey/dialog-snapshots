@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.114 2020/11/23 09:03:54 tom Exp $
+ *  $Id: fselect.c,v 1.115 2021/01/16 17:19:15 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -408,6 +408,7 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 
     match(name, d_list, f_list, &match_list);
     if (match_list.length == 0) {
+	free(match_list.data);
 	*buff_ptr = NULL;
 	return 0;
     }

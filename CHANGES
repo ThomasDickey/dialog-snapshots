@@ -1,8 +1,18 @@
--- $Id: CHANGES,v 1.719 2021/01/11 09:01:14 tom Exp $
+-- $Id: CHANGES,v 1.723 2021/01/17 20:21:41 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/01/17
+	+ updated dialog.pot
+	+ add option --no-hot-list, to allow suppressing the hotkey feature
+	  from lists.
+	+ increase minimum height of inputbox to avoid input field overlapping
+	  with the button-box (report by Victor Ananjevsky).
+	+ modify options-parsing to permit a "no" on any boolean option and
+	  deprecating the "no" options without a "-" , e.g., generalizing on
+	  "--nook" equivalence to "--no-ok".
 
 2021/01/12
 	+ minor spelling fixes, per codespell
