@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.281 2021/01/17 16:52:18 tom Exp $
+ * $Id: dialog.c,v 1.284 2021/03/06 13:41:57 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -35,6 +35,9 @@
 #endif
 
 #include <dlg_internals.h>
+
+#define USEMAX_ARGS	20
+#define USEMAX_FILE	50
 
 #define PASSARGS             t,       av,        offset_add
 #define CALLARGS const char *t, char *av[], int *offset_add
@@ -467,7 +470,7 @@ isOption(const char *arg)
 		result = TRUE;
 	    } else {
 		handle_leaks();
-		dlg_exiterr("Invalid option \"%s\"", arg);
+		dlg_exiterr(_("Invalid option \"%s\""), arg);
 	    }
 	}
     }
@@ -527,7 +530,7 @@ unescape_argv(int *argcp, char ***argvp)
 	    escaped = TRUE;
 	    dlg_eat_argv(argcp, argvp, j, 1);
 	} else if (!strcmp((*argvp)[j], "--args")) {
-	    fprintf(stderr, "Showing arguments at arg%d\n", j);
+	    fprintf(stderr, _("Showing arguments at arg%d\n"), j);
 	    for (k = 0; k < *argcp; ++k) {
 		fprintf(stderr, " arg%d:%s\n", k, (*argvp)[k]);
 	    }
@@ -536,7 +539,7 @@ unescape_argv(int *argcp, char ***argvp)
 	} else if (!strcmp((*argvp)[j], "--file")) {
 	    if (++count_includes > limit_includes) {
 		handle_leaks();
-		dlg_exiterr("Too many --file options");
+		dlg_exiterr(_("Too many --file options"));
 	    }
 
 	    if ((filename = (*argvp)[j + 1]) != 0) {
@@ -569,7 +572,7 @@ unescape_argv(int *argcp, char ***argvp)
 			length += bytes_read;
 			if (ferror(fp)) {
 			    handle_leaks();
-			    dlg_exiterr("error on filehandle in unescape_argv");
+			    dlg_exiterr(_("error on filehandle in unescape_argv"));
 			}
 		    } while (bytes_read == BUFSIZ);
 		    fclose(fp);
@@ -628,11 +631,11 @@ unescape_argv(int *argcp, char ***argvp)
 		    continue;
 		} else {
 		    handle_leaks();
-		    dlg_exiterr("Cannot open --file %s", filename);
+		    dlg_exiterr(_("Cannot open --file %s"), filename);
 		}
 	    } else {
 		handle_leaks();
-		dlg_exiterr("No value given for --file");
+		dlg_exiterr(_("No value given for --file"));
 	    }
 	}
 	if (!escaped
@@ -707,7 +710,7 @@ static void
 Usage(const char *msg)
 {
     handle_leaks();
-    dlg_exiterr("%s.\nUse --help to list options.\n\n", msg);
+    dlg_exiterr(_("%s.\nUse --help to list options.\n\n"), msg);
 }
 
 /*
@@ -769,7 +772,8 @@ numeric_arg(char **av, int n)
 	if (last == 0 || *last != 0) {
 	    char msg[80];
 
-	    sprintf(msg, "Expected a number for token %d of %.20s", n, av[0]);
+	    sprintf(msg, _("Expected a number for token %d of %.*s"), n,
+		    USEMAX_ARGS, av[0]);
 	    Usage(msg);
 	}
     }
@@ -1336,7 +1340,8 @@ optionString(char **argv, int *num)
     char *result = argv[next];
     if (result == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a string-parameter for %.20s", argv[*num]);
+	sprintf(temp, ("Expected a string-parameter for %.*s"), USEMAX_ARGS,
+		argv[*num]);
 	Usage(temp);
     }
     *num = next;
@@ -1359,7 +1364,8 @@ optionValue(char **argv, int *num)
 
     if (src == 0) {
 	char temp[80];
-	sprintf(temp, "Expected a numeric-parameter for %.20s", argv[*num]);
+	sprintf(temp, _("Expected a numeric-parameter for %.*s"),
+		USEMAX_ARGS, argv[*num]);
 	Usage(temp);
     }
     *num = next;
@@ -1414,7 +1420,7 @@ button_code(const char *name)
 
     if (code == DLG_EXIT_ERROR) {
 	char temp[80];
-	sprintf(temp, "Button name \"%.20s\" unknown", name);
+	sprintf(temp, _("Button name \"%.*s\" unknown"), USEMAX_ARGS, name);
 	Usage(temp);
     }
 
@@ -1887,14 +1893,14 @@ main(int argc, char *argv[])
 	    if ((j = optionValue(argv, &offset)) < 0
 		|| (dialog_state.input = fdopen(j, "r")) == 0) {
 		handle_leaks();
-		dlg_exiterr("Cannot open input-fd\n");
+		dlg_exiterr(_("Cannot open input-fd\n"));
 	    }
 	    break;
 	case o_output_fd:
 	    if ((j = optionValue(argv, &offset)) < 0
 		|| (dialog_state.output = fdopen(j, "w")) == 0) {
 		handle_leaks();
-		dlg_exiterr("Cannot open output-fd\n");
+		dlg_exiterr(_("Cannot open output-fd\n"));
 	    }
 	    break;
 	case o_keep_tite:
@@ -1945,7 +1951,7 @@ main(int argc, char *argv[])
      * case of options that only report information without interaction.
      */
     if (argc == 2) {
-	switch (code = lookupOption(argv[1], 7)) {
+	switch (lookupOption(argv[1], 7)) {
 	case o_print_maxsize:
 	    (void) initscr();
 	    endwin();
@@ -1974,7 +1980,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_RC_FILE
     else if (lookupOption(argv[1], 7) == o_create_rc) {
 	if (argc != 3) {
-	    sprintf(temp, "Expected a filename for %.50s", argv[1]);
+	    sprintf(temp, _("Expected a filename for %.*s"), USEMAX_FILE,
+		    argv[1]);
 	    Usage(temp);
 	}
 	if (dlg_parse_rc() == -1) {	/* Read the configuration file */
@@ -2008,7 +2015,7 @@ main(int argc, char *argv[])
 	if (argv[offset] == NULL) {
 	    if (ignore_unknown)
 		break;
-	    Usage("Expected a box option");
+	    Usage(_("Expected a box option"));
 	}
 
 	if (dialog_vars.separate_output) {
@@ -2021,8 +2028,8 @@ main(int argc, char *argv[])
 		break;
 	    default:
 		sprintf(temp,
-			"Unexpected widget with --separate-output %.20s",
-			argv[offset]);
+			_("Unexpected widget with --separate-output %.*s"),
+			USEMAX_ARGS, argv[offset]);
 		Usage(temp);
 	    }
 	}
@@ -2035,24 +2042,27 @@ main(int argc, char *argv[])
 	if ((code = lookupOption(argv[offset], 2)) != o_unknown)
 	    modePtr = lookupMode(code);
 	if (modePtr == 0) {
-	    sprintf(temp, "%s option %.20s",
-		    lookupOption(argv[offset], 7) != o_unknown
-		    ? "Unexpected"
-		    : "Unknown",
+	    sprintf(temp,
+		    (lookupOption(argv[offset], 7) != o_unknown
+		     ? _("Unexpected option %.*s")
+		     : _("Unknown option %.*s")),
+		    USEMAX_ARGS,
 		    argv[offset]);
 	    Usage(temp);
 	}
 
 	have = arg_rest(&argv[offset]);
 	if (have < modePtr->argmin) {
-	    sprintf(temp, "Expected at least %d tokens for %.20s, have %d",
+	    sprintf(temp, _("Expected at least %d tokens for %.*s, have %d"),
+		    USEMAX_ARGS,
 		    modePtr->argmin - 1, argv[offset],
 		    have - 1);
 	    Usage(temp);
 	}
 	if (modePtr->argmax && have > modePtr->argmax) {
 	    sprintf(temp,
-		    "Expected no more than %d tokens for %.20s, have %d",
+		    _("Expected no more than %d tokens for %.*s, have %d"),
+		    USEMAX_ARGS,
 		    modePtr->argmax - 1, argv[offset],
 		    have - 1);
 	    Usage(temp);
@@ -2115,8 +2125,8 @@ main(int argc, char *argv[])
 		    offset++;
 		    break;
 		case o_unknown:
-		    sprintf(temp, "Expected --and-widget, not %.20s",
-			    argv[offset]);
+		    sprintf(temp, _("Expected --and-widget, not %.*s"),
+			    USEMAX_ARGS, argv[offset]);
 		    Usage(temp);
 		    break;
 		default:

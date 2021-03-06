@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.103 2021/01/11 09:03:36 tom Exp $
+# $Id: makefile.in,v 1.104 2021/03/06 11:07:27 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2020,2021 Thomas E. Dickey                              #
@@ -214,8 +214,8 @@ install-full \
 install-strip \
 uninstall ::
 	@echo making $@
-@INTLDIR_MAKE@	@-test -f intl/makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@
-@MSG_DIR_MAKE@	@-test -f po/makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@
+@INTLDIR_MAKE@	@-test -f intl/makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@ DESTDIR="$(DESTDIR)"
+@MSG_DIR_MAKE@	@-test -f po/makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@ DESTDIR="$(DESTDIR)"
 
 clean	::
 	@- $(RM) -r autom4te.cache

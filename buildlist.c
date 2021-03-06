@@ -1,9 +1,9 @@
 /*
- *  $Id: buildlist.c,v 1.94 2020/11/23 00:37:17 tom Exp $
+ *  $Id: buildlist.c,v 1.95 2021/03/05 00:51:16 tom Exp $
  *
  *  buildlist.c -- implements the buildlist dialog
  *
- *  Copyright 2012-2019,2020	Thomas E. Dickey
+ *  Copyright 2012-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -942,9 +942,7 @@ dlg_buildlist(const char *title,
 		}
 		break;
 	    }
-	}
 
-	if (!found && fkey) {
 	    i = cur_item;
 	    found = TRUE;
 	    switch (key) {

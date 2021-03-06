@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.723 2021/01/17 20:21:41 tom Exp $
+-- $Id: CHANGES,v 1.731 2021/03/06 13:32:08 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/03/06
+	+ add several usage-messages to dialog.pot
+	+ improve configure-check for ld searchpath on HP-UX and Solaris.
+	+ fix a few cppcheck warnings
+	+ updated eo.po, fi.po, pt.po, sq.po, sv.po, ru.po, uk.po, zh_CN.po
+	  from
+		http://translationproject.org/latest/dialog/
 
 2021/01/17
 	+ updated dialog.pot

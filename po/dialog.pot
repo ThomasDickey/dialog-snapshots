@@ -1,12 +1,12 @@
 # Dialog
-# Copyright 2003-2020,2021 # Thomas Dickey
+# Copyright 2003-2020,2021 # Thomas E. Dickey
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.3.20210117\n"
+"Project-Id-Version: dialog 1.3.20210306\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-17 15:18-0500\n"
+"POT-Creation-Date: 2021-03-06 08:43-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,25 +53,122 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: dialog.c:744
+#: dialog.c:473
+#, c-format
+msgid "Invalid option \"%s\""
+msgstr ""
+
+#: dialog.c:533
+#, c-format
+msgid "Showing arguments at arg%d\n"
+msgstr ""
+
+#: dialog.c:542
+msgid "Too many --file options"
+msgstr ""
+
+#: dialog.c:575
+msgid "error on filehandle in unescape_argv"
+msgstr ""
+
+#: dialog.c:634
+#, c-format
+msgid "Cannot open --file %s"
+msgstr ""
+
+#: dialog.c:638
+msgid "No value given for --file"
+msgstr ""
+
+#: dialog.c:713
+#, c-format
+msgid ""
+"%s.\n"
+"Use --help to list options.\n"
+"\n"
+msgstr ""
+
+#: dialog.c:747
 #, c-format
 msgid "Expected %d arguments, found only %d"
 msgstr ""
 
-#: dialog.c:748
+#: dialog.c:751
 #, c-format
 msgid "Expected %d arguments, found extra %d"
 msgstr ""
 
-#: dialog.c:907
+#: dialog.c:775
+#, c-format
+msgid "Expected a number for token %d of %.*s"
+msgstr ""
+
+#: dialog.c:911
 msgid "Rename"
 msgstr ""
 
-#: fselect.c:623
+#: dialog.c:1367
+#, c-format
+msgid "Expected a numeric-parameter for %.*s"
+msgstr ""
+
+#: dialog.c:1423
+#, c-format
+msgid "Button name \"%.*s\" unknown"
+msgstr ""
+
+#: dialog.c:1896
+msgid "Cannot open input-fd\n"
+msgstr ""
+
+#: dialog.c:1903
+msgid "Cannot open output-fd\n"
+msgstr ""
+
+#: dialog.c:1983
+#, c-format
+msgid "Expected a filename for %.*s"
+msgstr ""
+
+#: dialog.c:2018
+msgid "Expected a box option"
+msgstr ""
+
+#: dialog.c:2031
+#, c-format
+msgid "Unexpected widget with --separate-output %.*s"
+msgstr ""
+
+#: dialog.c:2047
+#, c-format
+msgid "Unexpected option %.*s"
+msgstr ""
+
+#: dialog.c:2048
+#, c-format
+msgid "Unknown option %.*s"
+msgstr ""
+
+#: dialog.c:2056
+#, c-format
+msgid "Expected at least %d tokens for %.*s, have %d"
+msgstr ""
+
+#: dialog.c:2064
+#, c-format
+msgid "Expected no more than %d tokens for %.*s, have %d"
+msgstr ""
+
+#: dialog.c:2128
+#, c-format
+msgid "Expected --and-widget, not %.*s"
+msgstr ""
+
+#: fselect.c:630
 msgid "Directories"
 msgstr ""
 
-#: fselect.c:624
+#: fselect.c:631
 msgid "Files"
 msgstr ""
 
@@ -115,6 +212,6 @@ msgstr ""
 msgid "Overall Progress"
 msgstr ""
 
-#: textbox.c:515
+#: textbox.c:517
 msgid "Search"
 msgstr ""
