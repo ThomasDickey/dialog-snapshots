@@ -2,15 +2,15 @@
 # This file is distributed under the same license as the dialog package.
 # Copyright 2003-2007,2008 Thomas Dickey
 # This file is distributed under the same license as the dialog package.
-# Pedro Albuquerque <palbuquerque73@gmail.com>, 2019.
+# Pedro Albuquerque <palbuquerque73@gmail.com>, 2019, 2021.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.1.20080819\n"
+"Project-Id-Version: dialog 1.3.20210117\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2019-09-25 07:33+0100\n"
-"Last-Translator: Pedro Albuquerque <palbuquerque73@gmail.com>\n"
+"POT-Creation-Date: 2021-01-17 15:18-0500\n"
+"PO-Revision-Date: 2021-03-06 04:52+0000\n"
+"Last-Translator: Pedro Albuquerque <pmra@protonmail.com>\n"
 "Language-Team: Portuguese <translation-team-pt@lists.sourceforge.net>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -18,54 +18,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Geany / PoHelper 1.37\n"
 
-#: buttons.c:385
+#: buttons.c:500
 msgid "Yes"
 msgstr "Sim"
 
-#: buttons.c:393
+#: buttons.c:508
 msgid "No"
 msgstr "Não"
 
-#: buttons.c:401
+#: buttons.c:516
 msgid "OK"
 msgstr "Aceitar"
 
-#: buttons.c:409
+#: buttons.c:524
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: buttons.c:417
+#: buttons.c:532
 msgid "EXIT"
 msgstr "SAIR"
 
-#: buttons.c:425
+#: buttons.c:540
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:433
+#: buttons.c:548
 msgid "Help"
 msgstr "Ajuda"
 
 #. Headline "Month"
-#: calendar.c:273
+#: calendar.c:463
 msgid "Month"
 msgstr "Mês"
 
 #. Headline "Year"
-#: calendar.c:293
+#: calendar.c:485
 msgid "Year"
 msgstr "Ano"
 
-#: dialog.c:741
+#: dialog.c:744
+#, c-format
+msgid "Expected %d arguments, found only %d"
+msgstr "Esperados %d argumentos, encontrados %d"
+
+#: dialog.c:748
+#, c-format
+msgid "Expected %d arguments, found extra %d"
+msgstr "Esperados %d argumentos, encontrados %d"
+
+#: dialog.c:907
 msgid "Rename"
 msgstr "Renomear"
 
-#: fselect.c:550
+#: fselect.c:623
 msgid "Directories"
 msgstr "Pastas"
 
-#: fselect.c:551
+#: fselect.c:624
 msgid "Files"
 msgstr "Ficheiros"
 
@@ -109,6 +120,6 @@ msgstr "N/D"
 msgid "Overall Progress"
 msgstr "Progresso geral"
 
-#: textbox.c:489
+#: textbox.c:515
 msgid "Search"
 msgstr "Procurar"

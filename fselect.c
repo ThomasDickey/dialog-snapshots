@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.115 2021/01/16 17:19:15 tom Exp $
+ *  $Id: fselect.c,v 1.116 2021/03/05 00:47:39 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -425,6 +425,7 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 	}
     } else {
 	int j;
+	char *next;
 
 	for (i = 0; i < test_len; i++) {
 	    char test_char = test[i];
@@ -440,7 +441,13 @@ complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 	    } else
 		break;
 	}
-	buff = dlg_realloc(char, i + 1, buff);
+	next = dlg_realloc(char, i + 1, buff);
+	if (next == NULL) {
+	    free(buff);
+	    *buff_ptr = NULL;
+	    return 0;
+	}
+	buff = next;
     }
     free_match(&match_list);
     buff[i] = '\0';

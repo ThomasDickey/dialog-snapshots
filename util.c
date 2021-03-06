@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.300 2021/01/17 22:10:56 tom Exp $
+ *  $Id: util.c,v 1.302 2021/03/06 17:32:24 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -661,7 +661,7 @@ dlg_count_real_columns(const char *text)
 	if (result && dialog_vars.colors) {
 	    int hidden = 0;
 	    while (*text) {
-		if (dialog_vars.colors && isOurEscape(text)) {
+		if (isOurEscape(text)) {
 		    hidden += ESCAPE_LEN;
 		    text += ESCAPE_LEN;
 		} else {
@@ -2964,6 +2964,7 @@ dlg_getbegx(WINDOW *win)
 {
     int y, x;
     getbegyx(win, y, x);
+    (void) y;
     return x;
 }
 int
@@ -2971,6 +2972,7 @@ dlg_getbegy(WINDOW *win)
 {
     int y, x;
     getbegyx(win, y, x);
+    (void) x;
     return y;
 }
 #endif
@@ -2981,6 +2983,7 @@ dlg_getcurx(WINDOW *win)
 {
     int y, x;
     getyx(win, y, x);
+    (void) y;
     return x;
 }
 int
@@ -2988,6 +2991,7 @@ dlg_getcury(WINDOW *win)
 {
     int y, x;
     getyx(win, y, x);
+    (void) x;
     return y;
 }
 #endif
@@ -2998,6 +3002,7 @@ dlg_getmaxx(WINDOW *win)
 {
     int y, x;
     getmaxyx(win, y, x);
+    (void) y;
     return x;
 }
 int
@@ -3005,6 +3010,7 @@ dlg_getmaxy(WINDOW *win)
 {
     int y, x;
     getmaxyx(win, y, x);
+    (void) x;
     return y;
 }
 #endif
@@ -3015,6 +3021,7 @@ dlg_getparx(WINDOW *win)
 {
     int y, x;
     getparyx(win, y, x);
+    (void) y;
     return x;
 }
 int
@@ -3022,6 +3029,7 @@ dlg_getpary(WINDOW *win)
 {
     int y, x;
     getparyx(win, y, x);
+    (void) x;
     return y;
 }
 #endif
