@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.731 2021/03/06 13:32:08 tom Exp $
+-- $Id: CHANGES,v 1.734 2021/03/19 09:01:07 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/03/19
+	+ updated de.po, ja.po, nl.po from
+		http://translationproject.org/latest/dialog/
 
 2021/03/06
 	+ add several usage-messages to dialog.pot
@@ -1569,7 +1573,7 @@ to it:
 	+ correct logic in checklist.c (cf: 2003/11/26 changes) which turned
 	  quoting on unnecessarily for radiobox, breaking some old scripts.
 	+ increase size of array in dlg_ok_labels() to avoid overrun if extra
-	  and help buttons are used (cf: 2002/06/12 changes).
+	  and help buttons are used (cf: 2002/06/22 changes).
 	+ initialize fkey variable in menubox.c and textbox.c (cf: 2003/07/12).
 
 2004/07/21 - release 1.0
