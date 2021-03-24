@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20210319
+%define AppRelease 20210324
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.150 2021/03/19 08:59:11 tom Exp $
+# $XTermId: dialog.spec,v 1.152 2021/03/24 08:11:21 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -54,6 +54,7 @@ INSTALL_PROGRAM='${INSTALL}' \
   --with-package=%{ActualProg} \
   --enable-header-subdir \
   --enable-nls \
+  --enable-stdnoreturn \
   --enable-widec \
   --with-shared \
   --with-ncursesw \
@@ -93,6 +94,9 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Wed Mar 24 2021 Thomas Dickey
+- use C11 _Noreturn
 
 * Wed Jul 24 2019 Thomas Dickey
 - split-out "-devel" package

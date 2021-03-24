@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.304 2021/01/17 16:58:22 tom Exp $
+ *  $Id: dialog.h,v 1.305 2021/03/24 19:11:27 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -854,7 +854,7 @@ extern void dlg_draw_bottom_box2(WINDOW * /*win*/, chtype /*on_left*/, chtype /*
 extern void dlg_draw_box(WINDOW * /*win*/, int /*y*/, int /*x*/, int /*height*/, int /*width*/, chtype /*boxchar*/, chtype /*borderchar*/);
 extern void dlg_draw_box2(WINDOW * /*win*/, int /*y*/, int /*x*/, int /*height*/, int /*width*/, chtype /*boxchar*/, chtype /*borderchar*/, chtype /*borderchar2*/);
 extern void dlg_draw_title(WINDOW *win, const char *title);
-extern void dlg_exit(int /*code*/) GCC_NORETURN;
+extern GCC_NORETURN void dlg_exit(int /*code*/);
 extern void dlg_item_help(const char * /*txt*/);
 extern void dlg_keep_tite(FILE * /*output */);
 extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*height*/, int /*width*/);
@@ -871,7 +871,7 @@ extern void dlg_trim_string(char * /*src*/);
 extern void end_dialog(void);
 extern void init_dialog(FILE * /*input*/, FILE * /*output*/);
 
-extern void dlg_exiterr(const char *, ...) GCC_NORETURN GCC_PRINTFLIKE(1,2);
+extern GCC_NORETURN void dlg_exiterr(const char *, ...) GCC_PRINTFLIKE(1,2);
 
 #ifdef HAVE_COLOR
 extern chtype dlg_color_pair(int /*foreground*/, int /*background*/);

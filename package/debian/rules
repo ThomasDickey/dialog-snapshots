@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-# $Id: rules,v 1.12 2021/03/06 00:44:54 tom Exp $
+# $Id: rules,v 1.13 2021/03/24 08:10:31 tom Exp $
 # Made with the aid of dh_make, by Craig Small
 # Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
 # Some lines taken from debmake, by Cristoph Lameter.
@@ -53,6 +53,7 @@ configure-stamp:
 		--mandir=\$${prefix}/share/man \
 		--enable-nls \
 		--enable-header-subdir \
+		--enable-stdnoreturn \
 		--enable-widec \
 		--with-shared \
 		--with-screen=ncursesw6 \
