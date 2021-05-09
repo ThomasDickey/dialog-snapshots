@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.736 2021/03/24 08:09:39 tom Exp $
+-- $Id: CHANGES,v 1.739 2021/05/09 19:27:19 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/05/09
+	+ improve configure checks, e.g., for libtool version
+	+ updated ms.po, sr.po, zh_TW.po from
+		http://translationproject.org/latest/dialog/
+	+ update config.guess, config.sub
 
 2021/03/24
 	+ add configure option --enable-stdnoreturn to build when C11 _Noreturn
