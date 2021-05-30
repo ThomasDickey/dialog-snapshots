@@ -1,5 +1,5 @@
 /*
- *  $Id: inputbox.c,v 1.93 2021/01/17 16:36:37 tom Exp $
+ *  $Id: inputbox.c,v 1.95 2021/05/30 18:41:54 tom Exp $
  *
  *  inputbox.c -- implements the input box
  *
@@ -39,7 +39,7 @@
 
 #define BTN_HIGH 1
 #define HDR_HIGH 1
-#define MIN_HIGH (HDR_HIGH + (MARGIN * 2 + 1) + (BTN_HIGH + MARGIN * 2))
+#define MIN_HIGH (HDR_HIGH + 1 + (BTN_HIGH + MARGIN * 2))
 #define MIN_WIDE 26
 
 /*
@@ -79,6 +79,7 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     int key, fkey, code;
     int result = DLG_EXIT_UNKNOWN;
     int state;
+    int partauto;
     bool first;
     bool edited;
     char *input;
@@ -111,14 +112,20 @@ dialog_inputbox(const char *title, const char *cprompt, int height, int width,
     first = (state == sTEXT);
     key = fkey = 0;
 
+    partauto = ((height == 0) ^ (width == 0));
     if (init != NULL) {
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH,
+	dlg_auto_size(title, prompt,
+		      &height, &width,
+		      MIN_HIGH + partauto,
 		      MIN(MAX(dlg_count_columns(init) + 7, MIN_WIDE),
 			  SCOLS - (dialog_vars.begin_set ?
 				   dialog_vars.begin_x : 0)));
 	chr_offset = (int) strlen(init);
     } else {
-	dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
+	dlg_auto_size(title, prompt,
+		      &height, &width,
+		      MIN_HIGH + partauto,
+		      MIN_WIDE);
     }
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);

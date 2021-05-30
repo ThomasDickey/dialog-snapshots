@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.155 2021/05/01 21:49:36 tom Exp $
+dnl $Id: aclocal.m4,v 1.156 2021/05/19 23:35:25 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2020,2021 -- Thomas E. Dickey
 dnl
@@ -3462,7 +3462,7 @@ printf("old\\n");
 	,[$1=no])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_CONFIG version: 26 updated: 2021/01/03 08:05:37
+dnl CF_NCURSES_CONFIG version: 27 updated: 2021/05/19 19:35:25
 dnl -----------------
 dnl Tie together the configure-script macros for ncurses, preferring these in
 dnl order:
@@ -3504,7 +3504,7 @@ if test "x${PKG_CONFIG:=none}" != xnone; then
 				[initscr(); mousemask(0,0); tigetstr((char *)0);],
 				[AC_TRY_RUN([#include <${cf_cv_ncurses_header:-curses.h}>
 					int main(void)
-					{ char *xx = curses_version(); return (xx == 0); }],
+					{ const char *xx = curses_version(); return (xx == 0); }],
 					[cf_test_ncuconfig=yes],
 					[cf_test_ncuconfig=no],
 					[cf_test_ncuconfig=maybe])],
@@ -3530,7 +3530,7 @@ if test "x${PKG_CONFIG:=none}" != xnone; then
 			[initscr(); mousemask(0,0); tigetstr((char *)0);],
 			[AC_TRY_RUN([#include <${cf_cv_ncurses_header:-curses.h}>
 				int main(void)
-				{ char *xx = curses_version(); return (xx == 0); }],
+				{ const char *xx = curses_version(); return (xx == 0); }],
 				[cf_have_ncuconfig=yes],
 				[cf_have_ncuconfig=no],
 				[cf_have_ncuconfig=maybe])],
@@ -5386,15 +5386,21 @@ AC_DEFUN([CF_UPPER],
 $1=`echo "$2" | sed y%abcdefghijklmnopqrstuvwxyz./-%ABCDEFGHIJKLMNOPQRSTUVWXYZ___%`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_UTF8_LIB version: 8 updated: 2012/10/06 08:57:51
+dnl CF_UTF8_LIB version: 9 updated: 2021/05/19 19:35:25
 dnl -----------
 dnl Check for multibyte support, and if not found, utf8 compatibility library
 AC_DEFUN([CF_UTF8_LIB],
 [
+AC_HAVE_HEADERS(wchar.h)
 AC_CACHE_CHECK(for multibyte character support,cf_cv_utf8_lib,[
 	cf_save_LIBS="$LIBS"
 	AC_TRY_LINK([
-#include <stdlib.h>],[putwc(0,0);],
+#include <stdlib.h>
+#include <stdio.h>
+#ifdef HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+],[putwc(0,0);],
 	[cf_cv_utf8_lib=yes],
 	[CF_FIND_LINKAGE([
 #include <libutf8.h>],[putwc(0,0);],utf8,
@@ -7184,14 +7190,14 @@ cf_cv_do_symlinks="$cf_cv_do_symlinks"
 cf_cv_shlib_version="$cf_cv_shlib_version"
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF__INTL_BODY version: 3 updated: 2017/07/10 20:13:33
+dnl CF__INTL_BODY version: 4 updated: 2021/05/19 19:35:25
 dnl -------------
 dnl Test-code needed for libintl compile-checks
 dnl $1 = parameter 2 from AM_WITH_NLS
 define([CF__INTL_BODY],[
 	bindtextdomain ("", "");
-	return (int) gettext ("")
-			ifelse([$1], need-ngettext, [ + (int) ngettext ("", "", 0)], [])
+	return (gettext ("") != 0)
+			ifelse([$1], need-ngettext, [ + (ngettext ("", "", 0) != 0)], [])
 #ifndef IGNORE_MSGFMT_HACK
 			[ + _nl_msg_cat_cntr]
 #endif

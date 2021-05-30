@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.739 2021/05/09 19:27:19 tom Exp $
+-- $Id: CHANGES,v 1.742 2021/05/30 18:50:04 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/05/30
+	+ amend adjustment to inputbox height so the autosized dimensions match
+	  older versions (report by Werner Fink, cf: 2021/01/17).
+	+ improve configure checks, to reduce warnings during those checks
+	+ updated fr.po from
+		http://translationproject.org/latest/dialog/
+	+ update config.guess, config.sub
 
 2021/05/09
 	+ improve configure checks, e.g., for libtool version
