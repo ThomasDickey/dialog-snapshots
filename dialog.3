@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.138 2021/01/17 18:02:44 tom Exp $
+.\" $Id: dialog.3,v 1.139 2021/06/21 08:08:16 tom Exp $
 .\" Copyright 2005-2020,2021  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2021/01/17 18:02:44 $"
+.TH \*D 3 "" "$Date: 2021/06/21 08:08:16 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1413,6 +1413,8 @@ If zero, the height is based on the screen size.
 .\" ************************************************************************
 .SS dialog_timebox
 implements the "\fB\-\-timebox\fP" option.
+See \fBdlg_auto_size\fP for layout
+using \fIheight\fP and \fIwidth\fP parameters.
 .TP 5
 .B const char * \fItitle
 is the title on the top of the widget.
@@ -1422,11 +1424,22 @@ is the prompt text shown within the widget.
 .TP 5
 .B int \fIheight
 is the desired height of the box.
+.RS
+.bP
 If zero, the height is based on the screen size.
+.bP
+If greater than zero, the requested height is added to the minimum box size.
+.RE
 .TP 5
 .B int \fIwidth
 is the desired width of the box.
+.RS
+.bP
 If zero, the height is based on the screen size.
+.bP
+If greater than zero, the requested width is constrained by the minimum box
+size and the width of the buttons.
+.RE
 .TP 5
 .B int \fIhour
 is the initial hour shown.
