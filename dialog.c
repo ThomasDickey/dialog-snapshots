@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.284 2021/03/06 13:41:57 tom Exp $
+ * $Id: dialog.c,v 1.285 2021/06/22 00:11:37 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -32,6 +32,10 @@
 
 #ifdef HAVE_SETLOCALE
 #include <locale.h>
+#endif
+
+#ifdef STDC_HEADERS
+#include <stddef.h>		/* for offsetof, usually via stdlib.h */
 #endif
 
 #include <dlg_internals.h>

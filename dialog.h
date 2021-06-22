@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.305 2021/03/24 19:11:27 tom Exp $
+ *  $Id: dialog.h,v 1.306 2021/06/15 00:11:39 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -985,11 +985,11 @@ extern int dlg_mouse_wgetch_nowait (WINDOW * /*win*/, int * /*fkey*/);
 #ifdef NO_LEAKS
 extern void _dlg_inputstr_leaks(void);
 #if defined(NCURSES_VERSION)
-#if defined(HAVE_CURSES_EXIT)
-/* just use curses_exit() */
+#if defined(HAVE_EXIT_CURSES)
+/* just use exit_curses() */
 #elif defined(HAVE__NC_FREE_AND_EXIT)
 extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
-#define curses_exit(code) _nc_free_and_exit(code)
+#define exit_curses(code) _nc_free_and_exit(code)
 #endif
 #endif /* NCURSES_VERSION */
 #endif /* NO_LEAKS */

@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.302 2021/03/06 17:32:24 tom Exp $
+ *  $Id: util.c,v 1.303 2021/06/15 00:10:11 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -1872,8 +1872,8 @@ dlg_exit(int code)
 
 #ifdef NO_LEAKS
     _dlg_inputstr_leaks();
-#if defined(NCURSES_VERSION) && (defined(HAVE_CURSES_EXIT) || defined(HAVE__NC_FREE_AND_EXIT))
-    curses_exit(code);
+#if defined(NCURSES_VERSION) && (defined(HAVE_EXIT_CURSES) || defined(HAVE__NC_FREE_AND_EXIT))
+    exit_curses(code);
 #endif
 #endif
 

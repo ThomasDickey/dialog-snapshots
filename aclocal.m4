@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.156 2021/05/19 23:35:25 tom Exp $
+dnl $Id: aclocal.m4,v 1.160 2021/06/15 00:16:53 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2020,2021 -- Thomas E. Dickey
 dnl
@@ -1472,7 +1472,7 @@ if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_CONST_X_STRING version: 6 updated: 2021/01/01 13:31:04
+dnl CF_CONST_X_STRING version: 7 updated: 2021/06/07 17:39:17
 dnl -----------------
 dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
 dnl character-strings.
@@ -1502,7 +1502,7 @@ AC_TRY_COMPILE(
 #include <stdlib.h>
 #include <X11/Intrinsic.h>
 ],
-[String foo = malloc(1); (void)foo],[
+[String foo = malloc(1); free((void*)foo)],[
 
 AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
 	AC_TRY_COMPILE(
@@ -1602,15 +1602,15 @@ CF_CURSES_HEADER
 CF_TERM_HEADER
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_EXIT version: 1 updated: 2020/03/26 19:15:16
+dnl CF_CURSES_EXIT version: 2 updated: 2021/06/14 20:16:07
 dnl --------------
 dnl Check for ncurses memory-leak/debug feature.  Starting with ncurses 6.2,
-dnl the curses_exit() function is always present, simplifying linkage changes
+dnl the exit_curses() function is always present, simplifying linkage changes
 dnl when switching to/from a debug-library.
 AC_DEFUN([CF_CURSES_EXIT],
 [
 CF_CURSES_FUNCS(\
-curses_exit \
+exit_curses \
 _nc_free_and_exit \
 )
 ])dnl
@@ -3876,19 +3876,29 @@ AC_CACHE_CHECK(if runtime has nl_langinfo support for first weekday,
 test "x$cf_nl_langinfo_1stday" = xyes && AC_DEFINE(HAVE_NL_LANGINFO_1STDAY,1,[Define to 1 if runtime has nl_langinfo support for first weekday])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NO_LEAKS_OPTION version: 8 updated: 2021/01/05 20:05:09
+dnl CF_NO_LEAKS_OPTION version: 9 updated: 2021/06/13 19:45:41
 dnl ------------------
 dnl see CF_WITH_NO_LEAKS
+dnl
+dnl $1 = option/name
+dnl $2 = help-text
+dnl $3 = symbol to define if the option is set
+dnl $4 = additional actions to take if the option is set
 AC_DEFUN([CF_NO_LEAKS_OPTION],[
 AC_MSG_CHECKING(if you want to use $1 for testing)
 AC_ARG_WITH($1,
 	[$2],
-	[AC_DEFINE_UNQUOTED($3,1,"Define to 1 if you want to use $1 for testing.")ifelse([$4],,[
+	[case "x$withval" in
+	(x|xno) ;;
+	(*)
+		: "${with_cflags:=-g}"
+		: "${enable_leaks:=no}"
+		with_$1=yes
+		AC_DEFINE_UNQUOTED($3,1,"Define to 1 if you want to use $1 for testing.")ifelse([$4],,[
 	 $4
 ])
-	: "${with_cflags:=-g}"
-	: "${enable_leaks:=no}"
-	 with_$1=yes],
+		;;
+	esac],
 	[with_$1=])
 AC_MSG_RESULT(${with_$1:-no})
 
@@ -6124,7 +6134,7 @@ CF_NCURSES_PTHREADS($cf_cv_screen)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_NO_LEAKS version: 4 updated: 2021/01/05 20:08:11
+dnl CF_WITH_NO_LEAKS version: 5 updated: 2021/06/13 19:45:41
 dnl ----------------
 AC_DEFUN([CF_WITH_NO_LEAKS],[
 
@@ -6136,14 +6146,23 @@ AC_REQUIRE([CF_WITH_VALGRIND])
 AC_MSG_CHECKING(if you want to perform memory-leak testing)
 AC_ARG_WITH(no-leaks,
 	[  --with-no-leaks         test: free permanent memory, analyze leaks],
-	[AC_DEFINE(NO_LEAKS,1,[Define to 1 to enable leak-checking])
-	 cf_doalloc=".${with_dmalloc}${with_dbmalloc}${with_purify}${with_valgrind}"
-	 case ${cf_doalloc} in
-	 (*yes*) ;;
-	 (*) AC_DEFINE(DOALLOC,10000,[Define to size of malloc-array]) ;;
-	 esac
-	 enable_leaks=no],
-	[enable_leaks=yes])
+	[case "x$withval" in
+	 (x)
+	 	;;
+	 (xno)
+		: ${enable_leaks:=yes}
+	 	;;
+	 (*)
+		enable_leaks=no
+		AC_DEFINE(NO_LEAKS,1,[Define to 1 to enable leak-checking])
+		cf_doalloc=".${with_dmalloc}${with_dbmalloc}${with_purify}${with_valgrind}"
+		case ${cf_doalloc} in
+		(*yes*) ;;
+		(*) AC_DEFINE(DOALLOC,10000,[Define to size of malloc-array]) ;;
+		esac
+	 	;;
+	esac],
+	[: ${enable_leaks:=yes}])
 dnl TODO - drop with_no_leaks
 if test "x$enable_leaks" = xno; then with_no_leaks=yes; else with_no_leaks=no; fi
 AC_MSG_RESULT($with_no_leaks)

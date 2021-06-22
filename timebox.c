@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.69 2020/11/23 09:04:00 tom Exp $
+ * $Id: timebox.c,v 1.71 2021/06/21 21:05:09 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2019,2020   Thomas E. Dickey
+ *  Copyright 2001-2020,2021   Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -209,8 +209,12 @@ dialog_timebox(const char *title,
 #endif
 
     prompt = dlg_strclone(subtitle);
+    if (height > 0)
+	height += MIN_HIGH;
     dlg_auto_size(title, prompt, &height, &width, MIN_HIGH, MIN_WIDE);
 
+    if (width < MIN_WIDE)
+	width = MIN_WIDE;
     dlg_button_layout(buttons, &width);
     dlg_print_size(height, width);
     dlg_ctl_size(height, width);

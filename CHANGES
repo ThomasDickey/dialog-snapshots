@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.742 2021/05/30 18:50:04 tom Exp $
+-- $Id: CHANGES,v 1.746 2021/06/22 00:11:37 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/06/21
+	+ directly include stddef.h for systems which need it for offsetof().
+	+ modify gauge's handle_input function to use the file pointer in the
+	  object in preference to the global dialog_state.
+	+ correct height-computation for fselect and timebox, broken by fixes
+	  for auto-layout (Debian #990043, cf: 2019/11/10).
+	+ improve configure --with-no-leaks option
 
 2021/05/30
 	+ amend adjustment to inputbox height so the autosized dimensions match
