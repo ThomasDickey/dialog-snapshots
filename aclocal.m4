@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.161 2021/10/11 00:18:09 tom Exp $
+dnl $Id: aclocal.m4,v 1.162 2021/11/25 22:10:01 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2020,2021 -- Thomas E. Dickey
 dnl
@@ -6177,10 +6177,9 @@ CF_NCURSES_PTHREADS($cf_cv_screen)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_NO_LEAKS version: 5 updated: 2021/06/13 19:45:41
+dnl CF_WITH_NO_LEAKS version: 6 updated: 2021/11/25 17:10:01
 dnl ----------------
 AC_DEFUN([CF_WITH_NO_LEAKS],[
-
 AC_REQUIRE([CF_WITH_DMALLOC])
 AC_REQUIRE([CF_WITH_DBMALLOC])
 AC_REQUIRE([CF_WITH_PURIFY])
@@ -6190,25 +6189,37 @@ AC_MSG_CHECKING(if you want to perform memory-leak testing)
 AC_ARG_WITH(no-leaks,
 	[  --with-no-leaks         test: free permanent memory, analyze leaks],
 	[case "x$withval" in
-	 (x)
-	 	;;
-	 (xno)
+	 (xno|x)
 		: ${enable_leaks:=yes}
 	 	;;
 	 (*)
 		enable_leaks=no
-		AC_DEFINE(NO_LEAKS,1,[Define to 1 to enable leak-checking])
-		cf_doalloc=".${with_dmalloc}${with_dbmalloc}${with_purify}${with_valgrind}"
-		case ${cf_doalloc} in
-		(*yes*) ;;
-		(*) AC_DEFINE(DOALLOC,10000,[Define to size of malloc-array]) ;;
-		esac
 	 	;;
 	esac],
 	[: ${enable_leaks:=yes}])
+
 dnl TODO - drop with_no_leaks
-if test "x$enable_leaks" = xno; then with_no_leaks=yes; else with_no_leaks=no; fi
+if test "x$enable_leaks" = xno
+then
+	with_no_leaks=yes
+else
+	with_no_leaks=no
+fi
+
 AC_MSG_RESULT($with_no_leaks)
+
+if test "x$enable_leaks" = xno
+then
+	AC_DEFINE(NO_LEAKS,1,[Define to 1 to enable leak-checking])
+	cf_doalloc=".${with_dmalloc}${with_dbmalloc}${with_purify}${with_valgrind}"
+	case ${cf_doalloc} in
+	(*yes*)
+		;;
+	(*)
+		AC_DEFINE(DOALLOC,10000,[Define to size of malloc-array])
+		;;
+	esac
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_PURIFY version: 2 updated: 2006/12/14 18:43:43

@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.106 2020/11/23 09:03:49 tom Exp $
+ * $Id: calendar.c,v 1.109 2021/12/13 23:53:32 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2019,2020	Thomas E. Dickey
+ *  Copyright 2001-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -748,7 +748,7 @@ dialog_calendar(const char *title,
     now_time = time((time_t *) 0);
     current = *localtime(&now_time);
 
-#if HAVE_MKTIME
+#ifdef HAVE_MKTIME
     current.tm_isdst = -1;
     if (year >= 1900) {
 	current.tm_year = year - 1900;
@@ -757,7 +757,7 @@ dialog_calendar(const char *title,
 	current.tm_mon = month - 1;
     }
     if (day > 0 && day <= days_per_month(current.tm_year + 1900,
-					 current.tm_mon + 1)) {
+					 current.tm_mon)) {
 	current.tm_mday = day;
     }
     now_time = mktime(&current);

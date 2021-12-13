@@ -1,5 +1,5 @@
 /*
- *  $Id: dialog.h,v 1.306 2021/06/15 00:11:39 tom Exp $
+ *  $Id: dialog.h,v 1.307 2021/12/13 22:02:31 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
@@ -978,21 +978,6 @@ extern int dlg_mouse_wgetch_nowait (WINDOW * /*win*/, int * /*fkey*/);
  */
 #define FLAG_CHECK 1
 #define FLAG_RADIO 0
-
-/*
- * This is used only for debugging (FIXME: should have a separate header).
- */
-#ifdef NO_LEAKS
-extern void _dlg_inputstr_leaks(void);
-#if defined(NCURSES_VERSION)
-#if defined(HAVE_EXIT_CURSES)
-/* just use exit_curses() */
-#elif defined(HAVE__NC_FREE_AND_EXIT)
-extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
-#define exit_curses(code) _nc_free_and_exit(code)
-#endif
-#endif /* NCURSES_VERSION */
-#endif /* NO_LEAKS */
 
 #ifdef __cplusplus
 }

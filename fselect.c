@@ -1,5 +1,5 @@
 /*
- *  $Id: fselect.c,v 1.117 2021/06/21 19:50:35 tom Exp $
+ *  $Id: fselect.c,v 1.118 2021/12/13 23:51:16 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
@@ -27,19 +27,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if HAVE_DIRENT_H
+#if defined(HAVE_DIRENT_H)
 # include <dirent.h>
 # define NAMLEN(dirent) strlen((dirent)->d_name)
 #else
 # define dirent direct
 # define NAMLEN(dirent) (dirent)->d_namlen
-# if HAVE_SYS_NDIR_H
+# if defined(HAVE_SYS_NDIR_H)
 #  include <sys/ndir.h>
 # endif
-# if HAVE_SYS_DIR_H
+# if defined(HAVE_SYS_DIR_H)
 #  include <sys/dir.h>
 # endif
-# if HAVE_NDIR_H
+# if defined(HAVE_NDIR_H)
 #  include <ndir.h>
 # endif
 #endif

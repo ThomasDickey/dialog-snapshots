@@ -1,5 +1,5 @@
 /*
- *  $Id: inputstr.c,v 1.91 2021/01/17 22:19:05 tom Exp $
+ *  $Id: inputstr.c,v 1.92 2021/12/13 22:04:24 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -23,6 +23,7 @@
 
 #include <dialog.h>
 #include <dlg_keys.h>
+#include <dlg_internals.h>
 
 #include <errno.h>
 

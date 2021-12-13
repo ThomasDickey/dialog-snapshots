@@ -1,11 +1,11 @@
 #!/bin/sh
-# $Id: yesno-extra,v 1.6 2020/11/26 00:05:52 tom Exp $
+# $Id: yesno-extra,v 1.7 2021/12/13 22:21:55 tom Exp $
 
 . ./setup-vars
 
 $DIALOG --title "YES/NO/MAYBE BOX" \
 	--clear \
-	--ok-label "Next" \
+	--yes-label "Next" \
 	--no-label "Cancel" \
 	--extra-label "Previous" --extra-button "$@" \
         --yesno "Hi, this is a yes/no dialog box with its labels changed. \
