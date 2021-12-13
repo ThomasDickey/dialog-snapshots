@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.226 2021/01/17 17:25:01 tom Exp $
+.\" $Id: dialog.1,v 1.227 2021/12/13 22:35:33 tom Exp $
 .\" Copyright 2005-2020,2021  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2021/01/17 17:25:01 $"
+.TH \*D 1 "" "$Date: 2021/12/13 22:35:33 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -373,6 +373,9 @@ Override the label used for \*(``EXIT\*('' buttons.
 .
 .IP "\fB--extra-button"
 Show an extra button, between \*(``OK\*('' and \*(``Cancel\*('' buttons.
+.IP
+The extra button appears between \*(``Yes\*('' and \*(``No\*(''
+for the \fIyesno\fP widget.
 .
 .IP "\fB--extra-label \fIstring"
 Override the label used for \*(``Extra\*('' buttons.
@@ -387,6 +390,9 @@ or if an unrecognized option is given.
 Show a help-button after \*(``OK\*('' and \*(``Cancel\*('' buttons
 in boxes which have a list of tagged items
 (i.e., checklist, radiolist, menu, and treeview boxes).
+.IP
+The help-button appears after \*(``Yes\*('' and \*(``No\*(''
+for the \fIyesno\fP widget.
 .IP
 On exit, the return status indicates that the Help button was pressed.
 \fB\*L\fP also writes a message to its output

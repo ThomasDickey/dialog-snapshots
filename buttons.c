@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.106 2021/01/17 17:03:16 tom Exp $
+ *  $Id: buttons.c,v 1.107 2021/12/13 22:17:56 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -756,22 +756,19 @@ dlg_default_button(void)
 const char **
 dlg_yes_labels(void)
 {
+    static const char *labels[5];
+    int n = 0;
     const char **result;
 
-    if (dialog_vars.extra_button) {
-	result = dlg_ok_labels();
-    } else {
-	static const char *labels[4];
-	int n = 0;
+    labels[n++] = my_yes_label();
+    if (dialog_vars.extra_button)
+	labels[n++] = my_extra_label();
+    labels[n++] = my_no_label();
+    if (dialog_vars.help_button)
+	labels[n++] = my_help_label();
+    labels[n] = NULL;
 
-	labels[n++] = my_yes_label();
-	labels[n++] = my_no_label();
-	if (dialog_vars.help_button)
-	    labels[n++] = my_help_label();
-	labels[n] = 0;
-
-	result = labels;
-    }
+    result = labels;
 
     return result;
 }

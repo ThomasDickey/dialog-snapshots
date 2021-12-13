@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.80 2020/11/25 01:08:30 tom Exp $
+ *  $Id: ui_getc.c,v 1.81 2021/12/13 23:52:48 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- *  Copyright 2001-2019,2020	Thomas E. Dickey
+ *  Copyright 2001-2020,2021	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -29,11 +29,11 @@
 #include <wchar.h>
 #endif
 
-#if TIME_WITH_SYS_TIME
+#if defined(TIME_WITH_SYS_TIME)
 # include <sys/time.h>
 # include <time.h>
 #else
-# if HAVE_SYS_TIME_H
+# if defined(HAVE_SYS_TIME_H)
 #  include <sys/time.h>
 # else
 #  include <time.h>

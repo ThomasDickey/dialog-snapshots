@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_internals.h,v 1.3 2019/08/08 21:29:41 tom Exp $
+ *  $Id: dlg_internals.h,v 1.4 2021/12/13 22:06:48 tom Exp $
  *
  *  dlg_internals.h -- runtime binding support for dialog
  *
- *  Copyright 2019 Thomas E.  Dickey
+ *  Copyright 2019,2021 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -40,6 +40,21 @@
 		dlg_add_separator(); \
 	    dlg_add_last_key(-1); \
 	}
+
+/*
+ * This is used only for debugging (FIXME: should have a separate header).
+ */
+#ifdef NO_LEAKS
+extern void _dlg_inputstr_leaks(void);
+#if defined(NCURSES_VERSION)
+#if defined(HAVE_EXIT_CURSES)
+/* just use exit_curses() */
+#elif defined(HAVE__NC_FREE_AND_EXIT)
+extern void _nc_free_and_exit(int);	/* nc_alloc.h normally not installed */
+#define exit_curses(code) _nc_free_and_exit(code)
+#endif
+#endif /* NCURSES_VERSION */
+#endif /* NO_LEAKS */
 
 
 /* *INDENT-ON* */

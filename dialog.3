@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.139 2021/06/21 08:08:16 tom Exp $
+.\" $Id: dialog.3,v 1.140 2021/12/13 22:40:26 tom Exp $
 .\" Copyright 2005-2020,2021  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2021/06/21 08:08:16 $"
+.TH \*D 3 "" "$Date: 2021/12/13 22:40:26 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -384,6 +384,7 @@ This corresponds to the command-line option "\fB\-\-colors\fP".
 If true, interpret embedded "\eZ" sequences in the dialog text
 by the following character,
 which tells \fB\*p\fP to set colors or video attributes:
+.bP
 0 through 7 are the ANSI codes used in curses:
 black,
 red,
@@ -393,9 +394,13 @@ blue,
 magenta,
 cyan and
 white respectively.
+.bP
 Bold is set by 'b', reset by 'B'.
+.bP
 Reverse is set by 'r', reset by 'R'.
+.bP
 Underline is set by 'u', reset by 'U'.
+.PP
 The settings are cumulative, e.g., "\eZb\eZ1" makes the following text
 bright red.
 Restore normal settings with "\eZn".
@@ -467,9 +472,10 @@ This corresponds to the command-line option "\fB\-\-erase\-on\-exit\fP".
 If true, remove the dialog widget on program exit, erasing the entire
 screen to its native background color, and place the terminal cursor
 at the lower left corner of the screen.
+.PP
 This is useful for making the window contents invisible at the end of
 a series of dialog boxes.
-But it can also be used at earlier stages of a series of invocations
+It can also be used at earlier stages of a series of invocations
 of \fB\*p\fP, if the series may be aborted before it is fully completed.
 .\" ---------------------------------------------------------------------------
 .SS .exit_label
@@ -479,7 +485,8 @@ The given string overrides the label used for \*(``EXIT\*('' buttons.
 .SS .extra_button
 This corresponds to the command-line option "\fB\-\-extra\-button\fP".
 If true, some widgets show an extra button,
-between \*(``OK\*('' and \*(``Cancel\*('' buttons.
+between \*(``OK\*('' and \*(``Cancel\*('' buttons,
+or \*(``Yes\*('' and \*(``No\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .extra_label
 This corresponds to the command-line option
@@ -496,7 +503,10 @@ password widgets.
 This corresponds to the command-line option "\fB\-\-help\-button\fP".
 If true, some widgets show a help-button after
 \*(``OK\*('' and \*(``Cancel\*('' buttons,
-i.e., in checklist, radiolist and menu boxes.
+i.e., in checklist, radiolist and menu boxes,
+or the
+\*(``Yes\*('' and \*(``No\*('' buttons for the \fIyesno\fP box.
+.PP
 If \fB\-\-item\-help\fR is also given, on exit
 the return status will be the same as for the \*(``OK\*('' button,
 and the item-help text will be written to \fB\*p\fP's output

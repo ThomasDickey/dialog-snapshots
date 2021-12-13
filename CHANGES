@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.749 2021/11/07 23:49:58 tom Exp $
+-- $Id: CHANGES,v 1.754 2021/12/13 23:52:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2021/12/14
+	+ fix some inconsistent #if vs #ifdef.
+	+ correct off-by-one limit for month when validating parameters of the
+	  calendar widget (patch by "viverna", Debian #1000720).
+	+ modify dlg_yes_labels to not switch to ok/cancel labels if the
+	  extra button is used (report by Стрижак Андрей).
+	+ move leak-checking definitions from dialog.h to dlg_internals.h
 
 2021/11/07
 	+ use mktemp utility rather than tempfile for temporary filename in
