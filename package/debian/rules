@@ -1,140 +1,51 @@
 #!/usr/bin/make -f
-# $Id: rules,v 1.13 2021/03/24 08:10:31 tom Exp $
-# Made with the aid of dh_make, by Craig Small
-# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
-# Some lines taken from debmake, by Cristoph Lameter.
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
-CPPFLAGS	:= $(shell dpkg-buildflags --get CPPFLAGS)
-CFLAGS		:= $(shell dpkg-buildflags --get CFLAGS)
-LDFLAGS		:= $(shell dpkg-buildflags --get LDFLAGS)
-
-TMP = $(CURDIR)/debian/tmp
 
 ACTUAL_PROG	= cdialog
-DEV_PACKAGE	= $(ACTUAL_PROG)-dev
 
-BINDIR		= /usr/bin
-LIBDIR		= /usr/lib
-LOCALE		= /usr/share/locale
-MANDIR		= /usr/share/man
-HEADER		= /usr/include
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all qa=+bug reproducible=+all
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-        CFLAGS += -O0
-else
-        CFLAGS += -O2
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-        INSTALL_PROGRAM += -s
-endif
+%:
+	dh $@
 
+# dh_autoreconf interferes with portability -- skip it
+override_dh_autoreconf:
+	echo "skip: dh_autoreconf autoreconf-dickey -- -f -i"
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-
+override_dh_auto_configure:
 	cp -v package/dialog.map package/${ACTUAL_PROG}.map
-
-	CPPFLAGS="$(CPPFLAGS)" \
-	CFLAGS="$(CFLAGS)" \
-	LDFLAGS="$(LDFLAGS)" \
-	./configure \
-		--host=$(DEB_HOST_GNU_TYPE) \
-		--build=$(DEB_BUILD_GNU_TYPE) \
+	dh_auto_configure -- \
 		--prefix=/usr \
-		--mandir=\$${prefix}/share/man \
+		--disable-echo \
 		--enable-nls \
 		--enable-header-subdir \
 		--enable-stdnoreturn \
 		--enable-widec \
+		--with-package=${ACTUAL_PROG} \
+		--with-program-prefix=c \
 		--with-shared \
 		--with-screen=ncursesw6 \
-		--with-package=${ACTUAL_PROG} \
 		--with-versioned-syms \
 		--disable-rpath-hack
 
-	touch configure-stamp
+override_dh_auto_install:
+	dh_auto_install -- install install-lib
 
-build: build-stamp
-build-stamp: configure-stamp
-	dh_testdir
+override_dh_install:
+	dh_install
 
-	$(MAKE)
+override_dh_link:
+	sh -c "\
+		S=$$(awk '{gsub(":","."); print $$1}' <VERSION); \
+		D=$$(awk '{gsub(":","."); print $$2}' <VERSION); \
+	sed -i.bak \
+		-e \"s/.SRC/.\$$S/\" \
+		-e \"s/.DST/.\$$D/\" \
+		debian/cdialog.links"
+	diff -u debian/cdialog.links.bak debian/cdialog.links || echo OK
+	dh_link
 
-	touch build-stamp
+override_dh_installdocs:
+	dh_installdocs -v README
 
-clean:
-	dh_testdir
-	dh_testroot
-
-	[ ! -f makefile ] || $(MAKE) distclean
-
-	rm -f configure-stamp build-stamp install-stamp
-
-	dh_clean
-
-install: install-stamp
-install-stamp: build-stamp
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
-
-	$(MAKE) install-full DESTDIR=$(TMP)
-
-	dh_install -p${ACTUAL_PROG} $(BINDIR)/$(ACTUAL_PROG)
-	dh_install -p${ACTUAL_PROG} $(LIBDIR)
-	dh_install -p${ACTUAL_PROG} $(LOCALE)
-	dh_install -p${ACTUAL_PROG} $(MANDIR)/man1
-	dh_install -p${DEV_PACKAGE} $(BINDIR)/$(ACTUAL_PROG)-config
-	dh_install -p${DEV_PACKAGE} $(MANDIR)/man3
-	dh_install -p${DEV_PACKAGE} $(HEADER)
-
-	for P in lib${ACTUAL_PROG}.so*; \
-	do \
-		[ -L "$$P" ] || continue; \
-		case "$$P" in \
-		*.so) \
-			echo "DEV: $$P"; \
-			dh_link -p${DEV_PACKAGE} $(LIBDIR)/`readlink $$P` $(LIBDIR)/$$P ; \
-			;; \
-		*) \
-			echo "BIN: $$P"; \
-			dh_link -p${ACTUAL_PROG} $(LIBDIR)/`readlink $$P` $(LIBDIR)/$$P ; \
-			;; \
-		esac; \
-	done
-
-	touch install-stamp
-
-# Build architecture-independent files here.
-binary-indep: build install
-# No binary-indep target.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installexamples
+override_dh_installchangelogs:
 	dh_installchangelogs CHANGES
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_makeshlibs
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install install-stamp

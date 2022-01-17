@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.80 2020/11/23 00:27:21 tom Exp $
+ *  $Id: editbox.c,v 1.82 2022/01/17 16:27:35 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2019,2020 Thomas E. Dickey
+ *  Copyright 2007-2020,2022 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -642,6 +642,8 @@ dlg_editbox(const char *title,
 		}
 	    }
 	    strncpy(buffer, input, max_len - 1)[max_len - 1] = '\0';
+	    if (chr_offset > (int) (max_len - 1))
+		chr_offset = (int) (max_len - 1);
 	    edit = dlg_edit_string(buffer, &chr_offset, key, fkey, FALSE);
 
 	    if (edit) {
