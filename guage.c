@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.84 2021/06/21 20:46:28 tom Exp $
+ *  $Id: guage.c,v 1.85 2022/04/03 22:38:16 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2020,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,9 +24,7 @@
  *	Marc Ewing, Red Hat Software
  */
 
-#include <dialog.h>
-
-#include <errno.h>
+#include <dlg_internals.h>
 
 #define MY_LEN (MAX_LEN)/2
 

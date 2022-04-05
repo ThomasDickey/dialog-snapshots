@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.303 2021/06/15 00:10:11 tom Exp $
+ *  $Id: util.c,v 1.305 2022/04/04 08:02:01 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2020,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,23 +24,8 @@
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include <dialog.h>
-#include <dlg_keys.h>
 #include <dlg_internals.h>
-
-#include <sys/time.h>
-
-#ifdef HAVE_SETLOCALE
-#include <locale.h>
-#endif
-
-#ifdef NEED_WCHAR_H
-#include <wchar.h>
-#endif
-
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
+#include <dlg_keys.h>
 
 #if defined(NCURSES_VERSION)
 #define CAN_KEEP_TITE 1

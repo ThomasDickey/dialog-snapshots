@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.118 2021/12/13 23:51:16 tom Exp $
+ *  $Id: fselect.c,v 1.119 2022/04/03 22:38:16 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2020,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -23,36 +23,6 @@
 
 #include <dlg_internals.h>
 #include <dlg_keys.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#if defined(HAVE_DIRENT_H)
-# include <dirent.h>
-# define NAMLEN(dirent) strlen((dirent)->d_name)
-#else
-# define dirent direct
-# define NAMLEN(dirent) (dirent)->d_namlen
-# if defined(HAVE_SYS_NDIR_H)
-#  include <sys/ndir.h>
-# endif
-# if defined(HAVE_SYS_DIR_H)
-#  include <sys/dir.h>
-# endif
-# if defined(HAVE_NDIR_H)
-#  include <ndir.h>
-# endif
-#endif
-
-# if defined(_FILE_OFFSET_BITS) && defined(HAVE_STRUCT_DIRENT64)
-#  if !defined(_LP64) && (_FILE_OFFSET_BITS == 64)
-#   define      DIRENT  struct dirent64
-#  else
-#   define      DIRENT  struct dirent
-#  endif
-# else
-#  define       DIRENT  struct dirent
-# endif
 
 #define EXT_WIDE 1
 #define HDR_HIGH 1

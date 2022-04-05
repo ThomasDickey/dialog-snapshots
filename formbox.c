@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.103 2021/01/17 22:19:05 tom Exp $
+ *  $Id: formbox.c,v 1.105 2022/04/04 23:54:08 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2020,2021	Thomas E. Dickey
+ *  Copyright 2003-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,7 +24,7 @@
  *	Valery Reznic (valery_reznic@users.sourceforge.net)
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #define LLEN(n) ((n) * FORMBOX_TAGS)
@@ -490,6 +490,7 @@ dlg_form(const char *title,
 #ifdef KEY_RESIZE
     int old_height = height;
     int old_width = width;
+    int old_fhigh = form_height;
 #endif
 
     int form_width;
@@ -785,6 +786,7 @@ dlg_form(const char *title,
 		/* reset data */
 		height = old_height;
 		width = old_width;
+		form_height = old_fhigh;
 		free(prompt);
 		_dlg_resize_cleanup(dialog);
 		dlg_unregister_window(form);

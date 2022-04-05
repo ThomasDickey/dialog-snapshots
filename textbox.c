@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.127 2021/01/17 22:19:19 tom Exp $
+ *  $Id: textbox.c,v 1.128 2022/04/03 22:38:16 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2020,2021	Thomas E.  Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,7 +24,7 @@
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 #define PAGE_LENGTH	(height - 4)

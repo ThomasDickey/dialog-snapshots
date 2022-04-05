@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.82 2022/01/17 16:27:35 tom Exp $
+ *  $Id: editbox.c,v 1.83 2022/04/03 22:21:08 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -21,10 +21,8 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
-
-#include <sys/stat.h>
 
 #define sTEXT -1
 

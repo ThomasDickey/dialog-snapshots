@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.109 2021/12/13 23:53:32 tom Exp $
+ * $Id: calendar.c,v 1.110 2022/04/03 22:38:16 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2020,2021	Thomas E. Dickey
+ *  Copyright 2001-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -23,14 +23,6 @@
 
 #include <dlg_internals.h>
 #include <dlg_keys.h>
-
-#include <time.h>
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#else
-#define intptr_t long
-#endif
 
 #define ONE_DAY  (60 * 60 * 24)
 

@@ -1,9 +1,9 @@
 /*
- *  $Id: yesno.c,v 1.71 2020/11/23 00:48:08 tom Exp $
+ *  $Id: yesno.c,v 1.72 2022/04/03 22:38:16 tom Exp $
  *
  *  yesno.c -- implements the yes/no box
  *
- *  Copyright 1999-2019,2020	Thomas E. Dickey
+ *  Copyright 1999-2020,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,7 +24,7 @@
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 /*

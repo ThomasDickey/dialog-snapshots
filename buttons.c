@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.107 2021/12/13 22:17:56 tom Exp $
+ *  $Id: buttons.c,v 1.108 2022/04/03 22:38:16 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2020,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -21,12 +21,8 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
-
-#ifdef NEED_WCHAR_H
-#include <wchar.h>
-#endif
 
 #define MIN_BUTTON (-dialog_state.visit_cols)
 #define CHR_BUTTON (!dialog_state.plain_buttons)

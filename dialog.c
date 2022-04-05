@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.286 2022/01/17 16:08:15 tom Exp $
+ * $Id: dialog.c,v 1.287 2022/04/03 22:20:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -23,20 +23,6 @@
  *  An earlier version of this program lists as authors
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
-
-#include <dialog.h>
-
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#ifdef HAVE_SETLOCALE
-#include <locale.h>
-#endif
-
-#ifdef STDC_HEADERS
-#include <stddef.h>		/* for offsetof, usually via stdlib.h */
-#endif
 
 #include <dlg_internals.h>
 
