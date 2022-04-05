@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.92 2021/12/13 22:04:24 tom Exp $
+ *  $Id: inputstr.c,v 1.93 2022/04/03 22:38:16 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2019,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -21,25 +21,8 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
-#include <dlg_keys.h>
 #include <dlg_internals.h>
-
-#include <errno.h>
-
-#ifdef HAVE_SETLOCALE
-#include <locale.h>
-#endif
-
-#if defined(HAVE_SEARCH_H) && defined(HAVE_TSEARCH)
-#include <search.h>
-#else
-#undef HAVE_TSEARCH
-#endif
-
-#ifdef NEED_WCHAR_H
-#include <wchar.h>
-#endif
+#include <dlg_keys.h>
 
 #if defined(USE_WIDE_CURSES)
 #define USE_CACHING 1

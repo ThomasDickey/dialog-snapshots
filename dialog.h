@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.307 2021/12/13 22:02:31 tom Exp $
+ *  $Id: dialog.h,v 1.308 2022/04/03 22:38:16 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2020,2021	Thomas E. Dickey
+ *  Copyright 2000-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -77,24 +77,6 @@
 #endif
 #endif
 
-/* possible conflicts with <term.h> which may be included in <curses.h> */
-#ifdef color_names
-#undef color_names
-#endif
-
-#ifdef buttons
-#undef buttons
-#endif
-
-#ifdef ENABLE_NLS
-#include <libintl.h>
-#include <langinfo.h>
-#define _(s) dgettext(PACKAGE, s)
-#else
-#undef _
-#define _(s) s
-#endif
-
 #ifndef GCC_PRINTFLIKE
 #define GCC_PRINTFLIKE(fmt,var) /*nothing*/
 #endif
@@ -105,10 +87,6 @@
 
 #ifndef GCC_UNUSED
 #define GCC_UNUSED /*nothing*/
-#endif
-
-#ifndef HAVE_WGET_WCH
-#undef USE_WIDE_CURSES
 #endif
 
 /*
@@ -157,37 +135,11 @@
 #define DLG_EXIT_ITEM_HELP	4	/* actually DLG_EXIT_HELP */
 #define DLG_EXIT_TIMEOUT	5
 
-#define DLG_CTRL(n)	((n) & 0x1f)	/* CTRL is preferred, but conflicts */
-
-#define CHR_LEAVE	DLG_CTRL('D')
-#define CHR_HELP	DLG_CTRL('E')
-#define CHR_BACKSPACE	DLG_CTRL('H')
-#define CHR_REPAINT	DLG_CTRL('L')
-#define CHR_NEXT	DLG_CTRL('N')
-#define CHR_PREVIOUS	DLG_CTRL('P')
-#define CHR_KILL	DLG_CTRL('U')
-#define CHR_TRACE	DLG_CTRL('T')
-#define CHR_LITERAL	DLG_CTRL('V')
-#define CHR_SPACE 	' '
-#define CHR_DELETE	127
-
-#define ESC		27
-#define TAB		DLG_CTRL('I')
-
 #define MARGIN 1	/* width of the line drawn around each box */
 #define GUTTER 2	/* minimum columns between name/description in menu */
 #define SHADOW_ROWS 1	/* rows to reserve for window's shadow */
 #define SHADOW_COLS 2	/* columns to reserve for window's shadow */
 #define ARROWS_COL  5	/* distance from left margin to up/down arrows */
-
-#define MAX_LEN 2048
-#define BUF_SIZE (10L*1024)
-
-#undef  MIN
-#define MIN(x,y) ((x) < (y) ? (x) : (y))
-
-#undef  MAX
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
 #define DEFAULT_SEPARATE_STR "\t"
 #define DEFAULT_ASPECT_RATIO 9
@@ -199,8 +151,6 @@
 #ifndef A_CHARTEXT
 #define A_CHARTEXT 0xff
 #endif
-
-#define CharOf(ch)  ((ch) & 0xff)
 
 #ifndef ACS_ULCORNER
 #define ACS_ULCORNER '+'
@@ -236,82 +186,8 @@
 #define ACS_BLOCK '#'
 #endif
 
-/* these definitions may work for antique versions of curses */
-#ifndef HAVE_GETBEGYX
-#undef  getbegyx
-#define getbegyx(win,y,x)	(y = (win)?(win)->_begy:ERR, x = (win)?(win)->_begx:ERR)
-#endif
-
-#ifndef HAVE_GETMAXYX
-#undef  getmaxyx
-#define getmaxyx(win,y,x)	(y = (win)?(win)->_maxy:ERR, x = (win)?(win)->_maxx:ERR)
-#endif
-
-#ifndef HAVE_GETPARYX
-#undef  getparyx
-#define getparyx(win,y,x)	(y = (win)?(win)->_pary:ERR, x = (win)?(win)->_parx:ERR)
-#endif
-
-#if !defined(HAVE_WGETPARENT) && defined(HAVE_WINDOW__PARENT)
-#undef  wgetparent
-#define wgetparent(win)		((win) ? (win)->_parent : 0)
-#endif
-
-#if !defined(HAVE_WSYNCUP)
-#undef wsyncup
-#define wsyncup(win) /* nothing */
-#endif
-
-#if !defined(HAVE_WCURSYNCUP)
-#undef wcursyncup
-#define wcursyncup(win) /* nothing */
-#endif
-
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-/* these definitions may be needed for bleeding-edge curses implementations */
-#if !(defined(HAVE_GETBEGX) && defined(HAVE_GETBEGY))
-#undef getbegx
-#undef getbegy
-#define getbegx(win) dlg_getbegx(win)
-#define getbegy(win) dlg_getbegy(win)
-extern int dlg_getbegx(WINDOW * /*win*/);
-extern int dlg_getbegy(WINDOW * /*win*/);
-#endif
-
-#if !(defined(HAVE_GETCURX) && defined(HAVE_GETCURY))
-#undef getcurx
-#undef getcury
-#define getcurx(win) dlg_getcurx(win)
-#define getcury(win) dlg_getcury(win)
-extern int dlg_getcurx(WINDOW * /*win*/);
-extern int dlg_getcury(WINDOW * /*win*/);
-#endif
-
-#if !(defined(HAVE_GETMAXX) && defined(HAVE_GETMAXY))
-#undef getmaxx
-#undef getmaxy
-#define getmaxx(win) dlg_getmaxx(win)
-#define getmaxy(win) dlg_getmaxy(win)
-extern int dlg_getmaxx(WINDOW * /*win*/);
-extern int dlg_getmaxy(WINDOW * /*win*/);
-#endif
-
-#if !(defined(HAVE_GETPARX) && defined(HAVE_GETPARY))
-#undef getparx
-#undef getpary
-#define getparx(win) dlg_getparx(win)
-#define getpary(win) dlg_getpary(win)
-extern int dlg_getparx(WINDOW * /*win*/);
-extern int dlg_getpary(WINDOW * /*win*/);
-#endif
-
-#if !(defined(HAVE_WGETPARENT) && defined(HAVE_WINDOW__PARENT))
-#undef wgetparent
-#define wgetparent(win) dlg_wgetparent(win)
-extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 #endif
 
 /*
@@ -404,19 +280,6 @@ extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 #define menubox_border2_attr          DIALOG_ATR(37)
 
 #define DLGK_max (KEY_MAX + 256)
-
-/*
- * Use attributes.
- */
-#ifdef PDCURSES
-#define dlg_attrset(w,a)  (void) wattrset((w), (a))
-#define dlg_attron(w,a)   (void) wattron((w), (a))
-#define dlg_attroff(w,a)  (void) wattroff((w), (a))
-#else
-#define dlg_attrset(w,a)  (void) wattrset((w), (int)(a))
-#define dlg_attron(w,a)   (void) wattron((w), (int)(a))
-#define dlg_attroff(w,a)  (void) wattroff((w), (int)(a))
-#endif
 
 /*
  * Callbacks are used to implement the "background" tailbox.
@@ -609,18 +472,6 @@ extern DIALOG_VARS dialog_vars;
 #ifndef HAVE_TYPE_CHTYPE
 #define chtype long
 #endif
-
-#ifndef isblank
-#define isblank(c)       ((c) == ' ' || (c) == TAB)
-#endif
-
-#define UCH(ch)			((unsigned char)(ch))
-
-#define assert_ptr(ptr,msg) if ((ptr) == 0) dlg_exiterr("cannot allocate memory in " msg)
-
-#define dlg_malloc(t,n)    (t *) malloc((size_t)(n) * sizeof(t))
-#define dlg_calloc(t,n)    (t *) calloc((size_t)(n), sizeof(t))
-#define dlg_realloc(t,n,p) (t *) realloc((p), (n) * sizeof(t))
 
 /*
  * Table for attribute- and color-values.

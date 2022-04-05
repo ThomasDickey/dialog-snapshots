@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.33 2020/11/23 23:32:43 tom Exp $
+ *  $Id: trace.c,v 1.34 2022/04/03 22:38:16 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2019,2020	Thomas E. Dickey
+ *  Copyright 2007-2020,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -21,16 +21,11 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 
 #ifdef HAVE_DLG_TRACE
 
-#ifdef NEED_WCHAR_H
-#include <wchar.h>
-#endif
-
 #include <dlg_keys.h>
-#include <time.h>
 
 #define myFP dialog_state.trace_output
 

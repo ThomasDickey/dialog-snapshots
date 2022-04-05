@@ -2,70 +2,81 @@
 # Copyright (C) 2001, 2003, 2004 Thomas Dickey.
 # This file is distributed under the same license as the dialog package.
 # Santiago Vila Doncel <sanvila@unex.es>, 2001, 2003, 2004, 2010.
+# Alejandro Cendejas Tena <alex.cendejas@gmail.com>, 2022.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.1.20080819\n"
+"Project-Id-Version: dialog 1.3.20210117\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2010-02-14 14:26+0100\n"
-"Last-Translator: Santiago Vila Doncel <sanvila@unex.es>\n"
+"POT-Creation-Date: 2021-01-17 15:18-0500\n"
+"PO-Revision-Date: 2022-01-27 09:06-0600\n"
+"Last-Translator: Alejandro Cendejas Tena <alex.cendejas@gmail.com>\n"
 "Language-Team: Spanish <es@tp.org.es>\n"
 "Language: es\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
-#: buttons.c:385
+#: buttons.c:500
 msgid "Yes"
 msgstr "Sí"
 
-#: buttons.c:393
+#: buttons.c:508
 msgid "No"
 msgstr "No"
 
-#: buttons.c:401
+#: buttons.c:516
 msgid "OK"
 msgstr "Aceptar"
 
-#: buttons.c:409
+#: buttons.c:524
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: buttons.c:417
+#: buttons.c:532
 msgid "EXIT"
-msgstr "Salir"
+msgstr "SALIR"
 
-#: buttons.c:425
+#: buttons.c:540
 msgid "Extra"
 msgstr "Extra"
 
-#: buttons.c:433
+#: buttons.c:548
 msgid "Help"
 msgstr "Ayuda"
 
 #. Headline "Month"
-#: calendar.c:273
+#: calendar.c:463
 msgid "Month"
 msgstr "Mes"
 
 #. Headline "Year"
-#: calendar.c:293
+#: calendar.c:485
 msgid "Year"
 msgstr "Año"
 
-#: dialog.c:741
+#: dialog.c:744
+#, c-format
+msgid "Expected %d arguments, found only %d"
+msgstr "Se esperaban %d argumentos, solo se encontraron %d"
+
+#: dialog.c:748
+#, c-format
+msgid "Expected %d arguments, found extra %d"
+msgstr "Se esperaban %d argumentos, se encontraron %d adicionales"
+
+#: dialog.c:907
 msgid "Rename"
 msgstr "Renombrar"
 
-#: fselect.c:550
+#: fselect.c:623
 msgid "Directories"
 msgstr "Directorios"
 
-#: fselect.c:551
+#: fselect.c:624
 msgid "Files"
-msgstr "Ficheros"
+msgstr "Archivos"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
@@ -108,6 +119,6 @@ msgstr "N/A"
 msgid "Overall Progress"
 msgstr "Progreso total"
 
-#: textbox.c:489
+#: textbox.c:515
 msgid "Search"
 msgstr "Buscar"

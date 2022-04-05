@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.58 2020/11/26 17:11:56 Glenn.Herteg Exp $
+ *  $Id: dlg_keys.c,v 1.59 2022/04/03 22:38:45 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2019,2020 Thomas E. Dickey
+ *  Copyright 2006-2020,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -21,9 +21,8 @@
  *	Boston, MA 02110, USA.
  */
 
-#include <dialog.h>
-#include <dlg_keys.h>
 #include <dlg_internals.h>
+#include <dlg_keys.h>
 
 #define LIST_BINDINGS struct _list_bindings
 

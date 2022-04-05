@@ -1,7 +1,7 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.162 2021/11/25 22:10:01 tom Exp $
+dnl $Id: aclocal.m4,v 1.163 2022/01/28 13:32:11 tom Exp $
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2020,2021 -- Thomas E. Dickey
+dnl Copyright 1999-2021,2022 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -280,7 +280,7 @@ fi
 AC_SUBST($1)dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl AM_WITH_NLS version: 31 updated: 2021/01/04 17:48:08
+dnl AM_WITH_NLS version: 33 updated: 2022/01/28 08:32:11
 dnl -----------
 dnl Inserted as requested by gettext 0.10.40
 dnl File from /usr/share/aclocal
@@ -366,6 +366,16 @@ AC_DEFUN([AM_WITH_NLS],
       nls_cv_force_use_gnu_gettext=no)
     AC_MSG_RESULT($nls_cv_force_use_gnu_gettext)
 
+    dnl Search for GNU msgfmt in the PATH.
+    AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
+        ["$ac_dir/$ac_word" --statistics /dev/null >/dev/null 2>&1], :)
+    AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
+    AC_SUBST(MSGFMT)
+
+    dnl Search for GNU xgettext in the PATH.
+    AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
+        ["$ac_dir/$ac_word" --omit-header /dev/null >/dev/null 2>&1], :)
+
     nls_cv_use_gnu_gettext="$nls_cv_force_use_gnu_gettext"
     if test "$nls_cv_force_use_gnu_gettext" != "yes"; then
       dnl User does not insist on using GNU NLS library.  Figure out what
@@ -382,24 +392,14 @@ AC_DEFUN([AM_WITH_NLS],
       cf_save_msgfmt_path="$MSGFMT"
       cf_save_xgettext_path="$XGETTEXT"
 
-      dnl Search for GNU msgfmt in the PATH.
-      AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
-          ["$ac_dir/$ac_word" --statistics /dev/null >/dev/null 2>&1], :)
-      AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
-      AC_SUBST(MSGFMT)
-
-      dnl Search for GNU xgettext in the PATH.
-      AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
-          ["$ac_dir/$ac_word" --omit-header /dev/null >/dev/null 2>&1], :)
+      cf_save_LIBS_1="$LIBS"
+      CF_ADD_LIBS($LIBICONV)
 
       cf_save_OPTS_1="$CPPFLAGS"
       if test "x$cf_save_msgfmt_path" = "x$MSGFMT" && \
          test "x$cf_save_xgettext_path" = "x$XGETTEXT" ; then
           CF_ADD_CFLAGS(-DIGNORE_MSGFMT_HACK)
       fi
-
-      cf_save_LIBS_1="$LIBS"
-      CF_ADD_LIBS($LIBICONV)
 
       CF_FIND_LINKAGE(CF__INTL_HEAD,
         CF__INTL_BODY($2),
@@ -466,8 +466,9 @@ AC_DEFUN([AM_WITH_NLS],
 
     if test "$nls_cv_use_gnu_gettext" != "no"; then
       CATOBJEXT=.gmo
-      if test -f "$srcdir/intl/libintl.h" ; then
+      if test -f "$srcdir/intl/libintl.h" || test -f "$srcdir/intl/libgnuintl.h" ; then
         dnl Mark actions used to generate GNU NLS library.
+		AC_DEFINE(HAVE_LIBINTL_H,1,[Define to 1 for included intl header])
         INTLOBJS="\$(GETTOBJS)"
         BUILD_INCLUDED_LIBINTL=yes
         USE_INCLUDED_LIBINTL=yes
@@ -542,28 +543,33 @@ AC_DEFUN([AM_WITH_NLS],
       BUILD_INCLUDED_LIBINTL=yes
     fi
 
-    dnl intl/plural.c is generated from intl/plural.y. It requires bison,
-    dnl because plural.y uses bison specific features. It requires at least
-    dnl bison-1.26 because earlier versions generate a plural.c that doesn't
-    dnl compile.
-    dnl bison is only needed for the maintainer (who touches plural.y). But in
-    dnl order to avoid separate Makefiles or --enable-maintainer-mode, we put
-    dnl the rule in general Makefile. Now, some people carelessly touch the
-    dnl files or have a broken "make" program, hence the plural.c rule will
-    dnl sometimes fire. To avoid an error, defines BISON to ":" if it is not
-    dnl present or too old.
+	dnl intl/plural.c is generated from intl/plural.y.  It requires an old
+	dnl version of bison, or byacc, because plural.y uses the bison
+	dnl "%pure-parser" feature.  That requires at least bison-1.26 because
+	dnl earlier versions generate a plural.c that doesn't compile.  However,
+	dnl while byacc (2010) supports this feature, bison dropped compatibility
+	dnl beginning with version 2.3 (2008).
+	dnl
+	dnl bison or byacc are only needed for the maintainer (who touches
+	dnl plural.y).  To avoid separate Makefiles or --enable-maintainer-mode, we
+	dnl put the rule in general Makefile.  Now, some people carelessly touch
+	dnl the files or have a broken "make" program, hence the plural.c rule will
+	dnl sometimes fire.  To avoid an error, define INTL_YACC to ":" if it is
+	dnl not present or too old.
     if test "$nls_cv_use_gnu_gettext" = "yes"; then
-      AC_CHECK_PROGS([INTLBISON], [bison])
-      if test -z "$INTLBISON"; then
+      AC_CHECK_PROGS([INTL_YACC], [byacc bison])
+      if test -z "$INTL_YACC"; then
         ac_verc_fail=yes
       else
         dnl Found it, now check the version.
-        AC_MSG_CHECKING([version of bison])
+        AC_MSG_CHECKING([version of $INTL_YACC])
 changequote(<<,>>)dnl
-        ac_prog_version=`$INTLBISON --version 2>&1 | sed -n 's/^.*GNU Bison.* \([0-9]*\.[0-9.]*\).*$/\1/p'`
+        ac_prog_version=`$INTL_YACC -V 2>&1 | sed -n 's/^.*GNU Bison.* \([0-9]*\.[0-9.]*\).*$/\1/p;s/^\(byacc\) - \([0-9][0-9.]*\) \([0-9]*\).*$/\1-\2.\3/p'`
         case "$ac_prog_version" in
+          (byacc-[0-9].[0-9].20[1-9]*)
+             ac_prog_version="$ac_prog_version, ok"; ac_verc_fail=no;;
           ('') ac_prog_version="v. ?.??, bad"; ac_verc_fail=yes;;
-          (1.2[6-9]*|1.[3-9][0-9]*|[2-9].*)
+          (1.2[6-9]*|1.[3-9][0-9]*|2.[0-3]*)
 changequote([,])dnl
              ac_prog_version="$ac_prog_version, ok"; ac_verc_fail=no;;
           (*) ac_prog_version="$ac_prog_version, bad"; ac_verc_fail=yes;;
@@ -571,7 +577,7 @@ changequote([,])dnl
       AC_MSG_RESULT([$ac_prog_version])
       fi
       if test "$ac_verc_fail" = yes; then
-        INTLBISON=:
+        INTL_YACC=:
       fi
     fi
 
@@ -2367,7 +2373,7 @@ ifelse([$5],,AC_MSG_WARN(Cannot find $3 library),[$5])
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FIX_WARNINGS version: 3 updated: 2020/12/31 18:40:20
+dnl CF_FIX_WARNINGS version: 4 updated: 2021/12/16 18:22:31
 dnl ---------------
 dnl Warning flags do not belong in CFLAGS, CPPFLAGS, etc.  Any of gcc's
 dnl "-Werror" flags can interfere with configure-checks.  Those go into
@@ -2379,11 +2385,13 @@ if test "$GCC" = yes || test "$GXX" = yes
 then
 	case [$]$1 in
 	(*-Werror=*)
-		CF_VERBOSE(repairing $1: [$]$1)
 		cf_temp_flags=
 		for cf_temp_scan in [$]$1
 		do
 			case "x$cf_temp_scan" in
+			(x-Werror=format*)
+				CF_APPEND_TEXT(cf_temp_flags,$cf_temp_scan)
+				;;
 			(x-Werror=*)
 				CF_APPEND_TEXT(EXTRA_CFLAGS,$cf_temp_scan)
 				;;
@@ -2392,9 +2400,13 @@ then
 				;;
 			esac
 		done
-		$1="$cf_temp_flags"
-		CF_VERBOSE(... fixed [$]$1)
-		CF_VERBOSE(... extra $EXTRA_CFLAGS)
+		if test "x[$]$1" != "x$cf_temp_flags"
+		then
+			CF_VERBOSE(repairing $1: [$]$1)
+			$1="$cf_temp_flags"
+			CF_VERBOSE(... fixed [$]$1)
+			CF_VERBOSE(... extra $EXTRA_CFLAGS)
+		fi
 		;;
 	esac
 fi

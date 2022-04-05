@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.71 2021/06/21 21:05:09 tom Exp $
+ * $Id: timebox.c,v 1.72 2022/04/03 22:39:10 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2020,2021   Thomas E. Dickey
+ *  Copyright 2001-2021,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -23,8 +23,6 @@
 
 #include <dlg_internals.h>
 #include <dlg_keys.h>
-
-#include <time.h>
 
 #define ONE_HIGH 1
 #define ONE_WIDE 2

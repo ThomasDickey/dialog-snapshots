@@ -1,9 +1,9 @@
 /*
- *  $Id: msgbox.c,v 1.89 2020/11/23 00:32:02 tom Exp $
+ *  $Id: msgbox.c,v 1.90 2022/04/03 22:38:16 tom Exp $
  *
  *  msgbox.c -- implements the message box and info box
  *
- *  Copyright 2000-2019,2020	Thomas E. Dickey
+ *  Copyright 2000-2020,2022	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -24,7 +24,7 @@
  *	Savio Lam (lam836@cs.cuhk.hk)
  */
 
-#include <dialog.h>
+#include <dlg_internals.h>
 #include <dlg_keys.h>
 
 /*
