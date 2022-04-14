@@ -1,5 +1,5 @@
 /*
- *  $Id: ui_getc.c,v 1.83 2022/04/04 08:01:54 tom Exp $
+ *  $Id: ui_getc.c,v 1.84 2022/04/08 21:01:51 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
@@ -364,7 +364,7 @@ really_getch(WINDOW *win, int *fkey)
 		have_last_getc = used_last_getc = 0;
 		last_getc_bytes[0] = (char) my_wchar;
 	    }
-	    ch = (int) CharOf(last_getc_bytes[used_last_getc++]);
+	    ch = (int) UCH(last_getc_bytes[used_last_getc++]);
 	    last_getc = my_wchar;
 	    break;
 	case ERR:
@@ -375,7 +375,7 @@ really_getch(WINDOW *win, int *fkey)
 	    break;
 	}
     } else {
-	ch = (int) CharOf(last_getc_bytes[used_last_getc++]);
+	ch = (int) UCH(last_getc_bytes[used_last_getc++]);
     }
 #else
     ch = wgetch(win);

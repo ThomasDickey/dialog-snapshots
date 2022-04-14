@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.287 2022/04/03 22:20:36 tom Exp $
+ * $Id: dialog.c,v 1.288 2022/04/06 08:04:56 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -892,9 +892,6 @@ call_inputmenu(CALLARGS)
     int result;
 
     dialog_vars.input_menu = TRUE;
-
-    if (dialog_vars.max_input == 0)
-	dialog_vars.max_input = MAX_LEN / 2;
 
     if (dialog_vars.extra_label == 0) {
 	free_extra_label = TRUE;

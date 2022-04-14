@@ -1,5 +1,5 @@
 /*
- *  $Id: inputstr.c,v 1.93 2022/04/03 22:38:16 tom Exp $
+ *  $Id: inputstr.c,v 1.95 2022/04/06 08:03:09 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -510,7 +510,6 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
     int limit = dlg_count_wchars(string);
     const int *indx = dlg_index_wchars(string);
     int offset = dlg_find_index(indx, limit, *chr_offset);
-    int max_len = dlg_max_input(MAX_LEN);
     bool edit = TRUE;
 
     /* transform editing characters into equivalent function-keys */
@@ -613,7 +612,7 @@ dlg_edit_string(char *string, int *chr_offset, int key, int fkey, bool force)
 	if (key == ESC || key == ERR) {
 	    edit = 0;
 	} else {
-	    if (len < max_len) {
+	    if (len < dlg_max_input(-1)) {
 		for (i = ++len; i > *chr_offset; i--)
 		    string[i] = string[i - 1];
 		string[*chr_offset] = (char) key;

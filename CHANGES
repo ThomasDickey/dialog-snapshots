@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.762 2022/04/05 00:12:48 tom Exp $
+-- $Id: CHANGES,v 1.768 2022/04/14 23:13:49 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2022/04/14
+	+ adjust fallback bindings for backspace/delete to match the curses
+	  library's sense of backspace (Arch #74379).
+	+ amend limit-checks to make --max-input work for sizes greater than
+	  2048 (Debian #1004874).
 
 2022/04/04
 	+ corrected limit-checks in checklist.c, menubox.c, and treeview.c when

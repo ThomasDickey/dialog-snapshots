@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.105 2022/04/04 23:54:08 tom Exp $
+ *  $Id: formbox.c,v 1.106 2022/04/06 08:04:48 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -646,7 +646,6 @@ dlg_form(const char *title,
 	    if (field_changed)
 		chr_offset = 0;
 	    current = &items[choice];
-	    dialog_vars.max_input = current->text_ilen;
 	    dlg_item_help(current->help);
 	    dlg_show_string(form, current->text, chr_offset,
 			    form_active_text_attr,

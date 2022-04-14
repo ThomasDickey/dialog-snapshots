@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.140 2021/12/13 22:40:26 tom Exp $
-.\" Copyright 2005-2020,2021  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.141 2022/04/06 08:10:36 tom Exp $
+.\" Copyright 2005-2021,2022  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2021/12/13 22:40:26 $"
+.TH \*D 3 "" "$Date: 2022/04/06 08:10:36 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -1680,7 +1680,7 @@ If the parameter is not a line-drawing or other special character
 such as ACS_DARROW, it returns 0.
 .TP 5
 .B chtype \fIch
-is the parameter, usually one of the \fBACS_\fP\fIxxx\fP constants.
+is the parameter, usually one of the \fBACS_\fIxxx\fR constants.
 .\" ---------------------------------------------------------------------------
 .SS dlg_attr_clear
 Set window to the given attribute.
@@ -2887,7 +2887,9 @@ is the corresponding \fB\*p\fP internal code
 Limit the parameter according to \fBdialog_vars.max_input\fP
 .TP 5
 .B int \fImax_len
-is the value to limit
+is the value to limit.
+If it is less than or equal to zero, the return value is the maximum
+value for \fBdialog_vars.max_input\fP.
 .\" ---------------------------------------------------------------------------
 .SS dlg_match_char
 Match a given character against the beginning of the string,
