@@ -1,5 +1,5 @@
 /*
- *  $Id: buttons.c,v 1.108 2022/04/03 22:38:16 tom Exp $
+ *  $Id: buttons.c,v 1.109 2022/04/05 23:45:54 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
@@ -600,7 +600,7 @@ finish_ok_label(const char **labels, int n)
     if (n == 0) {
 	labels[n++] = my_ok_label();
 	dialog_vars.nook = FALSE;
-	dlg_trace_msg("# ignore --nook, since at least one button is needed\n");
+	DLG_TRACE(("# ignore --nook, since at least one button is needed\n"));
     }
 
     labels[n] = NULL;

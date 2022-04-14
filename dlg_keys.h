@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.h,v 1.39 2020/11/22 23:19:24 tom Exp $
+ *  $Id: dlg_keys.h,v 1.42 2022/04/14 23:14:33 tom Exp $
  *
  *  dlg_keys.h -- runtime binding support for dialog
  *
- *  Copyright 2005-2019,2020 Thomas E.  Dickey
+ *  Copyright 2005-2020,2022 Thomas E.  Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -103,6 +103,23 @@ typedef enum {
 
 #define is_DLGK_MOUSE(code)	((code) >= M_EVENT)
 #define DLGK_MOUSE(code)	((code) + M_EVENT)
+
+#define DLG_CTRL(n)        ((n) & 0x1f) /* CTRL is preferred, but conflicts */
+
+#define CHR_LEAVE          DLG_CTRL('D')
+#define CHR_HELP           DLG_CTRL('E')
+#define CHR_BACKSPACE      DLG_CTRL('H')
+#define CHR_REPAINT        DLG_CTRL('L')
+#define CHR_NEXT           DLG_CTRL('N')
+#define CHR_PREVIOUS       DLG_CTRL('P')
+#define CHR_KILL           DLG_CTRL('U')
+#define CHR_TRACE          DLG_CTRL('T')
+#define CHR_LITERAL        DLG_CTRL('V')
+#define CHR_SPACE          ' '
+#define CHR_DELETE         127
+
+#define ESC                DLG_CTRL('[')
+#define TAB                DLG_CTRL('I')
 
 #define HELPKEY_BINDINGS \
 	DLG_KEYS_DATA( DLGK_HELPFILE,	   CHR_HELP ), \

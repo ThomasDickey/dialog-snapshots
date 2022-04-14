@@ -1,5 +1,5 @@
 /*
- *  $Id: editbox.c,v 1.83 2022/04/03 22:21:08 tom Exp $
+ *  $Id: editbox.c,v 1.85 2022/04/06 08:01:23 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
@@ -285,7 +285,7 @@ col_to_chr_offset(const char *text, int col)
 static int
 widest_line(char **list)
 {
-    int result = MAX_LEN;
+    int result = dlg_max_input(-1);
 
     if (list != 0) {
 	char *value;

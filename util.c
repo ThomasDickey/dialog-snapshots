@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.305 2022/04/04 08:02:01 tom Exp $
+ *  $Id: util.c,v 1.308 2022/04/08 21:01:51 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -787,7 +787,7 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 		int code;
 
 		txt += 2;
-		switch (code = CharOf(*txt)) {
+		switch (code = UCH(*txt)) {
 #ifdef HAVE_COLOR
 		case '0':
 		case '1':
@@ -855,7 +855,7 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	 * tabs are nonprinting, and curses will expand tabs to one or
 	 * more blanks.
 	 */
-	thisTab = (CharOf(*txt) == TAB);
+	thisTab = (UCH(*txt) == TAB);
 	if (dialog_state.text_only) {
 	    x_before = x_after;
 	} else {
@@ -865,7 +865,7 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 	    }
 	}
 	if (dialog_state.text_only) {
-	    int ch = CharOf(*txt++);
+	    int ch = UCH(*txt++);
 	    if (thisTab) {
 		while ((x_after++) % 8) {
 		    fputc(' ', dialog_state.output);
@@ -875,7 +875,7 @@ dlg_print_text(WINDOW *win, const char *txt, int cols, chtype *attr)
 		x_after++;	/* FIXME: handle meta per locale */
 	    }
 	} else {
-	    (void) waddch(win, CharOf(*txt++) | useattr);
+	    (void) waddch(win, UCH(*txt++) | useattr);
 	    getyx(win, y_after, x_after);
 	}
 	if (thisTab && (y_after == y_origin))
@@ -2682,13 +2682,19 @@ dlg_set_focus(WINDOW *parent, WINDOW *win)
 }
 
 /*
- * Returns the nominal maximum buffer size.
+ * Returns the nominal maximum buffer size, given the caller's estimate of
+ * the needed size.  If the parameter is not greater than zero, return the
+ * configured buffer size.
  */
 int
 dlg_max_input(int max_len)
 {
-    if (dialog_vars.max_input != 0 && dialog_vars.max_input < MAX_LEN)
-	max_len = dialog_vars.max_input;
+    int limit = ((dialog_vars.max_input > 0)
+		 ? dialog_vars.max_input
+		 : MAX_LEN);
+
+    if (max_len > limit || max_len <= 0)
+	max_len = limit;
 
     return max_len;
 }
