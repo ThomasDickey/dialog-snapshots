@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.141 2022/04/06 08:10:36 tom Exp $
+.\" $Id: dialog.3,v 1.142 2022/05/26 23:57:12 tom Exp $
 .\" Copyright 2005-2021,2022  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2022/04/06 08:10:36 $"
+.TH \*D 3 "" "$Date: 2022/05/26 23:57:12 $"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -366,7 +366,7 @@ the command-line option "\fB\-\-begin\fP \fIy x\/\fP" (first value).
 .\" ---------------------------------------------------------------------------
 .SS .cancel_label
 This corresponds to the command-line option
-"\fB--cancel-label\fP \fIstring\/\fP".
+"\fB\-\-cancel\-label\fP \fIstring\/\fP".
 The given \fIstring\fP overrides the label used for \*(``Cancel\*('' buttons.
 .\" ---------------------------------------------------------------------------
 .SS .cant_kill
@@ -794,7 +794,7 @@ If nonzero, this is the number of seconds after to delay
 after processing a dialog box.
 .\" ---------------------------------------------------------------------------
 .SS .tab_correct
-This corresponds to the command-line option "\fB\-\-tab-correct\fP".
+This corresponds to the command-line option "\fB\-\-tab\-correct\fP".
 If true, convert each tab character of the text to one or more spaces.
 Otherwise, tabs are rendered according to the curses library's interpretation.
 .\" ---------------------------------------------------------------------------

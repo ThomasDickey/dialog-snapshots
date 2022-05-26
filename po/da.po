@@ -2,68 +2,79 @@
 # Copyright (C) 2001-2007 Thomas Dickey.
 # This file is distributed under the same license as the Dialog package.
 # Morten Brix Pedersen <morten@wtf.dk>, 2001-2004.
-# Joe Hansen <joedalton2@yahoo.dk>, 2008.
+# Joe Hansen <joedalton2@yahoo.dk>, 2008, 2022.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog-1.1.20070704\n"
+"Project-Id-Version: dialog-1.3.20210117\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-02-25 16:06-0500\n"
-"PO-Revision-Date: 2008-08-20 22:53+0200\n"
-"Last-Translator: Keld Jørn Simonsen <keld@dkuug.dk>\n"
+"POT-Creation-Date: 2021-01-17 15:18-0500\n"
+"PO-Revision-Date: 2022-05-13 22:53+0200\n"
+"Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8-bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
-#: buttons.c:379
+#: buttons.c:500
 msgid "Yes"
 msgstr "Ja"
 
-#: buttons.c:387
+#: buttons.c:508
 msgid "No"
 msgstr "Nej"
 
-#: buttons.c:395
+#: buttons.c:516
 msgid "OK"
-msgstr "O.K."
+msgstr "O.k."
 
-#: buttons.c:403
+#: buttons.c:524
 msgid "Cancel"
-msgstr "Anullér"
+msgstr "Anuller"
 
-#: buttons.c:411
+#: buttons.c:532
 msgid "EXIT"
 msgstr "AFSLUT"
 
-#: buttons.c:419
+#: buttons.c:540
 msgid "Extra"
 msgstr "Ekstra"
 
-#: buttons.c:427
+#: buttons.c:548
 msgid "Help"
 msgstr "Hjælp"
 
 #. Headline "Month"
-#: calendar.c:273
+#: calendar.c:463
 msgid "Month"
 msgstr "Måned"
 
 #. Headline "Year"
-#: calendar.c:293
+#: calendar.c:485
 msgid "Year"
 msgstr "År"
 
-#: dialog.c:727
+#: dialog.c:744
+#, c-format
+msgid "Expected %d arguments, found only %d"
+msgstr "Forventede %d argumenter, fandt kun %d"
+
+#: dialog.c:748
+#, c-format
+msgid "Expected %d arguments, found extra %d"
+msgstr "Forventede %d argumenter, fandt ekstra %d"
+
+#: dialog.c:907
 msgid "Rename"
 msgstr "Omdøb"
 
-#: fselect.c:548
+#: fselect.c:623
 msgid "Directories"
-msgstr "Kataloger"
+msgstr "Mapper"
 
-#: fselect.c:549
+#: fselect.c:624
 msgid "Files"
 msgstr "Filer"
 
@@ -107,6 +118,6 @@ msgstr "N/A"
 msgid "Overall Progress"
 msgstr "Samlet status"
 
-#: textbox.c:489
+#: textbox.c:515
 msgid "Search"
 msgstr "Søg"
