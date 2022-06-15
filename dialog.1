@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.230 2022/05/26 23:45:08 tom Exp $
+.\" $Id: dialog.1,v 1.231 2022/06/15 20:40:56 tom Exp $
 .\" Copyright 2005-2021,2022  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2022/05/26 23:45:08 $"
+.TH \*D 1 "" "$Date: 2022/06/15 20:40:56 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -246,7 +246,7 @@ First and third widget visible, staircase effect, ordered 3,1:
 .Ee
 .IP
 Note, if you want to restore original console colors and send your
-cursor home after the dialog program has exited, use the \fBclear\fR\ (1)
+cursor home after the dialog program has exited, use the \fBclear\fR(1)
 command.
 Conversely, if you want to clear the screen and send your cursor to
 the lower left after the \fB\*p\fP program has exited, use the
@@ -1849,9 +1849,9 @@ and the DIALOG_ITEM_HELP environment variable is set to 4.
 .IP
 While any of the exit-codes can be overridden using environment variables,
 this special case was introduced in 2004 to simplify compatibility.
-\fB\*L\fP uses DIALOG_ITEM_HELP(4) internally,
+\fB\*L\fP uses DIALOG_ITEM_HELP (4) internally,
 but unless the environment variable is also set,
-it changes that to DIALOG_HELP(2) on exit.
+it changes that to DIALOG_HELP (2) on exit.
 .TP 5
 5
 if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5.
@@ -1949,7 +1949,7 @@ For practical purposes, it is maintained by Debian
 (very little work is done by its upstream developers).
 Its documentation (README.whiptail) claims
 .Ex
-whiptail(1) is a lightweight replacement for \*p(1),
+\fBwhiptail\fP(1) is a lightweight replacement for \*p(1),
 to provide dialog boxes for shell scripts.
 It is built on the
 newt windowing library rather than the ncurses library, allowing
