@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.231 2022/06/15 20:40:56 tom Exp $
+.\" $Id: dialog.1,v 1.234 2022/07/28 08:13:25 tom Exp $
 .\" Copyright 2005-2021,2022  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2022/06/15 20:40:56 $"
+.TH \*D 1 "" "$Date: 2022/07/28 08:13:25 $"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -129,9 +129,19 @@ for the benefit of those using systems with deranged locale support).
 .PP
 A \*(``\fB\-\-\fP\*('' by itself is used as an escape,
 i.e., the next token on the command-line is not treated as an option.
+This is different from \fBgetopt\fP(1), 
+which uses that token to treat the remaining tokens as \fIparameters\fP
+rather than \fIoptions\fP.
 .RS
+.PP
 .B \*p \-\-title \-\- \-\-Not an option
+.br
+.B \*p \-\-title This \-\- \-\-title is not an option
 .RE
+.PP
+\fB\*L\fP
+uses no \fIparameters\fP,
+and uses its own \fIoptions\fP parser.
 .PP
 When a common (e.g., non-widget) option is repeated,
 the last found is the one that is used.
@@ -1985,14 +1995,6 @@ were borrowed from more recent versions of \fB\*p\fP, e.g.,
 \fB\-\-default\-item\fP (from \fB\*p\fP 2000/02/22),
 .bP
 \fB\-\-output\-fd\fP (from \fB\*p\fP 2002/08/14).
-.PP
-Somewhat humorously, one may note that the \fBpopt\fP feature
-(undocumented in its manpage)
-of using a \*(``\-\-\*('' as an escape was documented
-in \fB\*p\fP's manpage about a year before it was mentioned
-in \fBwhiptail\fP's manpage.
-\fBwhiptail\fP's manpage incorrectly attributes that to \fBgetopt\fP
-(and is inaccurate anyway).
 .PP
 Debian uses \fBwhiptail\fP for the official \fB\*p\fP variation.
 .PP

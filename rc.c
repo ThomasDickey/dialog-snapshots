@@ -1,5 +1,5 @@
 /*
- *  $Id: rc.c,v 1.61 2022/04/03 22:38:16 tom Exp $
+ *  $Id: rc.c,v 1.62 2022/07/28 08:17:21 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
@@ -121,6 +121,11 @@ static const vars_st vars[] =
      &dialog_state.visit_items,
      VAL_BOOL,
      "Make tab-traversal for checklist, etc., include the list."},
+
+    {"use_scrollbar",
+     &dialog_state.use_scrollbar,
+     VAL_BOOL,
+     "Show scrollbar in dialog boxes?"},
 
 #ifdef HAVE_COLOR
     {"use_shadow",

@@ -1,4 +1,4 @@
-# $Id: whiptail.rc,v 1.6 2012/12/01 01:15:04 tom Exp $
+# $Id: whiptail.rc,v 1.7 2022/07/28 08:18:53 tom Exp $
 # vile:confmode
 # Run-time configuration file for dialog, matches whiptail's color scheme.
 #
@@ -20,6 +20,9 @@ tab_len = 0
 
 # Make tab-traversal for checklist, etc., include the list.
 visit_items = ON
+
+# Show scrollbar in dialog boxes?
+use_scrollbar = ON
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON

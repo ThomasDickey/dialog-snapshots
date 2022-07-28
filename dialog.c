@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.288 2022/04/06 08:04:56 tom Exp $
+ * $Id: dialog.c,v 1.289 2022/07/28 21:11:36 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1971,6 +1971,10 @@ main(int argc, char *argv[])
 		    argv[1]);
 	    Usage(temp);
 	}
+#ifdef HAVE_COLOR
+	dialog_state.use_colors = USE_COLORS;	/* use colors by default? */
+	dialog_state.use_shadow = USE_SHADOW;	/* shadow dialog boxes by default? */
+#endif
 	if (dlg_parse_rc() == -1) {	/* Read the configuration file */
 	    handle_leaks();
 	    dlg_exiterr("dialog: dlg_parse_rc");
@@ -1978,7 +1982,7 @@ main(int argc, char *argv[])
 	dlg_create_rc(argv[2]);
 	dlg_exit(DLG_EXIT_OK);
     }
-#endif
+#endif /* HAVE_RC_FILE */
     else {
 	/*
 	 * Handle combinations of common options including --print-text-only
