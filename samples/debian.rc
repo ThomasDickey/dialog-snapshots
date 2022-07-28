@@ -1,4 +1,4 @@
-# $Id: debian.rc,v 1.7 2011/10/15 01:00:09 tom Exp $
+# $Id: debian.rc,v 1.8 2022/07/28 23:31:58 tom Exp $
 # vile:confmode
 # Run-time configuration file for dialog, matches Debian color scheme.
 # (these are the default values for dialog)
@@ -21,6 +21,9 @@ tab_len = 0
 
 # Make tab-traversal for checklist, etc., include the list.
 visit_items = OFF
+
+# Show scrollbar in dialog boxes?
+use_scrollbar = OFF
 
 # Shadow dialog boxes? This also turns on color.
 use_shadow = ON
