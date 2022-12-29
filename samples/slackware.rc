@@ -1,4 +1,4 @@
-# $Id: slackware.rc,v 1.11 2022/07/28 23:31:58 tom Exp $
+# $Id: slackware.rc,v 1.12 2022/12/29 12:22:15 tom Exp $
 # vile:confmode
 # Run-time configuration file for dialog, matches Slackware color scheme.
 #
@@ -136,10 +136,10 @@ gauge_color = (BLUE,WHITE,ON)
 border2_color = dialog_color
 
 # Input box border2 color
-inputbox_border2_color = border2_color
+inputbox_border2_color = dialog_color
 
 # Search box border2 color
-searchbox_border2_color = border2_color
+searchbox_border2_color = dialog_color
 
 # Menu box border2 color
-menubox_border2_color = border2_color
+menubox_border2_color = dialog_color

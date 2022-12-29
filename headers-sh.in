@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: headers-sh.in,v 1.11 2011/10/18 23:49:13 tom Exp $
+# $Id: headers-sh.in,v 1.12 2022/12/29 11:47:58 tom Exp $
 ##############################################################################
-# Copyright (c) 2004-2007,2011 Thomas E. Dickey                              #
+# Copyright (c) 2004-2011,2022 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -45,7 +45,7 @@ PKGNAME=@PACKAGE_PREFIX@
 CONFIGH=@PACKAGE_CONFIG@
 SUB_INC=@SUB_INC@
 
-: ${TMPDIR:=/tmp}
+: "${TMPDIR:=/tmp}"
 
 TMPSED=headers.sed
 
@@ -53,7 +53,6 @@ DIGIT=0123456789
 alpha=abcdefghijklmnopqrstuvwxyz
 ALPHA=ABCDEFGHIJKLMNOPQRSTUVWXYZ
 
-alnum=_${DIGIT}${alpha}
 ALNUM=_${DIGIT}${ALPHA}
 MIXED=_${DIGIT}${ALPHA}${alpha}
 
@@ -63,16 +62,16 @@ if test $# = 2 ; then
 	rm -f $TMPSED
 	DST=$1
 	REF=$2
-	LEAF=`basename $DST`
+	LEAF=`basename "$DST"`
 
 	# map the include-directory, if needed, to the subdirectory
 	case $DST in
 	/*/include/$LEAF)
-		END=`basename $DST`
-		for i in $REF/*.h
+		END=`basename "$DST"`
+		for i in "$REF"/*.h
 		do
-			NAME=`basename $i`
-			echo "s/<$NAME>/<$END\/$NAME>/g" >> $TMPSED
+			NAME=`basename "$i"`
+			echo "s/<$NAME>/<$END\\/$NAME>/g" >> "$TMPSED"
 		done
 		;;
 	*)
@@ -100,24 +99,24 @@ s/ $//
 :done
 EOF
 	# pick up autoconf-style symbols used in the application's headers
-	for name in $REF/*.h
+	for name in "$REF"/*.h
 	do
-		sed -e 's/^[ 	][ 	]*#[ 	][ 	]*/#/' $name \
-		| egrep '^#(if|ifdef|ifndef|elif)' \
+		sed -e 's/^[ 	][ 	]*#[ 	][ 	]*/#/' "$name" \
+		| @EGREP@ '^#(if|ifdef|ifndef|elif)' \
 		| sed	-f headers.tmp \
 		| sort -u \
-		| egrep '^(HAVE_|NEED_|NO_|ENABLE_|DISABLE_)' \
+		| @EGREP@ '^(HAVE_|NEED_|NO_|ENABLE_|DISABLE_)' \
 		| sed	-e 's%^\(.*\)%s/\\<\1\\>/'${PKGNAME}'_\1/g%' >>$TMPSED
 	done
 	rm -f headers.tmp
 
 	# pick up autoconf-defined symbols in the config.h file
 	for name in `
-	egrep '^#define[ 	][ 	]*['$ALNUM']' $REF/$CONFIGH \
+	@EGREP@ '^#define[ 	][ 	]*['"$ALNUM"']' "$REF"/"$CONFIGH" \
 		| sed \
 			-e 's/^#define[ 	][ 	]*//' \
 			-e 's/[ 	].*//' \
-		| egrep -v "^${PACKAGE}_" \
+		| @EGREP@ -v "^${PACKAGE}_" \
 		| sort -u`
 	do
 		echo "s/\\<$name\\>/${PKGNAME}_$name/g" >>$TMPSED
@@ -144,16 +143,16 @@ else
 	REF=$2
 	SRC=$3
 
-	SHOW=`basename $SRC`
+	SHOW=`basename "$SRC"`
 	TMPSRC=$TMPDIR/${SHOW}-text$$
 	TMPEDT=$TMPDIR/${SHOW}-edit$$
 	TMPTMP=$TMPDIR/${SHOW}-temp$$
 
 	echo "	... $SHOW"
-	test -f $REF/$SRC && SRC="$REF/$SRC"
+	test -f "$REF"/"$SRC" && SRC="$REF/$SRC"
 
-	rm -f $TMPSRC
-	cat $SRC >$TMPSRC
+	rm -f "$TMPSRC"
+	cat "$SRC" >"$TMPSRC"
 
 	tmp1=1
 	while true
@@ -161,20 +160,20 @@ else
 		tmp2=`expr $tmp1 + 49`
 		if test $tmp1 = 1
 		then
-			sed "${tmp2}q" $TMPSED >$TMPEDT
+			sed "${tmp2}q" "$TMPSED" >"$TMPEDT"
 		else
-			sed "1,${tmp1}d; ${tmp2}q" $TMPSED >$TMPEDT
+			sed "1,${tmp1}d; ${tmp2}q" "$TMPSED" >"$TMPEDT"
 		fi
-		test -s $TMPEDT || break
-		sed -f $TMPEDT $TMPSRC > $TMPTMP
-		mv $TMPTMP $TMPSRC
+		test -s "$TMPEDT" || break
+		sed -f "$TMPEDT" "$TMPSRC" > "$TMPTMP"
+		mv "$TMPTMP" "$TMPSRC"
 		tmp1=$tmp2
 	done
 
-	NAME=`basename $SRC`
+	NAME=`basename "$SRC"`
 
 	# Just in case someone gzip'd manpages, remove the conflicting copy.
-	test -f $DST/$NAME.gz && rm -f $DST/$NAME.gz
+	test -f "$DST"/"$NAME".gz && rm -f "$DST"/"$NAME".gz
 
 	if test "$SUB_INC" = yes
 	then
@@ -182,18 +181,18 @@ else
 		${pkgname}_*) #(vi
 			case "$PRG" in #(vi
 			*install*)
-				test -d $DST/$PACKAGE || mkdir -p $DST/$PACKAGE 
+				test -d "$DST"/"$PACKAGE" || mkdir -p "$DST"/"$PACKAGE"
 				;;
 			esac
-			NAME=$PACKAGE/$NAME
+			NAME="$PACKAGE"/"$NAME"
 			;;
 		*)
-			NAME=$PACKAGE.h
+			NAME="$PACKAGE".h
 			;;
 		esac
 	fi
 
-	eval $PRG $TMPSRC $DST/$NAME
-	rm -f $TMPEDT $TMPTMP $TMPSRC
+	eval "$PRG" "$TMPSRC" "$DST"/"$NAME"
+	rm -f "$TMPEDT" "$TMPTMP" "$TMPSRC"
 fi
 # vile:ts=4 sw=4

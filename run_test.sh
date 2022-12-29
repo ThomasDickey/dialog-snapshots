@@ -1,7 +1,7 @@
 #!/bin/sh
-# $Id: run_test.sh,v 1.1 2020/03/20 12:08:00 tom Exp $
+# $Id: run_test.sh,v 1.3 2022/12/29 16:13:11 tom Exp $
 ##############################################################################
-# Copyright (c) 2020 Thomas E. Dickey                                        #
+# Copyright (c) 2020,2022 Thomas E. Dickey                                   #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -33,7 +33,7 @@ failed() {
 	exit 1
 }
 
-: ${DIALOG=./dialog}
+: "${DIALOG=./dialog}"
 CONFIG=samples
 INPUTS=inputs.rc
 OUTPUT=output.rc
@@ -43,7 +43,14 @@ OUTPUT=output.rc
 [ -f "$DIALOG" ] || failed "no such file: $DIALOG"
 [ -d "$CONFIG" ] || failed "no such directory: $CONFIG"
 
-for rcfile in $CONFIG/*.rc
+create_rc="`$DIALOG --help | grep create-rc`"
+if [ -z "$create_rc" ]
+then
+	echo "This version of dialog does not support --create-rc"
+	exit
+fi
+
+for rcfile in "$CONFIG"/*.rc
 do
 	echo "** $rcfile"
 	DIALOGRC="$rcfile" $DIALOG --create-rc $OUTPUT

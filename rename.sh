@@ -1,7 +1,7 @@
 #! /bin/sh
-# $Id: rename.sh,v 1.4 2012/12/19 10:17:36 tom Exp $
+# $Id: rename.sh,v 1.5 2022/12/29 11:39:16 tom Exp $
 ##############################################################################
-# Copyright (c) 2011,2012 Thomas E. Dickey                                   #
+# Copyright (c) 2011-2012,2022 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -45,16 +45,16 @@ TARGET=$1; shift
 BINARY=$1; shift
 PACKAGE=$1; shift
 
-CHR_LEAD=`echo "$BINARY" | sed -e 's/^\(.\).*/\1/'`
-CHR_TAIL=`echo "$BINARY" | sed -e 's/^.//'`
-ONE_CAPS=`echo $CHR_LEAD | tr '[a-z]' '[A-Z]'`$CHR_TAIL
-ALL_CAPS=`echo "$BINARY" | tr '[a-z]' '[A-Z]'`
+CHR_LEAD=`echo "$BINARY"   | sed -e 's/^\(.\).*/\1/'`
+CHR_TAIL=`echo "$BINARY"   | sed -e 's/^.//'`
+ONE_CAPS=`echo "$CHR_LEAD" | tr 'a-z' 'A-Z'`$CHR_TAIL
+ALL_CAPS=`echo "$BINARY"   | tr 'a-z' 'A-Z'`
 
-sed	-e "s,^\.ds p dialog\>,.ds p $BINARY," \
-	-e "s,^\.ds l dialog\>,.ds l $PACKAGE," \
-	-e "s,^\.ds L Dialog\>,.ds L $ONE_CAPS," \
-	-e "s,^\.ds D DIALOG\>,.ds D $ALL_CAPS," \
+sed	-e "s,^\\.ds p dialog\\>,.ds p $BINARY," \
+	-e "s,^\\.ds l dialog\\>,.ds l $PACKAGE," \
+	-e "s,^\\.ds L Dialog\\>,.ds L $ONE_CAPS," \
+	-e "s,^\\.ds D DIALOG\\>,.ds D $ALL_CAPS," \
 	-e 's,^dialog \\- ,'"$PACKAGE"' \\- ,' \
-	<$SOURCE >source.tmp
-"$@" source.tmp $TARGET
+	<"$SOURCE" >source.tmp
+"$@" source.tmp "$TARGET"
 rm -f source.tmp

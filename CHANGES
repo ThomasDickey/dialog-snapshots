@@ -1,8 +1,17 @@
--- $Id: CHANGES,v 1.777 2022/07/28 22:54:15 tom Exp $
+-- $Id: CHANGES,v 1.780 2022/12/29 16:18:19 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2022/12/29
+	+ modify slackware.rc to match dialog's output from "make check" using
+	  this configuration file (FreeBSD #267777).
+	+ fix shellcheck warnings in helper-scripts for building/installing.
+	+ updated configure script, e.g., for compiler-warning fixes.
+	+ updated hu.po from
+		http://translationproject.org/latest/dialog/
+	+ update config.guess, config.sub, install-sh
 
 2022/07/28
 	+ initialize color-settings before --create-rc option is processed.
