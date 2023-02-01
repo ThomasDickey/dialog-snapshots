@@ -17,6 +17,7 @@ override_dh_auto_configure:
 		--prefix=/usr \
 		--disable-echo \
 		--enable-nls \
+		--with-shlib-version=abi \
 		--enable-header-subdir \
 		--enable-stdnoreturn \
 		--enable-widec \
@@ -35,17 +36,26 @@ override_dh_install:
 
 override_dh_link:
 	sh -c "\
-		S=$$(awk '{gsub(":","."); print $$1}' <VERSION); \
-		D=$$(awk '{gsub(":","."); print $$2}' <VERSION); \
+		D=$$(awk '{gsub(":","."); print $$1}' <VERSION); \
+		S=$$(awk '{gsub(":","."); print $$2}' <VERSION); \
 	sed -i.bak \
 		-e \"s/.SRC/.\$$S/\" \
 		-e \"s/.DST/.\$$D/\" \
-		debian/cdialog.links"
-	diff -u debian/cdialog.links.bak debian/cdialog.links || echo OK
+		debian/cdialog-dev.links"
+	diff -u debian/cdialog-dev.links.bak debian/cdialog-dev.links || echo OK
 	dh_link
 
 override_dh_installdocs:
-	dh_installdocs -v README
+	dh_installdocs README
+
+override_dh_installexamples:
+	dh_installexamples -Xcopifuncs *.pl samples/*
 
 override_dh_installchangelogs:
 	dh_installchangelogs CHANGES
+
+override_dh_installman:
+	# dh_install does this
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

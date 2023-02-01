@@ -1,8 +1,18 @@
--- $Id: CHANGES,v 1.780 2022/12/29 16:18:19 tom Exp $
+-- $Id: CHANGES,v 1.788 2023/02/01 09:00:23 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2023/02/01
+	+ change shared-library configuration in test-packages to use the
+	  ABI version in the library filename to match its SONAME.
+	+ add sample scripts to Debian test-package.
+	+ corrected cdialog*.install helper scripts in test-package for Debian
+	+ change ftp URLs in test-packages to https
+	+ updated configure script, e.g., for compiler-warning fixes.
+	+ updated fur.po from
+		http://translationproject.org/latest/dialog/
 
 2022/12/29
 	+ modify slackware.rc to match dialog's output from "make check" using

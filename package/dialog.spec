@@ -1,16 +1,16 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20221229
+%define AppRelease 20230201
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.168 2022/12/29 12:23:23 tom Exp $
+# $XTermId: dialog.spec,v 1.174 2023/02/01 08:55:10 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
 License: LGPL
 Group: Applications/System
-URL: ftp://ftp.invisible-island.net/%{AppProgram}
-Source0: %{AppProgram}-%{AppVersion}-%{AppRelease}.tgz
+URL: https://invisible-island.net/%{AppProgram}
+Source0: https://invisible-island.net/archives/%{AppProgram}-%{AppVersion}-%{AppRelease}.tgz
 Packager: Thomas Dickey <dickey@invisible-island.net>
 
 %package	devel
@@ -58,6 +58,7 @@ INSTALL_PROGRAM='${INSTALL}' \
   --enable-widec \
   --with-shared \
   --with-ncursesw \
+  --with-shlib-version=abi \
   --with-versioned-syms \
   --disable-rpath-hack
 
@@ -94,6 +95,9 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Wed Feb 02 2023 Thomas Dickey
+- change shared-library configuration to ABI
 
 * Wed Mar 24 2021 Thomas Dickey
 - use C11 _Noreturn

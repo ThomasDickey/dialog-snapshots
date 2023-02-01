@@ -25,7 +25,7 @@ Description: dialog - display dialog boxes from shell scripts
 
 Package: cdialog-dev
 Architecture: any
-Depends: libc6 (>= 2.11), libncursesw6 (>= 6.0)
+Depends: cdialog
 Description: dialog - display dialog boxes from shell scripts
  Dialog is a program that will let you present a variety of questions or
  display messages using dialog boxes from a shell script.   These  types
