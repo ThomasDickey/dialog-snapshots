@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20230201
+%define AppRelease 20230207
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.174 2023/02/01 08:55:10 tom Exp $
+# $XTermId: dialog.spec,v 1.178 2023/02/08 01:05:33 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -13,9 +13,9 @@ URL: https://invisible-island.net/%{AppProgram}
 Source0: https://invisible-island.net/archives/%{AppProgram}-%{AppVersion}-%{AppRelease}.tgz
 Packager: Thomas Dickey <dickey@invisible-island.net>
 
-%package	devel
-Summary:	Development headers/library for the dialog package.
-Requires:	%{ActualProg}, ncurses-devel
+%package devel
+Summary: Development headers/library for the dialog package.
+Requires: %{ActualProg}, ncurses-devel
 
 %description
 Dialog is a program that will let you present a variety of questions or
@@ -67,14 +67,12 @@ make
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
-make install      DESTDIR=$RPM_BUILD_ROOT
-make install-full DESTDIR=$RPM_BUILD_ROOT
+make install          DESTDIR=$RPM_BUILD_ROOT
+make install-full     DESTDIR=$RPM_BUILD_ROOT
+make install-examples DESTDIR=$RPM_BUILD_ROOT
 
 strip $RPM_BUILD_ROOT%{_bindir}/%{ActualProg}
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
-
-%clean
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
@@ -82,6 +80,8 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 %{_mandir}/man1/%{ActualProg}.*
 %{_libdir}/lib%{ActualProg}.so.*
 %{_datadir}/locale/*/LC_MESSAGES/%{ActualProg}.mo 
+%doc README COPYING CHANGES
+%{_datadir}/doc/%{ActualProg}/*
 
 %files devel
 %defattr(-,root,root)
@@ -96,7 +96,10 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 %changelog
 # each patch should add its ChangeLog entries here
 
-* Wed Feb 02 2023 Thomas Dickey
+* Tue Feb 07 2023 Thomas Dickey
+- install examples in doc directory
+
+* Wed Feb 01 2023 Thomas Dickey
 - change shared-library configuration to ABI
 
 * Wed Mar 24 2021 Thomas Dickey

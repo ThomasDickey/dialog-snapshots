@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.104 2021/03/06 11:07:27 tom Exp $
+# $Id: makefile.in,v 1.106 2023/02/07 23:37:36 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2020,2021 Thomas E. Dickey                              #
+# Copyright (c) 1999-2021,2023 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -46,6 +46,7 @@ o		= .@OBJEXT@
 DESTDIR		= @DESTDIR@
 
 THIS		= dialog
+PACKAGE		= @PACKAGE@
 
 CFG_ROOTNAME	= @CFG_ROOTNAME@
 HDR_ROOTNAME	= @HDR_ROOTNAME@
@@ -71,11 +72,13 @@ libdir		= @libdir@
 mandir		= @mandir@
 manext		= 1
 libext		= 3
+docdir		= $(datarootdir)/doc/$(PACKAGE)
 
 BINDIR		= $(DESTDIR)$(bindir)
 INCLUDEDIR	= $(DESTDIR)$(includedir)
 LIBDIR		= $(DESTDIR)$(libdir)
 MANDIR		= $(DESTDIR)$(mandir)
+DOCDIR		= $(DESTDIR)${docdir}
 
 MAN1DIR		= $(MANDIR)/man1
 MAN3DIR		= $(MANDIR)/man3
@@ -122,7 +125,6 @@ LINK		= $(LIBTOOL_LINK)
 
 # The library is always named for the package, but the program can be further
 # renamed at install time, starting with the package name.
-PACKAGE		= @PACKAGE@
 ACTUAL_PROG	= `echo $(PACKAGE) |sed @program_transform_name@`
 LIB_CONFIG	= $(CFG_ROOTNAME)-config
 
@@ -310,6 +312,57 @@ headers.sed : headers-sh
 	$(SHELL) headers-sh $(INCLUDEDIR) $(srcdir)
 
 ################################################################################
+# Examples are useful in some packages, but not actually needed for running.
+# These are not part of "install-full".
+
+EXAMPLESDIR = $(DOCDIR)/examples
+TMPDIR      = /tmp
+
+install-examples: $(EXAMPLESDIR)
+	@ echo "** installing examples in $(EXAMPLESDIR)..."
+	@ $(SHELL) -c '\
+		Q=`mktemp $(TMPDIR)/dialog.XXXXXXXX`; \
+		trap "rm -f $$Q" 0 1 2 3 15; \
+		for S in *.pl; \
+		do \
+			T=$(ACTUAL_PROG); \
+			sed -e "s%\"dialog\"%\"$$T\"%" $$S >$$Q; \
+			if test -x $$S; then \
+				$(INSTALL_SCRIPT) $$Q $(EXAMPLESDIR)/$$S; \
+			else \
+				$(INSTALL_DATA) $$Q $(EXAMPLESDIR)/$$S; \
+			fi; \
+			diff -c $$S $(EXAMPLESDIR)/$$S; \
+		done; \
+		cd $(srcdir)/samples || exit 1; \
+		for S in *;\
+		do \
+			if test -f $$S; then \
+				sed -e "/{DIALOG[=-]dialog}/s%dialog%$(ACTUAL_PROG)%" $$S >$$Q; \
+				if test -x $$S; then \
+					$(INSTALL_SCRIPT) $$Q $(EXAMPLESDIR)/$$S; \
+				else \
+					$(INSTALL_DATA) $$Q $(EXAMPLESDIR)/$$S; \
+				fi; \
+				diff -c $$S $(EXAMPLESDIR)/$$S; \
+			fi; \
+		done'
+
+uninstall-examples:
+	@ echo "** uninstalling examples from $(EXAMPLESDIR)..."
+	@ $(SHELL) -c '\
+		for S in *.pl; \
+		do \
+			$(RM) $(EXAMPLESDIR)/$$S; \
+		done; \
+		cd $(srcdir)/samples || exit 1; \
+		for S in *;\
+		do \
+			if test -f $$S; then \
+				$(RM) $(EXAMPLESDIR)/$$S; \
+			fi; \
+		done'
+################################################################################
 TOP_DOCS = \
 @NROFF_NOTE@	dialog.txt \
 @MAN2HTML_NOTE@	dialog.html \
@@ -347,7 +400,9 @@ $(MAN1DIR) \
 $(MAN3DIR) \
 $(BINDIR) \
 $(INCLUDEDIR) \
-$(LIBDIR) : ; mkdir -p $@
+$(LIBDIR) \
+$(EXAMPLESDIR) :
+	mkdir -p $@
 
 @MAKE_LOWER_TAGS@tags :
 @MAKE_LOWER_TAGS@	$(CTAGS) $(SRCS) $(HDRS)

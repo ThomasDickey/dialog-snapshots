@@ -29,7 +29,7 @@ override_dh_auto_configure:
 		--disable-rpath-hack
 
 override_dh_auto_install:
-	dh_auto_install -- install install-lib
+	dh_auto_install -- install install-lib install-examples
 
 override_dh_install:
 	dh_install
@@ -49,7 +49,8 @@ override_dh_installdocs:
 	dh_installdocs README
 
 override_dh_installexamples:
-	dh_installexamples -Xcopifuncs *.pl samples/*
+	# the makefile rule adjusts the default program-name
+	mv -v debian/tmp/usr/share/doc/cdialog/examples debian/cdialog/usr/share/doc/cdialog/
 
 override_dh_installchangelogs:
 	dh_installchangelogs CHANGES
