@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.102 2023/01/29 22:49:09 tom Exp $
+dnl $Id: configure.in,v 1.103 2023/02/08 08:54:47 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2020,2023 -- Thomas E. Dickey
@@ -66,6 +66,7 @@ CF_WITH_INSTALL_PREFIX
 CF_WITH_SCREEN_PDCURSES
 CF_ENABLE_WARNINGS(,yes)
 CF_PKG_CONFIG
+CF_ENABLE_PC_FILES
 
 dnl
 dnl Allow dialog program and library to be renamed.
@@ -272,6 +273,7 @@ CF_LD_SEARCHPATH
 
 AC_OUTPUT(
 	dialog-config
+	gen-pkgconfig
 	makefile
 	$EXTRA_OUTPUT
 	$SUB_MAKEFILE,[

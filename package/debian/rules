@@ -19,6 +19,7 @@ override_dh_auto_configure:
 		--enable-nls \
 		--with-shlib-version=abi \
 		--enable-header-subdir \
+		--enable-pc-files \
 		--enable-stdnoreturn \
 		--enable-widec \
 		--with-package=${ACTUAL_PROG} \
@@ -33,6 +34,12 @@ override_dh_auto_install:
 
 override_dh_install:
 	dh_install
+	sh -c '\
+		pc_source=$$(find debian/tmp -name "*.pc"); \
+		pc_target=$$(echo $$pc_source | sed -e "s,tmp,cdialog-dev,"); \
+		pc_holder=$$(echo $$pc_target | sed -e "s,/[^/]*$$,,"); \
+		mkdir -v -p $$pc_holder; \
+		mv -v $$pc_source $$pc_target'
 
 override_dh_link:
 	sh -c "\

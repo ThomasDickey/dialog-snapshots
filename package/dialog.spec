@@ -1,9 +1,9 @@
 Summary: dialog - display dialog boxes from shell scripts
 %define AppProgram dialog
 %define AppVersion 1.3
-%define AppRelease 20230207
+%define AppRelease 20230209
 %define ActualProg c%{AppProgram}
-# $XTermId: dialog.spec,v 1.178 2023/02/08 01:05:33 tom Exp $
+# $XTermId: dialog.spec,v 1.181 2023/02/09 22:29:43 tom Exp $
 Name: %{ActualProg}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -54,6 +54,7 @@ INSTALL_PROGRAM='${INSTALL}' \
   --with-package=%{ActualProg} \
   --enable-header-subdir \
   --enable-nls \
+  --enable-pc-files \
   --enable-stdnoreturn \
   --enable-widec \
   --with-shared \
@@ -91,10 +92,14 @@ chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib%{ActualProg}.so.*
 %{_includedir}/%{ActualProg}/dlg_config.h
 %{_includedir}/%{ActualProg}/dlg_keys.h
 %{_libdir}/lib%{ActualProg}.so
+%{_libdir}/pkgconfig/%{ActualProg}.pc
 %{_mandir}/man3/%{ActualProg}.*
 
 %changelog
 # each patch should add its ChangeLog entries here
+
+* Thu Feb 09 2023 Thomas Dickey
+- add ".pc" file
 
 * Tue Feb 07 2023 Thomas Dickey
 - install examples in doc directory

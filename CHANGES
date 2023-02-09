@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.791 2023/02/07 23:26:58 tom Exp $
+-- $Id: CHANGES,v 1.794 2023/02/09 22:29:43 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2023/02/09
+	+ install ".pc" files in the test-packages.
+	+ add pkg-config ".pc" file, for use with the development library.
 
 2023/02/07
 	+ change shared-library configuration in test-packages to use the

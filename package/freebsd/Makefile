@@ -7,7 +7,7 @@
 #
 
 PORTNAME=	cdialog
-PORTVERSION=	1.3.20230207
+PORTVERSION=	1.3.20230209
 PORTEPOCH=	1
 CATEGORIES=	devel
 MASTER_SITES=	https://invisible-island.net/archives/${PORTNAME:S|^c||}/

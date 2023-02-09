@@ -1,4 +1,4 @@
-# $Id: makefile.in,v 1.106 2023/02/07 23:37:36 tom Exp $
+# $Id: makefile.in,v 1.107 2023/02/08 09:15:31 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
 # Copyright (c) 1999-2021,2023 Thomas E. Dickey                              #
@@ -73,12 +73,14 @@ mandir		= @mandir@
 manext		= 1
 libext		= 3
 docdir		= $(datarootdir)/doc/$(PACKAGE)
+pkgconfig_dir	= @PKG_CONFIG_LIBDIR@
 
 BINDIR		= $(DESTDIR)$(bindir)
 INCLUDEDIR	= $(DESTDIR)$(includedir)
 LIBDIR		= $(DESTDIR)$(libdir)
 MANDIR		= $(DESTDIR)$(mandir)
 DOCDIR		= $(DESTDIR)${docdir}
+PKGCONFIG_DIR	= $(DESTDIR)$(pkgconfig_dir)
 
 MAN1DIR		= $(MANDIR)/man1
 MAN3DIR		= $(MANDIR)/man3
@@ -132,6 +134,7 @@ LIB_CONFIG	= $(CFG_ROOTNAME)-config
 # makefile target.  Ditto for $(PROG).
 LIB		= @LIB_TARGET@
 PROG		= @PACKAGE@$x
+PC_FILE		= @PACKAGE@.pc
 #
 # Standard .c to .o compile line.
 #
@@ -223,6 +226,7 @@ clean	::
 	@- $(RM) -r autom4te.cache
 	- $(RM) *.*cov *.da *.bb *.bbg
 	- $(LIBTOOL_CLEAN) $(RM) *.i *$o $(ALL)
+	- $(RM) gen-pkgconfig *.pc
 	- $(RM) headers.sed
 	- $(RM) *.html *.pdf *.png *.ps *.txt dialog_lib.1
 	- $(RM) core *~ tags TAGS
@@ -247,6 +251,9 @@ install-full :: install-lib install-bin install-man
 
 install-strip :: $(PROG) $(BINDIR)
 	$(INSTALL_PROGRAM) -s $(PROG) $(BINDIR)
+
+@MAKE_PC_FILES@install-lib ::	$(PC_FILE) $(PKGCONFIG_DIR)
+@MAKE_PC_FILES@	$(INSTALL_DATA) $(PC_FILE) $(PKGCONFIG_DIR)/$(ACTUAL_PROG).pc
 
 uninstall :: uninstall-bin uninstall-man
 	@echo "made $@"
@@ -307,6 +314,11 @@ install-lib :: $(MAN3DIR)
 
 uninstall-lib ::
 	$(RM) $(MAN3DIR)/@PACKAGE@.$(libext)
+@MAKE_PC_FILES@	$(RM) $(PKGCONFIG_DIR)/$(ACTUAL_PROG).pc
+	-@echo "** uninstalled"
+
+$(PC_FILE) : gen-pkgconfig 
+	$(SHELL) gen-pkgconfig $(PC_FILE)
 
 headers.sed : headers-sh
 	$(SHELL) headers-sh $(INCLUDEDIR) $(srcdir)
@@ -401,6 +413,7 @@ $(MAN3DIR) \
 $(BINDIR) \
 $(INCLUDEDIR) \
 $(LIBDIR) \
+$(PKGCONFIG_DIR) \
 $(EXAMPLESDIR) :
 	mkdir -p $@
 
