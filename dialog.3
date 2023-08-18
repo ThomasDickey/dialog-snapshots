@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.143 2022/06/15 20:15:28 tom Exp $
-.\" Copyright 2005-2021,2022  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.144 2023/08/18 08:26:33 tom Exp $
+.\" Copyright 2005-2022,2023  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D 3 "" "$Date: 2022/06/15 20:15:28 $"
+.TH \*D "" 2023-08-18 "" "Library calls"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -326,7 +326,6 @@ command-line options:
 .\" ---------------------------------------------------------------------------
 .SH
 DIALOG_VARS
-.PP
 In contrast to \fBDIALOG_STATE\fP, the members of \fBDIALOG_VARS\fP
 are set by command-line options in \fB\*p\fP.
 .\" ---------------------------------------------------------------------------
@@ -2097,7 +2096,6 @@ DLGK_PAGE_PREV or
 .br
 DLGK_PAGE_NEXT.
 .RE
-.fi
 .LP
 Some widgets use these key bindings for scrolling the prompt-text up and
 down, to allow for display in very small windows.

@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.234 2022/07/28 08:13:25 tom Exp $
-.\" Copyright 2005-2021,2022  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.235 2023/08/18 08:24:59 tom Exp $
+.\" Copyright 2005-2022,2023  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -48,7 +48,7 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .
-.TH \*D 1 "" "$Date: 2022/07/28 08:13:25 $"
+.TH \*D "" 2023-08-18 "" "User commands"
 .SH NAME
 dialog \- display dialog boxes from shell scripts
 .SH SYNOPSIS
@@ -129,7 +129,7 @@ for the benefit of those using systems with deranged locale support).
 .PP
 A \*(``\fB\-\-\fP\*('' by itself is used as an escape,
 i.e., the next token on the command-line is not treated as an option.
-This is different from \fBgetopt\fP(1), 
+This is different from \fBgetopt\fP(1),
 which uses that token to treat the remaining tokens as \fIparameters\fP
 rather than \fIoptions\fP.
 .RS
@@ -188,7 +188,7 @@ Otherwise, \fB\*l\fP uses the given size for the widget.
 .SS \fBCommon Options\fP
 Most of the common options are reset before processing each widget.
 .
-.IP "\fB\-\-ascii\-lines
+.IP "\fB\-\-ascii\-lines"
 Rather than draw graphics lines around boxes,
 draw ASCII \*(``+\*('' and \*(``-\*('' in the same place.
 See also \*(``\fB\-\-no\-lines\fR\*(''.
@@ -414,7 +414,6 @@ If "\fB\-\-item\-help\fR" is also given, the item-help text is written.
 Otherwise, the item's tag (the first field) is written.
 .RE
 .IP
-.IP
 You can use the \fB\-\-help\-tags\fP option and/or set the DIALOG_ITEM_HELP
 environment variable to modify these messages and exit-status.
 .IP
@@ -564,14 +563,14 @@ SIGHUP is disabled for the background process.
 .IP "\fB\-\-no-label \fIstring"
 Override the label used for \*(``No\*('' buttons.
 .
-.IP "\fB\-\-no\-lines
+.IP "\fB\-\-no\-lines"
 Rather than draw lines around boxes, draw spaces in the same place.
 See also \*(``\fB\-\-ascii\-lines\fR\*(''.
 .
-.IP "\fB\-\-no\-mouse
+.IP "\fB\-\-no\-mouse"
 Do not enable the mouse.
 .
-.IP "\fB\-\-no\-nl\-expand
+.IP "\fB\-\-no\-nl\-expand"
 Do not convert \*(``\en\*('' substrings of the message/prompt text into
 literal newlines.
 .IP
@@ -1434,7 +1433,6 @@ Beep after a user has completed a widget by pressing one of the buttons.
 .
 .\" ************************************************************************
 .SS "Whitespace Options"
-.PP
 These options can be used to transform whitespace (space, tab, newline)
 as dialog reads the script:
 .RS
@@ -1653,7 +1651,6 @@ _
 \fBDLG_KEYS_ENUM\fP type in
 \fBdlg_keys.h\fP, e.g., \*(``HELP\*('' from \*(``DLGK_HELP\*(''.
 .SS Widget Names
-.PP
 Some widgets (such as the formbox) have an area where fields can be edited.
 Those are managed in a subwindow of the widget, and
 may have separate keybindings from the main widget
@@ -2045,7 +2042,6 @@ thereby getting better resolution.
 .SH BUGS
 Perhaps.
 .SH AUTHOR
-.LP
 Thomas E.\& Dickey (updates for 0.9b and beyond)
 .SH CONTRIBUTORS
 Kiran Cherupally \(en the mixed form and mixed gauge widgets.
