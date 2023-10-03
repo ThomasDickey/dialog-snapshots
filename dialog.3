@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.3,v 1.144 2023/08/18 08:26:33 tom Exp $
+.\" $Id: dialog.3,v 1.145 2023/10/03 00:20:25 tom Exp $
 .\" Copyright 2005-2022,2023  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
-.TH \*D "" 2023-08-18 "" "Library calls"
+.TH \*D "" 2023-10-02 "" "Library calls"
 .SH NAME
 dialog \- widgets and utilities for the \*p program
 .SH SYNOPSIS
@@ -3194,6 +3194,32 @@ is a list of (pointers to) button labels terminated by a null pointer.
 .B int \fIbutton
 is the current button index
 .\" ---------------------------------------------------------------------------
+.SS dlg_print_line
+Print one line of the prompt in the window within the limits of the
+specified right margin.
+The line will end on a word boundary and a pointer
+to the start of the next line is returned, or a NULL pointer if the end of
+*prompt is reached.
+.TP 5
+.B WINDOW *\fIwin
+is the window to update.
+.TP 5
+.B chtype *\fIattr
+holds the starting attributes, and is updated to reflect the final attributes
+applied to the string.
+.TP 5
+.B const char *\fIprompt
+is the string to print
+.TP 5
+.B int \fIlm
+is the left margin.
+.TP 5
+.B int \fIrm
+is the right margin
+.TP 5
+.B int *\fIx
+returns the ending x-ordinate.
+.\" ---------------------------------------------------------------------------
 .SS dlg_print_listitem
 This is a helper function used for the various \*(``list\*('' widgets,
 e.g., checklist, menu, buildlist, treeview.
@@ -3219,6 +3245,20 @@ and the first character of the value should be highlighted.
 .TP 5
 .B int \fIselected
 nonzero if the text should be displayed using the \*(``selected\*('' colors
+.\" ---------------------------------------------------------------------------
+.SS dlg_print_nowrap
+Print the \fIline\fP within the given \fIwidth\fP, without wrapping.
+Fill the remainder of the width with spaces.
+.TP 5
+.B WINDOW *\fIwin
+the window in which to display the text
+.TP 5
+.B const char *\fIlin
+the value to display
+.TP 5
+.B int \fIwidth
+the number of columns available for printing the text,
+including a margin.
 .\" ---------------------------------------------------------------------------
 .SS dlg_print_scrolled
 This is a wrapper for \fBdlg_print_autowrap\fP which allows the user
@@ -3248,32 +3288,6 @@ is the width that the wrapping should occur in
 .B int \fIpauseopt
 is true if the extra functionality for scrolling should be enabled.
 If false, this calls \fBdlg_print_autowrap\fP without doing any scrolling.
-.\" ---------------------------------------------------------------------------
-.SS dlg_print_line
-Print one line of the prompt in the window within the limits of the
-specified right margin.
-The line will end on a word boundary and a pointer
-to the start of the next line is returned, or a NULL pointer if the end of
-*prompt is reached.
-.TP 5
-.B WINDOW *\fIwin
-is the window to update.
-.TP 5
-.B chtype *\fIattr
-holds the starting attributes, and is updated to reflect the final attributes
-applied to the string.
-.TP 5
-.B const char *\fIprompt
-is the string to print
-.TP 5
-.B int \fIlm
-is the left margin.
-.TP 5
-.B int \fIrm
-is the right margin
-.TP 5
-.B int *\fIx
-returns the ending x-ordinate.
 .\" ---------------------------------------------------------------------------
 .SS dlg_prev_ok_buttonindex
 Find the previous button index in the list from \fBdlg_ok_labels\fP.

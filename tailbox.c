@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.80 2022/04/03 22:38:16 tom Exp $
+ *  $Id: tailbox.c,v 1.81 2023/10/03 00:07:32 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2020,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2023	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -82,18 +82,8 @@ get_line(MY_OBJ * obj)
 static void
 print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
 {
-    int i, y, x;
-    char *line = get_line(obj);
-
     (void) wmove(win, row, 0);	/* move cursor to correct line */
-    (void) waddch(win, ' ');
-    (void) waddnstr(win, line, MIN((int) strlen(line), width - 2));
-
-    getyx(win, y, x);
-    (void) y;
-    /* Clear 'residue' of previous line */
-    for (i = 0; i < width - x; i++)
-	(void) waddch(win, ' ');
+    dlg_print_nowrap(win, get_line(obj), width);
 }
 
 /*

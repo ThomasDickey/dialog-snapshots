@@ -1,9 +1,9 @@
 /*
- *  $Id: progressbox.c,v 1.55 2022/04/03 22:38:16 tom Exp $
+ *  $Id: progressbox.c,v 1.59 2023/10/03 00:04:26 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2006-2020,2022	Thomas E. Dickey
+ *  Copyright 2006-2022,2023	Thomas E. Dickey
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -191,6 +191,7 @@ get_line(MY_OBJ * obj, int *restart)
     }
 
     obj->line[col] = '\0';
+    dlg_trace_msg("READ %s\n", obj->line);
 
 #ifdef KEY_RESIZE
     if (result != NULL) {
@@ -219,14 +220,8 @@ get_line(MY_OBJ * obj, int *restart)
 static void
 print_line(MY_OBJ * obj, const char *line, int row)
 {
-    int width = obj->wide - (2 * MARGIN);
-    int limit = MIN((int) strlen(line), width - 2);
-
     (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
-    wprintw(obj->text, " %.*s", limit, line);
-    while (++limit < width) {
-	waddch(obj->text, ' ');
-    }
+    dlg_print_nowrap(obj->text, line, (obj->wide - (2 * MARGIN)));
 }
 
 #ifdef KEY_RESIZE

@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.308 2022/04/08 21:01:51 tom Exp $
+ *  $Id: util.c,v 1.309 2023/10/03 00:07:51 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2023	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -752,6 +752,34 @@ dlg_print_listitem(WINDOW *win,
 	    dlg_print_text(win, text, cols[limit], &attr);
 	}
     }
+}
+
+void
+dlg_print_nowrap(WINDOW *win, const char *line, int width)
+{
+    int limit;
+    int x_1st;
+    int x_now;
+    int x = 0;
+    int y;
+    int ch;
+    bool done;
+
+    (void) y;
+    getyx(win, y, x_1st);
+    waddch(win, ' ');
+    done = (width <= MARGIN);
+    limit = x_1st + width - 1;
+    do {
+	if (done) {
+	    waddch(win, ' ');
+	} else if ((ch = line[x++]) != '\0') {
+	    waddch(win, UCH(ch));
+	} else {
+	    done = TRUE;
+	}
+	getyx(win, y, x_now);
+    } while (x_now < limit);
 }
 
 /*

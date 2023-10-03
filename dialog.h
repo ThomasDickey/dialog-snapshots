@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.308 2022/04/03 22:38:16 tom Exp $
+ *  $Id: dialog.h,v 1.309 2023/10/03 00:07:41 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2023	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -710,6 +710,7 @@ extern void dlg_item_help(const char * /*txt*/);
 extern void dlg_keep_tite(FILE * /*output */);
 extern void dlg_print_autowrap(WINDOW * /*win*/, const char * /*prompt*/, int /*height*/, int /*width*/);
 extern void dlg_print_listitem(WINDOW * /*win*/, const char * /*text*/, int /*climit*/, bool /*first*/, int /*selected*/);
+extern void dlg_print_nowrap(WINDOW * /*win*/, const char * /*line*/, int /*width*/);
 extern void dlg_print_size(int /*height*/, int /*width*/);
 extern void dlg_print_text(WINDOW * /*win*/, const char * /*txt*/, int /*len*/, chtype * /*attr*/);
 extern void dlg_put_backtitle(void);
