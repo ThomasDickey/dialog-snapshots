@@ -1,7 +1,7 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.170 2023/09/06 22:55:27 tom Exp $
+dnl $Id: aclocal.m4,v 1.173 2024/01/01 11:43:11 tom Exp $
 dnl ---------------------------------------------------------------------------
-dnl Copyright 1999-2022,2023 -- Thomas E. Dickey
+dnl Copyright 1999-2023,2024 -- Thomas E. Dickey
 dnl
 dnl Permission is hereby granted, free of charge, to any person obtaining a
 dnl copy of this software and associated documentation files (the
@@ -1498,7 +1498,7 @@ if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_CONST_X_STRING version: 7 updated: 2021/06/07 17:39:17
+dnl CF_CONST_X_STRING version: 8 updated: 2023/12/01 17:22:50
 dnl -----------------
 dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
 dnl character-strings.
@@ -1533,6 +1533,7 @@ AC_TRY_COMPILE(
 AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
 	AC_TRY_COMPILE(
 		[
+#undef  _CONST_X_STRING
 #define _CONST_X_STRING	/* X11R7.8 (perhaps) */
 #undef  XTSTRINGDEFINES	/* X11R5 and later */
 #include <stdlib.h>
@@ -2952,7 +2953,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -we147"
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LARGEFILE version: 12 updated: 2020/03/19 20:23:48
+dnl CF_LARGEFILE version: 13 updated: 2023/12/03 19:09:59
 dnl ------------
 dnl Add checks for large file support.
 AC_DEFUN([CF_LARGEFILE],[
@@ -2986,11 +2987,15 @@ ifdef([AC_FUNC_FSEEKO],[
 #pragma GCC diagnostic error "-Wincompatible-pointer-types"
 #include <sys/types.h>
 #include <dirent.h>
+
+#ifndef __REDIRECT
+/* if transitional largefile support is setup, this is true */
+extern struct dirent64 * readdir(DIR *);
+#endif
 		],[
-		/* if transitional largefile support is setup, this is true */
-		extern struct dirent64 * readdir(DIR *);
-		struct dirent64 *x = readdir((DIR *)0);
-		struct dirent *y = readdir((DIR *)0);
+		DIR *dp = opendir(".");
+		struct dirent64 *x = readdir(dp);
+		struct dirent *y = readdir(dp);
 		int z = x - y;
 		(void)z;
 		],
@@ -3952,7 +3957,7 @@ EOF
 test "$cf_cv_ncurses_version" = no || AC_DEFINE(NCURSES,1,[Define to 1 if we are using ncurses headers/libraries])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NL_LANGINFO_1STDAY version: 3 updated: 2020/03/19 20:23:48
+dnl CF_NL_LANGINFO_1STDAY version: 4 updated: 2024/01/01 06:38:15
 dnl ---------------------
 dnl glibc locale support has runtime extensions which might be implemented in
 dnl other systems.
@@ -3964,7 +3969,7 @@ AC_CACHE_CHECK(if runtime has nl_langinfo support for first weekday,
 #include <locale.h>
 ],[
 	int first_weekday = nl_langinfo (_NL_TIME_FIRST_WEEKDAY)[0];
-	long week_1stday_l = (long) nl_langinfo (_NL_TIME_WEEK_1STDAY);
+	char *week_1stday_l = nl_langinfo (_NL_TIME_WEEK_1STDAY);
 	(void) first_weekday;
 	(void) week_1stday_l;
 ],[cf_nl_langinfo_1stday=yes
@@ -4167,7 +4172,7 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PKG_CONFIG version: 12 updated: 2021/10/10 20:18:09
+dnl CF_PKG_CONFIG version: 13 updated: 2023/10/28 11:59:01
 dnl -------------
 dnl Check for the package-config program, unless disabled by command-line.
 dnl
@@ -4176,7 +4181,7 @@ AC_DEFUN([CF_PKG_CONFIG],
 [
 AC_MSG_CHECKING(if you want to use pkg-config)
 AC_ARG_WITH(pkg-config,
-	[  --with-pkg-config{=path} enable/disable use of pkg-config],
+	[[  --with-pkg-config[=CMD] enable/disable use of pkg-config and its name CMD]],
 	[cf_pkg_config=$withval],
 	[cf_pkg_config=yes])
 AC_MSG_RESULT($cf_pkg_config)
@@ -4605,7 +4610,7 @@ do
 done
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 107 updated: 2021/09/04 06:47:34
+dnl CF_SHARED_OPTS version: 109 updated: 2023/12/03 09:21:34
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -4651,9 +4656,9 @@ AC_DEFUN([CF_SHARED_OPTS],
 	cf_ld_rpath_opt=
 	test "$cf_cv_enable_rpath" = yes && cf_ld_rpath_opt="$LD_RPATH_OPT"
 
-	AC_MSG_CHECKING(if release/abi version should be used for shared libs)
+	AC_MSG_CHECKING(whether to use release or ABI version in shared library file names)
 	AC_ARG_WITH(shlib-version,
-	[  --with-shlib-version=X  Specify rel or abi version for shared libs],
+	[[  --with-shlib-version[={rel|abi}] use release or ABI version in shared library file names]],
 	[test -z "$withval" && withval=auto
 	case "$withval" in
 	(yes)
@@ -4695,7 +4700,7 @@ AC_DEFUN([CF_SHARED_OPTS],
 		for CC_SHARED_OPTS in -fPIC -fpic ''
 		do
 			CFLAGS="$cf_save_CFLAGS $CC_SHARED_OPTS"
-			AC_TRY_COMPILE([#include <stdio.h>],[int x = 1],[break],[])
+			AC_TRY_COMPILE([#include <stdio.h>],[int x = 1; (void)x],[break],[])
 		done
 		AC_MSG_RESULT($CC_SHARED_OPTS)
 		CFLAGS="$cf_save_CFLAGS"
@@ -5264,7 +5269,7 @@ if test "$cf_cv_sizechange" != no ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_STRUCT_TERMIOS version: 11 updated: 2020/03/19 20:46:13
+dnl CF_STRUCT_TERMIOS version: 13 updated: 2023/12/03 19:38:54
 dnl -----------------
 dnl Some machines require _POSIX_SOURCE to completely define struct termios.
 AC_DEFUN([CF_STRUCT_TERMIOS],[
@@ -5287,12 +5292,12 @@ if test "$ac_cv_header_termios_h" = yes ; then
 	if test "$termios_bad" = maybe ; then
 	AC_MSG_CHECKING(whether termios.h needs _POSIX_SOURCE)
 	AC_TRY_COMPILE([#include <termios.h>],
-		[struct termios foo; int x = foo.c_iflag = 1; (void)x],
+		[struct termios foo; int x = (int)(foo.c_iflag = 1); (void)x],
 		termios_bad=no, [
 		AC_TRY_COMPILE([
 #define _POSIX_SOURCE
 #include <termios.h>],
-			[struct termios foo; int x = foo.c_iflag = 2; (void)x],
+			[struct termios foo; int x = (int)(foo.c_iflag = 2); (void)x],
 			termios_bad=unknown,
 			termios_bad=yes AC_DEFINE(_POSIX_SOURCE,1,[Define to 1 if we must define _POSIX_SOURCE]))
 			])
@@ -5796,7 +5801,7 @@ if test "$with_dmalloc" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_EXPORT_SYMS version: 3 updated: 2014/12/20 19:16:08
+dnl CF_WITH_EXPORT_SYMS version: 5 updated: 2023/11/22 20:48:30
 dnl -------------------
 dnl Use this with libtool to specify the list of symbols that may be exported.
 dnl The input file contains one symbol per line; comments work with "#".
@@ -5806,7 +5811,7 @@ AC_DEFUN([CF_WITH_EXPORT_SYMS],
 [
 AC_MSG_CHECKING(if exported-symbols file should be used)
 AC_ARG_WITH(export-syms,
-	[  --with-export-syms=XXX  limit exported symbols using libtool],
+	[[  --with-export-syms[=SYM-FILE] limit symbols exported by libtool to those listed in SYM-FILE]],
 	[with_export_syms=$withval],
 	[with_export_syms=no])
 if test "x$with_export_syms" = xyes
@@ -5979,7 +5984,7 @@ AC_SUBST(LIB_UNINSTALL)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL_OPTS version: 4 updated: 2015/04/17 21:13:04
+dnl CF_WITH_LIBTOOL_OPTS version: 6 updated: 2023/11/22 20:48:30
 dnl --------------------
 dnl Allow user to pass additional libtool options into the library creation
 dnl and link steps.  The main use for this is to do something like
@@ -5989,7 +5994,7 @@ dnl	./configure --enable-static
 AC_DEFUN([CF_WITH_LIBTOOL_OPTS],[
 AC_MSG_CHECKING(for additional libtool options)
 AC_ARG_WITH(libtool-opts,
-	[  --with-libtool-opts=XXX specify additional libtool options],
+	[[  --with-libtool-opts[=XXX] give libtool additional options XXX]],
 	[with_libtool_opts=$withval],
 	[with_libtool_opts=no])
 AC_MSG_RESULT($with_libtool_opts)
@@ -6005,7 +6010,7 @@ esac
 AC_SUBST(LIBTOOL_OPTS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_MAN2HTML version: 12 updated: 2021/01/03 18:30:50
+dnl CF_WITH_MAN2HTML version: 13 updated: 2023/11/23 06:40:35
 dnl ----------------
 dnl Check for man2html and groff.  Prefer man2html over groff, but use groff
 dnl as a fallback.  See
@@ -6047,7 +6052,7 @@ esac
 
 AC_MSG_CHECKING(for program to convert manpage to html)
 AC_ARG_WITH(man2html,
-	[  --with-man2html=XXX     use XXX rather than groff],
+	[[  --with-man2html[=XXX]   use XXX rather than groff]],
 	[cf_man2html=$withval],
 	[cf_man2html=$cf_man2html])
 
@@ -6289,7 +6294,7 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_PKG_CONFIG_LIBDIR version: 21 updated: 2023/01/22 13:37:42
+dnl CF_WITH_PKG_CONFIG_LIBDIR version: 23 updated: 2023/11/22 20:48:30
 dnl -------------------------
 dnl Allow the choice of the pkg-config library directory to be overridden.
 dnl
@@ -6324,7 +6329,7 @@ fi
 
 # if the option is used, let that override.  otherwise default to "libdir"
 AC_ARG_WITH(pkg-config-libdir,
-	[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
+	[[  --with-pkg-config-libdir[=XXX] use given directory for installing pc-files]],
 	[cf_search_path=$withval],
 	[test "x$PKG_CONFIG" != xnone && test -z "$cf_search_path" && cf_search_path=libdir])
 
@@ -6576,7 +6581,7 @@ CF_NO_LEAKS_OPTION(valgrind,
 	[USE_VALGRIND])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_VERSIONED_SYMS version: 10 updated: 2021/01/04 18:48:01
+dnl CF_WITH_VERSIONED_SYMS version: 13 updated: 2023/12/03 09:24:04
 dnl ----------------------
 dnl Use this when building shared library with ELF, to markup symbols with the
 dnl version identifier from the given input file.  Generally that identifier is
@@ -6589,7 +6594,7 @@ AC_REQUIRE([AC_PROG_EGREP])dnl
 
 AC_MSG_CHECKING(if versioned-symbols file should be used)
 AC_ARG_WITH(versioned-syms,
-	[  --with-versioned-syms=X markup versioned symbols using ld],
+	[[  --with-versioned-syms[=MAP-FILE] version ELF shared library symbols per MAP-FILE]],
 	[with_versioned_syms=$withval],
 	[with_versioned_syms=no])
 case "x$with_versioned_syms" in
@@ -6676,15 +6681,15 @@ local:
 EOF
 		cat >conftest.$ac_ext <<EOF
 #line __oline__ "configure"
-int	_ismissing(void) { return 1; }
-int	_localf1(void) { return 1; }
-int	_localf2(void) { return 2; }
-int	globalf1(void) { return 1; }
-int	globalf2(void) { return 2; }
-int	_sublocalf1(void) { return 1; }
-int	_sublocalf2(void) { return 2; }
-int	subglobalf1(void) { return 1; }
-int	subglobalf2(void) { return 2; }
+extern int _ismissing(void);    int _ismissing(void)  { return 1; }
+extern int _localf1(void);      int _localf1(void)    { return 1; }
+extern int _localf2(void);      int _localf2(void)    { return 2; }
+extern int globalf1(void);      int globalf1(void)    { return 1; }
+extern int globalf2(void);      int globalf2(void)    { return 2; }
+extern int _sublocalf1(void);   int _sublocalf1(void) { return 1; }
+extern int _sublocalf2(void);   int _sublocalf2(void) { return 2; }
+extern int subglobalf1(void);   int subglobalf1(void) { return 1; }
+extern int subglobalf2(void);   int subglobalf2(void) { return 2; }
 EOF
 		cat >conftest.mk <<EOF
 CC=${CC}
@@ -6715,7 +6720,7 @@ AC_SUBST(VERSIONED_SYMS)
 AC_SUBST(WILDCARD_SYMS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_CURSES version: 18 updated: 2023/01/11 04:05:23
+dnl CF_XOPEN_CURSES version: 19 updated: 2023/12/13 18:02:34
 dnl ---------------
 dnl Test if we should define X/Open source for curses, needed on Digital Unix
 dnl 4.x, to see the extended functions, but breaks on IRIX 6.x.
@@ -6738,9 +6743,10 @@ $ac_includes_default
 #ifdef NCURSES_WIDECHAR
 make an error	/* prefer to fall-through on the second checks */
 #endif
+	static char dummy[10];
 	cchar_t check;
 	int check2 = curs_set((int)sizeof(check));
-	long x = winnstr(stdscr, "", 0);
+	long x = winnstr(stdscr, dummy, 5);
 	int x1, y1;
 	(void)check2;
 	getbegyx(stdscr, y1, x1);
@@ -6756,9 +6762,10 @@ make an error	/* prefer to fall-through on the second checks */
 #define $cf_try_xopen_extension 1
 $ac_includes_default
 #include <${cf_cv_ncurses_header:-curses.h}>],[
+		static char dummy[10];
 		cchar_t check;
 		int check2 = curs_set((int)sizeof(check));
-		long x = winnstr(stdscr, "", 0);
+		long x = winnstr(stdscr, dummy, 5);
 		int x1, y1;
 		getbegyx(stdscr, y1, x1);
 		(void)check2;

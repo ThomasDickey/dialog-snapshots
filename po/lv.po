@@ -1,87 +1,98 @@
 # Dialog
-# Copyright 2003-2007,2008 # Thomas Dickey
+# Copyright 2003-2020,2021 # Thomas Dickey
 #
 # This file is distributed under the same license as the dialog package.
 #
 # Rihards Prieditis <RPrieditis@inbox.lv>, 2009.
 # Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>, 2014.
+# Rihards Prieditis <rprieditis@inbox.lv>, 2023.
 msgid ""
 msgstr ""
-"Project-Id-Version: dialog 1.1.20080819\n"
+"Project-Id-Version: dialog 1.3.20210117\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-18 18:26-0400\n"
-"PO-Revision-Date: 2014-04-20 14:12+0300\n"
-"Last-Translator: Rihards Prieditis <rprieditis@gmail.com>\n"
+"POT-Creation-Date: 2021-01-17 15:18-0500\n"
+"PO-Revision-Date: 2023-12-24 15:18+0000\n"
+"Last-Translator: Rihards Priedītis <rprieditis@gmail.com>\n"
 "Language-Team: Latvian <translation-team-lv@lists.sourceforge.net>\n"
 "Language: lv\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.5\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==0 || (n%100>=11 && n%100<=19) ? 0 : n%10==1 && n%100!=11 ? 1 : 2);\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+"X-Generator: Poedit 3.4.2\n"
 
-#: buttons.c:385
+#: buttons.c:500
 msgid "Yes"
 msgstr "Jā"
 
-#: buttons.c:393
+#: buttons.c:508
 msgid "No"
 msgstr "Nē"
 
-#: buttons.c:401
+#: buttons.c:516
 msgid "OK"
 msgstr "Labi"
 
-#: buttons.c:409
+#: buttons.c:524
 msgid "Cancel"
 msgstr "Atcelt"
 
-#: buttons.c:417
+#: buttons.c:532
 msgid "EXIT"
 msgstr "IZIET"
 
-#: buttons.c:425
+#: buttons.c:540
 msgid "Extra"
 msgstr "Papildus"
 
-#: buttons.c:433
+#: buttons.c:548
 msgid "Help"
 msgstr "Palīdzība"
 
 #. Headline "Month"
-#: calendar.c:273
+#: calendar.c:463
 msgid "Month"
 msgstr "Mēnesis"
 
 #. Headline "Year"
-#: calendar.c:293
+#: calendar.c:485
 msgid "Year"
 msgstr "Gads"
 
-#: dialog.c:741
+#: dialog.c:744
+#, c-format
+msgid "Expected %d arguments, found only %d"
+msgstr "Gaidīti %d argumenti, atrasti tikai %d"
+
+#: dialog.c:748
+#, c-format
+msgid "Expected %d arguments, found extra %d"
+msgstr "Gaidīti %d argumenti, atrasti papildus %d"
+
+#: dialog.c:907
 msgid "Rename"
 msgstr "Pārdēvēt"
 
-#: fselect.c:550
+#: fselect.c:623
 msgid "Directories"
 msgstr "Direktorijas"
 
-#: fselect.c:551
+#: fselect.c:624
 msgid "Files"
-msgstr "Datnes"
+msgstr "Faili"
 
 #: mixedgauge.c:58
 msgid "Succeeded"
-msgstr "Izdevies"
+msgstr "Izdevās"
 
 #: mixedgauge.c:61
 msgid "Failed"
-msgstr "Neizdevies"
+msgstr "Neizdevās"
 
 #: mixedgauge.c:64
 msgid "Passed"
-msgstr "Iziets"
+msgstr "Veiksmīgs"
 
 #: mixedgauge.c:67
 msgid "Completed"
@@ -93,7 +104,7 @@ msgstr "Pārbaudīts"
 
 #: mixedgauge.c:73
 msgid "Done"
-msgstr "Pabeigts"
+msgstr "Darīts"
 
 #: mixedgauge.c:76
 msgid "Skipped"
@@ -101,16 +112,16 @@ msgstr "Izlaists"
 
 #: mixedgauge.c:79
 msgid "In Progress"
-msgstr "Tiek apstrādāts"
+msgstr "Tiek Apstrādāts"
 
 #: mixedgauge.c:85
 msgid "N/A"
-msgstr "n/z"
+msgstr "N/A"
 
 #: mixedgauge.c:193
 msgid "Overall Progress"
-msgstr "Vispārējais progress"
+msgstr "Kopējais Progress"
 
-#: textbox.c:489
+#: textbox.c:515
 msgid "Search"
 msgstr "Meklēt"

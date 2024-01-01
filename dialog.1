@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.1,v 1.235 2023/08/18 08:24:59 tom Exp $
-.\" Copyright 2005-2022,2023  Thomas E. Dickey
+.\" $Id: dialog.1,v 1.236 2024/01/01 11:24:25 tom Exp $
+.\" Copyright 2005-2023,2024  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -23,6 +23,12 @@
 .ds L Dialog
 .ds D DIALOG
 .\"
+.ie n .ds CW R
+.el   \{
+.ie \n(.g .ds CW CR
+.el       .ds CW CW
+.\}
+.
 .de ES
 .ne 8
 .IP
@@ -31,7 +37,7 @@
 .RS +7
 .PP
 .nf
-.ft CW
+.ft \*(CW
 ..
 .de Ee
 .fi
@@ -43,14 +49,24 @@
 .ie n  .IP \(bu 4
 .el    .IP \(bu 2
 ..
-.ie \n(.g .ds `` \(lq
-.el       .ds `` ``
-.ie \n(.g .ds '' \(rq
-.el       .ds '' ''
+.ie \n(.g \{\
+.ds `` \(lq
+.ds '' \(rq
+.ds '  \(aq
+.\}
+.el \{\
+.ie t .ds `` ``
+.el   .ds `` ""
+.ie t .ds '' ''
+.el   .ds '' ""
+.ie t .ds '  \(aq
+.el   .ds '  '
+.\}",
 .
-.TH \*D "" 2023-08-18 "" "User commands"
+.TH \*D "" 2024-01-01 "" "User commands"
 .SH NAME
-dialog \- display dialog boxes from shell scripts
+dialog \-
+display dialog boxes from shell scripts
 .SH SYNOPSIS
 \fB\*p \-\-clear\fP
 .br
@@ -1753,6 +1769,52 @@ bindkey formbox   BTAB form_prev
 That type of redefinition would not be useful in other widgets,
 e.g., calendar, due to the potentially large number of fields to traverse.
 .
+.SH EXIT STATUS
+Exit status is subject to being overridden by environment variables.
+The default values and corresponding environment variables
+that can override them are:
+.TP 5
+0
+if the \fBYES\fP or \fBOK\fP button is pressed (DIALOG_OK).
+.TP 5
+1
+if the
+.BR No " or " Cancel
+button is pressed (DIALOG_CANCEL).
+.TP 5
+2
+if the
+.B Help
+button is pressed (DIALOG_HELP),
+.br
+except as noted below about DIALOG_ITEM_HELP.
+.TP 5
+3
+if the
+.B Extra
+button is pressed (DIALOG_EXTRA).
+.TP 5
+4
+if the
+.B Help
+button is pressed,
+.br
+and the \fB\-\-item\-help\fP option is set
+.br
+and the DIALOG_ITEM_HELP environment variable is set to 4.
+.IP
+While any of the exit-codes can be overridden using environment variables,
+this special case was introduced in 2004 to simplify compatibility.
+\fB\*L\fP uses DIALOG_ITEM_HELP (4) internally,
+but unless the environment variable is also set,
+it changes that to DIALOG_HELP (2) on exit.
+.TP 5
+5
+if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5.
+.TP 5
+\-1
+if errors occur inside \fB\*p\fP (DIALOG_ERROR)
+or \fB\*p\fP exits because the \fIESC\fP key (DIALOG_ESC) was pressed.
 .\" ************************************************************************
 .SH ENVIRONMENT
 .TP 15
@@ -1812,61 +1874,11 @@ Normally shell scripts cannot distinguish between \-1 and 255.
 Set this variable to \*(``1\*('' to provide compatibility with older versions
 of \fB\*p\fP which assumed that if the script redirects the standard output,
 that the \*(``\fB\-\-stdout\fP\*('' option was given.
+.\" ************************************************************************
 .SH FILES
 .TP 20
 \fI$HOME/.dialogrc\fP
 default configuration file
-.SH EXAMPLES
-The \fB\*p\fP sources contain several samples
-of how to use the different box options and how they look.
-Just take a look into the directory \fBsamples/\fP of the source.
-.SH DIAGNOSTICS
-Exit status is subject to being overridden by environment variables.
-The default values and corresponding environment variables
-that can override them are:
-.TP 5
-0
-if the \fBYES\fP or \fBOK\fP button is pressed (DIALOG_OK).
-.TP 5
-1
-if the
-.BR No " or " Cancel
-button is pressed (DIALOG_CANCEL).
-.TP 5
-2
-if the
-.B Help
-button is pressed (DIALOG_HELP),
-.br
-except as noted below about DIALOG_ITEM_HELP.
-.TP 5
-3
-if the
-.B Extra
-button is pressed (DIALOG_EXTRA).
-.TP 5
-4
-if the
-.B Help
-button is pressed,
-.br
-and the \fB\-\-item\-help\fP option is set
-.br
-and the DIALOG_ITEM_HELP environment variable is set to 4.
-.IP
-While any of the exit-codes can be overridden using environment variables,
-this special case was introduced in 2004 to simplify compatibility.
-\fB\*L\fP uses DIALOG_ITEM_HELP (4) internally,
-but unless the environment variable is also set,
-it changes that to DIALOG_HELP (2) on exit.
-.TP 5
-5
-if a timeout expires and the \fBDIALOG_TIMEOUT\fP variable is set to 5.
-.TP 5
-\-1
-if errors occur inside \fB\*p\fP (DIALOG_ERROR)
-or \fB\*p\fP exits because the \fIESC\fP key (DIALOG_ESC) was pressed.
-.
 .\" ************************************************************************
 .SH PORTABILITY
 \fB\*L\fP works with X/Open curses.
@@ -2041,9 +2053,15 @@ thereby getting better resolution.
 .\" ************************************************************************
 .SH BUGS
 Perhaps.
-.SH AUTHOR
+.\" ************************************************************************
+.SH EXAMPLES
+The \fB\*p\fP sources contain several samples
+of how to use the different box options and how they look.
+Just take a look into the directory \fBsamples/\fP of the source.
+.\" ************************************************************************
+.SH AUTHORS
 Thomas E.\& Dickey (updates for 0.9b and beyond)
-.SH CONTRIBUTORS
+.LP
 Kiran Cherupally \(en the mixed form and mixed gauge widgets.
 .LP
 Tobias C.\& Rittweiler

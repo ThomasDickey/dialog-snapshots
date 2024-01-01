@@ -1,6 +1,6 @@
 '\" t
-.\" $Id: dialog.3,v 1.145 2023/10/03 00:20:25 tom Exp $
-.\" Copyright 2005-2022,2023  Thomas E. Dickey
+.\" $Id: dialog.3,v 1.147 2024/01/01 11:32:49 tom Exp $
+.\" Copyright 2005-2023,2024  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
 .\" it under the terms of the GNU Lesser General Public License, version 2.1
@@ -22,6 +22,12 @@
 .ds l dialog
 .ds L Dialog
 .ds D DIALOG
+.\"
+.ie n .ds CW R
+.el   \{
+.ie \n(.g .ds CW CR
+.el       .ds CW CW
+.\}
 .
 .de ES
 .ne 8
@@ -31,7 +37,7 @@
 .RS +7
 .PP
 .nf
-.ft CW
+.ft \*(CW
 ..
 .de Ee
 .fi
@@ -43,13 +49,25 @@
 .ie n  .IP \(bu 4
 .el    .IP \(bu 2
 ..
-.ie \n(.g .ds `` \(lq
-.el       .ds `` ``
-.ie \n(.g .ds '' \(rq
-.el       .ds '' ''
-.TH \*D "" 2023-10-02 "" "Library calls"
+.
+.ie \n(.g \{\
+.ds `` \(lq
+.ds '' \(rq
+.ds '  \(aq
+.\}
+.el \{\
+.ie t .ds `` ``
+.el   .ds `` ""
+.ie t .ds '' ''
+.el   .ds '' ""
+.ie t .ds '  \(aq
+.el   .ds '  '
+.\}",
+.
+.TH \*D "" 2024-01-01 "" "Library calls"
 .SH NAME
-dialog \- widgets and utilities for the \*p program
+dialog \-
+widgets and utilities for the \*p program
 .SH SYNOPSIS
 .B cc [ flag ... ] file ...  \-l\*l [ library ... ]
 .br
@@ -324,8 +342,7 @@ accepting options to invoke each widget.
 Most of the \fIDIALOG_VARS\fP members are set directly from \fB\*p\fP's
 command-line options:
 .\" ---------------------------------------------------------------------------
-.SH
-DIALOG_VARS
+.SH DIALOG_VARS
 In contrast to \fBDIALOG_STATE\fP, the members of \fBDIALOG_VARS\fP
 are set by command-line options in \fB\*p\fP.
 .\" ---------------------------------------------------------------------------
@@ -3852,9 +3869,9 @@ Usually it is the standard error, but
 if \fB\-\-stdout\fP or \fB\-\-output\-fd\fP is used, it may be anything.
 .
 .\" ************************************************************************
-.SH SEE ALSO
-\fB\*p\fP(1).
+.SH AUTHORS
+Thomas E.\& Dickey
 .
 .\" ************************************************************************
-.SH AUTHOR
-Thomas E.\& Dickey
+.SH SEE ALSO
+\fB\*p\fP(1).
