@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.309 2023/10/03 00:07:51 tom Exp $
+ *  $Id: util.c,v 1.310 2024/03/06 22:43:58 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2022,2023	Thomas E. Dickey
+ *  Copyright 2000-2023,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -1968,11 +1968,15 @@ dlg_exiterr(const char *fmt, ...)
 
     end_dialog();
 
-    (void) fputc('\n', stderr);
-    va_start(ap, fmt);
-    (void) vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    (void) fputc('\n', stderr);
+    if (fmt != NULL) {
+	(void) fputc('\n', stderr);
+	va_start(ap, fmt);
+	(void) vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	(void) fputc('\n', stderr);
+    } else {
+	fputs("dialog?\n", stderr);
+    }
 
 #ifdef HAVE_DLG_TRACE
     va_start(ap, fmt);

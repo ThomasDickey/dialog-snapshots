@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.236 2024/01/01 11:24:25 tom Exp $
+.\" $Id: dialog.1,v 1.237 2024/03/06 09:12:11 tom Exp $
 .\" Copyright 2005-2023,2024  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -201,7 +201,7 @@ and data.
 .bP
 Otherwise, \fB\*l\fP uses the given size for the widget.
 .
-.SS \fBCommon Options\fP
+.SS "\fBCommon Options\fP"
 Most of the common options are reset before processing each widget.
 .
 .IP "\fB\-\-ascii\-lines"
@@ -851,7 +851,7 @@ If you tab to the button row, abbreviations apply to the buttons.
 Override the label used for \*(``Yes\*('' buttons.
 .
 .\" ************************************************************************
-.SS Box Options
+.SS "Box Options"
 All dialog boxes have at least three parameters:
 .TP 7
 \fItext\fP
@@ -1666,7 +1666,7 @@ _
 \fB\*L\fP's internal keycode names correspond to the
 \fBDLG_KEYS_ENUM\fP type in
 \fBdlg_keys.h\fP, e.g., \*(``HELP\*('' from \*(``DLGK_HELP\*(''.
-.SS Widget Names
+.SS "Widget Names"
 Some widgets (such as the formbox) have an area where fields can be edited.
 Those are managed in a subwindow of the widget, and
 may have separate keybindings from the main widget
@@ -1719,7 +1719,7 @@ tailboxbg/tailbox
 _
 .TE
 .RE
-.SS Built-in Bindings
+.SS "Built-in Bindings"
 This manual page does not list the key bindings for each widget,
 because that detailed information can be obtained by running \fB\*p\fP.
 If you have set the \fB\-\-trace\fP option,
@@ -1897,7 +1897,7 @@ NetBSD 5.1 curses has incomplete support for wide-characters.
 .SH COMPATIBILITY
 You may want to write scripts which run with
 other \fB\*l\fP \*(``clones\*(''.
-.SS Original Dialog
+.SS "Original Dialog"
 First, there is the \*(``original\*('' \fB\*p\fP program to consider
 (versions 0.3 to 0.9).
 It had some misspelled (or inconsistent) options.

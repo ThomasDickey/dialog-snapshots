@@ -1,9 +1,9 @@
 /*
- *  $Id: mixedgauge.c,v 1.38 2022/04/03 22:38:16 tom Exp $
+ *  $Id: mixedgauge.c,v 1.39 2024/03/06 22:03:25 tom Exp $
  *
  *  mixedgauge.c -- implements the mixedgauge dialog
  *
- *  Copyright 2007-2021,2022	Thomas E. Dickey
+ *  Copyright 2007-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -91,6 +91,7 @@ status_string(char *given, char **freeMe)
     } else if (*given == '-') {
 	size_t need = strlen(++given) + 4;
 	char *temp = dlg_malloc(char, need);
+	assert_ptr(temp, "mixedguage: status_string");
 	*freeMe = temp;
 	sprintf(temp, "%3s%%", given);
 	result = temp;

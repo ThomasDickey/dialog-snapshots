@@ -1,8 +1,14 @@
--- $Id: CHANGES,v 1.803 2024/01/01 10:07:33 tom Exp $
+-- $Id: CHANGES,v 1.806 2024/03/06 22:49:16 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2024/03/06
+	+ updated configure script, e.g., for compiler-warning fixes.
+	+ amend change to formbox while revising --max-input to work with the
+	  form's "ilen" parameter (report by Anna-Maria Gruber, cf: 2022/04/14)
+	+ update config.guess, config.sub
 
 2024/01/01
 	+ updated configure script, e.g., for compiler-warning fixes.

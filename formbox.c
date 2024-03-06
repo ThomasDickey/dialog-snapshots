@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.106 2022/04/06 08:04:48 tom Exp $
+ *  $Id: formbox.c,v 1.107 2024/03/06 21:28:33 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2021,2022	Thomas E. Dickey
+ *  Copyright 2003-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -867,9 +867,13 @@ dlg_form(const char *title,
 	}
 
 	if (state == sTEXT) {	/* Input box selected */
-	    if (!is_readonly(current))
+	    if (!is_readonly(current)) {
+		int save = dialog_vars.max_input;
+		dialog_vars.max_input = current->text_ilen;
 		edit = dlg_edit_string(current->text, &chr_offset, key,
 				       fkey, first);
+		dialog_vars.max_input = save;
+	    }
 	    if (edit) {
 		dlg_show_string(form, current->text, chr_offset,
 				form_active_text_attr,
