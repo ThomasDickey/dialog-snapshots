@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.128 2022/04/03 22:38:16 tom Exp $
+ *  $Id: textbox.c,v 1.134 2024/03/07 23:02:38 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -432,8 +432,21 @@ print_line(MY_OBJ * obj, int row, int width)
 	for (i = first; (i <= limit) && ((cols[i] - cols[first]) < width); ++i)
 	    last = i;
 
-	(void) waddch(obj->text, ' ');
-	(void) waddnstr(obj->text, line + indx[first], indx[last] - indx[first]);
+	if (dialog_state.color_mode & coloredContent) {
+	    bool save_colors = dialog_vars.colors;
+	    chtype my_attr = dialog_attr;
+	    x = 1;
+	    dialog_vars.colors = TRUE;
+	    wmove(obj->text, row, x);
+	    dlg_attrset(obj->text, my_attr);
+	    dlg_print_line(obj->text, &my_attr, line + first,
+			   obj->hscroll + first,
+			   obj->hscroll + last, &x);
+	    dialog_vars.colors = save_colors;
+	} else {
+	    (void) waddch(obj->text, ' ');
+	    (void) waddnstr(obj->text, line + indx[first], indx[last] - indx[first]);
+	}
 
 	getyx(obj->text, y, x);
 	if (y == row) {		/* Clear 'residue' of previous line */

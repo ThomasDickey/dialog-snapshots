@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.806 2024/03/06 22:49:16 tom Exp $
+-- $Id: CHANGES,v 1.808 2024/03/07 21:46:12 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2024/03/07
+	+ add option --color-modes, which can be used to color the content of
+	  programbox, tailbox, textbox (requested by Rafał Radziejewski).
 
 2024/03/06
 	+ updated configure script, e.g., for compiler-warning fixes.

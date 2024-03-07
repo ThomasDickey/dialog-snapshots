@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.309 2023/10/03 00:07:41 tom Exp $
+ *  $Id: dialog.h,v 1.310 2024/03/07 15:36:26 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2022,2023	Thomas E. Dickey
+ *  Copyright 2000-2023,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -354,6 +354,8 @@ typedef struct {
     /* 1.3-20190724 */
     bool had_resize;		/* ERR may follow KEY_RESIZE when polling */
 #endif
+    /* 1.3-20240307 */
+    int color_mode;		/* use colors in textbox, etc? */
 } DIALOG_STATE;
 
 extern DIALOG_STATE dialog_state;

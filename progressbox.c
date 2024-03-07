@@ -1,9 +1,9 @@
 /*
- *  $Id: progressbox.c,v 1.59 2023/10/03 00:04:26 tom Exp $
+ *  $Id: progressbox.c,v 1.66 2024/03/07 23:02:38 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2006-2022,2023	Thomas E. Dickey
+ *  Copyright 2006-2023,2024	Thomas E. Dickey
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -220,8 +220,48 @@ get_line(MY_OBJ * obj, int *restart)
 static void
 print_line(MY_OBJ * obj, const char *line, int row)
 {
-    (void) wmove(obj->text, row, 0);	/* move cursor to correct line */
-    dlg_print_nowrap(obj->text, line, (obj->wide - (2 * MARGIN)));
+    int limit = (obj->wide - (2 * MARGIN));
+
+    int y;
+    int x;
+    int i;
+
+    if (dialog_state.color_mode & coloredContent) {
+	bool save_colors = dialog_vars.colors;
+	const int *cols = dlg_index_columns(line);
+	chtype my_attr = dialog_attr;
+	int first = 0;
+	int last = limit;
+
+	if (limit > getmaxx(obj->text))
+	    limit = getmaxx(obj->text);
+	--limit;		/* for the leading ' ' */
+
+	x = 1;
+	for (i = 0; i <= limit && cols[i]; ++i)
+	    first = i;
+
+	for (i = first; (i <= limit) && ((cols[i] - cols[first]) < limit); ++i)
+	    last = i;
+
+	dialog_vars.colors = TRUE;
+	wmove(obj->text, row, x);
+	dlg_attrset(obj->text, my_attr);
+	dlg_print_line(obj->text, &my_attr, line + first,
+		       first,
+		       last, &x);
+	dialog_vars.colors = save_colors;
+    } else {
+	(void) wmove(obj->text, row, 0);	/* move cursor to correct line */
+	dlg_print_nowrap(obj->text, line, limit);
+    }
+
+    getyx(obj->text, y, x);
+    if (y == row) {		/* Clear 'residue' of previous line */
+	for (i = 0; i <= limit - x; i++) {
+	    (void) waddch(obj->text, ' ');
+	}
+    }
 }
 
 #ifdef KEY_RESIZE
@@ -434,7 +474,6 @@ dlg_progressbox(const char *title,
 	    break;
     }
 
-    dlg_trace_win(obj->obj.win);
     curs_set(1);
 
     if (pauseopt) {

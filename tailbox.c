@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.81 2023/10/03 00:07:32 tom Exp $
+ *  $Id: tailbox.c,v 1.87 2024/03/07 23:02:38 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2022,2023	Thomas E. Dickey
+ *  Copyright 2000-2023,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -80,10 +80,49 @@ get_line(MY_OBJ * obj)
  * Print a new line of text.
  */
 static void
-print_line(MY_OBJ * obj, WINDOW *win, int row, int width)
+print_line(MY_OBJ * obj, WINDOW *win, int row, int limit)
 {
-    (void) wmove(win, row, 0);	/* move cursor to correct line */
-    dlg_print_nowrap(win, get_line(obj), width);
+    int y;
+    int x;
+    int i;
+
+    if (dialog_state.color_mode & coloredContent) {
+	bool save_colors = dialog_vars.colors;
+	const char *line = get_line(obj);
+	const int *cols = dlg_index_columns(line);
+	chtype my_attr = dialog_attr;
+	int first = 0;
+	int last = limit;
+
+	if (limit > getmaxx(obj->text))
+	    limit = getmaxx(obj->text);
+	--limit;		/* for the leading ' ' */
+
+	x = 1;
+	for (i = 0; i <= limit && cols[i] < obj->hscroll; ++i)
+	    first = i;
+
+	for (i = first; (i <= limit) && ((cols[i] - cols[first]) < limit); ++i)
+	    last = i;
+
+	dialog_vars.colors = TRUE;
+	wmove(obj->text, row, x);
+	dlg_attrset(obj->text, my_attr);
+	dlg_print_line(obj->text, &my_attr, line + first,
+		       obj->hscroll + first,
+		       obj->hscroll + last, &x);
+	dialog_vars.colors = save_colors;
+    } else {
+	(void) wmove(win, row, 0);	/* move cursor to correct line */
+	dlg_print_nowrap(win, get_line(obj), limit);
+    }
+
+    getyx(obj->text, y, x);
+    if (y == row) {		/* Clear 'residue' of previous line */
+	for (i = 0; i <= limit - x; i++) {
+	    (void) waddch(obj->text, ' ');
+	}
+    }
 }
 
 /*

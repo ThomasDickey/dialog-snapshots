@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_internals.h,v 1.9 2022/04/08 21:01:58 tom Exp $
+ *  $Id: dlg_internals.h,v 1.10 2024/03/07 21:14:56 tom Exp $
  *
  *  dlg_internals.h -- internal definitions for dialog
  *
- *  Copyright 2019-2021,2022	Thomas E. Dickey
+ *  Copyright 2019-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -104,7 +104,7 @@
 
 #if defined(HAVE_SEARCH_H) && defined(HAVE_TSEARCH)
 #include <search.h>
-#define leaf leaf2	/* Solaris name-conflict */
+#define leaf leaf2		/* Solaris name-conflict */
 #else
 #undef HAVE_TSEARCH
 #endif
@@ -144,12 +144,12 @@ extern "C" {
 
 #if !defined(HAVE_WSYNCUP)
 #undef wsyncup
-#define wsyncup(win) /* nothing */
+#define wsyncup(win)		/* nothing */
 #endif
 
 #if !defined(HAVE_WCURSYNCUP)
 #undef wcursyncup
-#define wcursyncup(win) /* nothing */
+#define wcursyncup(win)		/* nothing */
 #endif
 
 /* these definitions may be needed for bleeding-edge curses implementations */
@@ -158,8 +158,8 @@ extern "C" {
 #undef getbegy
 #define getbegx(win) dlg_getbegx(win)
 #define getbegy(win) dlg_getbegy(win)
-extern int dlg_getbegx(WINDOW * /*win*/);
-extern int dlg_getbegy(WINDOW * /*win*/);
+    extern int dlg_getbegx(WINDOW * /*win */ );
+    extern int dlg_getbegy(WINDOW * /*win */ );
 #endif
 
 #if !(defined(HAVE_GETCURX) && defined(HAVE_GETCURY))
@@ -167,8 +167,8 @@ extern int dlg_getbegy(WINDOW * /*win*/);
 #undef getcury
 #define getcurx(win) dlg_getcurx(win)
 #define getcury(win) dlg_getcury(win)
-extern int dlg_getcurx(WINDOW * /*win*/);
-extern int dlg_getcury(WINDOW * /*win*/);
+    extern int dlg_getcurx(WINDOW * /*win */ );
+    extern int dlg_getcury(WINDOW * /*win */ );
 #endif
 
 #if !(defined(HAVE_GETMAXX) && defined(HAVE_GETMAXY))
@@ -176,8 +176,8 @@ extern int dlg_getcury(WINDOW * /*win*/);
 #undef getmaxy
 #define getmaxx(win) dlg_getmaxx(win)
 #define getmaxy(win) dlg_getmaxy(win)
-extern int dlg_getmaxx(WINDOW * /*win*/);
-extern int dlg_getmaxy(WINDOW * /*win*/);
+    extern int dlg_getmaxx(WINDOW * /*win */ );
+    extern int dlg_getmaxy(WINDOW * /*win */ );
 #endif
 
 #if !(defined(HAVE_GETPARX) && defined(HAVE_GETPARY))
@@ -185,18 +185,19 @@ extern int dlg_getmaxy(WINDOW * /*win*/);
 #undef getpary
 #define getparx(win) dlg_getparx(win)
 #define getpary(win) dlg_getpary(win)
-extern int dlg_getparx(WINDOW * /*win*/);
-extern int dlg_getpary(WINDOW * /*win*/);
+    extern int dlg_getparx(WINDOW * /*win */ );
+    extern int dlg_getpary(WINDOW * /*win */ );
 #endif
 
 #if !(defined(HAVE_WGETPARENT) && defined(HAVE_WINDOW__PARENT))
 #undef wgetparent
 #define wgetparent(win) dlg_wgetparent(win)
-extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
+    extern WINDOW *dlg_wgetparent(WINDOW * /*win */ );
 #elif !defined(HAVE_WGETPARENT) && defined(HAVE_WINDOW__PARENT)
 #undef  wgetparent
 #define wgetparent(win)    ((win) ? (win)->_parent : 0)
 #endif
+
 /*
  * Use attributes.
  */
@@ -232,7 +233,6 @@ extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 #define dlg_realloc(t,n,p) (t *) realloc((p), (n) * sizeof(t))
 
 #define TableSize(name) (sizeof(name)/sizeof((name)[0]))
-
 /* *INDENT-OFF* */
 #define resizeit(name, NAME) \
 		name = ((NAME >= old_##NAME) \
@@ -245,6 +245,13 @@ extern WINDOW * dlg_wgetparent(WINDOW * /*win*/);
 		dlg_add_separator(); \
 	    dlg_add_last_key(-1); \
 	}
+
+typedef enum {
+    coloredCaption = 1
+    ,coloredContent = 2
+    ,escapesCaption = 4
+    ,escapesContent = 8
+} ColorModes;
 
 /*
  * This is used only for debugging (FIXME: should have a separate header).
@@ -267,5 +274,4 @@ extern void _nc_free_and_exit(int); /* nc_alloc.h normally not installed */
 }
 #endif
 /* *INDENT-ON* */
-
-#endif /* DLG_INTERNALS_H_included */
+#endif				/* DLG_INTERNALS_H_included */

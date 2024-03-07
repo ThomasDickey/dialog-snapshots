@@ -1,5 +1,5 @@
 '\" t
-.\" $Id: dialog.1,v 1.237 2024/03/06 09:12:11 tom Exp $
+.\" $Id: dialog.1,v 1.238 2024/03/07 21:49:36 tom Exp $
 .\" Copyright 2005-2023,2024  Thomas E. Dickey
 .\"
 .\" This program is free software; you can redistribute it and/or modify
@@ -277,6 +277,11 @@ command.
 Conversely, if you want to clear the screen and send your cursor to
 the lower left after the \fB\*p\fP program has exited, use the
 \fB\-\-erase\-on\-exit\fR\ option.
+.
+.IP "\fB\-\-color-mode \fIcode"
+Extend the \fB\-\-colors\fP option to the content of programbox, tailbox
+and textbox.
+Use code \*(``2\*('' for this feature.
 .
 .IP "\fB\-\-colors"
 Interpret embedded \*(``\eZ\*('' sequences in the dialog text

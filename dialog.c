@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.291 2024/01/01 10:10:37 tom Exp $
+ * $Id: dialog.c,v 1.292 2024/03/07 18:08:18 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -41,12 +41,13 @@ typedef enum {
     ,o_aspect_ratio
     ,o_auto_placement
     ,o_backtitle
-    ,o_beep_signal
     ,o_beep_after_signal
+    ,o_beep_signal
     ,o_begin_set
     ,o_cancel_label
+    ,o_cant_kill
     ,o_checklist
-    ,o_dlg_clear_screen
+    ,o_color_mode
     ,o_colors
     ,o_column_separator
     ,o_cr_wrap
@@ -56,6 +57,7 @@ typedef enum {
     ,o_default_button
     ,o_default_item
     ,o_defaultno
+    ,o_dlg_clear_screen
     ,o_erase_on_exit
     ,o_exit_label
     ,o_extra_button
@@ -88,27 +90,26 @@ typedef enum {
     ,o_mixedgauge
     ,o_msgbox
     ,o_no_close
-    ,o_nocollapse
     ,o_no_cr_wrap
-    ,o_cant_kill
     ,o_no_hot_list
     ,o_no_label
     ,o_no_lines
     ,o_no_mouse
     ,o_no_nl_expand
-    ,o_use_shadow
     ,o_nocancel
+    ,o_nocollapse
     ,o_nook
     ,o_ok_label
     ,o_output_fd
     ,o_output_separator
+    ,o_output_stderr
+    ,o_output_stdout
     ,o_passwordbox
     ,o_passwordform
     ,o_pause
     ,o_prgbox
     ,o_print_maxsize
     ,o_print_siz
-    ,o_text_only
     ,o_print_text_size
     ,o_print_version
     ,o_programbox
@@ -116,25 +117,25 @@ typedef enum {
     ,o_quoted
     ,o_radiolist
     ,o_screen_center
-    ,o_use_scrollbar
     ,o_separate_output
     ,o_separate_str
     ,o_single_quoted
     ,o_size_err
     ,o_sleep_secs
     ,o_smooth
-    ,o_output_stderr
-    ,o_output_stdout
     ,o_tab_correct
     ,o_tab_len
     ,o_tailbox
     ,o_tailboxbg
+    ,o_text_only
     ,o_textbox
     ,o_time_format
     ,o_timeout_secs
     ,o_title
     ,o_trim_whitespace
     ,o_under_mouse
+    ,o_use_scrollbar
+    ,o_use_shadow
     ,o_version
     ,o_visit_items
     ,o_wmclass
@@ -266,6 +267,7 @@ static const Options options[] = {
     { "cancel-label",	svS(cancel_label),	1, "<str>" },
     { "checklist",	opW(checklist),		2, "<text> <height> <width> <list height> <tag1> <item1> <status1>..." },
     { "clear",		svT(dlg_clear_screen),	1, "" },
+    { "color-mode",	ssN(color_mode),	1, "<mask>" },
     { "colors",		svT(colors),		1, "" },
     { "column-separator",svS(column_separator),	1, "<str>" },
     { "cr-wrap",	svT(cr_wrap),		1, "" },

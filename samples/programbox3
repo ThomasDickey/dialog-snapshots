@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: programbox3,v 1.2 2020/11/26 00:05:11 tom Exp $
+# $Id: programbox3,v 1.4 2024/03/07 21:20:02 tom Exp $
 
 . ./setup-vars
 
@@ -11,12 +11,12 @@ while true
 do
 read text
 test -z "$text" && break
-ls -ld "$text" || break
+ls -ld "$text" | sed -e 's%report%\\Zu\\Zr\\Z4REPORT\\Zn%g' || break
 sleep 0.1
 done <$tempfile
 ) |
 
-$DIALOG --title "PROGRAMBOX" "$@" --programbox -1 -1
+$DIALOG --title "PROGRAMBOX" "$@" --color-mode 2 --programbox -1 -1
 
 returncode=$?
 . ./report-button
