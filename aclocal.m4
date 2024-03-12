@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.174 2024/01/07 11:54:12 tom Exp $
+dnl $Id: aclocal.m4,v 1.176 2024/03/12 23:49:45 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2023,2024 -- Thomas E. Dickey
 dnl
@@ -4172,6 +4172,61 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_PIC_HACK version: 1 updated: 2019/12/22 19:53:26
+dnl -----------
+dnl First noticed in 2016, some systems have gcc configured with
+dnl --enable-default-pie, which breaks linking of applications which do not
+dnl explicitly specify the -static or the -shared options.  The linker advises
+dnl using -fPIC when compiling.  That "works", but entails a performance
+dnl penalty, and the configure script has to determine this before making any
+dnl feature tests.
+dnl
+dnl With Fedora, this check is only needed when building using the "hardening"
+dnl flags.  Without those, the linker has different behavior.
+dnl
+dnl Some background:
+dnl https://wiki.gentoo.org/wiki/Hardened/Toolchain
+dnl https://gcc.gnu.org/ml/gcc-patches/2014-07/msg02231.html
+dnl https://stackoverflow.com/questions/6093547/what-do-r-x86-64-32s-and-r-x86-64-64-relocation-mean
+dnl https://unix.stackexchange.com/questions/89211/how-to-test-whether-a-linux-binary-was-compiled-as-position-independent-code
+AC_DEFUN([CF_PIC_HACK],[
+AC_CACHE_CHECK(if -fPIC option is needed in CFLAGS,cf_cv_pic_hack,[
+cf_cv_pic_hack=unknown
+if test "$GCC" = yes
+then
+	if readelf --version >/dev/null 2>/dev/null
+	then
+		cat >conftest.$ac_ext <<EOF
+#line __oline__ "configure"
+#include <stdio.h>
+int main(void) { FILE *fp = fopen("hello", "w"); return (fp != 0); }
+EOF
+		if AC_TRY_EVAL(ac_compile) ; then
+			cf_cv_pic_hack=no
+			for cf_pie_relocs in `readelf --relocs conftest.$ac_cv_objext | awk '[$]3~/^R_/ && [$]5!~/^\.debug/{print [$]3}'`
+			do
+				case "x$cf_pie_relocs" in
+				xR_X86_64_32|xR_X86_64_32S)
+					CF_MSG_LOG(found $cf_pie_relocs)
+					cf_cv_pic_hack=yes
+					break
+					;;
+				esac
+			done
+		else
+			CF_MSG_LOG(cannot compile test-program)
+		fi
+		rm -f conftest.$ac_ext conftest.$ac_cv_objext
+	fi
+fi
+])
+
+if test "x$cf_cv_pic_hack" = xyes
+then
+	CF_ADD_CFLAGS(-fPIC)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_PKG_CONFIG version: 13 updated: 2023/10/28 11:59:01
 dnl -------------
 dnl Check for the package-config program, unless disabled by command-line.
@@ -4610,7 +4665,7 @@ do
 done
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 109 updated: 2023/12/03 09:21:34
+dnl CF_SHARED_OPTS version: 110 updated: 2024/03/12 19:44:02
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -5070,11 +5125,11 @@ CF_EOF
 		# tested with SunOS 5.5.1 (solaris 2.5.1) and gcc 2.7.2
 		# tested with SunOS 5.10 (solaris 10) and gcc 3.4.3
 		if test "$DFT_LWR_MODEL" = "shared" ; then
-			LOCAL_LDFLAGS="-R \$(LOCAL_LIBDIR):\${libdir}"
+			LOCAL_LDFLAGS="-R\$(LOCAL_LIBDIR):\${libdir}"
 			LOCAL_LDFLAGS2="$LOCAL_LDFLAGS"
 		fi
 		if test "$cf_cv_enable_rpath" = yes ; then
-			EXTRA_LDFLAGS="-R \${libdir} $EXTRA_LDFLAGS"
+			EXTRA_LDFLAGS="-R\${libdir} $EXTRA_LDFLAGS"
 		fi
 		CF_SHARED_SONAME
 		if test "$GCC" != yes; then
