@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.175 2022/04/05 00:14:56 tom Exp $
+ *  $Id: menubox.c,v 1.176 2024/04/08 23:33:09 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -291,7 +291,7 @@ print_menu(ALL_DATA * data,
 }
 
 static bool
-check_hotkey(DIALOG_LISTITEM * items, int choice)
+check_hotkey(const DIALOG_LISTITEM * items, int choice)
 {
     bool result = FALSE;
 

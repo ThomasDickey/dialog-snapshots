@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.46 2022/04/05 00:15:15 tom Exp $
+ *  $Id: treeview.c,v 1.47 2024/04/08 23:33:09 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2021,2022	Thomas E. Dickey
+ *  Copyright 2012-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -136,7 +136,7 @@ print_list(ALL_DATA * data,
 }
 
 static bool
-check_hotkey(DIALOG_LISTITEM * items, int choice)
+check_hotkey(const DIALOG_LISTITEM * items, int choice)
 {
     bool result = FALSE;
 

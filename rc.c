@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.62 2022/07/28 08:17:21 tom Exp $
+ *  $Id: rc.c,v 1.63 2024/04/08 23:33:09 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2020,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -149,7 +149,7 @@ skip_whitespace(char *str, int n)
 }
 
 static int
-skip_keyword(char *str, int n)
+skip_keyword(const char *str, int n)
 {
     while (isalnum(UCH(str[n])) && str[n] != '\0')
 	n++;

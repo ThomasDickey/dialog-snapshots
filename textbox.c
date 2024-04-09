@@ -1,5 +1,5 @@
 /*
- *  $Id: textbox.c,v 1.134 2024/03/07 23:02:38 tom Exp $
+ *  $Id: textbox.c,v 1.135 2024/04/08 23:21:41 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
@@ -209,7 +209,7 @@ read_high(MY_OBJ * obj, size_t size_read)
 }
 
 static long
-find_first(MY_OBJ * obj, char *buffer, long length)
+find_first(const MY_OBJ * obj, const char *buffer, long length)
 {
     long result = 0;
 
@@ -316,7 +316,7 @@ get_line(MY_OBJ * obj)
 }
 
 static bool
-match_string(MY_OBJ * obj, char *string)
+match_string(MY_OBJ * obj, const char *string)
 {
     char *match = get_line(obj);
     return strstr(match, string) != 0;

@@ -1,5 +1,5 @@
 /*
- *  $Id: formbox.c,v 1.107 2024/03/06 21:28:33 tom Exp $
+ *  $Id: formbox.c,v 1.108 2024/04/08 23:28:10 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
@@ -40,13 +40,13 @@
 #define ItemHelp(i)     (dialog_vars.item_help ? items[LLEN(i) + 8] : dlg_strempty())
 
 static bool
-is_readonly(DIALOG_FORMITEM * item)
+is_readonly(const DIALOG_FORMITEM * item)
 {
     return ((item->type & 2) != 0) || (item->text_flen <= 0);
 }
 
 static bool
-is_hidden(DIALOG_FORMITEM * item)
+is_hidden(const DIALOG_FORMITEM * item)
 {
     return ((item->type & 1) != 0);
 }
@@ -75,7 +75,7 @@ move_past(WINDOW *win, int y, int x)
  * Print form item
  */
 static int
-print_item(WINDOW *win, DIALOG_FORMITEM * item, int scrollamt, bool choice)
+print_item(WINDOW *win, const DIALOG_FORMITEM * item, int scrollamt, bool choice)
 {
     int count = 0;
     int len;

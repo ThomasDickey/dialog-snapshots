@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.95 2022/04/06 08:03:09 tom Exp $
+ *  $Id: inputstr.c,v 1.96 2024/04/08 23:33:09 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -67,7 +67,7 @@ have_locale(void)
 {
     static int result = -1;
     if (result < 0) {
-	char *test = setlocale(LC_ALL, 0);
+	const char *test = setlocale(LC_ALL, 0);
 	if (test == 0 || *test == 0) {
 	    result = FALSE;
 	} else if (strcmp(test, "C") && strcmp(test, "POSIX")) {

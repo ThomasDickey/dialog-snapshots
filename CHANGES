@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.812 2024/03/12 23:50:36 tom Exp $
+-- $Id: CHANGES,v 1.815 2024/04/08 23:58:53 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2024/04/08
+	+ fix a few cppcheck warnings
+	+ improvements to NLS configuration.
 
 2024/03/12
 	+ add configure check for PIC vs PIE, needed for linking to libraries

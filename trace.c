@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.34 2022/04/03 22:38:16 tom Exp $
+ *  $Id: trace.c,v 1.35 2024/04/08 23:53:32 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2020,2022	Thomas E. Dickey
+ *  Copyright 2007-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -179,7 +179,7 @@ dlg_trace_chr(int ch, int fkey)
     if (last_err && !fkey && ch == ERR) {
 	++last_err;
     } else if (myFP != 0) {
-	const char *fkey_name = "?";
+	const char *fkey_name;
 
 	if (last_err) {
 	    fprintf(myFP, "skipped %d ERR's\n", last_err);

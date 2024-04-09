@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.32 2020/11/22 23:25:09 tom Exp $
+ *  $Id: rangebox.c,v 1.33 2024/04/08 23:33:09 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012-2019,2020	Thomas E. Dickey
+ *  Copyright 2012-2020,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -57,7 +57,7 @@ digits_of(int value)
 }
 
 static int
-digit_of(VALUE * data)
+digit_of(const VALUE * data)
 {
     int col = data->value_col;
     int result = 1;

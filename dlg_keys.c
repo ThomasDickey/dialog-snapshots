@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.62 2022/04/14 22:08:43 tom Exp $
+ *  $Id: dlg_keys.c,v 1.63 2024/04/08 23:33:09 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2020,2022	Thomas E. Dickey
+ *  Copyright 2006-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -97,7 +97,7 @@ dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING * binding)
  * KEY_xxx symbols.  Just map CHR_KILL to that.
  */
 static int
-actual_curses_key(DLG_KEYS_BINDING * p)
+actual_curses_key(const DLG_KEYS_BINDING * p)
 {
     int result = p->curses_key;
     int checks;
@@ -128,7 +128,7 @@ actual_curses_key(DLG_KEYS_BINDING * p)
  * definitions, depending on whether 'win' is null.
  */
 static int
-key_is_bound(WINDOW *win, const char *name, int curses_key, int function_key)
+key_is_bound(const WINDOW *win, const char *name, int curses_key, int function_key)
 {
     LIST_BINDINGS *p;
 
@@ -939,7 +939,7 @@ static void
 dump_one_binding(FILE *fp,
 		 WINDOW *win,
 		 const char *widget,
-		 DLG_KEYS_BINDING * binding)
+		 const DLG_KEYS_BINDING * binding)
 {
     int actual;
     int fkey = (actual_curses_key(binding) > 255);

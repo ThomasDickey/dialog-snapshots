@@ -1,9 +1,9 @@
 /*
- *  $Id: fselect.c,v 1.119 2022/04/03 22:38:16 tom Exp $
+ *  $Id: fselect.c,v 1.120 2024/04/08 23:33:09 tom Exp $
  *
  *  fselect.c -- implements the file-selector box
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -108,7 +108,7 @@ free_list(LIST * list, int reinit)
 }
 
 static void
-add_to_list(LIST * list, char *text)
+add_to_list(LIST * list, const char *text)
 {
     unsigned need;
 
@@ -329,14 +329,14 @@ compar(const void *a, const void *b)
 static void
 match(char *name, LIST * d_list, LIST * f_list, MATCH * match_list)
 {
-    char *test = leaf_of(name);
-    size_t test_len = strlen(test);
+    const char *test = leaf_of(name);
     char **matches = dlg_malloc(char *, (size_t) (d_list->length + f_list->length));
     size_t data_len = 0;
 
     if (matches != 0) {
 	int i;
 	char **new_ptr;
+	size_t test_len = strlen(test);
 
 	for (i = 2; i < d_list->length; i++) {
 	    if (strncmp(test, d_list->data[i], test_len) == 0) {
@@ -371,7 +371,7 @@ static int
 complete(char *name, LIST * d_list, LIST * f_list, char **buff_ptr)
 {
     MATCH match_list;
-    char *test;
+    const char *test;
     size_t test_len;
     size_t i;
     char *buff;
@@ -473,7 +473,7 @@ fill_lists(char *current, char *input, LIST * d_list, LIST * f_list, bool keep)
 	}
 	DLG_TRACE(("opendir '%s'\n", path));
 	if ((dp = opendir(path)) != 0) {
-	    DIRENT *de;
+	    const DIRENT *de;
 
 	    while ((de = readdir(dp)) != 0) {
 		size_t len = NAMLEN(de);

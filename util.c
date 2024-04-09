@@ -1,5 +1,5 @@
 /*
- *  $Id: util.c,v 1.310 2024/03/06 22:43:58 tom Exp $
+ *  $Id: util.c,v 1.312 2024/04/08 23:43:21 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
@@ -167,7 +167,7 @@ add_subwindow(WINDOW *parent, WINDOW *child)
 }
 
 static void
-del_subwindows(WINDOW *parent)
+del_subwindows(const WINDOW *parent)
 {
     DIALOG_WINDOWS *p = dialog_state.all_subwindows;
     DIALOG_WINDOWS *q = 0;
@@ -270,7 +270,7 @@ _dlg_resize_cleanup(WINDOW *w)
 static int
 open_terminal(char **result, int mode)
 {
-    const char *device = TTY_DEVICE;
+    const char *device;
     if (!isatty(fileno(stderr))
 	|| (device = ttyname(fileno(stderr))) == 0) {
 	if (!isatty(fileno(stdout))
@@ -1598,13 +1598,13 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
  * window (in the .shadow field).
  */
 static DIALOG_WINDOWS *
-find_window(DIALOG_WINDOWS * list, WINDOW *win, bool normal)
+find_window(DIALOG_WINDOWS * list, const WINDOW *win, bool normal)
 {
     DIALOG_WINDOWS *result = 0;
     DIALOG_WINDOWS *p;
 
     for (p = list; p != 0; p = p->next) {
-	WINDOW *check = normal ? p->normal : p->shadow;
+	const WINDOW *check = normal ? p->normal : p->shadow;
 	if (check == win) {
 	    result = p;
 	    break;
@@ -2021,7 +2021,7 @@ int
 dlg_getenv_num(const char *name, int *value)
 {
     int result = 0;
-    char *data = getenv(name);
+    const char *data = getenv(name);
     if (data != NULL) {
 	char *temp = NULL;
 	long check = strtol(data, &temp, 0);
@@ -2611,7 +2611,7 @@ dlg_strcmp(const char *a, const char *b)
  * is not a leading blank on a line.
  */
 static bool
-trim_blank(char *base, char *dst)
+trim_blank(const char *base, const char *dst)
 {
     int count = !!isblank(UCH(*dst));
 
@@ -2795,7 +2795,7 @@ dlg_add_result(const char *string)
 	if (dialog_vars.input_length == 0
 	    || dialog_vars.input_result == 0) {
 
-	    char *save_result = dialog_vars.input_result;
+	    const char *save_result = dialog_vars.input_result;
 
 	    dialog_vars.input_length = want * 2;
 	    dialog_vars.input_result = dlg_malloc(char, dialog_vars.input_length);
@@ -2834,7 +2834,7 @@ quote_delimiter(void)
  * Returns true if we should quote the given string.
  */
 static bool
-must_quote(char *string)
+must_quote(const char *string)
 {
     bool code = FALSE;
 

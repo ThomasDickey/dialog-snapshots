@@ -1,9 +1,9 @@
 /*
- *  $Id: guage.c,v 1.85 2022/04/03 22:38:16 tom Exp $
+ *  $Id: guage.c,v 1.86 2024/04/08 23:33:09 tom Exp $
  *
  *  guage.c -- implements the gauge dialog
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -49,7 +49,7 @@ typedef struct _my_obj {
 static MY_OBJ *all_objects;
 
 static int
-valid(MY_OBJ * obj)
+valid(const MY_OBJ * obj)
 {
     MY_OBJ *list = all_objects;
     int result = 0;
@@ -65,7 +65,7 @@ valid(MY_OBJ * obj)
 }
 
 static void
-delink(MY_OBJ * obj)
+delink(const MY_OBJ * obj)
 {
     MY_OBJ *p = all_objects;
     MY_OBJ *q = 0;
@@ -102,7 +102,7 @@ read_data(char *buffer, FILE *fp)
 }
 
 static int
-decode_percent(char *buffer)
+decode_percent(const char *buffer)
 {
     char *tmp = 0;
     long value = strtol(buffer, &tmp, 10);

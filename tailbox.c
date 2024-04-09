@@ -1,5 +1,5 @@
 /*
- *  $Id: tailbox.c,v 1.87 2024/03/07 23:02:38 tom Exp $
+ *  $Id: tailbox.c,v 1.88 2024/04/08 23:21:41 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
@@ -245,7 +245,7 @@ handle_input(DIALOG_CALLBACK * cb)
 }
 
 static bool
-valid_callback(DIALOG_CALLBACK * cb)
+valid_callback(const DIALOG_CALLBACK * cb)
 {
     bool valid = FALSE;
     DIALOG_CALLBACK *p;

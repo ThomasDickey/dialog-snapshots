@@ -1,9 +1,9 @@
 /*
- *  $Id: columns.c,v 1.12 2022/04/03 22:38:16 tom Exp $
+ *  $Id: columns.c,v 1.13 2024/04/08 23:33:09 tom Exp $
  *
  *  columns.c -- implements column-alignment
  *
- *  Copyright 2008-2019,2022	Thomas E. Dickey
+ *  Copyright 2008-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -51,7 +51,7 @@ next_row(char **target, int per_row)
 static char *
 next_col(char *source, unsigned offset)
 {
-    char *mark = column_separator();
+    const char *mark = column_separator();
     char *result = source + offset;
     if (offset)
 	result += strlen(mark);

@@ -1,9 +1,9 @@
 /*
- * $Id: calendar.c,v 1.110 2022/04/03 22:38:16 tom Exp $
+ * $Id: calendar.c,v 1.111 2024/04/08 23:33:09 tom Exp $
  *
  *  calendar.c -- implements the calendar box
  *
- *  Copyright 2001-2021,2022	Thomas E. Dickey
+ *  Copyright 2001-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -44,7 +44,7 @@ typedef enum {
 
 struct _box;
 
-typedef int (*BOX_DRAW) (struct _box *, struct tm *);
+typedef int (*BOX_DRAW) (struct _box *, const struct tm *);
 
 typedef struct _box {
     WINDOW *parent;
@@ -201,7 +201,7 @@ days_per_month(int year, int month)
 }
 
 static int
-days_in_month(struct tm *current, int offset /* -1, 0, 1 */ )
+days_in_month(const struct tm *current, int offset /* -1, 0, 1 */ )
 {
     int year = current->tm_year + 1900;
     int month = current->tm_mon + offset;
@@ -217,7 +217,7 @@ days_per_year(int year)
 }
 
 static int
-days_in_year(struct tm *current, int offset /* -1, 0, 1 */ )
+days_in_year(const struct tm *current, int offset /* -1, 0, 1 */ )
 {
     return days_per_year(current->tm_year + 1900 + offset);
 }
@@ -234,7 +234,7 @@ days_in_year(struct tm *current, int offset /* -1, 0, 1 */ )
 static int
 day_of_week(int y, int m, int d)
 {
-    static int t[] =
+    static const int t[] =
     {
 	0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4
     };
@@ -319,7 +319,7 @@ getisoweeks(int year, int month)
 }
 
 static int
-day_cell_number(struct tm *current)
+day_cell_number(const struct tm *current)
 {
     int cell;
     cell = current->tm_mday - ((6 + current->tm_mday - current->tm_wday) % MAX_DAYS);
@@ -359,7 +359,7 @@ next_or_previous(int key, int two_d)
  * Draw the day-of-month selection box
  */
 static int
-draw_day(BOX * data, struct tm *current)
+draw_day(BOX * data, const struct tm *current)
 {
     int cell_wide = MON_WIDE;
     int y, x, this_x;
@@ -445,7 +445,7 @@ draw_day(BOX * data, struct tm *current)
  * Draw the month-of-year selection box
  */
 static int
-draw_month(BOX * data, struct tm *current)
+draw_month(BOX * data, const struct tm *current)
 {
     int month;
 
@@ -469,7 +469,7 @@ draw_month(BOX * data, struct tm *current)
  * Draw the year selection box
  */
 static int
-draw_year(BOX * data, struct tm *current)
+draw_year(BOX * data, const struct tm *current)
 {
     int year = current->tm_year + 1900;
 
@@ -557,7 +557,7 @@ static int
 WeekStart(void)
 {
     int result = 0;
-    char *option = dialog_vars.week_start;
+    const char *option = dialog_vars.week_start;
     if (option != 0) {
 	if (option[0]) {
 	    char *next = 0;
@@ -639,7 +639,7 @@ CleanupResult(int code, WINDOW *dialog, char *prompt, DIALOG_VARS * save_vars)
 }
 
 static void
-trace_date(struct tm *current, struct tm *old)
+trace_date(struct tm *current, const struct tm *old)
 {
     bool changed = (old == 0 ||
 		    current->tm_mday != old->tm_mday ||

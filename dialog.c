@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.292 2024/03/07 18:08:18 tom Exp $
+ * $Id: dialog.c,v 1.293 2024/04/08 23:19:46 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1341,7 +1341,7 @@ static int
 optionValue(char **argv, int *num)
 {
     int next = *num + 1;
-    char *src = argv[next];
+    const char *src = argv[next];
     char *tmp = 0;
     int result = 0;
 

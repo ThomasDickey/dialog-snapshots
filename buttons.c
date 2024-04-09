@@ -1,9 +1,9 @@
 /*
- *  $Id: buttons.c,v 1.109 2022/04/05 23:45:54 tom Exp $
+ *  $Id: buttons.c,v 1.110 2024/04/08 23:33:09 tom Exp $
  *
  *  buttons.c -- draw buttons, e.g., OK/Cancel
  *
- *  Copyright 2000-2021,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -101,7 +101,7 @@ count_labels(const char **labels)
  * Check if the latest key should be added to the hotkey list.
  */
 static int
-was_hotkey(int this_key, int *used_keys, size_t next)
+was_hotkey(int this_key, const int *used_keys, size_t next)
 {
     int result = FALSE;
 

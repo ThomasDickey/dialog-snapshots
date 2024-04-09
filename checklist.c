@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.170 2022/04/04 22:25:11 tom Exp $
+ *  $Id: checklist.c,v 1.171 2024/04/08 23:33:09 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2020,2022	Thomas E. Dickey
+ *  Copyright 2000-2022,2024	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -131,7 +131,7 @@ print_list(ALL_DATA * data, int choice, int scrollamt, int max_choice, int max_i
 }
 
 static bool
-check_hotkey(DIALOG_LISTITEM * items, int choice)
+check_hotkey(const DIALOG_LISTITEM * items, int choice)
 {
     bool result = FALSE;
 

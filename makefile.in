@@ -1,7 +1,7 @@
-# $Id: makefile.in,v 1.107 2023/02/08 09:15:31 tom Exp $
+# $Id: makefile.in,v 1.108 2024/04/08 20:55:53 tom Exp $
 # template makefile for DIALOG
 ##############################################################################
-# Copyright (c) 1999-2021,2023 Thomas E. Dickey                              #
+# Copyright (c) 1999-2023,2024 Thomas E. Dickey                              #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -96,7 +96,7 @@ CPP		= @CPP@
 AR		= @AR@
 ARFLAGS		= @ARFLAGS@
 LDFLAGS		= @EXTRA_LDFLAGS@ @LDFLAGS@
-LIBS		= @LIBS@ @INTLLIBS@
+LIBS		= @LIBS@
 RANLIB		= @LIB_PREP@
 
 RM		= rm -f
@@ -202,14 +202,10 @@ all	:: $(ALL)
 @LIBTOOL_MAKE@install	:: install-lib
 @LIBTOOL_MAKE@uninstall	:: uninstall-lib
 
-@INTLDIR_MAKE@@INTLLIBS@ :
-@INTLDIR_MAKE@	@echo "Building GNU gettext library..."
-@INTLDIR_MAKE@	@cd intl && $(MAKE) @cf_cv_makeflags@
-
 dialog$o \
 $(OBJECTS) : $(srcdir)/dialog.h $(srcdir)/dlg_keys.h dlg_config.h VERSION
 
-$(PROG) : $(LIB) dialog$o @INTLDIR_MAKE@ @INTLLIBS@
+$(PROG) : $(LIB) dialog$o
 	$(LINK) -o $@ dialog$o -L. -l@PACKAGE@ $(CFLAGS) $(LDFLAGS) $(LIBS)
 
 clean	\
@@ -219,7 +215,6 @@ install-full \
 install-strip \
 uninstall ::
 	@echo making $@
-@INTLDIR_MAKE@	@-test -f intl/makefile && cd intl && $(MAKE) @cf_cv_makeflags@ $@ DESTDIR="$(DESTDIR)"
 @MSG_DIR_MAKE@	@-test -f po/makefile && cd po && $(MAKE) @cf_cv_makeflags@ $@ DESTDIR="$(DESTDIR)"
 
 clean	::

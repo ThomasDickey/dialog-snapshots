@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.85 2022/04/06 08:01:23 tom Exp $
+ *  $Id: editbox.c,v 1.87 2024/04/08 23:54:06 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2020,2022 Thomas E. Dickey
+ *  Copyright 2007-2022,2024 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -178,17 +178,19 @@ display_all(WINDOW *win,
 	    int lastrow,
 	    int chr_offset)
 {
-    int limit = getmaxy(win);
-    int row;
+    if (list != NULL) {
+	int limit = getmaxy(win);
+	int row;
 
-    dlg_attr_clear(win, getmaxy(win), getmaxx(win), dialog_attr);
-    if (lastrow - firstrow >= limit)
-	lastrow = firstrow + limit;
-    for (row = firstrow; row < lastrow; ++row) {
-	if (!display_one(win, list[row],
-			 row, show_row, firstrow,
-			 (row == show_row) ? chr_offset : 0))
-	    break;
+	dlg_attr_clear(win, getmaxy(win), getmaxx(win), dialog_attr);
+	if (lastrow - firstrow >= limit)
+	    lastrow = firstrow + limit;
+	for (row = firstrow; row < lastrow; ++row) {
+	    if (!display_one(win, list[row],
+			     row, show_row, firstrow,
+			     (row == show_row) ? chr_offset : 0))
+		break;
+	}
     }
 }
 
@@ -288,7 +290,7 @@ widest_line(char **list)
     int result = dlg_max_input(-1);
 
     if (list != 0) {
-	char *value;
+	const char *value;
 
 	while ((value = *list++) != 0) {
 	    int check = (int) strlen(value);
