@@ -1,8 +1,16 @@
--- $Id: CHANGES,v 1.815 2024/04/08 23:58:53 tom Exp $
+-- $Id: CHANGES,v 1.821 2024/06/19 16:57:51 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2024/06/19
+	+ modify configure script to ease deprecation of libtool-bin package
+	  (Debian #1071581).
+	+ update dialog.map, dialog.sym for 2023/10/02 changes.
+	+ improve dialog-config.in,
+	  + suppressing several special cases of linker options, and
+	  + adding support for --cflags-only-I, --cflags-only-other
 
 2024/04/08
 	+ fix a few cppcheck warnings

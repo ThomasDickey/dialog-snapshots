@@ -25,7 +25,7 @@ override_dh_auto_configure:
 		--with-package=${ACTUAL_PROG} \
 		--with-program-prefix=c \
 		--with-shared \
-		--with-screen=ncursesw6 \
+		--with-screen=ncursesw6td \
 		--with-versioned-syms \
 		--disable-rpath-hack
 

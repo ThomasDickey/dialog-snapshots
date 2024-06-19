@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.181 2024/04/09 00:27:13 tom Exp $
+dnl $Id: aclocal.m4,v 1.188 2024/06/14 00:56:25 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2023,2024 -- Thomas E. Dickey
 dnl
@@ -263,7 +263,7 @@ fi
 AC_SUBST($1)dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl AM_WITH_NLS version: 38 updated: 2024/04/08 20:27:13
+dnl AM_WITH_NLS version: 40 updated: 2024/06/12 19:04:11
 dnl -----------
 dnl Inserted as requested by gettext 0.10.40
 dnl File from /usr/share/aclocal
@@ -329,14 +329,9 @@ AC_DEFUN([AM_WITH_NLS],
 
 	CF_ADD_LIBS($LIBICONV)
 	cf_save_LIBS_1="$LIBS"
-
 	cf_save_OPTS_1="$CPPFLAGS"
-	if test "x$cf_save_msgfmt_path" = "x$MSGFMT" && \
-	   test "x$cf_save_xgettext_path" = "x$XGETTEXT" ; then
-		CF_ADD_CFLAGS(-DIGNORE_MSGFMT_HACK)
-	fi
 
-	AC_ARG_WITH([libintl],
+	AC_ARG_WITH([libintl-prefix],
 		[  --with-libintl-prefix=DIR
                           search for libintl in DIR/include and DIR/lib],
 		[CF_ADD_OPTIONAL_PATH($withval, libintl)])
@@ -362,6 +357,16 @@ AC_DEFUN([AM_WITH_NLS],
 		INTLLIBS="$cf_cv_library_file_intl"
 		CF_ADD_LIBDIR($cf_cv_library_path_intl,INTLLIBS)
 	  fi
+
+	  AC_MSG_CHECKING(if this is GNU gettext)
+	  AC_TRY_LINK(
+#define USE_MSGFMT_HACK
+CF__INTL_HEAD,
+		  CF__INTL_BODY,
+		  cf_cv_gnu_gettext=yes,
+		  cf_cv_gnu_gettext=no)
+	  AC_MSG_RESULT($cf_cv_gnu_gettext)
+	  test "$" = yes && AC_DEFINE(HAVE__NL_MSG_CAT_CNTR,1,[define to 1 if _nl_msg_cat_cntr is found with gettext/intl])
 
 	  LIBS="$LIBS $INTLLIBS"
 	  AC_CHECK_FUNCS(dcgettext)
@@ -726,7 +731,7 @@ LIBS=`echo "$LIBS" | sed -e "s/[[ 	]][[ 	]]*/ /g" -e "s%$1 %$1 $2 %" -e 's%  % %
 CF_VERBOSE(...after  $LIBS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_OPTIONAL_PATH version: 4 updated: 2024/04/08 18:56:11
+dnl CF_ADD_OPTIONAL_PATH version: 5 updated: 2024/04/09 18:37:41
 dnl --------------------
 dnl Add an optional search-path to the compile/link variables.
 dnl See CF_WITH_PATH
@@ -736,11 +741,10 @@ dnl $2 = module to look for.
 AC_DEFUN([CF_ADD_OPTIONAL_PATH],[
 case "$1" in
 (no|yes)
-	CF_VERBOSE(ignore non-path value for $2)
 	;;
 (*)
 	CF_ADD_SEARCHPATH([$1], [AC_MSG_ERROR(cannot find $2 under $1)])
-	CF_VERBOSE(setting path value for $2)
+	CF_VERBOSE(setting path value for ifelse([$2],,variable,[$2]) to $1)
 	;;
 esac
 ])dnl
@@ -1185,7 +1189,7 @@ AC_TRY_LINK([#include <stdio.h>],[printf("Hello world");],,
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CHECK_LIBTOOL_VERSION version: 2 updated: 2021/05/01 16:24:34
+dnl CF_CHECK_LIBTOOL_VERSION version: 3 updated: 2024/06/12 04:19:01
 dnl ------------------------
 dnl Show the version of libtool
 dnl
@@ -1201,6 +1205,7 @@ then
 	AC_MSG_CHECKING(version of $LIBTOOL)
 	CF_LIBTOOL_VERSION
 	AC_MSG_RESULT($cf_cv_libtool_version)
+	ifdef([LT_PACKAGE_VERSION],,[
 	if test -n "$cf_cv_libtool_version"
 	then
 		cf_check_libtool_version=`$LIBTOOL --version 2>&1 | sed -e '/^$/d' -e 's,[[()]],...,g' -e 's,[[ ]],-,g' -e '2,$d'`
@@ -1214,6 +1219,7 @@ then
 	else
 		AC_MSG_ERROR(No version found for $LIBTOOL)
 	fi
+	])
 else
 	AC_MSG_ERROR(GNU libtool has not been found)
 fi
@@ -1431,15 +1437,22 @@ _nc_free_and_exit \
 )
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CURSES_FUNCS version: 20 updated: 2020/12/31 20:19:42
+dnl CF_CURSES_FUNCS version: 21 updated: 2024/06/11 20:24:35
 dnl ---------------
 dnl Curses-functions are a little complicated, since a lot of them are macros.
+dnl
+dnl $1 is a list of functions to test
 AC_DEFUN([CF_CURSES_FUNCS],
 [
 AC_REQUIRE([CF_CURSES_CPPFLAGS])dnl
 AC_REQUIRE([CF_XOPEN_CURSES])
 AC_REQUIRE([CF_CURSES_TERM_H])
 AC_REQUIRE([CF_CURSES_UNCTRL_H])
+
+AC_FOREACH([AC_Func], [$1],
+  [AH_TEMPLATE(AS_TR_CPP(HAVE_[]AC_Func),
+               [Define if you have the `]AC_Func[' function.])])dnl
+
 for cf_func in $1
 do
 	CF_UPPER(cf_tr_func,$cf_func)
@@ -2976,9 +2989,12 @@ CF_SUBDIR_PATH($1,$2,lib)
 $1="$cf_library_path_list [$]$1"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIBTOOL_VERSION version: 1 updated: 2013/04/06 18:03:09
+dnl CF_LIBTOOL_VERSION version: 2 updated: 2024/06/12 04:19:01
 dnl ------------------
 AC_DEFUN([CF_LIBTOOL_VERSION],[
+ifdef([LT_PACKAGE_VERSION],[
+	cf_cv_libtool_version=LT_PACKAGE_VERSION
+],[
 if test -n "$LIBTOOL" && test "$LIBTOOL" != none
 then
 	cf_cv_libtool_version=`$LIBTOOL --version 2>&1 | sed -e '/^$/d' |sed -e '2,$d' -e 's/([[^)]]*)//g' -e 's/^[[^1-9]]*//' -e 's/[[^0-9.]].*//'`
@@ -2986,6 +3002,7 @@ else
 	cf_cv_libtool_version=
 fi
 test -z "$cf_cv_libtool_version" && unset cf_cv_libtool_version
+])dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_LIB_PREFIX version: 14 updated: 2021/01/01 13:31:04
@@ -5410,7 +5427,7 @@ AC_DEFUN([CF_VERBOSE],
 CF_MSG_LOG([$1])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_VERSION_INFO version: 8 updated: 2021/01/01 13:31:04
+dnl CF_VERSION_INFO version: 9 updated: 2024/06/12 04:04:13
 dnl ---------------
 dnl Define several useful symbols derived from the VERSION file.  A separate
 dnl file is preferred to embedding the version numbers in various scripts.
@@ -5488,13 +5505,13 @@ AC_SUBST(VERSION_PATCH)
 dnl if a package name is given, define its corresponding version info.  We
 dnl need the package name to ensure that the defined symbols are unique.
 ifelse($1,,,[
-	cf_PACKAGE=$1
 	PACKAGE=ifelse($2,,$1,$2)
 	AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",[Define to the package-name])
 	AC_SUBST(PACKAGE)
-	CF_UPPER(cf_PACKAGE,$cf_PACKAGE)
-	AC_DEFINE_UNQUOTED(${cf_PACKAGE}_VERSION,"${VERSION_MAJOR}.${VERSION_MINOR}")
-	AC_DEFINE_UNQUOTED(${cf_PACKAGE}_PATCHDATE,${VERSION_PATCH})
+	AH_TEMPLATE([AS_TR_CPP($1[_VERSION])],[version of package])
+	AC_DEFINE_UNQUOTED(AS_TR_CPP($1[_VERSION]),"${VERSION_MAJOR}.${VERSION_MINOR}")
+	AH_TEMPLATE([AS_TR_CPP($1[_PATCHDATE])],[patchdate of package])
+	AC_DEFINE_UNQUOTED(AS_TR_CPP($1[_PATCHDATE]),${VERSION_PATCH})
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -7301,7 +7318,7 @@ fi
 LIB_TARGET=$cf_libname
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF__DEFINE_SHLIB_VARS version: 4 updated: 2015/09/28 17:49:10
+dnl CF__DEFINE_SHLIB_VARS version: 5 updated: 2024/06/13 20:56:25
 dnl ---------------------
 dnl Substitute makefile variables useful for CF__ADD_SHLIB_RULES.
 dnl
@@ -7313,12 +7330,12 @@ dnl		REL_VERSION - "5.0"
 dnl		ABI_VERSION - "4.2.4"
 define([CF__DEFINE_SHLIB_VARS],[
 CF__DEFINE_LIB_TARGET
-SET_SHLIB_VARS="# begin CF__DEFINE_SHLIB_VARS\\
-LIB_BASENAME	= \${LIB_PREFIX}\${LIB_ROOTNAME}\${LIB_SUFFIX}\\
-LIB_REL_NAME	= \${LIB_BASENAME}.\${REL_VERSION}\\
-LIB_ABI_NAME	= \${LIB_BASENAME}.\${ABI_VERSION}\\
-LIB_TARGET	= $LIB_TARGET\\
-RM_SHARED_OPTS	= $RM_SHARED_OPTS\\
+SET_SHLIB_VARS="# begin CF__DEFINE_SHLIB_VARS
+LIB_BASENAME	= \${LIB_PREFIX}\${LIB_ROOTNAME}\${LIB_SUFFIX}
+LIB_REL_NAME	= \${LIB_BASENAME}.\${REL_VERSION}
+LIB_ABI_NAME	= \${LIB_BASENAME}.\${ABI_VERSION}
+LIB_TARGET	= $LIB_TARGET
+RM_SHARED_OPTS	= $RM_SHARED_OPTS
 # end CF__DEFINE_SHLIB_VARS"
 AC_SUBST(SET_SHLIB_VARS)
 AC_SUBST(LIB_TARGET)
@@ -7357,7 +7374,7 @@ cf_cv_do_symlinks="$cf_cv_do_symlinks"
 cf_cv_shlib_version="$cf_cv_shlib_version"
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF__INTL_BODY version: 4 updated: 2021/05/19 19:35:25
+dnl CF__INTL_BODY version: 5 updated: 2024/06/12 19:04:11
 dnl -------------
 dnl Test-code needed for libintl compile-checks
 dnl $1 = parameter 2 from AM_WITH_NLS
@@ -7365,7 +7382,7 @@ define([CF__INTL_BODY],[
 	bindtextdomain ("", "");
 	return (gettext ("") != 0)
 			ifelse([$1], need-ngettext, [ + (ngettext ("", "", 0) != 0)], [])
-#ifndef IGNORE_MSGFMT_HACK
+#ifdef USE_MSGFMT_HACK
 			[ + _nl_msg_cat_cntr]
 #endif
 ])

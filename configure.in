@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.105 2024/03/11 21:01:11 tom Exp $
+dnl $Id: configure.in,v 1.106 2024/06/18 08:24:34 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2023,2024 -- Thomas E. Dickey
@@ -27,7 +27,7 @@ dnl holders shall not be used in advertising or otherwise to promote the
 dnl sale, use or other dealings in this Software without prior written
 dnl authorization.
 dnl ---------------------------------------------------------------------------
-AC_PREREQ(2.52.20230114)
+AC_PREREQ(2.52.20240618)
 AC_INIT(dialog.h)
 AC_CONFIG_HEADER(dlg_config.h:config.hin)
 
