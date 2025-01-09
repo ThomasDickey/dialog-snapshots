@@ -1,9 +1,9 @@
 /*
- * $Id: timebox.c,v 1.72 2022/04/03 22:39:10 tom Exp $
+ * $Id: timebox.c,v 1.73 2025/01/09 22:33:20 tom Exp $
  *
  *  timebox.c -- implements the timebox dialog
  *
- *  Copyright 2001-2021,2022	Thomas E. Dickey
+ *  Copyright 2001-2022,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -106,7 +106,7 @@ init_object(BOX * data,
     data->window = dlg_der_window(data->parent,
 				  data->height, data->width,
 				  data->y, data->x);
-    if (data->window == 0)
+    if (data->window == NULL)
 	return -1;
 
     dlg_mouse_setbase(getbegx(parent), getbegy(parent));
@@ -286,12 +286,12 @@ dialog_timebox(const char *title,
     while (result == DLG_EXIT_UNKNOWN) {
 	BOX *obj = (state == sHR ? &hr_box
 		    : (state == sMN ? &mn_box :
-		       (state == sSC ? &sc_box : 0)));
+		       (state == sSC ? &sc_box : NULL)));
 	int key2;
 
 	button = (state < 0) ? 0 : state;
 	dlg_draw_buttons(dialog, height - 2, 0, buttons, button, FALSE, width);
-	if (obj != 0)
+	if (obj != NULL)
 	    dlg_set_focus(dialog, obj->window);
 
 	key = dlg_mouse_wgetch(dialog, &fkey);
@@ -329,13 +329,13 @@ dialog_timebox(const char *title,
 		    state = dlg_next_ok_buttonindex(state, sHR);
 		    break;
 		case DLGK_FIELD_FIRST:
-		    if (obj != 0) {
+		    if (obj != NULL) {
 			obj->value = 0;
 			(void) DrawObject(obj);
 		    }
 		    break;
 		case DLGK_FIELD_LAST:
-		    if (obj != 0) {
+		    if (obj != NULL) {
 			switch (state) {
 			case sHR:
 			    obj->value = 23;
@@ -349,7 +349,7 @@ dialog_timebox(const char *title,
 		    }
 		    break;
 		case DLGK_DELETE_RIGHT:
-		    if (obj != 0) {
+		    if (obj != NULL) {
 			obj->value /= 10;
 			(void) DrawObject(obj);
 		    }
@@ -373,7 +373,7 @@ dialog_timebox(const char *title,
 			result = dlg_ok_buttoncode(key - M_EVENT);
 			if (result < 0)
 			    result = DLG_EXIT_OK;
-		    } else if (obj != 0) {
+		    } else if (obj != NULL) {
 			int step = next_or_previous(key);
 			if (step != 0) {
 			    obj->value += step;
@@ -386,7 +386,7 @@ dialog_timebox(const char *title,
 		    break;
 		}
 	    } else if (isdigit(key)) {
-		if (obj != 0) {
+		if (obj != NULL) {
 		    int digit = (key - '0');
 		    int value = (obj->value * 10) + digit;
 		    if (value < obj->period) {
@@ -407,7 +407,7 @@ dialog_timebox(const char *title,
 		hr_box.value, mn_box.value, sc_box.value)
 
 #if defined(HAVE_STRFTIME)
-    if (dialog_vars.time_format != 0) {
+    if (dialog_vars.time_format != NULL) {
 	size_t used;
 	time_t now = time((time_t *) 0);
 	struct tm *parts = localtime(&now);

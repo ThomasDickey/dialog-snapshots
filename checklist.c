@@ -1,9 +1,9 @@
 /*
- *  $Id: checklist.c,v 1.171 2024/04/08 23:33:09 tom Exp $
+ *  $Id: checklist.c,v 1.172 2025/01/09 22:33:20 tom Exp $
  *
  *  checklist.c -- implements the checklist box
  *
- *  Copyright 2000-2022,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -272,7 +272,7 @@ dlg_checklist(const char *title,
     dlg_ctl_size(height, width);
 
     /* we need at least two states */
-    if (states == 0 || strlen(states) < 2)
+    if (states == NULL || strlen(states) < 2)
 	states = " *";
     num_states = (int) strlen(states);
     all.states = states;

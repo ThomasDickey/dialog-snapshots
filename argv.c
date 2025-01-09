@@ -1,9 +1,9 @@
 /*
- * $Id: argv.c,v 1.14 2022/04/03 22:38:16 tom Exp $
+ * $Id: argv.c,v 1.15 2025/01/09 22:33:20 tom Exp $
  *
  *  argv - Reusable functions for argv-parsing.
  *
- *  Copyright 2011-2020,2022	Thomas E. Dickey
+ *  Copyright 2011-2022,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -34,7 +34,7 @@ dlg_string_to_argv(char *blob)
     size_t n, k;
     int pass;
     size_t length = strlen(blob);
-    char **result = 0;
+    char **result = NULL;
 
 #ifdef HAVE_DLG_TRACE
     if (dialog_state.trace_output) {
@@ -130,8 +130,8 @@ dlg_string_to_argv(char *blob)
 	}
     }
 #ifdef HAVE_DLG_TRACE
-    if (result != 0) {
-	for (n = 0; result[n] != 0; ++n) {
+    if (result != NULL) {
+	for (n = 0; result[n] != NULL; ++n) {
 	    DLG_TRACE(("#\targv[%d] = %s\n", (int) n, result[n]));
 	}
     }
@@ -147,8 +147,8 @@ dlg_count_argv(char **argv)
 {
     int result = 0;
 
-    if (argv != 0) {
-	while (argv[result] != 0)
+    if (argv != NULL) {
+	while (argv[result] != NULL)
 	    ++result;
     }
     return result;
@@ -162,6 +162,6 @@ dlg_eat_argv(int *argcp, char ***argvp, int start, int count)
     *argcp -= count;
     for (k = start; k <= *argcp; k++)
 	(*argvp)[k] = (*argvp)[k + count];
-    (*argvp)[*argcp] = 0;
+    (*argvp)[*argcp] = NULL;
     return TRUE;
 }

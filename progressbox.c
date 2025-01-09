@@ -1,9 +1,9 @@
 /*
- *  $Id: progressbox.c,v 1.66 2024/03/07 23:02:38 tom Exp $
+ *  $Id: progressbox.c,v 1.67 2025/01/09 22:33:20 tom Exp $
  *
  *  progressbox.c -- implements the progress box
  *
- *  Copyright 2006-2023,2024	Thomas E. Dickey
+ *  Copyright 2006-2024,2025	Thomas E. Dickey
  *  Copyright 2005		Valery Reznic
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -198,7 +198,7 @@ get_line(MY_OBJ * obj, int *restart)
 	WINDOW *win = obj->text;
 	WROTE *wrote = dlg_calloc(WROTE, 1);
 
-	if (wrote != 0) {
+	if (wrote != NULL) {
 	    wrote->text = dlg_strclone(obj->line);
 	    wrote->link = obj->wrote;
 	    obj->wrote = wrote;
@@ -513,6 +513,6 @@ dialog_progressbox(const char *title, const char *cprompt, int height, int width
 			     width,
 			     FALSE,
 			     dialog_state.pipe_input);
-    dialog_state.pipe_input = 0;
+    dialog_state.pipe_input = NULL;
     return result;
 }

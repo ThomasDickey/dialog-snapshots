@@ -1,9 +1,9 @@
 /*
- *  $Id: treeview.c,v 1.47 2024/04/08 23:33:09 tom Exp $
+ *  $Id: treeview.c,v 1.48 2025/01/09 22:33:20 tom Exp $
  *
  *  treeview.c -- implements the treeview dialog
  *
- *  Copyright 2012-2022,2024	Thomas E. Dickey
+ *  Copyright 2012-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -214,7 +214,7 @@ dlg_treeview(const char *title,
     const char *widget_name;
 
     /* we need at least two states */
-    if (states == 0 || strlen(states) < 2)
+    if (states == NULL || strlen(states) < 2)
 	states = " *";
     num_states = (int) strlen(states);
 

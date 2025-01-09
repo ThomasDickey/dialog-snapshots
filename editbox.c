@@ -1,9 +1,9 @@
 /*
- *  $Id: editbox.c,v 1.87 2024/04/08 23:54:06 tom Exp $
+ *  $Id: editbox.c,v 1.88 2025/01/09 22:33:20 tom Exp $
  *
  *  editbox.c -- implements the edit box
  *
- *  Copyright 2007-2022,2024 Thomas E. Dickey
+ *  Copyright 2007-2024,2025 Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -40,11 +40,11 @@ grow_list(char ***list, int *have, int want)
 	size_t need = (size_t) (want | 31) + 3;
 	*have = (int) need;
 	(*list) = dlg_realloc(char *, need, *list);
-	if ((*list) == 0) {
+	if ((*list) == NULL) {
 	    fail_list();
 	} else {
 	    while (++last < need) {
-		(*list)[last] = 0;
+		(*list)[last] = NULL;
 	    }
 	}
     }
@@ -53,11 +53,11 @@ grow_list(char ***list, int *have, int want)
 static void
 load_list(const char *file, char ***list, int *rows)
 {
-    char *blob = 0;
+    char *blob = NULL;
     struct stat sb;
     size_t size;
 
-    *list = 0;
+    *list = NULL;
     *rows = 0;
 
     if (stat(file, &sb) < 0 ||
@@ -65,7 +65,7 @@ load_list(const char *file, char ***list, int *rows)
 	dlg_exiterr("Not a file: %s", file);
 
     size = (size_t) sb.st_size;
-    if ((blob = dlg_malloc(char, size + 2)) == 0) {
+    if ((blob = dlg_malloc(char, size + 2)) == NULL) {
 	fail_list();
     } else {
 	FILE *fp;
@@ -73,7 +73,7 @@ load_list(const char *file, char ***list, int *rows)
 
 	blob[size] = '\0';
 
-	if ((fp = fopen(file, "r")) == 0)
+	if ((fp = fopen(file, "r")) == NULL)
 	    dlg_exiterr("Cannot open: %s", file);
 	size = fread(blob, sizeof(char), size, fp);
 	fclose(fp);
@@ -105,12 +105,12 @@ load_list(const char *file, char ***list, int *rows)
 	    if (pass) {
 		if (need == 0) {
 		    (*list)[0] = dlg_strclone("");
-		    (*list)[1] = 0;
+		    (*list)[1] = NULL;
 		} else {
 		    for (n = 0; n < need; ++n) {
 			(*list)[n] = dlg_strclone((*list)[n]);
 		    }
-		    (*list)[need] = 0;
+		    (*list)[need] = NULL;
 		}
 	    } else {
 		grow_list(list, rows, (int) need + 1);
@@ -123,14 +123,14 @@ load_list(const char *file, char ***list, int *rows)
 static void
 free_list(char ***list, int *rows)
 {
-    if (*list != 0) {
+    if (*list != NULL) {
 	int n;
 	for (n = 0; n < (*rows); ++n) {
-	    if ((*list)[n] != 0)
+	    if ((*list)[n] != NULL)
 		free((*list)[n]);
 	}
 	free(*list);
-	*list = 0;
+	*list = NULL;
     }
     *rows = 0;
 }
@@ -151,7 +151,7 @@ display_one(WINDOW *win,
 {
     bool result;
 
-    if (text != 0) {
+    if (text != NULL) {
 	dlg_show_string(win,
 			text,
 			chr_offset,
@@ -199,8 +199,8 @@ size_list(char **list)
 {
     int result = 0;
 
-    if (list != 0) {
-	while (*list++ != 0) {
+    if (list != NULL) {
+	while (*list++ != NULL) {
 	    ++result;
 	}
     }
@@ -289,10 +289,10 @@ widest_line(char **list)
 {
     int result = dlg_max_input(-1);
 
-    if (list != 0) {
+    if (list != NULL) {
 	const char *value;
 
-	while ((value = *list++) != 0) {
+	while ((value = *list++) != NULL) {
 	    int check = (int) strlen(value);
 	    if (check > result)
 		result = check;

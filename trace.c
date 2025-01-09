@@ -1,9 +1,9 @@
 /*
- *  $Id: trace.c,v 1.35 2024/04/08 23:53:32 tom Exp $
+ *  $Id: trace.c,v 1.36 2025/01/09 22:33:20 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
- *  Copyright 2007-2022,2024	Thomas E. Dickey
+ *  Copyright 2007-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -39,7 +39,7 @@ dlg_trace_time(const char *tag)
 void
 dlg_trace_msg(const char *fmt, ...)
 {
-    if (myFP != 0) {
+    if (myFP != NULL) {
 	va_list ap;
 	va_start(ap, fmt);
 	vfprintf(myFP, fmt, ap);
@@ -51,7 +51,7 @@ dlg_trace_msg(const char *fmt, ...)
 void
 dlg_trace_va_msg(const char *fmt, va_list ap)
 {
-    if (myFP != 0) {
+    if (myFP != NULL) {
 	vfprintf(myFP, fmt, ap);
 	fflush(myFP);
     }
@@ -63,14 +63,14 @@ dlg_trace_2s(const char *name, const char *value)
     bool first = TRUE;
     int left, right = 0;
 
-    if (value == 0)
+    if (value == NULL)
 	value = "<NULL>";
 
     while (value[right] != '\0') {
 	const char *next;
 
 	value += right;
-	if ((next = strchr(value, '\n')) != 0) {
+	if ((next = strchr(value, '\n')) != NULL) {
 	    left = (int) (next - value);
 	    right = left + 1;
 	} else {
@@ -95,15 +95,15 @@ dlg_trace_2n(const char *name, int value)
 void
 dlg_trace_win(WINDOW *win)
 {
-    if (myFP != 0) {
+    if (myFP != NULL) {
 	WINDOW *top = wgetparent(win);
 
-	while (top != 0 && top != stdscr) {
+	while (top != NULL && top != stdscr) {
 	    win = top;
 	    top = wgetparent(win);
 	}
 
-	if (win != 0) {
+	if (win != NULL) {
 	    int rc = getmaxy(win);
 	    int cc = getmaxx(win);
 	    chtype ch, c2;
@@ -133,7 +133,7 @@ dlg_trace_win(WINDOW *win)
 			const wchar_t *uc;
 
 			if (win_wch(win, &cch) == ERR
-			    || (uc = wunctrl((&cch))) == 0
+			    || (uc = wunctrl((&cch))) == NULL
 			    || uc[1] != 0
 			    || wcwidth(uc[0]) <= 0) {
 			    buffer[0] = '.';
@@ -178,7 +178,7 @@ dlg_trace_chr(int ch, int fkey)
      */
     if (last_err && !fkey && ch == ERR) {
 	++last_err;
-    } else if (myFP != 0) {
+    } else if (myFP != NULL) {
 	const char *fkey_name;
 
 	if (last_err) {
@@ -187,7 +187,7 @@ dlg_trace_chr(int ch, int fkey)
 	}
 
 	if (fkey) {
-	    if (fkey > KEY_MAX || (fkey_name = keyname(fkey)) == 0) {
+	    if (fkey > KEY_MAX || (fkey_name = keyname(fkey)) == NULL) {
 #define CASE(name) case name: fkey_name = #name; break
 		switch ((DLG_KEYS_ENUM) fkey) {
 		    CASE(DLGK_MIN);
@@ -234,7 +234,7 @@ dlg_trace_chr(int ch, int fkey)
 	    last_err = 1;
 	} else {
 	    fkey_name = unctrl((chtype) ch);
-	    if (fkey_name == 0)
+	    if (fkey_name == NULL)
 		fkey_name = "UNKNOWN";
 	}
 	if (ch >= 0) {
@@ -249,19 +249,19 @@ dlg_trace_chr(int ch, int fkey)
 void
 dlg_trace(const char *fname)
 {
-    if (fname != 0) {
-	if (myFP == 0) {
+    if (fname != NULL) {
+	if (myFP == NULL) {
 	    myFP = fopen(fname, "a");
-	    if (myFP != 0) {
+	    if (myFP != NULL) {
 		dlg_trace_time("## opened at");
 		DLG_TRACE(("## dialog %s\n", dialog_version()));
 		DLG_TRACE(("## vile: confmode\n"));
 	    }
 	}
-    } else if (myFP != 0) {
+    } else if (myFP != NULL) {
 	dlg_trace_time("## closed at");
 	fclose(myFP);
-	myFP = 0;
+	myFP = NULL;
     }
 }
 #else

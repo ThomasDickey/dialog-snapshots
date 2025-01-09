@@ -1,9 +1,9 @@
 /*
- *  $Id: rangebox.c,v 1.33 2024/04/08 23:33:09 tom Exp $
+ *  $Id: rangebox.c,v 1.34 2025/01/09 22:33:20 tom Exp $
  *
  *  rangebox.c -- implements the rangebox dialog
  *
- *  Copyright 2012-2020,2024	Thomas E. Dickey
+ *  Copyright 2012-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -74,12 +74,12 @@ set_digit(VALUE * data, int chr)
     bool result = FALSE;
     char buffer[80];
     long check;
-    char *next = 0;
+    char *next = NULL;
 
     sprintf(buffer, "%*d", data->value_len, data->current);
     buffer[data->value_col] = (char) chr;
     check = strtol(buffer, &next, 10);
-    if (next == 0 || *next == '\0') {
+    if (next == NULL || *next == '\0') {
 	if ((check <= (long) data->max_value) &&
 	    (check >= (long) data->min_value)) {
 	    result = TRUE;

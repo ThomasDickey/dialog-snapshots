@@ -1,9 +1,9 @@
 /*
- *  $Id: ui_getc.c,v 1.84 2022/04/08 21:01:51 tom Exp $
+ *  $Id: ui_getc.c,v 1.85 2025/01/09 22:33:20 tom Exp $
  *
  *  ui_getc.c - user interface glue for getc()
  *
- *  Copyright 2001-2021,2022	Thomas E. Dickey
+ *  Copyright 2001-2022,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -73,15 +73,15 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
 {
     DIALOG_CALLBACK *q;
 
-    if (p->input != 0) {
+    if (p->input != NULL) {
 	FILE *input = p->input;
 	fclose(input);
 	if (p->input == dialog_state.pipe_input)
-	    dialog_state.pipe_input = 0;
+	    dialog_state.pipe_input = NULL;
 	/* more than one callback can have the same input */
-	for (q = dialog_state.getc_callbacks; q != 0; q = q->next) {
+	for (q = dialog_state.getc_callbacks; q != NULL; q = q->next) {
 	    if (q->input == input) {
-		q->input = 0;
+		q->input = NULL;
 	    }
 	}
     }
@@ -91,7 +91,7 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
     if ((q = dialog_state.getc_callbacks) == p) {
 	dialog_state.getc_callbacks = p->next;
     } else {
-	while (q != 0) {
+	while (q != NULL) {
 	    if (q->next == p) {
 		q->next = p->next;
 		break;
@@ -101,10 +101,10 @@ dlg_remove_callback(DIALOG_CALLBACK * p)
     }
 
     /* handle dlg_add_callback_ref cleanup */
-    if (p->freeback != 0)
+    if (p->freeback != NULL)
 	p->freeback(p);
-    if (p->caller != 0)
-	*(p->caller) = 0;
+    if (p->caller != NULL)
+	*(p->caller) = NULL;
 
     free(p);
 }
@@ -123,9 +123,9 @@ handle_inputs(WINDOW *win)
     int state = ERR;
 
     getyx(win, cur_y, cur_x);
-    for (p = dialog_state.getc_callbacks, q = 0; p != 0; p = q) {
+    for (p = dialog_state.getc_callbacks, q = NULL; p != NULL; p = q) {
 	q = p->next;
-	if ((p->handle_input != 0) && p->input_ready) {
+	if ((p->handle_input != NULL) && p->input_ready) {
 	    p->input_ready = FALSE;
 	    if (state == ERR) {
 		state = curs_set(0);
@@ -153,8 +153,8 @@ may_handle_inputs(void)
 
     DIALOG_CALLBACK *p;
 
-    for (p = dialog_state.getc_callbacks; p != 0; p = p->next) {
-	if (p->input != 0) {
+    for (p = dialog_state.getc_callbacks; p != NULL; p = p->next) {
+	if (p->input != NULL) {
 	    result = TRUE;
 	    break;
 	}
@@ -165,7 +165,7 @@ may_handle_inputs(void)
 
 /*
  * Check any any inputs registered via callbacks, to see if there is any input
- * available.  If there is, return a file-descriptor which should be read. 
+ * available.  If there is, return a file-descriptor which should be read.
  * Otherwise, return -1.
  */
 static int
@@ -176,17 +176,17 @@ check_inputs(void)
     struct timeval test;
     int result = -1;
 
-    if ((p = dialog_state.getc_callbacks) != 0) {
+    if ((p = dialog_state.getc_callbacks) != NULL) {
 	int last_fd = -1;
 	int found;
 	int fd;
 
 	FD_ZERO(&read_fds);
 
-	while (p != 0) {
+	while (p != NULL) {
 
 	    p->input_ready = FALSE;
-	    if (p->input != 0 && (fd = fileno(p->input)) >= 0) {
+	    if (p->input != NULL && (fd = fileno(p->input)) >= 0) {
 		FD_SET(fd, &read_fds);
 		if (last_fd < fd)
 		    last_fd = fd;
@@ -202,8 +202,8 @@ check_inputs(void)
 		       &test);
 
 	if (found > 0) {
-	    for (p = dialog_state.getc_callbacks; p != 0; p = p->next) {
-		if (p->input != 0
+	    for (p = dialog_state.getc_callbacks; p != NULL; p = p->next) {
+		if (p->input != NULL
 		    && (fd = fileno(p->input)) >= 0
 		    && FD_ISSET(fd, &read_fds)) {
 		    p->input_ready = TRUE;
@@ -222,7 +222,7 @@ dlg_getc_callbacks(int ch, int fkey, int *result)
     int code = FALSE;
     DIALOG_CALLBACK *p, *q;
 
-    if ((p = dialog_state.getc_callbacks) != 0) {
+    if ((p = dialog_state.getc_callbacks) != NULL) {
 	if (check_inputs() >= 0) {
 	    do {
 		q = p->next;
@@ -231,9 +231,9 @@ dlg_getc_callbacks(int ch, int fkey, int *result)
 			dlg_remove_callback(p);
 		    }
 		}
-	    } while ((p = q) != 0);
+	    } while ((p = q) != NULL);
 	}
-	code = (dialog_state.getc_callbacks != 0);
+	code = (dialog_state.getc_callbacks != NULL);
     }
     return code;
 }
@@ -388,7 +388,7 @@ really_getch(WINDOW *win, int *fkey)
 static DIALOG_CALLBACK *
 next_callback(DIALOG_CALLBACK * p)
 {
-    if ((p = dialog_state.getc_redirect) != 0) {
+    if ((p = dialog_state.getc_redirect) != NULL) {
 	p = p->next;
     } else {
 	p = dialog_state.getc_callbacks;
@@ -401,9 +401,9 @@ prev_callback(DIALOG_CALLBACK * p)
 {
     DIALOG_CALLBACK *q;
 
-    if ((p = dialog_state.getc_redirect) != 0) {
+    if ((p = dialog_state.getc_redirect) != NULL) {
 	if (p == dialog_state.getc_callbacks) {
-	    for (p = dialog_state.getc_callbacks; p->next != 0; p = p->next) ;
+	    for (p = dialog_state.getc_callbacks; p->next != NULL; p = p->next) ;
 	} else {
 	    for (q = dialog_state.getc_callbacks; q->next != p; q = q->next) ;
 	    p = q;
@@ -433,7 +433,7 @@ dlg_getc(WINDOW *win, int *fkey)
     int result;
     bool done = FALSE;
     bool literal = FALSE;
-    DIALOG_CALLBACK *p = 0;
+    DIALOG_CALLBACK *p = NULL;
     int interval = dlg_set_timeout(win, may_handle_inputs());
     time_t expired = time((time_t *) 0) + dialog_vars.timeout_secs;
     time_t current;
@@ -522,13 +522,13 @@ dlg_getc(WINDOW *win, int *fkey)
 		 * callbacks.  If the nominal (control) window closes, we'll
 		 * close the windows with callbacks.
 		 */
-		if (dialog_state.getc_callbacks != 0 &&
+		if (dialog_state.getc_callbacks != NULL &&
 		    (isBeforeChr(TAB) ||
 		     isBeforeFkey(KEY_BTAB))) {
 		    p = (isBeforeChr(TAB)
 			 ? next_callback(p)
 			 : prev_callback(p));
-		    if ((dialog_state.getc_redirect = p) != 0) {
+		    if ((dialog_state.getc_redirect = p) != NULL) {
 			win = p->win;
 		    } else {
 			win = save_win;
@@ -560,11 +560,11 @@ dlg_getc(WINDOW *win, int *fkey)
 	}
 
 	if (handle_others) {
-	    if ((p = dialog_state.getc_redirect) != 0) {
+	    if ((p = dialog_state.getc_redirect) != NULL) {
 		if (!(p->handle_getc(p, ch, *fkey, &result))) {
 		    done = (p->win == save_win) && (!p->keep_win);
 		    dlg_remove_callback(p);
-		    dialog_state.getc_redirect = 0;
+		    dialog_state.getc_redirect = NULL;
 		    win = save_win;
 		}
 	    } else {
@@ -599,8 +599,8 @@ dlg_killall_bg(int *retval)
     int wstatus;
 #endif
 
-    if ((cb = dialog_state.getc_callbacks) != 0) {
-	while (cb != 0) {
+    if ((cb = dialog_state.getc_callbacks) != NULL) {
+	while (cb != NULL) {
 	    if (cb->keep_bg) {
 		cb = cb->next;
 	    } else {
@@ -608,7 +608,7 @@ dlg_killall_bg(int *retval)
 		cb = dialog_state.getc_callbacks;
 	    }
 	}
-	if (dialog_state.getc_callbacks != 0) {
+	if (dialog_state.getc_callbacks != NULL) {
 	    int pid;
 
 	    refresh();
@@ -653,7 +653,7 @@ dlg_killall_bg(int *retval)
 		    (void) signal(SIGINT, finish_bg);
 		    (void) signal(SIGQUIT, finish_bg);
 		    (void) signal(SIGSEGV, finish_bg);
-		    while (dialog_state.getc_callbacks != 0) {
+		    while (dialog_state.getc_callbacks != NULL) {
 			int fkey = 0;
 			dlg_getc_callbacks(ERR, fkey, retval);
 			napms(1000);

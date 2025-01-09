@@ -1,9 +1,9 @@
 /*
- *  $Id: menubox.c,v 1.176 2024/04/08 23:33:09 tom Exp $
+ *  $Id: menubox.c,v 1.177 2025/01/09 22:33:20 tom Exp $
  *
  *  menubox.c -- implements the menu box
  *
- *  Copyright 2000-2022,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public Licens, version 2.1e
@@ -366,9 +366,9 @@ dlg_menu(const char *title,
     int max_choice;
     int use_width, name_width, text_width, list_width;
     WINDOW *dialog, *menu;
-    char *prompt = 0;
+    char *prompt = NULL;
     const char **buttons = dlg_ok_labels();
-    bool is_inputmenu = ((rename_menutext != 0)
+    bool is_inputmenu = ((rename_menutext != NULL)
 			 && (rename_menutext != dlg_dummy_menutext));
 
     DLG_TRACE(("# menubox args:\n"));
@@ -379,7 +379,7 @@ dlg_menu(const char *title,
     DLG_TRACE2N("lheight", menu_height);
     DLG_TRACE2N("llength", item_no);
     /* FIXME dump the items[][] too */
-    DLG_TRACE2N("rename", rename_menutext != 0);
+    DLG_TRACE2N("rename", rename_menutext != NULL);
 
     dialog_state.plain_buttons = TRUE;
 

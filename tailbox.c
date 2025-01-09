@@ -1,9 +1,9 @@
 /*
- *  $Id: tailbox.c,v 1.88 2024/04/08 23:21:41 tom Exp $
+ *  $Id: tailbox.c,v 1.89 2025/01/09 22:33:20 tom Exp $
  *
  *  tailbox.c -- implements the tail box
  *
- *  Copyright 2000-2023,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -249,7 +249,7 @@ valid_callback(const DIALOG_CALLBACK * cb)
 {
     bool valid = FALSE;
     DIALOG_CALLBACK *p;
-    for (p = dialog_state.getc_callbacks; p != 0; p = p->next) {
+    for (p = dialog_state.getc_callbacks; p != NULL; p = p->next) {
 	if (p == cb) {
 	    valid = TRUE;
 	    break;
@@ -361,7 +361,7 @@ dialog_tailbox(const char *title,
     int fkey;
     int x, y, result = DLG_EXIT_UNKNOWN, thigh;
     WINDOW *dialog, *text;
-    const char **buttons = 0;
+    const char **buttons = NULL;
     MY_OBJ *obj;
     FILE *fd;
     int min_width = 12;
@@ -420,7 +420,7 @@ dialog_tailbox(const char *title,
     obj->obj.input = fd;
     obj->obj.win = dialog;
     obj->obj.handle_getc = handle_my_getc;
-    obj->obj.handle_input = bg_task ? handle_input : 0;
+    obj->obj.handle_input = bg_task ? handle_input : NULL;
     obj->obj.keep_bg = bg_task && dialog_vars.cant_kill;
     obj->obj.bg_task = (bool) bg_task;
     obj->text = text;

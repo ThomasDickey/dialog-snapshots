@@ -1,9 +1,9 @@
 /*
- *  $Id: inputstr.c,v 1.96 2024/04/08 23:33:09 tom Exp $
+ *  $Id: inputstr.c,v 1.97 2025/01/09 22:33:20 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
- *  Copyright 2000-2022,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -45,7 +45,7 @@ typedef struct _cache {
 } CACHE;
 
 #if USE_CACHING
-#define SAME_CACHE(c,s,l) (c->string != 0 && memcmp(c->string,s,l) == 0)
+#define SAME_CACHE(c,s,l) (c->string != NULL && memcmp(c->string,s,l) == 0)
 
 static CACHE *cache_list;
 
@@ -67,8 +67,8 @@ have_locale(void)
 {
     static int result = -1;
     if (result < 0) {
-	const char *test = setlocale(LC_ALL, 0);
-	if (test == 0 || *test == 0) {
+	const char *test = setlocale(LC_ALL, NULL);
+	if (test == NULL || *test == 0) {
 	    result = FALSE;
 	} else if (strcmp(test, "C") && strcmp(test, "POSIX")) {
 	    result = TRUE;
@@ -131,10 +131,10 @@ find_cache(int cache_num, const char *string)
     find.cache_num = cache_num;
     find.string_at = string;
 
-    if ((pp = tfind(&find, &sorted_cache, compare_cache)) != 0) {
+    if ((pp = tfind(&find, &sorted_cache, compare_cache)) != NULL) {
 	p = *(CACHE **) pp;
     } else {
-	p = 0;
+	p = NULL;
     }
 #else
     for (p = cache_list; p != 0; p = p->next) {
@@ -170,7 +170,7 @@ load_cache(int cache_num, const char *string)
 {
     CACHE *p;
 
-    if ((p = find_cache(cache_num, string)) == 0) {
+    if ((p = find_cache(cache_num, string)) == NULL) {
 	p = make_cache(cache_num, string);
     }
     return p;
@@ -193,11 +193,11 @@ same_cache2(CACHE * cache, const char *string, unsigned i_len)
 
     if (cache->s_len == 0
 	|| cache->s_len < s_len
-	|| cache->list == 0
+	|| cache->list == NULL
 	|| !SAME_CACHE(cache, string, (size_t) s_len)) {
 	unsigned need = (i_len + 1);
 
-	if (cache->list == 0) {
+	if (cache->list == NULL) {
 	    cache->list = dlg_malloc(int, need);
 	} else if (cache->i_len < i_len) {
 	    cache->list = dlg_realloc(int, need, cache->list);
@@ -205,10 +205,10 @@ same_cache2(CACHE * cache, const char *string, unsigned i_len)
 	assert_ptr(cache->list, "load_cache");
 	cache->i_len = i_len;
 
-	if (cache->s_len >= s_len && cache->string != 0) {
+	if (cache->s_len >= s_len && cache->string != NULL) {
 	    strcpy(cache->string, string);
 	} else {
-	    if (cache->string != 0)
+	    if (cache->string != NULL)
 		free(cache->string);
 	    cache->string = dlg_strclone(string);
 	}
@@ -233,10 +233,10 @@ same_cache1(CACHE * cache, const char *string, size_t i_len)
     if (cache->s_len != s_len
 	|| !SAME_CACHE(cache, string, (size_t) s_len)) {
 
-	if (cache->s_len >= s_len && cache->string != 0) {
+	if (cache->s_len >= s_len && cache->string != NULL) {
 	    strcpy(cache->string, string);
 	} else {
-	    if (cache->string != 0)
+	    if (cache->string != NULL)
 		free(cache->string);
 	    cache->string = dlg_strclone(string);
 	}
@@ -307,7 +307,7 @@ dlg_count_wchars(const char *string)
 	    char save = cache->string[part];
 	    wchar_t *temp = dlg_calloc(wchar_t, len + 1);
 
-	    if (temp != 0) {
+	    if (temp != NULL) {
 		size_t code;
 
 		cache->string[part] = '\0';
@@ -426,7 +426,7 @@ dlg_index_columns(const char *string)
 		    if (result < 0) {
 			const wchar_t *printable;
 			cchar_t temp2, *temp2p = &temp2;
-			setcchar(temp2p, temp, 0, 0, 0);
+			setcchar(temp2p, temp, 0, 0, NULL);
 			printable = wunctrl(temp2p);
 			result = printable ? (int) wcslen(printable) : 1;
 		    }
@@ -650,9 +650,9 @@ compute_edit_offset(const char *string,
 
     dpy_column = cols[offset] - cols[offset2];
 
-    if (p_dpy_column != 0)
+    if (p_dpy_column != NULL)
 	*p_dpy_column = dpy_column;
-    if (p_scroll_amt != 0)
+    if (p_scroll_amt != NULL)
 	*p_scroll_amt = offset2;
 }
 
@@ -665,7 +665,7 @@ dlg_edit_offset(char *string, int chr_offset, int x_last)
 {
     int result;
 
-    compute_edit_offset(string, chr_offset, x_last, &result, 0);
+    compute_edit_offset(string, chr_offset, x_last, &result, NULL);
 
     return result;
 }
@@ -739,22 +739,22 @@ void
 dlg_finish_string(const char *string)
 {
 #if USE_CACHING
-    if ((string != 0) && dialog_state.finish_string) {
+    if ((string != NULL) && dialog_state.finish_string) {
 	CACHE *p = cache_list;
-	CACHE *q = 0;
+	CACHE *q = NULL;
 	CACHE *r;
 
-	while (p != 0) {
+	while (p != NULL) {
 	    if (p->string_at == string) {
 #ifdef HAVE_TSEARCH
-		if (tdelete(p, &sorted_cache, compare_cache) == 0) {
+		if (tdelete(p, &sorted_cache, compare_cache) == NULL) {
 		    continue;
 		}
 		trace_cache(__FILE__, __LINE__);
 #endif
-		if (p->string != 0)
+		if (p->string != NULL)
 		    free(p->string);
-		if (p->list != 0)
+		if (p->list != NULL)
 		    free(p->list);
 		if (p == cache_list) {
 		    cache_list = p->next;

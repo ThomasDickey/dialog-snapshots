@@ -1,8 +1,13 @@
--- $Id: CHANGES,v 1.821 2024/06/19 16:57:51 tom Exp $
+-- $Id: CHANGES,v 1.823 2025/01/09 22:04:24 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2025/01/09
+	+ fix some gcc15 strict compiler warnings
+	+ configure script fixes for compiler warnings
+	+ update config.guess, config.sub
 
 2024/06/19
 	+ modify configure script to ease deprecation of libtool-bin package

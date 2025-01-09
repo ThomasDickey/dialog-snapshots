@@ -1,9 +1,9 @@
 /*
- * $Id: mouse.c,v 1.25 2022/04/03 22:38:16 tom Exp $
+ * $Id: mouse.c,v 1.26 2025/01/09 22:33:20 tom Exp $
  *
  *  mouse.c -- mouse support for dialog
  *
- *  Copyright 2002-2017,2022	Thomas E. Dickey
+ *  Copyright 2002-2022,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -74,7 +74,7 @@ dlg_mouse_mkbigregion(int y, int x,
 void
 dlg_mouse_free_regions(void)
 {
-    while (regionList != 0) {
+    while (regionList != NULL) {
 	mseRegion *butPtr = regionList->next;
 	free(regionList);
 	regionList = butPtr;
@@ -86,7 +86,7 @@ dlg_mouse_mkregion(int y, int x, int height, int width, int code)
 {
     mseRegion *butPtr;
 
-    if ((butPtr = find_region_by_code(basecode + code)) == 0) {
+    if ((butPtr = find_region_by_code(basecode + code)) == NULL) {
 	butPtr = dlg_calloc(mseRegion, 1);
 	assert_ptr(butPtr, "dlg_mouse_mkregion");
 	butPtr->next = regionList;

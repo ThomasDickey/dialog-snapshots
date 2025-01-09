@@ -1,9 +1,9 @@
 /*
- *  $Id: prgbox.c,v 1.15 2022/04/03 22:38:16 tom Exp $
+ *  $Id: prgbox.c,v 1.16 2025/01/09 22:33:20 tom Exp $
  *
  *  prgbox.c -- implements the prg box
  *
- *  Copyright 2011-2019,2022	Thomas E. Dickey
+ *  Copyright 2011-2022,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -35,7 +35,7 @@ reapchild(int sig)
 FILE *
 dlg_popen(const char *command, const char *type)
 {
-    FILE *result = 0;
+    FILE *result = NULL;
     int fd[2];
 
     if ((*type == 'r' || *type == 'w') && pipe(fd) == 0) {
@@ -67,7 +67,7 @@ dlg_popen(const char *command, const char *type)
 	     * given command.  Also, it needs the command to be parsed into
 	     * tokens.
 	     */
-	    if ((blob = malloc(10 + strlen(command))) != 0) {
+	    if ((blob = malloc(10 + strlen(command))) != NULL) {
 		char **argv;
 		sprintf(blob, "sh -c \"%s\"", command);
 		argv = dlg_string_to_argv(blob);

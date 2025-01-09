@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_keys.c,v 1.63 2024/04/08 23:33:09 tom Exp $
+ *  $Id: dlg_keys.c,v 1.64 2025/01/09 22:33:20 tom Exp $
  *
  *  dlg_keys.c -- runtime binding support for dialog
  *
- *  Copyright 2006-2022,2024	Thomas E. Dickey
+ *  Copyright 2006-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -49,18 +49,18 @@ dlg_register_window(WINDOW *win, const char *name, DLG_KEYS_BINDING * binding)
 {
     LIST_BINDINGS *p, *q;
 
-    for (p = all_bindings, q = 0; p != 0; q = p, p = p->link) {
+    for (p = all_bindings, q = NULL; p != NULL; q = p, p = p->link) {
 	if (p->win == win && !strcmp(p->name, name)) {
 	    p->binding = binding;
 	    return;
 	}
     }
     /* add built-in bindings at the end of the list (see compare_bindings). */
-    if ((p = dlg_calloc(LIST_BINDINGS, 1)) != 0) {
+    if ((p = dlg_calloc(LIST_BINDINGS, 1)) != NULL) {
 	p->win = win;
 	p->name = name;
 	p->binding = binding;
-	if (q != 0) {
+	if (q != NULL) {
 	    q->link = p;
 	} else {
 	    all_bindings = p;
@@ -132,7 +132,7 @@ key_is_bound(const WINDOW *win, const char *name, int curses_key, int function_k
 {
     LIST_BINDINGS *p;
 
-    for (p = all_bindings; p != 0; p = p->link) {
+    for (p = all_bindings; p != NULL; p = p->link) {
 	if (p->win == win && !dlg_strcmp(p->name, name)) {
 	    int n;
 	    for (n = 0; p->binding[n].is_function_key >= 0; ++n) {
@@ -164,10 +164,10 @@ dlg_register_buttons(WINDOW *win, const char *name, const char **buttons)
     LIST_BINDINGS *p;
     DLG_KEYS_BINDING *q;
 
-    if (buttons == 0)
+    if (buttons == NULL)
 	return;
 
-    for (n = 0; buttons[n] != 0; ++n) {
+    for (n = 0; buttons[n] != NULL; ++n) {
 	int curses_key = dlg_button_to_char(buttons[n]);
 
 	/* ignore binding if there is no key to bind */
@@ -184,12 +184,12 @@ dlg_register_buttons(WINDOW *win, const char *name, const char **buttons)
 
 #ifdef HAVE_RC_FILE
 	/* if it is bound in the rc-file, skip it */
-	if (key_is_bound(0, name, curses_key, FALSE))
+	if (key_is_bound(NULL, name, curses_key, FALSE))
 	    continue;
 #endif
 
-	if ((p = dlg_calloc(LIST_BINDINGS, 1)) != 0) {
-	    if ((q = dlg_calloc(DLG_KEYS_BINDING, 2)) != 0) {
+	if ((p = dlg_calloc(LIST_BINDINGS, 1)) != NULL) {
+	    if ((q = dlg_calloc(DLG_KEYS_BINDING, 2)) != NULL) {
 		q[0].is_function_key = 0;
 		q[0].curses_key = curses_key;
 		q[0].dialog_key = curses_key;
@@ -218,9 +218,9 @@ dlg_unregister_window(WINDOW *win)
 {
     LIST_BINDINGS *p, *q;
 
-    for (p = all_bindings, q = 0; p != 0; p = p->link) {
+    for (p = all_bindings, q = NULL; p != NULL; p = p->link) {
 	if (p->win == win) {
-	    if (q != 0) {
+	    if (q != NULL) {
 		q->link = p->link;
 	    } else {
 		all_bindings = p->link;
@@ -273,17 +273,17 @@ dlg_lookup_key(WINDOW *win, int curses_key, int *fkey)
 #endif
     if (*fkey == 0 || curses_key < KEY_MAX) {
 	const char *name = WILDNAME;
-	if (win != 0) {
-	    for (p = all_bindings; p != 0; p = p->link) {
+	if (win != NULL) {
+	    for (p = all_bindings; p != NULL; p = p->link) {
 		if (p->win == win) {
 		    name = p->name;
 		    break;
 		}
 	    }
 	}
-	for (p = all_bindings; p != 0; p = p->link) {
+	for (p = all_bindings; p != NULL; p = p->link) {
 	    if (p->win == win ||
-		(p->win == 0 &&
+		(p->win == NULL &&
 		 (!strcmp(p->name, name) || !strcmp(p->name, WILDNAME)))) {
 		int function_key = (*fkey != 0);
 		for (q = p->binding; q->is_function_key >= 0; ++q) {
@@ -632,10 +632,10 @@ static DLG_KEYS_BINDING *
 find_binding(char *widget, int curses_key)
 {
     LIST_BINDINGS *p;
-    DLG_KEYS_BINDING *result = 0;
+    DLG_KEYS_BINDING *result = NULL;
 
-    for (p = all_bindings; p != 0; p = p->link) {
-	if (p->win == 0
+    for (p = all_bindings; p != NULL; p = p->link) {
+	if (p->win == NULL
 	    && !dlg_strcmp(p->name, widget)
 	    && actual_curses_key(p->binding) == curses_key) {
 	    result = p->binding;
@@ -684,15 +684,15 @@ compare_bindings(LIST_BINDINGS * a, LIST_BINDINGS * b)
 static DLG_KEYS_BINDING *
 make_binding(char *widget, int curses_key, int is_function, int dialog_key)
 {
-    LIST_BINDINGS *entry = 0;
-    DLG_KEYS_BINDING *data = 0;
+    LIST_BINDINGS *entry = NULL;
+    DLG_KEYS_BINDING *data = NULL;
     char *name;
     DLG_KEYS_BINDING *result = find_binding(widget, curses_key);
 
-    if (result == 0
-	&& (entry = dlg_calloc(LIST_BINDINGS, 1)) != 0
-	&& (data = dlg_calloc(DLG_KEYS_BINDING, 2)) != 0
-	&& (name = dlg_strclone(widget)) != 0) {
+    if (result == NULL
+	&& (entry = dlg_calloc(LIST_BINDINGS, 1)) != NULL
+	&& (data = dlg_calloc(DLG_KEYS_BINDING, 2)) != NULL
+	&& (name = dlg_strclone(widget)) != NULL) {
 	LIST_BINDINGS *p, *q;
 
 	entry->name = name;
@@ -704,21 +704,21 @@ make_binding(char *widget, int curses_key, int is_function, int dialog_key)
 
 	data[1] = end_keys_binding;
 
-	for (p = all_bindings, q = 0; p != 0; q = p, p = p->link) {
+	for (p = all_bindings, q = NULL; p != NULL; q = p, p = p->link) {
 	    if (compare_bindings(entry, p) < 0) {
 		break;
 	    }
 	}
-	if (q != 0) {
+	if (q != NULL) {
 	    q->link = entry;
 	} else {
 	    all_bindings = entry;
 	}
-	if (p != 0) {
+	if (p != NULL) {
 	    entry->link = p;
 	}
 	result = data;
-    } else if (entry != 0) {
+    } else if (entry != NULL) {
 	free(entry);
 	if (data)
 	    free(data);
@@ -868,7 +868,7 @@ dlg_parse_bindkey(char *params)
 	if (*widget != '\0'
 	    && curses_key >= 0
 	    && dialog_key >= 0
-	    && make_binding(widget, curses_key, is_function, dialog_key) != 0) {
+	    && make_binding(widget, curses_key, is_function, dialog_key) != NULL) {
 	    result = TRUE;
 	}
     }
@@ -969,17 +969,17 @@ dump_one_binding(FILE *fp,
 void
 dlg_dump_window_keys(FILE *fp, WINDOW *win)
 {
-    if (fp != 0) {
+    if (fp != NULL) {
 	LIST_BINDINGS *p;
 	DLG_KEYS_BINDING *q;
 	const char *last = "";
 
-	for (p = all_bindings; p != 0; p = p->link) {
+	for (p = all_bindings; p != NULL; p = p->link) {
 	    if (p->win == win) {
 		if (dlg_strcmp(last, p->name)) {
 		    fprintf(fp, "# key bindings for %s widgets%s\n",
 			    !strcmp(p->name, WILDNAME) ? "all" : p->name,
-			    win == 0 ? " (user-defined)" : "");
+			    win == NULL ? " (user-defined)" : "");
 		    last = p->name;
 		}
 		for (q = p->binding; q->is_function_key >= 0; ++q) {
@@ -997,17 +997,17 @@ dlg_dump_window_keys(FILE *fp, WINDOW *win)
 void
 dlg_dump_keys(FILE *fp)
 {
-    if (fp != 0) {
+    if (fp != NULL) {
 	LIST_BINDINGS *p;
 	unsigned count = 0;
 
-	for (p = all_bindings; p != 0; p = p->link) {
-	    if (p->win == 0) {
+	for (p = all_bindings; p != NULL; p = p->link) {
+	    if (p->win == NULL) {
 		++count;
 	    }
 	}
 	if (count != 0) {
-	    dlg_dump_window_keys(fp, 0);
+	    dlg_dump_window_keys(fp, NULL);
 	}
     }
 }

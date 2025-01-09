@@ -1,9 +1,9 @@
 /*
- *  $Id: util.c,v 1.312 2024/04/08 23:43:21 tom Exp $
+ *  $Id: util.c,v 1.313 2025/01/09 22:33:20 tom Exp $
  *
  *  util.c -- miscellaneous utilities for dialog
  *
- *  Copyright 2000-2023,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -96,7 +96,7 @@ DIALOG_VARS dialog_vars;
 #define COLOR_DATA(upr)		/*nothing */
 #endif /* HAVE_COLOR */
 
-#define UseShadow(dw) ((dw) != 0 && (dw)->normal != 0 && (dw)->shadow != 0)
+#define UseShadow(dw) ((dw) != NULL && (dw)->normal != NULL && (dw)->shadow != NULL)
 
 /*
  * Table of color and attribute values, default is for mono display.
@@ -157,7 +157,7 @@ add_subwindow(WINDOW *parent, WINDOW *child)
 {
     DIALOG_WINDOWS *p = dlg_calloc(DIALOG_WINDOWS, 1);
 
-    if (p != 0) {
+    if (p != NULL) {
 	p->normal = parent;
 	p->shadow = child;
 	p->getc_timeout = WTIMEOUT_OFF;
@@ -170,14 +170,14 @@ static void
 del_subwindows(const WINDOW *parent)
 {
     DIALOG_WINDOWS *p = dialog_state.all_subwindows;
-    DIALOG_WINDOWS *q = 0;
+    DIALOG_WINDOWS *q = NULL;
     DIALOG_WINDOWS *r;
 
-    while (p != 0) {
+    while (p != NULL) {
 	if (p->normal == parent) {
 	    delwin(p->shadow);
 	    r = p->next;
-	    if (q == 0) {
+	    if (q == NULL) {
 		dialog_state.all_subwindows = r;
 	    } else {
 		q->next = r;
@@ -251,7 +251,7 @@ _dlg_resize_cleanup(WINDOW *w)
 }
 #endif /* KEY_RESIZE */
 
-#define isprivate(s) ((s) != 0 && strstr(s, "\033[?") != 0)
+#define isprivate(s) ((s) != NULL && strstr(s, "\033[?") != NULL)
 
 #define TTY_DEVICE "/dev/tty"
 
@@ -259,7 +259,7 @@ _dlg_resize_cleanup(WINDOW *w)
  * If $DIALOG_TTY exists, allow the program to try to open the terminal
  * directly when stdout is redirected.  By default we require the "--stdout"
  * option to be given, but some scripts were written making use of the
- * behavior of dialog which tried opening the terminal anyway. 
+ * behavior of dialog which tried opening the terminal anyway.
  */
 #define dialog_tty() (dlg_getenv_num("DIALOG_TTY", (int *)0) > 0)
 
@@ -272,11 +272,11 @@ open_terminal(char **result, int mode)
 {
     const char *device;
     if (!isatty(fileno(stderr))
-	|| (device = ttyname(fileno(stderr))) == 0) {
+	|| (device = ttyname(fileno(stderr))) == NULL) {
 	if (!isatty(fileno(stdout))
-	    || (device = ttyname(fileno(stdout))) == 0) {
+	    || (device = ttyname(fileno(stdout))) == NULL) {
 	    if (!isatty(fileno(stdin))
-		|| (device = ttyname(fileno(stdin))) == 0) {
+		|| (device = ttyname(fileno(stdin))) == NULL) {
 		device = TTY_DEVICE;
 	    }
 	}
@@ -311,7 +311,7 @@ void
 init_dialog(FILE *input, FILE *output)
 {
     int fd1, fd2;
-    char *device = 0;
+    char *device = NULL;
 
     setlocale(LC_ALL, "");
 
@@ -357,7 +357,7 @@ init_dialog(FILE *input, FILE *output)
 	if ((fd1 = open_terminal(&device, O_RDONLY)) >= 0) {
 	    if ((fd2 = dup(fileno(stdin))) >= 0) {
 		dialog_state.pipe_input = fdopen(fd2, "r");
-		if (freopen(device, "r", stdin) == 0)
+		if (freopen(device, "r", stdin) == NULL)
 		    dlg_exiterr("cannot open tty-input");
 		if (fileno(stdin) != 0)		/* some functions may read fd #0 */
 		    (void) dup2(fileno(stdin), 0);
@@ -388,8 +388,8 @@ init_dialog(FILE *input, FILE *output)
     if (!isatty(fileno(stdout))
 	&& (fileno(stdout) == fileno(output) || dialog_tty())) {
 	if ((fd1 = open_terminal(&device, O_WRONLY)) >= 0
-	    && (dialog_state.screen_output = fdopen(fd1, "w")) != 0) {
-	    if (newterm(NULL, dialog_state.screen_output, stdin) == 0) {
+	    && (dialog_state.screen_output = fdopen(fd1, "w")) != NULL) {
+	    if (newterm(NULL, dialog_state.screen_output, stdin) == NULL) {
 		dlg_exiterr("cannot initialize curses");
 	    }
 	    free(device);
@@ -433,7 +433,7 @@ dlg_keep_tite(FILE *output)
 	 */
 	if ((fileno(output) != fileno(stdout)
 	     || isatty(fileno(output)))
-	    && key_mouse != 0	/* xterm and kindred */
+	    && key_mouse != NULL	/* xterm and kindred */
 	    && isprivate(enter_ca_mode)
 	    && isprivate(exit_ca_mode)) {
 	    FILE *save = dialog_state.screen_output;
@@ -462,8 +462,8 @@ dlg_keep_tite(FILE *output)
 	     * implementation of alternate-screen in rxvt, etc., which clear
 	     * more of the display than they should.
 	     */
-	    enter_ca_mode = 0;
-	    exit_ca_mode = 0;
+	    enter_ca_mode = NULL;
+	    exit_ca_mode = NULL;
 	}
 #else
 	/*
@@ -714,7 +714,7 @@ dlg_print_listitem(WINDOW *win,
     int limit;
     chtype attrs[4];
 
-    if (text == 0)
+    if (text == NULL)
 	text = "";
 
     if (first && !dialog_vars.no_hot_list) {
@@ -936,7 +936,7 @@ dlg_print_line(WINDOW *win,
 {
     const char *wrap_ptr;
     const char *test_ptr;
-    const char *hide_ptr = 0;
+    const char *hide_ptr = NULL;
     const int *cols = dlg_index_columns(prompt);
     const int *indx = dlg_index_wchars(prompt);
     int wrap_inx = 0;
@@ -1007,7 +1007,7 @@ dlg_print_line(WINDOW *win,
      * If we found hidden text past the last point that we will display,
      * discount that from the displayed length.
      */
-    if ((hide_ptr != 0) && (hide_ptr >= wrap_ptr)) {
+    if ((hide_ptr != NULL) && (hide_ptr >= wrap_ptr)) {
 	hidden -= ESCAPE_LEN;
 	test_ptr = wrap_ptr;
 	while (test_ptr < wrap_ptr) {
@@ -1067,10 +1067,10 @@ justify_text(WINDOW *win,
 	rm -= (2 * MARGIN);
 	bm -= (2 * MARGIN);
     }
-    if (prompt == 0)
+    if (prompt == NULL)
 	prompt = "";
 
-    if (win != 0)
+    if (win != NULL)
 	getyx(win, last_y, last_x);
     while (y <= bm && *prompt) {
 	x = lm;
@@ -1079,34 +1079,34 @@ justify_text(WINDOW *win,
 	    while (*prompt == '\n' && y < bm) {
 		if (*(prompt + 1) != '\0') {
 		    ++y;
-		    if (win != 0)
+		    if (win != NULL)
 			(void) wmove(win, y, lm);
 		}
 		prompt++;
 	    }
-	} else if (win != 0)
+	} else if (win != NULL)
 	    (void) wmove(win, y, lm);
 
 	if (*prompt) {
 	    prompt = dlg_print_line(win, &attr, prompt, lm, rm, &x);
-	    if (win != 0)
+	    if (win != NULL)
 		getyx(win, last_y, last_x);
 	}
 	if (*prompt) {
 	    ++y;
-	    if (win != 0)
+	    if (win != NULL)
 		(void) wmove(win, y, lm);
 	}
 	max_x = MAX(max_x, x);
     }
     /* Move back to the last position after drawing prompt, for msgbox. */
-    if (win != 0)
+    if (win != NULL)
 	(void) wmove(win, last_y, last_x);
 
     /* Set the final height and width for the calling function */
-    if (high != 0)
+    if (high != NULL)
 	*high = y;
-    if (wide != 0)
+    if (wide != NULL)
 	*wide = max_x;
 }
 
@@ -1162,7 +1162,7 @@ dlg_print_scrolled(WINDOW *win,
 	    high = len;
 #endif
 	dummy = newwin(high, width, 0, 0);
-	if (dummy == 0) {
+	if (dummy == NULL) {
 	    dlg_attrset(win, dialog_attr);
 	    dlg_print_autowrap(win, prompt, height + 1 + (3 * MARGIN), width);
 	    last = 0;
@@ -1367,7 +1367,7 @@ real_auto_size(const char *title,
     int max_high;
     int max_wide;
 
-    if (prompt == 0) {
+    if (prompt == NULL) {
 	if (*height == 0)
 	    *height = -1;
 	if (*width == 0)
@@ -1386,9 +1386,9 @@ real_auto_size(const char *title,
     if (*width <= 0) {
 	int wide;
 
-	if (prompt != 0) {
+	if (prompt != NULL) {
 	    wide = MAX(title_length, mincols);
-	    if (strchr(prompt, '\n') == 0) {
+	    if (strchr(prompt, '\n') == NULL) {
 		double val = (dialog_state.aspect_ratio *
 			      dlg_count_real_columns(prompt));
 		double xxx = sqrt(val);
@@ -1415,7 +1415,7 @@ real_auto_size(const char *title,
 
     if (*width < mincols && save_wide == 0)
 	*width = mincols;
-    if (prompt != 0) {
+    if (prompt != NULL) {
 	*width += ((2 * MARGIN) + SHADOW_COLS);
 	*height += boxlines + (2 * MARGIN);
     }
@@ -1600,10 +1600,10 @@ dlg_draw_box(WINDOW *win, int y, int x, int height, int width,
 static DIALOG_WINDOWS *
 find_window(DIALOG_WINDOWS * list, const WINDOW *win, bool normal)
 {
-    DIALOG_WINDOWS *result = 0;
+    DIALOG_WINDOWS *result = NULL;
     DIALOG_WINDOWS *p;
 
-    for (p = list; p != 0; p = p->next) {
+    for (p = list; p != NULL; p = p->next) {
 	const WINDOW *check = normal ? p->normal : p->shadow;
 	if (check == win) {
 	    result = p;
@@ -1625,7 +1625,7 @@ find_window(DIALOG_WINDOWS * list, const WINDOW *win, bool normal)
 DIALOG_WINDOWS *
 _dlg_find_window(WINDOW *win)
 {
-    DIALOG_WINDOWS *result = 0;
+    DIALOG_WINDOWS *result = NULL;
 
     if ((result = SearchTopWindows(win)) == NULL)
 	result = SearchSubWindows(win);
@@ -1645,7 +1645,7 @@ _dlg_find_window(WINDOW *win)
 static WINDOW *
 in_window(WINDOW *win, int y, int x)
 {
-    WINDOW *result = 0;
+    WINDOW *result = NULL;
     int y_base = getbegy(win);
     int x_base = getbegx(win);
     int y_last = getmaxy(win) + y_base;
@@ -1659,19 +1659,19 @@ in_window(WINDOW *win, int y, int x)
 static WINDOW *
 window_at_cell(DIALOG_WINDOWS * dw, int y, int x)
 {
-    WINDOW *result = 0;
+    WINDOW *result = NULL;
     DIALOG_WINDOWS *p;
     int y_want = y + getbegy(dw->shadow);
     int x_want = x + getbegx(dw->shadow);
 
-    for (p = dialog_state.all_windows; p != 0; p = p->next) {
+    for (p = dialog_state.all_windows; p != NULL; p = p->next) {
 	if (dw->normal != p->normal
 	    && dw->shadow != p->normal
-	    && (result = in_window(p->normal, y_want, x_want)) != 0) {
+	    && (result = in_window(p->normal, y_want, x_want)) != NULL) {
 	    break;
 	}
     }
-    if (result == 0) {
+    if (result == NULL) {
 	result = stdscr;
     }
     return result;
@@ -1717,7 +1717,7 @@ last_shadow(DIALOG_WINDOWS * dw, int y, int x)
     DIALOG_WINDOWS *p;
     bool result = TRUE;
 
-    for (p = dialog_state.all_windows; p != 0; p = p->next) {
+    for (p = dialog_state.all_windows; p != NULL; p = p->next) {
 	if (p->normal != dw->normal
 	    && in_shadow(p->normal, dw->shadow, y, x)) {
 	    result = FALSE;
@@ -1734,7 +1734,7 @@ repaint_cell(DIALOG_WINDOWS * dw, bool draw, int y, int x)
     WINDOW *cellwin;
     int y2, x2;
 
-    if ((cellwin = window_at_cell(dw, y, x)) != 0
+    if ((cellwin = window_at_cell(dw, y, x)) != NULL
 	&& (draw || last_shadow(dw, y, x))
 	&& (y2 = (y + getbegy(win) - getbegy(cellwin))) >= 0
 	&& (x2 = (x + getbegx(win) - getbegx(cellwin))) >= 0
@@ -1899,12 +1899,12 @@ dlg_exit(int code)
 	 */
 	if (dialog_state.input) {
 	    fclose(dialog_state.input);
-	    dialog_state.input = 0;
+	    dialog_state.input = NULL;
 	}
 	if (dialog_state.pipe_input) {
 	    if (dialog_state.pipe_input != stdin) {
 		fclose(dialog_state.pipe_input);
-		dialog_state.pipe_input = 0;
+		dialog_state.pipe_input = NULL;
 	    }
 	}
 	_exit(code);
@@ -2025,7 +2025,7 @@ dlg_getenv_num(const char *name, int *value)
     if (data != NULL) {
 	char *temp = NULL;
 	long check = strtol(data, &temp, 0);
-	if (temp != 0 && temp != data && *temp == '\0') {
+	if (temp != NULL && temp != data && *temp == '\0') {
 	    result = (int) check;
 	    if (value != NULL) {
 		*value = result;
@@ -2162,8 +2162,8 @@ dlg_strempty(void)
 char *
 dlg_strclone(const char *cprompt)
 {
-    char *prompt = 0;
-    if (cprompt != 0) {
+    char *prompt = NULL;
+    if (cprompt != NULL) {
 	prompt = dlg_malloc(char, strlen(cprompt) + 1);
 	assert_ptr(prompt, "dlg_strclone");
 	strcpy(prompt, cprompt);
@@ -2303,21 +2303,21 @@ dlg_del_window(WINDOW *win)
      * We do this so the current window will not be cleared on exit, allowing
      * things like the infobox demo to run without flicker.
      */
-    if (dialog_state.getc_callbacks != 0) {
+    if (dialog_state.getc_callbacks != NULL) {
 	touchwin(stdscr);
 	wnoutrefresh(stdscr);
     }
 
-    for (p = dialog_state.all_windows, q = r = 0; p != 0; r = p, p = p->next) {
+    for (p = dialog_state.all_windows, q = r = NULL; p != NULL; r = p, p = p->next) {
 	if (p->normal == win) {
 	    q = p;		/* found a match - should be only one */
-	    if (r == 0) {
+	    if (r == NULL) {
 		dialog_state.all_windows = p->next;
 	    } else {
 		r->next = p->next;
 	    }
 	} else {
-	    if (p->shadow != 0) {
+	    if (p->shadow != NULL) {
 		touchwin(p->shadow);
 		wnoutrefresh(p->shadow);
 	    }
@@ -2327,7 +2327,7 @@ dlg_del_window(WINDOW *win)
     }
 
     if (q) {
-	if (dialog_state.all_windows != 0)
+	if (dialog_state.all_windows != NULL)
 	    erase_childs_shadow(q);
 	del_subwindows(q->normal);
 	dlg_unregister_window(q->normal);
@@ -2357,8 +2357,8 @@ dlg_new_modal_window(WINDOW *parent, int height, int width, int y, int x)
     DIALOG_WINDOWS *p = dlg_calloc(DIALOG_WINDOWS, 1);
 
     (void) parent;
-    if (p == 0
-	|| (win = newwin(height, width, y, x)) == 0) {
+    if (p == NULL
+	|| (win = newwin(height, width, y, x)) == NULL) {
 	dlg_exiterr("Can't make new window at (%d,%d), size (%d,%d).\n",
 		    y, x, height, width);
     }
@@ -2427,20 +2427,20 @@ dlg_reset_timeout(WINDOW *win)
 void
 dlg_move_window(WINDOW *win, int height, int width, int y, int x)
 {
-    if (win != 0) {
+    if (win != NULL) {
 	DIALOG_WINDOWS *p;
 
 	dlg_ctl_size(height, width);
 
-	if ((p = SearchTopWindows(win)) != 0) {
+	if ((p = SearchTopWindows(win)) != NULL) {
 	    (void) wresize(win, height, width);
 	    (void) mvwin(win, y, x);
 #ifdef HAVE_COLOR
-	    if (p->shadow != 0) {
+	    if (p->shadow != NULL) {
 		if (dialog_state.use_shadow) {
 		    (void) mvwin(p->shadow, y + SHADOW_ROWS, x + SHADOW_COLS);
 		} else {
-		    p->shadow = 0;
+		    p->shadow = NULL;
 		}
 	    }
 #endif
@@ -2495,7 +2495,7 @@ dlg_der_window(WINDOW *parent, int height, int width, int y, int x)
     /* existing uses of derwin are (almost) guaranteed to succeed, and the
      * caller has to allow for failure.
      */
-    if ((win = derwin(parent, height, width, y, x)) != 0) {
+    if ((win = derwin(parent, height, width, y, x)) != NULL) {
 	add_subwindow(parent, win);
 	(void) keypad(win, TRUE);
     }
@@ -2507,7 +2507,7 @@ dlg_sub_window(WINDOW *parent, int height, int width, int y, int x)
 {
     WINDOW *win;
 
-    if ((win = subwin(parent, height, width, y, x)) == 0) {
+    if ((win = subwin(parent, height, width, y, x)) == NULL) {
 	dlg_exiterr("Can't make sub-window at (%d,%d), size (%d,%d).\n",
 		    y, x, height, width);
     }
@@ -2523,9 +2523,9 @@ dlg_default_item(char **items, int llen)
 {
     int result = 0;
 
-    if (dialog_vars.default_item != 0) {
+    if (dialog_vars.default_item != NULL) {
 	int count = 0;
-	while (*items != 0) {
+	while (*items != NULL) {
 	    if (!strcmp(dialog_vars.default_item, *items)) {
 		result = count;
 		break;
@@ -2542,9 +2542,9 @@ dlg_default_listitem(DIALOG_LISTITEM * items)
 {
     int result = 0;
 
-    if (dialog_vars.default_item != 0) {
+    if (dialog_vars.default_item != NULL) {
 	int count = 0;
-	while (items->name != 0) {
+	while (items->name != NULL) {
 	    if (!strcmp(dialog_vars.default_item, items->name)) {
 		result = count;
 		break;
@@ -2639,7 +2639,7 @@ dlg_trim_string(char *s)
     char *base = s;
     char *p1;
     char *p = s;
-    int has_newlines = !dialog_vars.no_nl_expand && (strstr(s, "\\n") != 0);
+    int has_newlines = !dialog_vars.no_nl_expand && (strstr(s, "\\n") != NULL);
 
     while (*p != '\0') {
 	if (*p == TAB && !dialog_vars.nocollapse)
@@ -2704,7 +2704,7 @@ dlg_trim_string(char *s)
 void
 dlg_set_focus(WINDOW *parent, WINDOW *win)
 {
-    if (win != 0) {
+    if (win != NULL) {
 	(void) wmove(parent,
 		     getpary(win) + getcury(win),
 		     getparx(win) + getcurx(win));
@@ -2742,7 +2742,7 @@ dlg_clr_result(void)
 	if (dialog_vars.input_result)
 	    free(dialog_vars.input_result);
     }
-    dialog_vars.input_result = 0;
+    dialog_vars.input_result = NULL;
 }
 
 /*
@@ -2761,7 +2761,7 @@ dlg_set_result(const char *string)
      * If the buffer is not big enough, allocate a new one.
      */
     if (dialog_vars.input_length != 0
-	|| dialog_vars.input_result == 0
+	|| dialog_vars.input_result == NULL
 	|| need > MAX_LEN) {
 
 	dlg_clr_result();
@@ -2790,10 +2790,10 @@ dlg_add_result(const char *string)
 
     if ((want >= MAX_LEN)
 	|| (dialog_vars.input_length != 0)
-	|| (dialog_vars.input_result == 0)) {
+	|| (dialog_vars.input_result == NULL)) {
 
 	if (dialog_vars.input_length == 0
-	    || dialog_vars.input_result == 0) {
+	    || dialog_vars.input_result == NULL) {
 
 	    const char *save_result = dialog_vars.input_result;
 
@@ -2801,7 +2801,7 @@ dlg_add_result(const char *string)
 	    dialog_vars.input_result = dlg_malloc(char, dialog_vars.input_length);
 	    assert_ptr(dialog_vars.input_result, "dlg_add_result malloc");
 	    dialog_vars.input_result[0] = '\0';
-	    if (save_result != 0)
+	    if (save_result != NULL)
 		strcpy(dialog_vars.input_result, save_result);
 	} else if (want >= dialog_vars.input_length) {
 	    dialog_vars.input_length = want * 2;
@@ -3062,10 +3062,10 @@ WINDOW *
 dlg_wgetparent(WINDOW *win)
 {
 #undef wgetparent
-    WINDOW *result = 0;
+    WINDOW *result = NULL;
     DIALOG_WINDOWS *p;
 
-    for (p = dialog_state.all_subwindows; p != 0; p = p->next) {
+    for (p = dialog_state.all_subwindows; p != NULL; p = p->next) {
 	if (p->shadow == win) {
 	    result = p->normal;
 	    break;

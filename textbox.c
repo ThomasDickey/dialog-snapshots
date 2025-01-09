@@ -1,9 +1,9 @@
 /*
- *  $Id: textbox.c,v 1.135 2024/04/08 23:21:41 tom Exp $
+ *  $Id: textbox.c,v 1.136 2025/01/09 22:33:20 tom Exp $
  *
  *  textbox.c -- implements the text box
  *
- *  Copyright 2000-2022,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -249,11 +249,11 @@ tabize(MY_OBJ * obj, long val, long *first_pos)
 	dlg_exiterr("Error reading file in tabize().");
 
     begin_line = count = 0;
-    if (first_pos != 0)
+    if (first_pos != NULL)
 	*first_pos = 0;
 
     for (i = 0; i < val; i++) {
-	if ((first_pos != 0) && (count >= val)) {
+	if ((first_pos != NULL) && (count >= val)) {
 	    *first_pos = find_first(obj, buftab, i);
 	    break;
 	}
@@ -319,7 +319,7 @@ static bool
 match_string(MY_OBJ * obj, const char *string)
 {
     char *match = get_line(obj);
-    return strstr(match, string) != 0;
+    return strstr(match, string) != NULL;
 }
 
 /*

@@ -1,9 +1,9 @@
 /*
- *  $Id: columns.c,v 1.13 2024/04/08 23:33:09 tom Exp $
+ *  $Id: columns.c,v 1.14 2025/01/09 22:33:20 tom Exp $
  *
  *  columns.c -- implements column-alignment
  *
- *  Copyright 2008-2022,2024	Thomas E. Dickey
+ *  Copyright 2008-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -31,11 +31,11 @@
 static char *
 column_separator(void)
 {
-    char *result = 0;
+    char *result = NULL;
 
-    if ((result = dialog_vars.column_separator) != 0) {
+    if ((result = dialog_vars.column_separator) != NULL) {
 	if (*result == '\0')
-	    result = 0;
+	    result = NULL;
     }
     return result;
 }
@@ -66,7 +66,7 @@ static unsigned
 split_row(char *source, unsigned *offsets, unsigned *widths)
 {
     int mark = (int) strlen(column_separator());
-    char *next = 0;
+    char *next = NULL;
     unsigned result = 0;
     unsigned offset = 0;
 
@@ -77,7 +77,7 @@ split_row(char *source, unsigned *offsets, unsigned *widths)
 	}
 	offsets[result] = offset;
 	++result;
-    } while ((next = next_col(source, offset)) != 0);
+    } while ((next = next_col(source, offset)) != NULL);
 
     offset = (unsigned) strlen(source);
     widths[result - 1] = offset - offsets[result - 1];

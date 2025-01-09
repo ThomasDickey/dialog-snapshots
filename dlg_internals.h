@@ -1,9 +1,9 @@
 /*
- *  $Id: dlg_internals.h,v 1.10 2024/03/07 21:14:56 tom Exp $
+ *  $Id: dlg_internals.h,v 1.12 2025/01/09 22:34:49 tom Exp $
  *
  *  dlg_internals.h -- internal definitions for dialog
  *
- *  Copyright 2019-2022,2024	Thomas E. Dickey
+ *  Copyright 2019-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -226,7 +226,7 @@ extern "C" {
 
 #define UCH(ch)            ((unsigned char)(ch))
 
-#define assert_ptr(ptr,msg) if ((ptr) == 0) dlg_exiterr("cannot allocate memory in " msg)
+#define assert_ptr(ptr,msg) if ((ptr) == NULL) dlg_exiterr("cannot allocate memory in " msg)
 
 #define dlg_malloc(t,n)    (t *) malloc((size_t)(n) * sizeof(t))
 #define dlg_calloc(t,n)    (t *) calloc((size_t)(n), sizeof(t))

@@ -1,9 +1,9 @@
 /*
- *  $Id: rc.c,v 1.63 2024/04/08 23:33:09 tom Exp $
+ *  $Id: rc.c,v 1.64 2025/01/09 22:33:20 tom Exp $
  *
  *  rc.c -- routines for processing the configuration file
  *
- *  Copyright 2000-2022,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -539,7 +539,7 @@ dlg_parse_rc(void)
     char *value;
     char *filename;
     int result = 0;
-    FILE *rc_file = 0;
+    FILE *rc_file = NULL;
     char *params;
 
     /*

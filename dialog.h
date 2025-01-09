@@ -1,9 +1,9 @@
 /*
- *  $Id: dialog.h,v 1.310 2024/03/07 15:36:26 tom Exp $
+ *  $Id: dialog.h,v 1.312 2025/01/09 22:34:30 tom Exp $
  *
  *  dialog.h -- common declarations for all dialog modules
  *
- *  Copyright 2000-2023,2024	Thomas E. Dickey
+ *  Copyright 2000-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -450,7 +450,7 @@ typedef struct {
     bool no_hot_list;		/* option "--no-hot-list" */
 } DIALOG_VARS;
 
-#define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != 0)
+#define USE_ITEM_HELP(s)        (dialog_vars.item_help && (s) != NULL)
 
 /*
  * Some settings change the number of data items per row which dialog reads

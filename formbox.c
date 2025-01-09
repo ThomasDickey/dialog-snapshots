@@ -1,9 +1,9 @@
 /*
- *  $Id: formbox.c,v 1.108 2024/04/08 23:28:10 tom Exp $
+ *  $Id: formbox.c,v 1.109 2025/01/09 22:33:20 tom Exp $
  *
  *  formbox.c -- implements the form (i.e., some pairs label/editbox)
  *
- *  Copyright 2003-2022,2024	Thomas E. Dickey
+ *  Copyright 2003-2024,2025	Thomas E. Dickey
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License, version 2.1
@@ -180,7 +180,7 @@ form_limit(DIALOG_FORMITEM item[])
 {
     int n;
     int limit = 0;
-    for (n = 0; item[n].name != 0; ++n) {
+    for (n = 0; item[n].name != NULL; ++n) {
 	if (limit < item[n].name_y)
 	    limit = item[n].name_y;
 	if (limit < item[n].text_y)
@@ -311,7 +311,7 @@ scroll_next(WINDOW *win, DIALOG_FORMITEM item[], int stepsize, int *choice, int 
     if (result) {
 	int n;
 
-	for (n = 0; item[n].name != 0; ++n) {
+	for (n = 0; item[n].name != NULL; ++n) {
 	    if (item[n].text_flen > 0) {
 		int new_row = MIN(item[n].text_y, item[n].name_y);
 		if (abs(new_row - target) < abs(old_row - target)) {
@@ -409,9 +409,9 @@ dlg_default_formitem(DIALOG_FORMITEM * items)
 {
     int result = 0;
 
-    if (dialog_vars.default_item != 0) {
+    if (dialog_vars.default_item != NULL) {
 	int count = 0;
-	while (items->name != 0) {
+	while (items->name != NULL) {
 	    if (!strcmp(dialog_vars.default_item, items->name)) {
 		result = count;
 		break;
@@ -903,7 +903,7 @@ void
 dlg_free_formitems(DIALOG_FORMITEM * items)
 {
     int n;
-    for (n = 0; items[n].name != 0; ++n) {
+    for (n = 0; items[n].name != NULL; ++n) {
 	if (items[n].name_free)
 	    free(items[n].name);
 	if (items[n].text_free)
