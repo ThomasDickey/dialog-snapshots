@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.826 2025/01/13 01:26:55 tom Exp $
+-- $Id: CHANGES,v 1.827 2025/01/13 09:25:35 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2025/01/14
+	+ use $ LIB_ROOTNAME, e.g., set by --with-libname, in generating
+	  *-config and ".pc" files
 
 2025/01/12
 	+ further improvements to matching output from *-config and ".pc"
