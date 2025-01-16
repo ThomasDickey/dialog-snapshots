@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.827 2025/01/13 09:25:35 tom Exp $
+-- $Id: CHANGES,v 1.830 2025/01/16 21:33:38 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2025/01/16
+	+ modify dialog-config.in to allow for include-subdirectory.
+	+ update configure script macros for changes made with Cdk.
 
 2025/01/14
 	+ use $ LIB_ROOTNAME, e.g., set by --with-libname, in generating

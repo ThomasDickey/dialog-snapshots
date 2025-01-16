@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.108 2025/01/09 22:03:08 tom Exp $
+dnl $Id: configure.in,v 1.109 2025/01/15 22:26:26 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2024,2025 -- Thomas E. Dickey
@@ -120,6 +120,7 @@ CF_ENABLE_RPATH
 CF_LD_RPATH_OPT
 CF_PIC_HACK
 CF_WITH_SHARED_OR_LIBTOOL(DIALOG,${VERSION_MAJOR}.${VERSION_MINOR},`echo "$VERSION" |sed -e 's/:/./g'`)
+CF_WITH_VERSIONED_SYMS
 
 CF_WITH_CURSES_DIR
 
