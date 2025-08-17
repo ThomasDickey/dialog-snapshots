@@ -1,5 +1,5 @@
 /*
- *  $Id: trace.c,v 1.36 2025/01/09 22:33:20 tom Exp $
+ *  $Id: trace.c,v 1.37 2025/08/17 21:39:28 tom Exp $
  *
  *  trace.c -- implements screen-dump and keystroke-logging
  *
@@ -153,7 +153,7 @@ dlg_trace_win(WINDOW *win)
 		    c2 = dlg_asciibox(ch);
 		    if (c2 != 0) {
 			ch = c2;
-		    } else if (unctrl(ch) == 0 || strlen(unctrl(ch)) > 1) {
+		    } else if (unctrl(ch) == NULL || strlen(unctrl(ch)) > 1) {
 			ch = '.';
 		    }
 		    fputc((int) (ch & 0xff), myFP);

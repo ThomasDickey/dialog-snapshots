@@ -1,5 +1,5 @@
 /*
- *  $Id: inputstr.c,v 1.97 2025/01/09 22:33:20 tom Exp $
+ *  $Id: inputstr.c,v 1.98 2025/08/17 23:55:08 tom Exp $
  *
  *  inputstr.c -- functions for input/display of a string
  *
@@ -177,7 +177,7 @@ load_cache(int cache_num, const char *string)
 }
 #else
 static CACHE my_cache;
-#define SAME_CACHE(c,s,l) (c->string != 0)
+#define SAME_CACHE(c,s,l) (c->string != NULL)
 #define load_cache(cache, string) &my_cache
 #endif /* USE_CACHING */
 

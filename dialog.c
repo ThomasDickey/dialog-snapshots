@@ -1,5 +1,5 @@
 /*
- * $Id: dialog.c,v 1.295 2025/01/09 22:33:20 tom Exp $
+ * $Id: dialog.c,v 1.296 2025/08/17 20:04:40 tom Exp $
  *
  *  cdialog - Display simple dialog boxes from shell scripts
  *
@@ -1030,13 +1030,10 @@ call_timebox(CALLARGS)
 
 #define DisableNoTags() \
 	bool save_no_tags = dialog_vars.no_tags; \
-	bool save_no_items = dialog_vars.no_items; \
-	dialog_vars.no_tags = TRUE; \
-	dialog_vars.no_items = FALSE
+	dialog_vars.no_tags = TRUE
 
 #define RestoreNoTags() \
-	dialog_vars.no_tags = save_no_tags; \
-	dialog_vars.no_items = save_no_items
+	dialog_vars.no_tags = save_no_tags
 
 static int
 call_buildlist(CALLARGS)

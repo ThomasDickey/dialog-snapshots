@@ -1,5 +1,5 @@
 dnl macros used for DIALOG configure script
-dnl $Id: aclocal.m4,v 1.195 2025/01/15 22:25:31 tom Exp $
+dnl $Id: aclocal.m4,v 1.196 2025/08/05 08:09:09 tom Exp $
 dnl ---------------------------------------------------------------------------
 dnl Copyright 1999-2024,2025 -- Thomas E. Dickey
 dnl
@@ -718,17 +718,51 @@ done
 ifelse($2,,LIBS,[$2])="$cf_add_libs"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_LIB_AFTER version: 3 updated: 2013/07/09 21:27:22
+dnl CF_ADD_LIB_AFTER version: 4 updated: 2025/06/14 06:46:23
 dnl ----------------
 dnl Add a given library after another, e.g., following the one it satisfies a
 dnl dependency for.
 dnl
 dnl $1 = the first library
 dnl $2 = its dependency
+dnl $3 = variable to update (default $LIBS)
 AC_DEFUN([CF_ADD_LIB_AFTER],[
-CF_VERBOSE(...before $LIBS)
-LIBS=`echo "$LIBS" | sed -e "s/[[ 	]][[ 	]]*/ /g" -e "s%$1 %$1 $2 %" -e 's%  % %g'`
-CF_VERBOSE(...after  $LIBS)
+cf_add_libs="[$]ifelse($3,,LIBS,[$3])"
+CF_VERBOSE(...before $cf_add_libs)
+for cf_add_1lib in $2; do
+	# filter duplicates
+	cf_found_2lib=no
+	for cf_add_2lib in $cf_add_libs; do
+		if test "x$cf_add_1lib" = "x$cf_add_2lib"; then
+			cf_found_2lib=yes
+			break
+		fi
+	done
+	# if not a duplicate, find the dependent library
+	if test "$cf_found_2lib" = no
+	then
+		cf_found_2lib=no
+		cf_add_2libs=
+		for cf_add_2lib in $cf_add_libs
+		do
+			test -n "$cf_add_2libs" && cf_add_2libs="$cf_add_2libs "
+			cf_add_2libs="$cf_add_2libs$cf_add_2lib"
+			if test "x$cf_add_2lib" = "x$1"
+			then
+				cf_found_2lib=yes
+				cf_add_2libs="$cf_add_2libs $cf_add_1lib"
+			fi
+		done
+		if test "$cf_found_2lib" = yes
+		then
+			cf_add_libs="$cf_add_2libs"
+		else
+			CF_VERBOSE(...missed $1)
+		fi
+	fi
+done
+CF_VERBOSE(...after  $cf_add_libs)
+ifelse($3,,LIBS,[$3])="$cf_add_libs"
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_ADD_OPTIONAL_PATH version: 6 updated: 2024/09/10 19:19:44
@@ -864,7 +898,7 @@ ifelse($5,,[	:],$5)
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 5 updated: 2015/05/10 19:52:14
+dnl CF_ARG_OPTION version: 6 updated: 2025/08/05 04:09:09
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -873,7 +907,7 @@ dnl Parameters:
 dnl $1 = option name
 dnl $2 = help-string
 dnl $3 = action to perform if option is not default
-dnl $4 = action if perform if option is default
+dnl $4 = action to perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
 [AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
@@ -3140,16 +3174,18 @@ AC_DEFUN([CF_LIB_SUFFIX],
 	fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 21 updated: 2021/09/04 06:47:34
+dnl CF_MAKEFLAGS version: 22 updated: 2025/07/05 16:17:37
 dnl ------------
 dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
 dnl options to lower-levels.  It is very useful for "make -n" -- if we have it.
-dnl (GNU 'make' does both, something POSIX 'make', which happens to make the
-dnl ${MAKEFLAGS} variable incompatible because it adds the assignments :-)
+dnl POSIX accommodates both by pretending they are the same variable, adding
+dnl the behavior of the latter to the former.
 AC_DEFUN([CF_MAKEFLAGS],
 [AC_REQUIRE([AC_PROG_FGREP])dnl
 
 AC_CACHE_CHECK(for makeflags variable, cf_cv_makeflags,[
+	cf_save_makeflags="$MAKEFLAGS"; unset MAKEFLAGS
+	cf_save_mflags="$MFLAGS";       unset MFLAGS
 	cf_cv_makeflags=''
 	for cf_option in '-${MAKEFLAGS}' '${MFLAGS}'
 	do
@@ -3177,6 +3213,8 @@ CF_EOF
 			;;
 		esac
 	done
+	test -n "$cf_save_makeflags" && MAKEFLAGS="$cf_save_makeflags"
+	test -n "$cf_save_mflags"    && MFLAGS="$cf_save_mflags"
 	rm -f cf_makeflags.tmp
 ])
 
@@ -4535,7 +4573,7 @@ do
 done
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 112 updated: 2024/12/14 16:09:34
+dnl CF_SHARED_OPTS version: 113 updated: 2025/06/21 06:49:01
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -4830,7 +4868,7 @@ CF_EOF
 				-L*)
 					ldopts+=("\`echo \"\[$]1\" | sed \"s/^-L/-LIBPATH:/\"\`")
 					;;
-				*.obj | *.o)
+				*.obj | *.$OBJEXT)
 					ldopts+=("\[$]1")
 					;;
 				-Wl,*)
@@ -5194,13 +5232,13 @@ if test "$cf_cv_sizechange" != no ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_STRUCT_TERMIOS version: 13 updated: 2023/12/03 19:38:54
+dnl CF_STRUCT_TERMIOS version: 14 updated: 2025/07/19 12:19:51
 dnl -----------------
 dnl Some machines require _POSIX_SOURCE to completely define struct termios.
 AC_DEFUN([CF_STRUCT_TERMIOS],[
 AC_REQUIRE([CF_XOPEN_SOURCE])
 
-AC_CHECK_HEADERS( \
+AC_CHECK_HEADERS( sgtty.h \
 termio.h \
 termios.h \
 unistd.h \
@@ -5774,7 +5812,7 @@ fi
 AC_SUBST(DESTDIR)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 36 updated: 2021/01/01 13:31:04
+dnl CF_WITH_LIBTOOL version: 37 updated: 2025/06/21 06:49:01
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -5858,7 +5896,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	fi
 ])dnl
 	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${libdir} ${LIBTOOL_VERSION} `cut -f1 ${top_srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
-	LIB_OBJECT='${OBJECTS:.o=.lo}'
+	LIB_OBJECT='${OBJECTS:.$OBJEXT=.lo}'
 	LIB_SUFFIX=.la
 	LIB_CLEAN='${LIBTOOL} --mode=clean'
 	LIB_COMPILE='${LIBTOOL} --mode=compile'
@@ -6426,14 +6464,14 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_SHARED_OR_LIBTOOL version: 8 updated: 2025/01/15 17:07:11
+dnl CF_WITH_SHARED_OR_LIBTOOL version: 9 updated: 2025/01/19 05:13:05
 dnl -------------------------
 dnl Provide shared libraries using either autoconf macros (--with-shared) or
 dnl using the external libtool script (--with-libtool).
 dnl
 dnl $1 = program name (all caps preferred)
-dnl $1 = release version
-dnl $2 = ABI version
+dnl $2 = release version
+dnl $3 = ABI version
 define([CF_WITH_SHARED_OR_LIBTOOL],[
 
 REL_VERSION=$2
@@ -6538,7 +6576,7 @@ CF_NO_LEAKS_OPTION(valgrind,
 	[USE_VALGRIND])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_VERSIONED_SYMS version: 15 updated: 2025/01/15 17:07:11
+dnl CF_WITH_VERSIONED_SYMS version: 16 updated: 2025/01/19 15:27:13
 dnl ----------------------
 dnl Use this when building shared library with ELF, to markup symbols with the
 dnl version identifier from the given input file.  Generally that identifier is
@@ -6587,11 +6625,13 @@ then
 		VERSIONED_SYMS="-Wl,--version-script,\${RESULTING_SYMS}"
 		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-Wl,%\\[$]{VERSIONED_SYMS} -Wl,%"`
 		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		LIB_CREATE="[$]MK_SHARED_LIB"
 		;;
 	(*-dy\ *)
 		VERSIONED_SYMS="-Wl,-M,\${RESULTING_SYMS}"
 		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-dy%\\[$]{VERSIONED_SYMS} -dy%"`
 		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		LIB_CREATE="[$]MK_SHARED_LIB"
 		;;
 	(*)
 		AC_MSG_WARN(this system does not support versioned-symbols)
@@ -6749,7 +6789,7 @@ esac
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 68 updated: 2024/11/09 18:07:29
+dnl CF_XOPEN_SOURCE version: 69 updated: 2025/07/26 14:09:49
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -6809,7 +6849,7 @@ case "$host_os" in
 	cf_xopen_source="-D_SGI_SOURCE"
 	cf_XOPEN_SOURCE=
 	;;
-(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
+(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnuabielfv*|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
 	CF_GNU_SOURCE($cf_XOPEN_SOURCE)
 	;;
 linux*musl)
@@ -6908,7 +6948,7 @@ fi
 fi # cf_cv_posix_visible
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_X_ATHENA version: 25 updated: 2023/01/11 04:05:23
+dnl CF_X_ATHENA version: 26 updated: 2025/06/14 06:46:23
 dnl -----------
 dnl Check for Xaw (Athena) libraries
 dnl
@@ -6978,8 +7018,6 @@ if test "$PKG_CONFIG" != none ; then
 			CF_UPPER(cf_x_athena_LIBS,HAVE_LIB_$cf_x_athena)
 			AC_DEFINE_UNQUOTED($cf_x_athena_LIBS)
 
-			CF_TRIM_X_LIBS
-
 AC_CACHE_CHECK(for usable $cf_x_athena/Xmu package,cf_cv_xaw_compat,[
 AC_TRY_LINK([
 $ac_includes_default
@@ -7005,7 +7043,6 @@ int check = XmuCompareISOLatin1("big", "small");
 						],[
 							CF_ADD_LIB_AFTER($cf_first_lib,-lXmu)
 						])
-					CF_TRIM_X_LIBS
 					;;
 				esac
 			fi
