@@ -1,8 +1,12 @@
--- $Id: CHANGES,v 1.832 2025/08/17 20:08:23 tom Exp $
+-- $Id: CHANGES,v 1.834 2025/10/01 22:27:51 tom Exp $
 -- Thomas E. Dickey <dickey@invisible-island.net>
 
 This version of dialog was originally from a Debian snapshot.  I've done this
 to it:
+
+2025/10/01
+	+ configure script fixes for compiler warnings
+	+ update config.guess, config.sub
 
 2025/08/17
 	+ amend macros for temporarily disabling --no-tags in buildlist and
